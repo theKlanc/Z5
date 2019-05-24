@@ -7,6 +7,7 @@ $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/de
 endif
 
 TOPDIR ?= $(CURDIR)
+$(info $(CURDIR))
 include $(DEVKITPRO)/libnx/switch_rules
 
 #---------------------------------------------------------------------------------
@@ -30,30 +31,35 @@ include $(DEVKITPRO)/libnx/switch_rules
 #     - icon.jpg
 #     - <libnx folder>/default_icon.jpg
 #---------------------------------------------------------------------------------
-TARGET		:=	binSwitch/Z3
-BUILD		:=	build
-SOURCES		:=	source
+TARGET		:=	bin/switch/Z5
+BUILD		:=	buildSwitch
+SOURCES		:=	source  source/states deps/HardwareInterface
 DATA		:=	data
-INCLUDES	:=	include
-EXEFS_SRC	:=	exefs_src
+INCLUDES	:=	include deps  deps/HardwareInterface
 #ROMFS	:=	romfs
+
+
+APP_TITLE	:= Z5
+APP_AUTHOR	:= Klanc
+APP_VERSION	:= 0.1
+APP_TITLEID	:= 0100F33DC0DEBABE
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
+ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
+CFLAGS	:=	-g -O0 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS	:= $(CFLAGS)  -fno-exceptions -fno-rtti -std=c++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lnx -lm
+LIBS	:= `$(PORTLIBS)/bin/sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `$(PORTLIBS)/bin/freetype-config --libs` -lstdc++fs
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -107,7 +113,6 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-export BUILD_EXEFS_SRC := $(TOPDIR)/$(EXEFS_SRC)
 
 ifeq ($(strip $(ICON)),)
 	icons := $(wildcard *.jpg)

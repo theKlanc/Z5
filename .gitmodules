@@ -1,3 +1,6 @@
 [submodule "HardwareInterface"]
 	path = HardwareInterface
 	url = https://github.com/theKlanc/HardwareInterface
+[submodule "deps/FastNoise"]
+	path = deps/FastNoise
+	url = https://github.com/Auburns/FastNoise

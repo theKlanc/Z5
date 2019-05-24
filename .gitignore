@@ -1,2 +1,8 @@
 CMakeLists.txt.user
 CMakeFiles/
+binLinux/
+binSwitch/
+bin/
+build/
+obj/
+doc/

@@ -1,9 +1,10 @@
-#include <iostream>
+#include "gameCore.h"
+#include <cstdint>
+#include <stdint.h>
+#include <time.h>
 
-using namespace std;
-
-int main()
-{
-    cout << "Hello World!" << endl;
-    return 0;
+int main() {
+	gameCore core;
+	core.startGameLoop();
+	return 0;
 }
