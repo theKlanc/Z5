@@ -1,8 +1,8 @@
 APPNAME := Z5
 BINDIR	:= bin
 PLATFORM    := linux
-SOURCES := source deps/HardwareInterface
-INCLUDE := include deps
+SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
+INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src
 
 BUILDDIR := build
 
@@ -10,7 +10,7 @@ FLAGS    := -O3 -ffast-math -D__LINUX__ -Xlinker -Map=$(BUILDDIR)/$(PLATFORM)/$(
 CCFLAGS  := $(FLAGS) `sdl2-config --cflags` `pkgconf --cflags freetype2`
 CXXFLAGS := $(FLAGS) -std=c++17
 
-LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs
+LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs -lSDL2_mixer
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 

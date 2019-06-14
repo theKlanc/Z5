@@ -2,16 +2,31 @@
 #include <iostream>
 #include "gameCore.h"
 #include "HardwareInterface/HardwareInterface.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_audio.h"
+#include "SDL2/SDL_mixer.h"
 
 State::Demo::Demo(gameCore& c): State_Base(c){
 	pixelSpd.x=1;
 	pixelSpd.y=1;
 	pixelPos.x=60;
 	pixelPos.y=60;
-	texture=HI2::Texture("test.bmp");
-	font= HI2::Font("test.ttf");
-	//texture=HI2::Texture("test.bmp");
-	//font=HI2::Font("test.ttf");
+	texture=HI2::Texture("romfs:/test.bmp");
+	font= HI2::Font("romfs:/test.ttf");
+	effect= HI2::Audio("romfs:/oof.mp3",false,1);
+	//--
+
+
+    // Load sound file to use
+    // Sound from https://freesound.org/people/jens.enk/sounds/434610/
+
+	//---
+}
+
+State::Demo::~Demo(){
+	texture.clean();
+	font.clean();
+	effect.clean();
 }
 
 void State::Demo::input() {
@@ -40,6 +55,10 @@ void State::Demo::input() {
 	if(held & HI2::BUTTON::KEY_A){
 		done=true;
 	}
+	if(held & HI2::BUTTON::KEY_B){
+		HI2::playSound(effect);
+		std::cout<<"Played Sound"<<std::endl;
+	}
 }
 
 void State::Demo::update(float dt) {
@@ -67,8 +86,8 @@ void State::Demo::update(float dt) {
 
 void State::Demo::draw() {
 	HI2::startFrame();
-	HI2::drawRectangle(pixelPos,40,40,RGBA8(255,255,255,255));
 	HI2::drawTexture(texture,0,0);
-	HI2::drawText(font,"LMAOOO",point2D{0,0},1,RGBA8(0,255,0,255));
+	HI2::drawText(font,"OOF",point2D{0,0},1,RGBA8(0,255,0,255));
+	HI2::drawRectangle(pixelPos,40,40,RGBA8(255,255,255,255));
 	HI2::endFrame();
 }

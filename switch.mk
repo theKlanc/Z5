@@ -33,10 +33,10 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	bin/switch/Z5
 BUILD		:=	buildSwitch
-SOURCES		:=	source  source/states deps/HardwareInterface
+SOURCES		:=	source  source/states deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
 DATA		:=	data
-INCLUDES	:=	include deps  deps/HardwareInterface
-#ROMFS	:=	romfs
+INCLUDES	:=	include deps  deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
+ROMFS	:=	romfs
 
 
 APP_TITLE	:= Z5
@@ -52,14 +52,14 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g -O0 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --cflags SDL2_mixer`
 
 CXXFLAGS	:= $(CFLAGS)  -fno-exceptions -fno-rtti -std=c++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= `$(PORTLIBS)/bin/sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `$(PORTLIBS)/bin/freetype-config --libs` -lstdc++fs
+LIBS	:= `$(PORTLIBS)/bin/sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng -lwebp `$(PORTLIBS)/bin/freetype-config --libs` -lstdc++fs `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --libs SDL2_mixer`
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
