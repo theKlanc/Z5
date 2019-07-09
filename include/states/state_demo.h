@@ -15,7 +15,7 @@ namespace State {
 		void draw() override;
 
 	  private:
-		HI2::Texture texture;
+		HI2::Texture* texture;
 		HI2::Font font;
 		HI2::Audio effect;
 		Mix_Music *audio;

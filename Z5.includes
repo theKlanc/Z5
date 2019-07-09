@@ -31,3 +31,4 @@ deps/cereal/external
 deps/cereal/types/concepts
 deps/cereal/external/rapidxml
 deps/HardwareInterface/Switch
+include/components

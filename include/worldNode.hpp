@@ -4,10 +4,12 @@
 
 
 class worldNode {
-  private:
-	std::vector<std::unique_ptr<worldNode>> children;
-	worldNode *parent;
-
-  public:
+public:
 	worldNode();
+  private:
+	
+	
+	std::vector<worldNode> _children;
+	std::weak_ptr<worldNode> _parent;
+  
 };

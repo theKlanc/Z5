@@ -12,12 +12,10 @@ class gameCore {
 	void popState(int n = 1);
 	void startGameLoop();
 	void quit();
-	// graphics &getGraphicsObj();
 
   private:
 	void clean();
 	int pop;
 	std::stack<std::unique_ptr<State::State_Base>> states;
-	// graphics graphicsObj;
 	bool exit;
 };

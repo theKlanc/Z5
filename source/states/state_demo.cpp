@@ -11,9 +11,10 @@ State::Demo::Demo(gameCore& c): State_Base(c){
 	pixelSpd.y=1;
 	pixelPos.x=60;
 	pixelPos.y=60;
-	texture=HI2::Texture("romfs:/test.bmp");
-	font= HI2::Font("romfs:/test.ttf");
-	effect= HI2::Audio("romfs:/oof.mp3",false,1);
+	texture=_graphics.loadTexture("test.bmp");
+	_graphics.loadTexture("test2.bmp");
+	font= HI2::Font(HI2::getDataPath().string()+"test.ttf");
+	effect= HI2::Audio(HI2::getDataPath().string()+"oof.mp3",false,1);
 	//--
 
 
@@ -24,7 +25,6 @@ State::Demo::Demo(gameCore& c): State_Base(c){
 }
 
 State::Demo::~Demo(){
-	texture.clean();
 	font.clean();
 	effect.clean();
 }
@@ -86,7 +86,8 @@ void State::Demo::update(float dt) {
 
 void State::Demo::draw() {
 	HI2::startFrame();
-	HI2::drawTexture(texture,0,0);
+	if(texture != nullptr)
+		HI2::drawTexture(*texture,0,0,2);
 	HI2::drawText(font,"OOF",point2D{0,0},1,RGBA8(0,255,0,255));
 	HI2::drawRectangle(pixelPos,40,40,RGBA8(255,255,255,255));
 	HI2::endFrame();

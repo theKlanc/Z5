@@ -6,7 +6,7 @@ INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src
 
 BUILDDIR := build
 
-FLAGS    := -O3 -ffast-math -D__LINUX__ -Xlinker -Map=$(BUILDDIR)/$(PLATFORM)/$(APPNAME).map -Werror=return-type
+FLAGS    := -ggdb -O0 -ffast-math -D__LINUX__ -Xlinker -Map=$(BUILDDIR)/$(PLATFORM)/$(APPNAME).map -Werror=return-type
 CCFLAGS  := $(FLAGS) `sdl2-config --cflags` `pkgconf --cflags freetype2`
 CXXFLAGS := $(FLAGS) -std=c++17
 
