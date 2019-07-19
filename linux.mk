@@ -1,18 +1,27 @@
 APPNAME := Z5
 BINDIR	:= bin
-PLATFORM    := linux
+PLATFORM := linux
 SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
 INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src
 
 BUILDDIR := build
 
-FLAGS    := -ggdb -O0 -ffast-math -D__LINUX__ -Xlinker -Map=$(BUILDDIR)/$(PLATFORM)/$(APPNAME).map -Werror=return-type
-CCFLAGS  := $(FLAGS) `sdl2-config --cflags` `pkgconf --cflags freetype2`
-CXXFLAGS := $(FLAGS) -std=c++17
+FLAGS    := -D__LINUX__ -Werror=return-type
+CCFLAGS  := `sdl2-config --cflags` `pkgconf --cflags freetype2`
+CXXFLAGS := -std=c++17
 
 LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs -lSDL2_mixer
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
+
+
+ifeq ($(DEBUG), 1)
+FLAGS := $(FLAGS) -g3 -O0 -fstack-protector-all -fbuiltin
+else
+FLAGS := $(FLAGS) -O3 -ffast-math
+endif
+CCFLAGS := $(FLAGS) $(CCFLAGS)
+CXXFLAGS := $(FLAGS) $(CXXFLAGS)
 
 TOPDIR ?= $(CURDIR)
 

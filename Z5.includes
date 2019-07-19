@@ -32,3 +32,5 @@ deps/cereal/types/concepts
 deps/cereal/external/rapidxml
 deps/HardwareInterface/Switch
 include/components
+include/nodeTypes
+source/nodeTypes

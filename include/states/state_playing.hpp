@@ -1,11 +1,12 @@
 #pragma once
-#include "states/state_base.h"
-#include <string>
+#include "state_base.hpp"
 
 namespace State {
-	class MainMenu : public State_Base {
+	class Playing : public State_Base {
 	  public:
-		MainMenu();
+		Playing();
+		Playing(gameCore &gc);
+
 		void input() override;
 		void update(float dt) override;
 		void draw() override;

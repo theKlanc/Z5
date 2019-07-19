@@ -1,4 +1,4 @@
-#include "gameCore.h"
+#include "gameCore.hpp"
 #include <cstdint>
 #include <stdint.h>
 #include <time.h>
@@ -6,7 +6,6 @@
 
 int main() {
 	gameCore core;
-	std::cout << "LMAO";
 	core.startGameLoop();
 	return 0;
 }

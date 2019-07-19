@@ -1,4 +1,1 @@
-#ifndef NODEGENERATOR_HPP
-#define NODEGENERATOR_HPP
-
-#endif // NODEGENERATOR_HPP
+#pragma once

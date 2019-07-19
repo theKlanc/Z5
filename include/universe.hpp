@@ -1,10 +1,10 @@
 #pragma once
-#include <worldNode.hpp>
+#include <universeNode.hpp>
 #include <entt/entity/registry.hpp>
 
 class universe{
 	public:
 	private:
-		worldNode _worldBase;
+		universeNode _worldBase;
 		entt::DefaultRegistry enttRegistry;
 };

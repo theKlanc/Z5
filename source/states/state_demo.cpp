@@ -1,7 +1,7 @@
-#include "states/state_demo.h"
+#include "states/state_demo.hpp"
 #include <iostream>
-#include "gameCore.h"
-#include "HardwareInterface/HardwareInterface.h"
+#include "gameCore.hpp"
+#include "HardwareInterface/HardwareInterface.hpp"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_audio.h"
 #include "SDL2/SDL_mixer.h"
@@ -11,8 +11,9 @@ State::Demo::Demo(gameCore& c): State_Base(c){
 	pixelSpd.y=1;
 	pixelPos.x=60;
 	pixelPos.y=60;
-	texture=_graphics.loadTexture("test.bmp");
-	_graphics.loadTexture("test2.bmp");
+	graphics g = _core->getGraphics();
+	texture=g.loadTexture("test.bmp");
+	g.loadTexture("test2.bmp");
 	font= HI2::Font(HI2::getDataPath().string()+"test.ttf");
 	effect= HI2::Audio(HI2::getDataPath().string()+"oof.mp3",false,1);
 	//--

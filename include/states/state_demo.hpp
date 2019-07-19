@@ -1,6 +1,6 @@
 #pragma once
-#include "state_base.h"
-#include "HardwareInterface/HardwareInterface.h"
+#include "state_base.hpp"
+#include "HardwareInterface/HardwareInterface.hpp"
 
 #include "SDL2/SDL_mixer.h"
 

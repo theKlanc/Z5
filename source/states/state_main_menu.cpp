@@ -1,5 +1,10 @@
-#include "states/state_main_menu.h"
+#include "states/state_main_menu.hpp"
 State::MainMenu::MainMenu() {}
+
+State::MainMenu::MainMenu(gameCore &gc)
+{
+
+}
 
 void State::MainMenu::input() {}
 

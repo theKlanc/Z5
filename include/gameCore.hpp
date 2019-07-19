@@ -1,5 +1,5 @@
 #pragma once
-#include "states/state_base.h"
+#include "states/state_base.hpp"
 #include <memory>
 #include <stack>
 
@@ -13,9 +13,11 @@ class gameCore {
 	void startGameLoop();
 	void quit();
 
+	graphics& getGraphics();
   private:
+	graphics _graphicsObj;
 	void clean();
-	int pop;
+	int _pop;
 	std::stack<std::unique_ptr<State::State_Base>> states;
-	bool exit;
+	bool _exit;
 };

@@ -20,6 +20,5 @@ namespace State {
 
 	  protected: // aqui puc posar variables que els estats hagin de compartir
 		gameCore* _core;
-		graphics _graphics;
 	};
 } // namespace State
