@@ -1,11 +1,16 @@
-crear classe gameworld, akesta classe contindra l'arrel o una llista d arrels del arbre de gameNodes.
-    cada gamenode contindra diversos chunks amb diferents loadlevels, i akests contindran els blocs que els composen junt amb les seves colisions,
-    podriem contenir les entitats tant a nivell de chunk com a nivell de gameNode,
-    el fet de contenirles a nivell de chunk ens ajudarà molt a lhora de determinar quan carregar i descarregarles,
-    però haurem d'anar movent les entitats entre chunks a mesura que es desplacin, chunks d un mateix gamenode no comprovaran colisions entre ells,
-    i chunks de diferents gamenodes comprovaran colisions basant-se en la distancia entre aquests. amb chunks de 32x32x32,
-    un chunk comprovara la seva colisio amb els chunks d altres gamenodes que estiguin a menys de 64 unitats quadrades de distancia (diagonal)
-al final tindrem entitats a nivell d'univers, ja gestionarem la carrega i descarregarles
+crear tots els tipus de Nodes i els seus generadors
+comprovar que el parser funciona
+acabar chunks
+implementar colisions
+crear chunkloader
+    crear classe gameworld, akesta classe contindra l'arrel o una llista d arrels del arbre de gameNodes.
+        cada gamenode contindra diversos chunks amb diferents loadlevels, i akests contindran els blocs que els composen junt amb les seves colisions,
+        podriem contenir les entitats tant a nivell de chunk com a nivell de gameNode,
+        el fet de contenirles a nivell de chunk ens ajudarà molt a lhora de determinar quan carregar i descarregarles,
+        però haurem d'anar movent les entitats entre chunks a mesura que es desplacin, chunks d un mateix gamenode no comprovaran colisions entre ells,
+        i chunks de diferents gamenodes comprovaran colisions basant-se en la distancia entre aquests. amb chunks de 32x32x32,
+        un chunk comprovara la seva colisio amb els chunks d altres gamenodes que estiguin a menys de 64 unitats quadrades de distancia (diagonal)
+    al final tindrem entitats a nivell d'univers, ja gestionarem la carrega i descarregarles
 crear nodeGenerator (pure virtual class), i crear planetGenerator, moonGenerator, spaceShipGenerator i spaceStationGenerators que la implementin.
 
 crear sistemes i components basics pel jugador

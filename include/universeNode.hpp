@@ -1,8 +1,12 @@
-#pragma once
+﻿#pragma once
 #include <memory>
 #include <vector>
+#include <array>
 #include "fdd.hpp"
 #include "json.hpp"
+#include "block.hpp"
+#include "terrainChunk.hpp"
+#include "nodeGenerator.hpp"
 
 using nlohmann::json;
 
@@ -13,7 +17,8 @@ enum nodeType{
 	PLANET_ROCK,
 	ASTEROID,
 	COMET,
-	ARTIFICIAL_SATELLITE,
+	SATELLITE_NATURAL,
+	SATELLITE_ARTIFICIAL,
 	SPACE_STATION,
 	SPACESHIP,
 };
@@ -25,7 +30,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 	{PLANET_ROCK,"PLANET_ROCK"},
 	{ASTEROID,"ASTEROID"},
 	{COMET,"COMET"},
-	{ARTIFICIAL_SATELLITE,"ARTIFICIAL_SATELLITE"},
+	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
+	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
 	{SPACE_STATION,"SPACE_STATION"},
 	{SPACESHIP,"SPACESHIP"},
 })
@@ -34,9 +40,15 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 class universeNode {
 public:
 	universeNode();
-	universeNode(const json& j, universeNode* parent = nullptr);
+	block& getBlock(const point3Di &pos);
+	void setBlock(block* b, const point3Di &pos);
+
 	friend void to_json(nlohmann::json &j, const universeNode &f);
-  protected:
+	friend void from_json(const json& j, universeNode& f);
+
+  private:
+	terrainChunk& chunkAt(const point3Di &pos);
+	void linkChildren();
 	
 	std::string _name;
 	double _mass; // mass in kg
@@ -44,10 +56,14 @@ public:
 	fdd _position;
 	fdd _velocity;
 
-	const nodeType _type;
+	std::array<terrainChunk,config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius> _chunks;
+
+	nodeType _type;
 	std::vector<universeNode> _children;
 	universeNode* _parent;
+	nodeGenerator _generator;
   
 };
 
-void to_json(json& j, const fdd& f);
+void to_json(json& j, const universeNode& f);
+void from_json(const json& j, universeNode& f);

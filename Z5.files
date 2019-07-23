@@ -283,11 +283,9 @@ include/graphics.hpp
 include/graphics.hpp
 include/jsonFactory.hpp
 include/jsonFactory.hpp
-include/jsonFactory.hpp
 include/nodeGenerator.hpp
 include/nodeGenerator.hpp
 include/nodeGenerator.hpp
-include/nodeTypes/star.hpp
 include/states/state_base.h
 include/states/state_base.h
 include/states/state_base.h
@@ -317,7 +315,6 @@ include/states/state_playing.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
-include/universe.hpp
 include/universe.hpp
 include/universe.hpp
 include/universe.hpp
@@ -329,7 +326,7 @@ include/worldNode.hpp
 include/worldNode.hpp
 linux.mk
 main.cpp
-source/config.cpp
+source/block.cpp
 source/config.cpp
 source/config.cpp
 source/config.cpp
@@ -350,7 +347,6 @@ source/graphics.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp
-source/jsonFactory.cpp
 source/main.cpp
 source/main.cpp
 source/main.cpp
@@ -364,7 +360,6 @@ source/nodeGenerator.cpp
 source/nodeGenerator.cpp
 source/nodeGenerator.cpp
 source/nodeGenerator.cpp
-source/nodeTypes/star.cpp
 source/states/state_base.cpp
 source/states/state_base.cpp
 source/states/state_base.cpp
