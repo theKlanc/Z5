@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include "gameCore.hpp"
+#include "components/position.hpp"
 
 State::Playing::Playing() {}
 
@@ -23,7 +24,8 @@ State::Playing::Playing(gameCore &gc, std::string saveName = "default"):State_Ba
 	loadTerrainTable();
 
 	//
-	_enttRegistry.create();
+	player = _enttRegistry.create();
+	_enttRegistry.assign<position>(player);
 }
 
 void State::Playing::input() {}

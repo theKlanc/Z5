@@ -25,7 +25,7 @@ const point3Di &terrainChunk::getPosition()
 
 void terrainChunk::load(std::ifstream &file)
 {
-
+	_loaded=true;
 }
 
 void terrainChunk::store(std::ofstream &file)

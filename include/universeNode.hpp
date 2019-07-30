@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <memory>
 #include <vector>
-#include <array>
 #include "fdd.hpp"
 #include "json.hpp"
 #include "block.hpp"
@@ -16,7 +15,6 @@ enum nodeType{
 	PLANET_GAS,
 	PLANET_ROCK,
 	ASTEROID,
-	COMET,
 	SATELLITE_NATURAL,
 	SATELLITE_ARTIFICIAL,
 	SPACE_STATION,
@@ -29,7 +27,6 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 	{PLANET_GAS,"PLANET_GAS"},
 	{PLANET_ROCK,"PLANET_ROCK"},
 	{ASTEROID,"ASTEROID"},
-	{COMET,"COMET"},
 	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
 	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
 	{SPACE_STATION,"SPACE_STATION"},
@@ -39,10 +36,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 
 class universeNode {
 public:
-	universeNode();
+	universeNode():_chunks(config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius){}
 	block& getBlock(const point3Di &pos);
 	void setBlock(block* b, const point3Di &pos);
 
+	bool operator!= (const universeNode& right)const;
+	bool operator== (const universeNode& right)const;
 	friend void to_json(nlohmann::json &j, const universeNode &f);
 	friend void from_json(const json& j, universeNode& f);
 
@@ -50,18 +49,21 @@ public:
 	terrainChunk& chunkAt(const point3Di &pos);
 	void linkChildren();
 	
+	fdd getLocalPos(fdd f,universeNode* u) const;
 	std::string _name;
 	double _mass; // mass in kg
 	double _diameter; // diameter in m
 	fdd _position;
 	fdd _velocity;
 
-	std::array<terrainChunk,config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius> _chunks;
+	std::vector<terrainChunk> _chunks; // So big, should be on the heap. So fat, too much for the stack.
 
 	nodeType _type;
 	std::vector<universeNode> _children;
 	universeNode* _parent;
-	nodeGenerator _generator;
+	std::unique_ptr<nodeGenerator> _generator;
+	unsigned int _depth;
+	unsigned int _ID;
   
 };
 

@@ -34,3 +34,5 @@ deps/HardwareInterface/Switch
 include/components
 include/nodeTypes
 source/nodeTypes
+include/nodeGenerators
+source/nodeGenerators

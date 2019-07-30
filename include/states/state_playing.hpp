@@ -16,6 +16,8 @@ namespace State {
 		void draw() override;
 
 	  private:
+		entt::entity player;
+		entt::entity camera;
 
 		void loadTerrainTable();
 		std::vector<block> _terrainTable;

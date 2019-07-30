@@ -13,3 +13,32 @@ void from_json(const nlohmann::json &j, fdd &f)
 	j.at("z").get_to(f.z);
 	j.at("r").get_to(f.r);
 }
+bool fdd::operator==(const fdd &f)const
+{
+	return x==f.x&&y==f.y&&z==f.z&&r==f.r;
+}
+
+bool fdd::operator!=(const fdd &f)const
+{
+	return x!=f.x||y!=f.y||z!=f.z||r!=f.r;
+}
+
+fdd fdd::operator+(const fdd& f)const
+{
+	return fdd{x+f.x,y+f.y,z+f.z,r+f.r};
+}
+
+fdd fdd::operator-(const fdd& f)const
+{
+	return fdd{x-f.x,y-f.y,z-f.z,r-f.r};
+}
+
+fdd fdd::operator+=(const fdd &f)const
+{
+	return *this + f;
+}
+
+fdd fdd::operator-=(const fdd &f)const
+{
+	return *this - f;
+}

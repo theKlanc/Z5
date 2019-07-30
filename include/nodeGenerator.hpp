@@ -5,12 +5,11 @@
 #include "terrainChunk.hpp"
 
 class nodeGenerator{
-	public:
+public:
 	nodeGenerator();
-	nodeGenerator(int maxHeight);
-	terrainChunk getChunk(const point3Di& p);
-	private:
+	virtual ~nodeGenerator() = 0;
+	virtual terrainChunk getChunk(const point3Di& p) = 0;
+protected:
 	std::vector<block> *_terrainTable;
 	FastNoise _noiseGenerator;
-	int _maxHeight = 400;
 };
