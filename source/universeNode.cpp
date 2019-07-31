@@ -20,12 +20,28 @@ void universeNode::setBlock(block *b, const point3Di &pos) {
 	chunkAt(pos).setBlock(b, pos);
 }
 
+void universeNode::updateChunks(const fdd &playerPos, universeNode* u)
+{
+	fdd localPlayerPos = getLocalPos(playerPos,u);
+	if(_position.distance2D(localPlayerPos)<(_diameter+100)){
+		iUpdateChunks(localPlayerPos);
+	}
+	for(universeNode& child : _children){
+		child.updateChunks(playerPos,u);
+	}
+}
+
 bool universeNode::operator!=(const universeNode &right) const {
 	return _ID != right._ID;
 }
 
 bool universeNode::operator==(const universeNode &right) const {
 	return _ID == right._ID;
+}
+
+void universeNode::iUpdateChunks(const fdd &localPos)
+{
+
 }
 
 terrainChunk &universeNode::chunkAt(const point3Di &pos) {
@@ -52,11 +68,12 @@ fdd universeNode::getLocalPos(
 	universeNode *pu = u;
 
 	while (pu != transformParent) {
-		if (transformParent->_depth >= pu->_depth) {
+		if (pu == nullptr || (transformParent != nullptr && transformParent->_depth >= pu->_depth)) { //if tP is deeper than pu
 			transform += transformParent->_position;
 			transformParent = transformParent->_parent;
+			continue;
 		}
-		if (pu->_depth > transformParent->_depth) {
+		if (transformParent == nullptr || pu->_depth > transformParent->_depth) {
 			f += pu->_position;
 			pu = pu->_parent;
 		}

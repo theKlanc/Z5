@@ -1,5 +1,7 @@
 #include "fdd.hpp"
 #include "json.hpp"
+#include <cmath>
+#include <math.h>
 
 void to_json(nlohmann::json &j, const fdd &f)
 {
@@ -13,6 +15,17 @@ void from_json(const nlohmann::json &j, fdd &f)
 	j.at("z").get_to(f.z);
 	j.at("r").get_to(f.r);
 }
+double fdd::distance(const fdd &r) const
+{
+//((x2 - x1)2 + (y2 - y1)2 + (z2 - z1)2)1/2
+	return sqrt(pow(r.x-x,2)+pow(r.y-y,2)+pow(r.z-z,2));
+}
+
+double fdd::distance2D(const fdd &r) const
+{
+	return sqrt(pow(r.x-x,2)+pow(r.y-y,2));
+}
+
 bool fdd::operator==(const fdd &f)const
 {
 	return x==f.x&&y==f.y&&z==f.z&&r==f.r;

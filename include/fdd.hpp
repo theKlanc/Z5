@@ -8,6 +8,10 @@ struct fdd {
 	double z;
 	double r;
 
+
+
+	double distance(const fdd& r)const;
+	double distance2D(const fdd& r)const;
 	bool operator==(const fdd& f)const;
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;

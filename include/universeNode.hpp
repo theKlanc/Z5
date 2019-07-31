@@ -6,6 +6,7 @@
 #include "block.hpp"
 #include "terrainChunk.hpp"
 #include "nodeGenerator.hpp"
+#include "HardwareInterface/HardwareInterface.hpp"
 
 using nlohmann::json;
 
@@ -37,8 +38,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 class universeNode {
 public:
 	universeNode():_chunks(config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius){}
-	block& getBlock(const point3Di &pos);
+	block& getBlock(const point3Di &pos) const;
 	void setBlock(block* b, const point3Di &pos);
+	void updateChunks(const fdd& playerPos, universeNode* u);
 
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;
@@ -46,10 +48,12 @@ public:
 	friend void from_json(const json& j, universeNode& f);
 
   private:
+	void iUpdateChunks(const fdd& localPos);
 	terrainChunk& chunkAt(const point3Di &pos);
 	void linkChildren();
-	
 	fdd getLocalPos(fdd f,universeNode* u) const;
+
+
 	std::string _name;
 	double _mass; // mass in kg
 	double _diameter; // diameter in m
