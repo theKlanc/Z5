@@ -9,11 +9,18 @@ public:
 	terrainChunk(const point3Di& p = point3Di()) : _position(p), _blocks(config::chunkSize*config::chunkSize*config::chunkSize){}
 	block& getBlock(const point3Di& p);
 	void setBlock(block* b, const point3Di& p);
+	bool loaded()const;
 
+
+	bool operator== (const terrainChunk& right)const;
+	bool operator== (const point3Di& right)const;
+	bool operator!= (const terrainChunk& right)const;
+	bool operator!= (const point3Di& right)const;
+	
 	const point3Di& getPosition();
 
-	void load(std::ifstream& file);
-	void store(std::ofstream& file);
+	void load(const std::filesystem::path& file);
+	void store(const std::filesystem::path& file);
 private:
 
 	const point3Di _position;

@@ -38,18 +38,22 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 class universeNode {
 public:
 	universeNode():_chunks(config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius){}
-	block& getBlock(const point3Di &pos) const;
+	block& getBlock(const point3Di &pos);
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 
+	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;
 	friend void to_json(nlohmann::json &j, const universeNode &f);
 	friend void from_json(const json& j, universeNode& f);
 
   private:
-	void iUpdateChunks(const fdd& localPos);
+	point3Di chunkFromPos(const fdd& pos);
+  
+	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);
+	terrainChunk& getChunk(const point3Di &pos);
 	void linkChildren();
 	fdd getLocalPos(fdd f,universeNode* u) const;
 
