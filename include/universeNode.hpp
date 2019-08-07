@@ -41,21 +41,28 @@ public:
 	block& getBlock(const point3Di &pos);
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
+	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
+	bool drawBefore(universeNode& r)const;
+
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;
 	friend void to_json(nlohmann::json &j, const universeNode &f);
 	friend void from_json(const json& j, universeNode& f);
 
   private:
+
+	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
-  
+	fdd getLocalPos(fdd f,universeNode* u) const;
+
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);
 	terrainChunk& getChunk(const point3Di &pos);
 	void linkChildren();
-	fdd getLocalPos(fdd f,universeNode* u) const;
+
+
 
 
 	std::string _name;

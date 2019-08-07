@@ -1,0 +1,223 @@
+{
+  "id": 0,
+  "name": "Saggitarius A*",
+  "mass": 8.04e+36,
+  "diameter": 44000000000,
+  "type": "BLACK_HOLE",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "r": 0
+  },
+  "velocity": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "r": 0
+  },
+  "children": [
+    {
+      "id": 1,
+      "name": "Sun",
+      "mass": 1.9885e+30,
+      "diameter": 1392684000,
+      "type": "STAR",
+      "position": {
+        "x": 2.55434267e20,
+        "y": 0,
+        "z": 0,
+        "r": 0
+      },
+      "velocity": {
+        "x": 0,
+        "y": 220000,
+        "z": 0,
+        "r": 0
+      },
+      "children": [
+        {
+          "id": 2,
+          "name": "Mercury",
+          "type": "PLANET_ROCK",
+          "mass": 3.285e+23,
+          "diameter": 4879000,
+          "position": {
+            "x": 57909050000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 47362,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        },
+        {
+          "id": 3,
+          "name": "Venus",
+          "type": "PLANET_ROCK",
+          "mass": 4.8675e+24,
+          "diameter": 12102000,
+          "position": {
+            "x": 108160000000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 35000,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        },
+        {
+          "id": 4,
+          "name": "Earth",
+          "type": "PLANET_ROCK",
+          "mass": 5.97237e+24,
+          "diameter": 12742000,
+          "position": {
+            "x": 149600000000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 29780,
+            "z": 0,
+            "r": 0
+          },
+          "children": [
+            {
+              "id": 10,
+              "name": "Moon",
+              "type": "SATELLITE_NATURAL",
+              "mass": 7.342e+22,
+              "diameter": 3474200,
+              "position": {
+                "x": 384399000,
+                "y": 0,
+                "z": 0,
+                "r": 0
+              },
+              "velocity": {
+                "x": 0,
+                "y": 1022,
+                "z": 0,
+                "r": 0
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "name": "Mars",
+          "type": "PLANET_ROCK",
+          "mass": 6.4171e+23,
+          "diameter": 6779000,
+          "position": {
+            "x": 227939200000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 24000,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        },
+        {
+          "id": 6,
+          "name": "Jupiter",
+          "type": "PLANET_GAS",
+          "mass": 1.898e+27,
+          "diameter": 139820000,
+          "position": {
+            "x": 778570000000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 13070,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        },
+        {
+          "id": 7,
+          "name": "Saturn",
+          "type": "PLANET_GAS",
+          "mass": 5.683e+26,
+          "diameter": 116460000,
+          "position": {
+            "x": 1433530000000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 9680,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        },
+        {
+          "id": 8,
+          "name": "Uranus",
+          "type": "PLANET_GAS",
+          "mass": 8.681e+25,
+          "diameter": 50724000,
+          "position": {
+            "x": 2872400000000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 6800,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        },
+        {
+          "id": 9,
+          "name": "Neptune",
+          "type": "PLANET_GAS",
+          "mass": 1.024e+26,
+          "diameter": 49244000,
+          "position": {
+            "x": 4498400000000,
+            "y": 0,
+            "z": 0,
+            "r": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 5430,
+            "z": 0,
+            "r": 0
+          },
+          "children": []
+        }
+      ]
+    }
+  ]
+}

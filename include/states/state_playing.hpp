@@ -3,6 +3,8 @@
 #include "universeNode.hpp"
 #include "entt/entity/registry.hpp"
 #include "block.hpp"
+#include "components/position.hpp"
+#include <variant>
 #include <vector>
 
 namespace State {
@@ -16,7 +18,13 @@ namespace State {
 		void draw() override;
 
 	  private:
-		entt::entity player;
+		struct renderLayer{
+			double height;
+			std::variant<entt::entity,universeNode*> target;
+		};
+		void drawLayer(const renderLayer& rl);
+
+		entt::entity _player;
 		entt::entity camera;
 
 		void loadTerrainTable();

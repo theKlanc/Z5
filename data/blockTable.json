@@ -1,0 +1,79 @@
+[
+  {
+    "name": "empty",
+    "visible": false,
+    "solid": false,
+    "opaque": false,
+    "mass": 0
+  },
+  {
+    "name": "air",
+    "visible": false,
+    "solid": false,
+    "opaque": false,
+    "mass": 1.225
+  },
+  {
+    "name": "water",
+    "visible": true,
+    "solid": false,
+    "opaque": true,
+    "mass": 997
+  },
+  {
+    "name": "dirt",
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 1220
+  },
+  {
+    "name": "grass",
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 1220
+  },
+  {
+    "name": "andesite",
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 2600
+  },
+  {
+    "name": "moon_soil",
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 1500
+  },
+  {
+    "name": "wood",
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 700
+  },
+  {
+    "name": "leaves",
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 30
+  },
+  {
+    "name": "sand",
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 1500
+  },
+  {
+    "name": "glass",
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 100
+  }
+]

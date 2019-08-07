@@ -30,6 +30,24 @@ void universeNode::updateChunks(const fdd &playerPos, universeNode *u) {
 	}
 }
 
+bool universeNode::shouldDraw(fdd f){
+	return (_position.distance2D(f) < _diameter/2 + 60);
+}
+
+std::vector<universeNode *> universeNode::nodesToDraw(fdd f, universeNode *u)
+{
+	std::vector<universeNode*> result;
+	fdd localPos = getLocalPos(f,u);
+	if(shouldDraw(localPos)){
+		result.push_back(this);
+	}
+	for(universeNode& child : _children){
+		std::vector<universeNode*> temp = child.nodesToDraw(localPos,this);
+		result.insert(result.end(),temp.begin(),temp.end());
+	}
+	return result;
+}
+
 bool universeNode::findNodeByID(const unsigned int &id, universeNode *&result)
 {
 	if(_ID==id){
@@ -42,6 +60,13 @@ bool universeNode::findNodeByID(const unsigned int &id, universeNode *&result)
 	}
 	result=nullptr;
 	return false;
+}
+
+bool universeNode::drawBefore(universeNode &r) const
+{
+	fdd localPos = getLocalPos(r._position,r._parent);
+	return std::fmod(_position.z,1.0f) < std::fmod(localPos.z,1.0f);
+
 }
 
 bool universeNode::operator!=(const universeNode &right) const {

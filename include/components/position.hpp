@@ -1,3 +1,4 @@
+#pragma once
 #include <fdd.hpp>
 #include <universeNode.hpp>
 
