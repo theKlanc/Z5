@@ -18,9 +18,14 @@ namespace State {
 		void draw() override;
 
 	  private:
+		struct nodeLayer{
+			universeNode* node;
+			int layerHeight;
+		};
+
 		struct renderLayer{
-			double height;
-			std::variant<entt::entity,universeNode*> target;
+			double depth;
+			std::variant<entt::entity,nodeLayer> target;
 		};
 		void drawLayer(const renderLayer& rl);
 

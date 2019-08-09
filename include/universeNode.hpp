@@ -42,6 +42,7 @@ public:
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
+	fdd getLocalPos(fdd f,universeNode* u) const;
 
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool drawBefore(universeNode& r)const;
@@ -55,7 +56,7 @@ public:
 
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
-	fdd getLocalPos(fdd f,universeNode* u) const;
+
 
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);

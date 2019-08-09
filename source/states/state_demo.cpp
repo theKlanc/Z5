@@ -12,10 +12,9 @@ State::Demo::Demo(gameCore& c): State_Base(c){
 	pixelPos.x=60;
 	pixelPos.y=60;
 	graphics g = _core->getGraphics();
-	texture=g.loadTexture("test.bmp");
-	g.loadTexture("test2.bmp");
-	font= HI2::Font(HI2::getDataPath().string()+"test.ttf");
-	effect= HI2::Audio(HI2::getDataPath().string()+"oof.mp3",false,1);
+	texture=g.loadTexture("test");
+	font= HI2::Font(HI2::getDataPath().string()+"fonts/test.ttf");
+	effect= HI2::Audio(HI2::getDataPath().string()+"sounds/sfx/oof.mp3",false,1);
 	//--
 
 

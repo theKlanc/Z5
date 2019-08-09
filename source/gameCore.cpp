@@ -1,10 +1,12 @@
 #include "gameCore.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "states/state_playing.hpp"
+#include "states/state_demo.hpp"
 #include <memory>
+#include <iostream>
 
 void gameCore::startGameLoop() {
-
+	std::cout << "LMAO";
 	while (HI2::aptMainLoop() && !states.empty() && !_exit) {
 
 		states.top()->input();
@@ -12,7 +14,6 @@ void gameCore::startGameLoop() {
 		states.top()->update(0);
 
 		states.top()->draw();
-		clean();
 	}
 }
 

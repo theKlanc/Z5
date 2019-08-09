@@ -6,7 +6,7 @@ INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src
 
 BUILDDIR := build
 
-FLAGS    := -D__LINUX__ -Werror=return-type -ggdb -O0 -fstack-protector-all
+FLAGS    := -D__LINUX__ -Werror=return-type -O0 -g -fstack-protector-all
 CCFLAGS  := `sdl2-config --cflags` `pkgconf --cflags freetype2`
 CXXFLAGS := -std=c++17
 
@@ -16,7 +16,7 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng 
 
 DEBUG := 1
 ifeq ($(DEBUG), 1)
-FLAGS := $(FLAGS) -ggdb -O0 -fstack-protector-all
+FLAGS := $(FLAGS)
 #else
 #FLAGS := $(FLAGS) -O3 -ffast-math
 endif
