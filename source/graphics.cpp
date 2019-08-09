@@ -21,21 +21,21 @@ bool graphics::isTextureLoaded(string textureFile)
 }
 
 HI2::Texture *
-graphics::loadTexture(string fileName) { // load a texture from a file into the
+graphics::loadTexture(string spriteName) { // load a texture from a file into the
 										 // first free space inside texTable[]
 	string completeFileName =
-		HI2::getDataPath().string() + "sprites/" + fileName + ".png";
-	if (texAtlas.find(fileName) == texAtlas.end()) {
+		HI2::getDataPath().string() + "sprites/" + spriteName + ".png";
+	if (texAtlas.find(spriteName) == texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 
-			texAtlas.insert(make_pair(fileName, HI2::Texture(completeFileName)));
+			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
 		} else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"
 					  << std::endl;
 			return nullptr;
 		}
 	}
-	return &(texAtlas.find(fileName)->second);
+	return &(texAtlas.find(spriteName)->second);
 }
 
 void graphics::freeTexture(string fileName) { // frees a texture from texTable[]

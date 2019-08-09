@@ -21,6 +21,7 @@ State::Playing::Playing(gameCore &gc, std::string saveName = "default"):State_Ba
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
+	_universeBase.linkChildren();
 
 	//load terrain table
 	loadTerrainTable();
@@ -32,7 +33,7 @@ State::Playing::Playing(gameCore &gc, std::string saveName = "default"):State_Ba
 	universeNode* result;
 	_universeBase.findNodeByID(4,result);
 	playerPos.parent=result;
-	playerPos.pos={10,10,10};
+	playerPos.pos={10,10,10,0};
 	playerSprite.sprite=_core->getGraphics().loadTexture("player");
 }
 
@@ -64,7 +65,7 @@ void State::Playing::draw() {
 				//obtenir profunditat
 				int layer = floor(localCameraPos.z);
 
-				double trash;
+				double trash = 0;
 				double partFraccional= fmod(localCameraPos.z,trash);
 				double depth=i-partFraccional-1;
 

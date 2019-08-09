@@ -44,6 +44,8 @@ public:
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
 
+
+	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool drawBefore(universeNode& r)const;
 
@@ -61,9 +63,6 @@ public:
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);
 	terrainChunk& getChunk(const point3Di &pos);
-	void linkChildren();
-
-
 
 
 	std::string _name;

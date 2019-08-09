@@ -38,12 +38,7 @@ bool fdd::operator!=(const fdd &f)const
 
 fdd fdd::operator+(const fdd& f)const
 {
-	fdd temp;
-	temp.x=x+f.x;
-	temp.y=y+f.y;
-	temp.z=z+f.z;
-	temp.r=r+f.r;
-	return temp;
+	return fdd{x+f.x,y+f.y,z+f.z,r+f.r};
 }
 
 fdd fdd::operator-(const fdd& f)const

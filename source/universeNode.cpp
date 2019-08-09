@@ -123,11 +123,21 @@ terrainChunk &universeNode::getChunk(const point3Di &pos) {
 }
 
 void universeNode::linkChildren() {
-	for (universeNode &node : _children) {
-		node._parent = this;
-		node._depth = _depth + 1;
+	for(universeNode&u : _children){
+		u._parent = this;
+		u.linkChildren();
+	}
+	if(_parent == nullptr){
+		_depth=0;
+	}
+	else{
+		_depth=_parent->_depth+1;
+	}
+	for(universeNode& u : _children){
+		u.linkChildren();
 	}
 }
+
 
 fdd universeNode::getLocalPos(
 	fdd f, universeNode *u) const // returns the fdd f (which is relative to u)
@@ -143,9 +153,8 @@ fdd universeNode::getLocalPos(
 								  pu->_depth)) { // if tP is deeper than pu
 			transform += transformParent->_position;
 			transformParent = transformParent->_parent;
-			continue;
 		}
-		if (transformParent == nullptr ||
+		else if (transformParent == nullptr ||
 			pu->_depth > transformParent->_depth) {
 			f += pu->_position;
 			pu = pu->_parent;
@@ -175,7 +184,6 @@ void from_json(const json &j, universeNode &f) {
 	for (const nlohmann::json &element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
-	f.linkChildren();
 	switch (f._type) {
 	case STAR:
 		f._generator = std::make_unique<starGenerator>();
