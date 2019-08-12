@@ -163,16 +163,36 @@ void universeNode::linkChildren() {
 //	return f -= transform;
 //}
 
-fdd universeNode::getLocalPos(
-	fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
+fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
 								  // relative to our local node (*this)
 {
-	if(u==_parent)
+	if (u == _parent)
 		return f;
 	else
 	{
-		// TODO
-		return f;
+		fdd transform;
+		const universeNode* transformLocal = this;
+
+		while (transformLocal != u->_parent && ((transformLocal->_depth > 0) || (u->_depth > 1))) { // while transformLocal isn't u's parent and we can move one of them
+			if (u->_depth - transformLocal->_depth > 1) {//should move u
+				f += u->_parent->_position;
+				u = u->_parent;
+			}
+			else {// move transformLocal
+				transform += transformLocal->_position;
+				transformLocal = transformLocal->_parent;
+			}
+		}
+
+		if (u->_depth == transformLocal->_depth) {// they are level
+			transform += transformLocal->_position;
+			return f - transform;
+		}
+		else
+		{
+			assert(u->_depth - transformLocal->_depth == 1);
+			return f - transform;
+		}
 	}
 }
 

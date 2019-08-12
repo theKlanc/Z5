@@ -311,6 +311,9 @@
     <ClInclude Include="deps\FastNoise\FastNoise.h">
       <Filter>deps\FastNoise</Filter>
     </ClInclude>
+    <ClInclude Include="include\components\test.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Z5.includes" />

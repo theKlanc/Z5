@@ -7,6 +7,7 @@
 #include "components/drawable.hpp"
 #include <filesystem>
 #include <variant>
+#include <components\test.hpp>
 
 State::Playing::Playing() {}
 
@@ -27,29 +28,48 @@ State::Playing::Playing(gameCore &gc, std::string saveName = "default"):State_Ba
 	//load terrain table
 	loadTerrainTable();
 
-	//
 	_player = _enttRegistry.create();
-	position& playerPos = _enttRegistry.assign<position>(_player);
-
 	_camera = _enttRegistry.create();
-	position& cameraPos = _enttRegistry.assign<position>(_camera);
+
+	auto& playerPos = _enttRegistry.assign<position>(_player);
+	auto& cameraPos = _enttRegistry.assign<position>(_camera);
+	auto& playerSprite = _enttRegistry.assign<drawable>(_player);
+	auto& b = _enttRegistry.assign<test>(_player);
 	
-	drawable& playerSprite = _enttRegistry.assign<drawable>(_player);
 	universeNode* result;
 	_universeBase.findNodeByID(4,result);
+
+	
 	playerPos.parent=result;
-	playerPos.pos={10,10,10,0};
+	playerPos.pos.x=10;
+	playerPos.pos.y=10;
+	playerPos.pos.z=10;
+	playerPos.pos.r=0;
+
+	auto& pos =_enttRegistry.get<position>(_player);
+	
+	
 
 	cameraPos.parent=result;
-	cameraPos.pos={10,10,10,0};
+	cameraPos.pos.x=10;
+	cameraPos.pos.y=10;
+	cameraPos.pos.z=10;
+	cameraPos.pos.r=0;
 	
 	playerSprite.sprite=_core->getGraphics().loadTexture("player");
+
+	b.t=true;
+	
+	
+	auto templmao = _enttRegistry.get<test>(_player);
 }
 
 void State::Playing::input() {}
 
 void State::Playing::update(float dt) {
 	position& pos = _enttRegistry.get<position>(_player);
+	bool templmao =false;
+	templmao= _enttRegistry.get<test>(_player).t;
 	_universeBase.updateChunks(pos.pos,pos.parent);
 }
 
@@ -104,8 +124,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer &rl)
 {
 	struct visitor{
 		void operator()(const entt::entity& entity) const{
-			//const drawable& sprite = registry.get<drawable>(entity);
-			//HI2::drawTexture(*sprite.sprite,0,0,0);
+			const drawable& sprite = registry.get<drawable>(entity);
+			HI2::drawTexture(*sprite.sprite,0,0,0);
 		}
 		void operator()(const nodeLayer& node) const{
 			// here we should draw a nodeLayer
