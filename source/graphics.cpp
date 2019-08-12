@@ -1,7 +1,6 @@
 ﻿#include "graphics.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 #include <iostream>
-#include <unistd.h>
 
 using namespace std;
 

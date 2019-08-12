@@ -30,7 +30,7 @@ namespace State {
 		void drawLayer(const renderLayer& rl);
 
 		entt::entity _player;
-		entt::entity camera;
+		entt::entity _camera;
 
 		void loadTerrainTable();
 		std::vector<block> _terrainTable;

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\clank\Source\Repos\theKlanc\Z5\deps\HardwareInterface;C:\SDL2\include;C:\Users\clank\Source\Repos\theKlanc\Z5\deps;C:\Users\clank\Source\Repos\theKlanc\Z5\include;$(IncludePath)</IncludePath>
+    <SourcePath>C:\Users\clank\Source\Repos\theKlanc\Z5\deps\HardwareInterface;C:\Users\clank\Source\Repos\theKlanc\Z5\source;$(SourcePath)</SourcePath>
+    <LibraryPath>C:\SDL2\lib\x86;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>C:\SDL2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="deps\FastNoise\FastNoise.cpp" />
+    <ClCompile Include="deps\HardwareInterface\HardwareInterface3DS.cpp" />
+    <ClCompile Include="deps\HardwareInterface\HardwareInterfacePC.cpp" />
+    <ClCompile Include="deps\HardwareInterface\HardwareInterfaceSwitch.cpp" />
+    <ClCompile Include="deps\HardwareInterface\HardwareInterfaceVita.cpp" />
+    <ClCompile Include="source\block.cpp" />
+    <ClCompile Include="source\fdd.cpp" />
+    <ClCompile Include="source\gameCore.cpp" />
+    <ClCompile Include="source\graphics.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\nodeGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\asteroidGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\blackHoleGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\gasPlanetGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\naturalSatelliteGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\rockyPlanetGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\spaceshipGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\spaceStationGenerator.cpp" />
+    <ClCompile Include="source\nodegenerators\starGenerator.cpp" />
+    <ClCompile Include="source\states\state_base.cpp" />
+    <ClCompile Include="source\states\state_demo.cpp" />
+    <ClCompile Include="source\states\state_main_menu.cpp" />
+    <ClCompile Include="source\states\state_playing.cpp" />
+    <ClCompile Include="source\terrainChunk.cpp" />
+    <ClCompile Include="source\universeNode.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="deps\entt\config\config.h" />
+    <ClInclude Include="deps\entt\config\version.h" />
+    <ClInclude Include="deps\entt\core\algorithm.hpp" />
+    <ClInclude Include="deps\entt\core\family.hpp" />
+    <ClInclude Include="deps\entt\core\hashed_string.hpp" />
+    <ClInclude Include="deps\entt\core\ident.hpp" />
+    <ClInclude Include="deps\entt\core\monostate.hpp" />
+    <ClInclude Include="deps\entt\core\type_traits.hpp" />
+    <ClInclude Include="deps\entt\core\utility.hpp" />
+    <ClInclude Include="deps\entt\entity\actor.hpp" />
+    <ClInclude Include="deps\entt\entity\entity.hpp" />
+    <ClInclude Include="deps\entt\entity\fwd.hpp" />
+    <ClInclude Include="deps\entt\entity\group.hpp" />
+    <ClInclude Include="deps\entt\entity\helper.hpp" />
+    <ClInclude Include="deps\entt\entity\prototype.hpp" />
+    <ClInclude Include="deps\entt\entity\registry.hpp" />
+    <ClInclude Include="deps\entt\entity\runtime_view.hpp" />
+    <ClInclude Include="deps\entt\entity\snapshot.hpp" />
+    <ClInclude Include="deps\entt\entity\sparse_set.hpp" />
+    <ClInclude Include="deps\entt\entity\storage.hpp" />
+    <ClInclude Include="deps\entt\entity\view.hpp" />
+    <ClInclude Include="deps\entt\entt.hpp" />
+    <ClInclude Include="deps\entt\fwd.hpp" />
+    <ClInclude Include="deps\entt\locator\locator.hpp" />
+    <ClInclude Include="deps\entt\meta\factory.hpp" />
+    <ClInclude Include="deps\entt\meta\meta.hpp" />
+    <ClInclude Include="deps\entt\process\process.hpp" />
+    <ClInclude Include="deps\entt\process\scheduler.hpp" />
+    <ClInclude Include="deps\entt\resource\cache.hpp" />
+    <ClInclude Include="deps\entt\resource\fwd.hpp" />
+    <ClInclude Include="deps\entt\resource\handle.hpp" />
+    <ClInclude Include="deps\entt\resource\loader.hpp" />
+    <ClInclude Include="deps\entt\signal\delegate.hpp" />
+    <ClInclude Include="deps\entt\signal\dispatcher.hpp" />
+    <ClInclude Include="deps\entt\signal\emitter.hpp" />
+    <ClInclude Include="deps\entt\signal\fwd.hpp" />
+    <ClInclude Include="deps\entt\signal\sigh.hpp" />
+    <ClInclude Include="deps\FastNoise\FastNoise.h" />
+    <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp" />
+    <ClInclude Include="deps\json.hpp" />
+    <ClInclude Include="include\block.hpp" />
+    <ClInclude Include="include\components\drawable.hpp" />
+    <ClInclude Include="include\components\position.hpp" />
+    <ClInclude Include="include\config.hpp" />
+    <ClInclude Include="include\fdd.hpp" />
+    <ClInclude Include="include\gameCore.hpp" />
+    <ClInclude Include="include\graphics.hpp" />
+    <ClInclude Include="include\nodeGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\artificialSatelliteGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\asteroidGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\blackHoleGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\gasPlanetGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\naturalSatelliteGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\rockyPlanetGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\spaceshipGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\spaceStationGenerator.hpp" />
+    <ClInclude Include="include\nodegenerators\starGenerator.hpp" />
+    <ClInclude Include="include\states\state_base.hpp" />
+    <ClInclude Include="include\states\state_demo.hpp" />
+    <ClInclude Include="include\states\state_main_menu.hpp" />
+    <ClInclude Include="include\states\state_playing.hpp" />
+    <ClInclude Include="include\terrainChunk.hpp" />
+    <ClInclude Include="include\universeNode.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+    <None Include="Z5.includes" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

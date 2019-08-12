@@ -1,0 +1,319 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="source\nodeGenerators">
+      <UniqueIdentifier>{08f7c95a-8505-4789-b77a-b0f0037291bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\states">
+      <UniqueIdentifier>{302abb4e-c790-4cb5-aad3-07f10c479b3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps">
+      <UniqueIdentifier>{91bbbdf6-cd56-4ad8-81e6-b4f4535ddcf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\nodeGenerators">
+      <UniqueIdentifier>{141e4bc2-b136-434c-adbd-df0b0ce17b08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\states">
+      <UniqueIdentifier>{545881a4-a9bc-4522-ad61-1492f778b86a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\components">
+      <UniqueIdentifier>{b941040d-bbde-475f-9403-573d74a8ae5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\HardwareInterface">
+      <UniqueIdentifier>{857f43e6-a9d0-4d50-9002-a26f7e40f021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\entt">
+      <UniqueIdentifier>{7bc0d5f2-546a-4079-9870-207c81b2aac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="deps\FastNoise">
+      <UniqueIdentifier>{eca290c9-c3a1-4380-9632-151e67800532}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\block.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\fdd.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gameCore.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\graphics.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\terrainChunk.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\universeNode.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\asteroidGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\blackHoleGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\gasPlanetGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\naturalSatelliteGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\rockyPlanetGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\spaceshipGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\spaceStationGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\states\state_base.cpp">
+      <Filter>source\states</Filter>
+    </ClCompile>
+    <ClCompile Include="source\states\state_demo.cpp">
+      <Filter>source\states</Filter>
+    </ClCompile>
+    <ClCompile Include="source\states\state_main_menu.cpp">
+      <Filter>source\states</Filter>
+    </ClCompile>
+    <ClCompile Include="source\states\state_playing.cpp">
+      <Filter>source\states</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodegenerators\starGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\HardwareInterface\HardwareInterface3DS.cpp">
+      <Filter>deps\HardwareInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\HardwareInterface\HardwareInterfacePC.cpp">
+      <Filter>deps\HardwareInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\HardwareInterface\HardwareInterfaceSwitch.cpp">
+      <Filter>deps\HardwareInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\HardwareInterface\HardwareInterfaceVita.cpp">
+      <Filter>deps\HardwareInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\FastNoise\FastNoise.cpp">
+      <Filter>deps\FastNoise</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\config.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gameCore.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerator.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\terrainChunk.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\universeNode.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\drawable.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\position.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\states\state_base.hpp">
+      <Filter>include\states</Filter>
+    </ClInclude>
+    <ClInclude Include="include\states\state_demo.hpp">
+      <Filter>include\states</Filter>
+    </ClInclude>
+    <ClInclude Include="include\states\state_main_menu.hpp">
+      <Filter>include\states</Filter>
+    </ClInclude>
+    <ClInclude Include="include\states\state_playing.hpp">
+      <Filter>include\states</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\artificialSatelliteGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\asteroidGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\blackHoleGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\gasPlanetGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\naturalSatelliteGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\rockyPlanetGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\spaceshipGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\spaceStationGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodegenerators\starGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\json.hpp">
+      <Filter>deps</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp">
+      <Filter>deps\HardwareInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\actor.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\algorithm.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="include\block.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\resource\cache.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\signal\delegate.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\signal\dispatcher.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\signal\emitter.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\entity.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entt.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\meta\factory.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\family.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fdd.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\fwd.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\signal\fwd.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\resource\fwd.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\fwd.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\group.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\resource\handle.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\hashed_string.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\helper.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\ident.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\resource\loader.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\locator\locator.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\meta\meta.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\monostate.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\process\process.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\prototype.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\registry.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\runtime_view.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\process\scheduler.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\signal\sigh.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\snapshot.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\sparse_set.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\storage.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\type_traits.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\core\utility.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\config\version.h">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\entity\view.hpp">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\entt\config\config.h">
+      <Filter>deps\entt</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\FastNoise\FastNoise.h">
+      <Filter>deps\FastNoise</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Z5.includes" />
+    <None Include="README.md" />
+  </ItemGroup>
+</Project>

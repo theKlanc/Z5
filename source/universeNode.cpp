@@ -12,86 +12,86 @@
 #include "nodeGenerators/spaceshipGenerator.hpp"
 #include "nodeGenerators/starGenerator.hpp"
 
-block &universeNode::getBlock(const point3Di &pos) {
+block& universeNode::getBlock(const point3Di& pos) {
 	return chunkAt(pos).getBlock(pos);
 }
 
-void universeNode::setBlock(block *b, const point3Di &pos) {
+void universeNode::setBlock(block* b, const point3Di& pos) {
 	chunkAt(pos).setBlock(b, pos);
 }
 
-void universeNode::updateChunks(const fdd &playerPos, universeNode *u) {
+void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
 	fdd localPlayerPos = getLocalPos(playerPos, u);
 	if (_position.distance2D(localPlayerPos) < (_diameter + 100)) {
 		iUpdateChunks(chunkFromPos(localPlayerPos));
 	}
-	for (universeNode &child : _children) {
+	for (universeNode& child : _children) {
 		child.updateChunks(playerPos, u);
 	}
 }
 
-bool universeNode::shouldDraw(fdd f){
-	return (_position.distance2D(f) < _diameter/2 + 60);
+bool universeNode::shouldDraw(fdd f) {
+	return (_position.distance2D(f) < _diameter / 2 + 60);
 }
 
-std::vector<universeNode *> universeNode::nodesToDraw(fdd f, universeNode *u)
+std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 {
 	std::vector<universeNode*> result;
-	fdd localPos = getLocalPos(f,u);
-	if(shouldDraw(localPos)){
+	fdd localPos = getLocalPos(f, u);
+	if (shouldDraw(localPos)) {
 		result.push_back(this);
 	}
-	for(universeNode& child : _children){
-		std::vector<universeNode*> temp = child.nodesToDraw(localPos,this);
-		result.insert(result.end(),temp.begin(),temp.end());
+	for (universeNode& child : _children) {
+		std::vector<universeNode*> temp = child.nodesToDraw(f, u);
+		result.insert(result.end(), temp.begin(), temp.end());
 	}
 	return result;
 }
 
-bool universeNode::findNodeByID(const unsigned int &id, universeNode *&result)
+bool universeNode::findNodeByID(const unsigned int& id, universeNode*& result)
 {
-	if(_ID==id){
-		result=this;
+	if (_ID == id) {
+		result = this;
 		return true;
 	}
-	for(universeNode& u : _children){
-		if(u.findNodeByID(id,result))
+	for (universeNode& u : _children) {
+		if (u.findNodeByID(id, result))
 			return true;
 	}
-	result=nullptr;
+	result = nullptr;
 	return false;
 }
 
-bool universeNode::drawBefore(universeNode &r) const
+bool universeNode::drawBefore(universeNode& r) const
 {
-	fdd localPos = getLocalPos(r._position,r._parent);
-	return std::fmod(_position.z,1.0f) < std::fmod(localPos.z,1.0f);
+	fdd localPos = getLocalPos(r._position, r._parent);
+	return std::fmod(_position.z, 1.0f) < std::fmod(localPos.z, 1.0f);
 
 }
 
-bool universeNode::operator!=(const universeNode &right) const {
+bool universeNode::operator!=(const universeNode& right) const {
 	return _ID != right._ID;
 }
 
-bool universeNode::operator==(const universeNode &right) const {
+bool universeNode::operator==(const universeNode& right) const {
 	return _ID == right._ID;
 }
 
-point3Di universeNode::chunkFromPos(const fdd &pos) {
-	return point3Di{int(pos.x) / config::chunkSize,
+point3Di universeNode::chunkFromPos(const fdd& pos) {
+	return point3Di{ int(pos.x) / config::chunkSize,
 					int(pos.y) / config::chunkSize,
-					int(pos.z) / config::chunkSize};
+					int(pos.z) / config::chunkSize };
 }
 
-void universeNode::iUpdateChunks(const point3Di &localChunk) {
+void universeNode::iUpdateChunks(const point3Di& localChunk) {
 	for (int x = localChunk.x - (config::chunkLoadRadius / 2) + 2;
-		 x < localChunk.x + (config::chunkLoadRadius / 2) - 2; ++x) {
+		x < localChunk.x + (config::chunkLoadRadius / 2) - 2; ++x) {
 		for (int y = localChunk.y - (config::chunkLoadRadius / 2) + 2;
-			 y < localChunk.y + (config::chunkLoadRadius / 2) - 2; ++y) {
+			y < localChunk.y + (config::chunkLoadRadius / 2) - 2; ++y) {
 			for (int z = localChunk.z - (config::chunkLoadRadius / 2) + 2;
-				 z < localChunk.z + (config::chunkLoadRadius / 2) - 2; ++z) {
-				point3Di chunkPos{x, y, z};
-				terrainChunk &chunk = chunkAt(chunkPos);
+				z < localChunk.z + (config::chunkLoadRadius / 2) - 2; ++z) {
+				point3Di chunkPos{ x, y, z };
+				terrainChunk& chunk = chunkAt(chunkPos);
 
 				if (chunk != chunkPos || !chunk.loaded()) {
 					/*if()//if file already exists, load
@@ -107,70 +107,83 @@ void universeNode::iUpdateChunks(const point3Di &localChunk) {
 	}
 }
 
-terrainChunk &universeNode::chunkAt(const point3Di &pos) {
+terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	return _chunks[(pos.x / config::chunkSize % config::chunkLoadRadius *
-					config::chunkLoadRadius * config::chunkLoadRadius) +
-				   (pos.y / config::chunkSize % config::chunkLoadRadius *
-					config::chunkLoadRadius) +
-				   (pos.z / config::chunkSize % config::chunkLoadRadius)];
+		config::chunkLoadRadius * config::chunkLoadRadius) +
+		(pos.y / config::chunkSize % config::chunkLoadRadius *
+			config::chunkLoadRadius) +
+			(pos.z / config::chunkSize % config::chunkLoadRadius)];
 }
 
-terrainChunk &universeNode::getChunk(const point3Di &pos) {
+terrainChunk& universeNode::getChunk(const point3Di& pos) {
 	return _chunks[(pos.x % config::chunkLoadRadius * config::chunkLoadRadius *
-					config::chunkLoadRadius) +
-				   (pos.y % config::chunkLoadRadius * config::chunkLoadRadius) +
-				   (pos.z % config::chunkLoadRadius)];
+		config::chunkLoadRadius) +
+		(pos.y % config::chunkLoadRadius * config::chunkLoadRadius) +
+		(pos.z % config::chunkLoadRadius)];
 }
 
 void universeNode::linkChildren() {
-	for(universeNode&u : _children){
+	for (universeNode& u : _children) {
 		u._parent = this;
 		u.linkChildren();
 	}
-	if(_parent == nullptr){
-		_depth=0;
+	if (_parent == nullptr) {
+		_depth = 0;
 	}
-	else{
-		_depth=_parent->_depth+1;
+	else {
+		_depth = _parent->_depth + 1;
 	}
-	for(universeNode& u : _children){
+	for (universeNode& u : _children) {
 		u.linkChildren();
 	}
 }
 
 
+//fdd universeNode::getLocalPosOLD(
+//	fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
+//								  // relative to our local node (*this)
+//{
+//	fdd transform;
+//	const universeNode* transformParent = _parent;
+//	universeNode* pu = u;
+//
+//	while ((pu == nullptr && transformParent == nullptr) || pu->_parent != transformParent) {
+//		if (pu == nullptr || pu->_parent == nullptr || (transformParent != nullptr &&
+//			transformParent->_depth >=
+//			pu->_depth)) { // if tP is deeper than pu
+//			transform += transformParent->_position;
+//			transformParent = transformParent->_parent;
+//		}
+//		else if (transformParent == nullptr ||
+//			pu->_depth > transformParent->_depth) {
+//			f += pu->_position;
+//			pu = pu->_parent;
+//		}
+//	}
+//	return f -= transform;
+//}
+
 fdd universeNode::getLocalPos(
-	fdd f, universeNode *u) const // returns the fdd f (which is relative to u)
+	fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
 								  // relative to our local node (*this)
 {
-	fdd transform;
-	universeNode *transformParent = _parent;
-	universeNode *pu = u;
-
-	while (pu != transformParent) {
-		if (pu == nullptr || (transformParent != nullptr &&
-							  transformParent->_depth >=
-								  pu->_depth)) { // if tP is deeper than pu
-			transform += transformParent->_position;
-			transformParent = transformParent->_parent;
-		}
-		else if (transformParent == nullptr ||
-			pu->_depth > transformParent->_depth) {
-			f += pu->_position;
-			pu = pu->_parent;
-		}
+	if(u==_parent)
+		return f;
+	else
+	{
+		// TODO
+		return f;
 	}
-	return f -= transform;
 }
 
-void to_json(nlohmann::json &j, const universeNode &f) {
-	j = json{{"name", f._name},			{"mass", f._mass},
+void to_json(nlohmann::json& j, const universeNode& f) {
+	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position}, {"velocity", f._velocity},
-			 {"children", f._children}};
+			 {"children", f._children} };
 }
 
-void from_json(const json &j, universeNode &f) {
+void from_json(const json& j, universeNode& f) {
 	f._depth = 0;
 	f._ID = j.at("id").get<unsigned int>();
 	f._parent = nullptr;
@@ -181,7 +194,7 @@ void from_json(const json &j, universeNode &f) {
 	f._position = j.at("position").get<fdd>();
 	f._velocity = j.at("velocity").get<fdd>();
 	f._children = std::vector<universeNode>();
-	for (const nlohmann::json &element : j.at("children")) {
+	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
 	switch (f._type) {

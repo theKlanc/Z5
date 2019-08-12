@@ -5,14 +5,15 @@
 #include "gameCore.hpp"
 #include "components/position.hpp"
 #include "components/drawable.hpp"
+#include <filesystem>
 #include <variant>
 
 State::Playing::Playing() {}
 
 State::Playing::Playing(gameCore &gc, std::string saveName = "default"):State_Base(gc){
 	//create savefile folder in case it doesn't exist, and copy needed files
-	if(!std::filesystem::exists(HI2::getSavesPath().c_str() + saveName)){
-		std::filesystem::create_directory(HI2::getSavesPath().c_str() + saveName);
+	if(!std::filesystem::exists(HI2::getSavesPath().string().c_str() + saveName)){
+		std::filesystem::create_directories(HI2::getSavesPath().string().c_str() + saveName);
 		std::filesystem::copy_file(HI2::getDataPath().string()+"defData/universe.json",HI2::getSavesPath().string() + saveName + "/universe.json");
 	}
 
@@ -29,11 +30,19 @@ State::Playing::Playing(gameCore &gc, std::string saveName = "default"):State_Ba
 	//
 	_player = _enttRegistry.create();
 	position& playerPos = _enttRegistry.assign<position>(_player);
+
+	_camera = _enttRegistry.create();
+	position& cameraPos = _enttRegistry.assign<position>(_camera);
+	
 	drawable& playerSprite = _enttRegistry.assign<drawable>(_player);
 	universeNode* result;
 	_universeBase.findNodeByID(4,result);
 	playerPos.parent=result;
 	playerPos.pos={10,10,10,0};
+
+	cameraPos.parent=result;
+	cameraPos.pos={10,10,10,0};
+	
 	playerSprite.sprite=_core->getGraphics().loadTexture("player");
 }
 
@@ -49,14 +58,11 @@ void State::Playing::draw() {
 	std::vector<renderLayer> renderOrders;
 
 	{
-		position cameraPos = _enttRegistry.get<position>(camera);
+		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos,cameraPos.parent);
-		//std::sort(sortedDrawingNodes.begin(),sortedDrawingNodes.end(),[](universeNode* a, universeNode* b) {
-		//	return a->drawBefore(*b);
-		//});
 
 
-		for(int i = config::cameraDepth; i >=0;++i){//for depth afegim cada capa dels DrawingNodes
+		for(int i = config::cameraDepth; i >=0;--i){//for depth afegim cada capa dels DrawingNodes
 			position currentCameraPos = cameraPos;
 			currentCameraPos.pos.z-=i;
 			for(universeNode*& node : sortedDrawingNodes){
@@ -98,8 +104,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer &rl)
 {
 	struct visitor{
 		void operator()(const entt::entity& entity) const{
-			drawable sprite = registry.get<drawable>(entity);
-			HI2::drawTexture(*sprite.sprite,0,0,0);
+			//const drawable& sprite = registry.get<drawable>(entity);
+			//HI2::drawTexture(*sprite.sprite,0,0,0);
 		}
 		void operator()(const nodeLayer& node) const{
 			// here we should draw a nodeLayer
