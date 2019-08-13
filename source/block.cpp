@@ -15,3 +15,5 @@ void from_json(const nlohmann::json &j, block &b)
 	j.at("opaque").get_to(b.opaque);
 	j.at("mass").get_to(b.mass);
 }
+
+std::vector<block> block::terrainTable;

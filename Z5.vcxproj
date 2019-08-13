@@ -190,7 +190,6 @@
     <ClInclude Include="include\block.hpp" />
     <ClInclude Include="include\components\drawable.hpp" />
     <ClInclude Include="include\components\position.hpp" />
-    <ClInclude Include="include\components\test.hpp" />
     <ClInclude Include="include\config.hpp" />
     <ClInclude Include="include\fdd.hpp" />
     <ClInclude Include="include\gameCore.hpp" />

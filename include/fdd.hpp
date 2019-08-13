@@ -16,8 +16,8 @@ struct fdd {
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;
 	fdd operator-(const fdd& f)const;
-	fdd operator+=(const fdd& f)const;
-	fdd operator-=(const fdd& f)const;
+	fdd& operator+=(const fdd& f);
+	fdd& operator-=(const fdd& f);
 };
 
 void to_json(json& j, const fdd& f);

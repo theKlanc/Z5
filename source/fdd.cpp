@@ -46,12 +46,20 @@ fdd fdd::operator-(const fdd& f)const
 	return fdd{x-f.x,y-f.y,z-f.z,r-f.r};
 }
 
-fdd fdd::operator+=(const fdd &f)const
+fdd& fdd::operator+=(const fdd &f)
 {
-	return *this + f;
+	x+=f.x;
+	y+=f.y;
+	z+=f.z;
+	r+=f.r;
+	return *this;
 }
 
-fdd fdd::operator-=(const fdd &f)const
+fdd& fdd::operator-=(const fdd &f)
 {
-	return *this - f;
+	x-=f.x;
+	y-=f.y;
+	z-=f.z;
+	r-=f.r;
+	return *this;
 }
