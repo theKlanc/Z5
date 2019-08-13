@@ -6,3 +6,8 @@ bin/
 build/
 obj/
 doc/
+*.dll
+.vs/
+Debug/
+deps/entt/
+saves/default/universe.json
