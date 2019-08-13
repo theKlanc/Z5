@@ -173,7 +173,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 	v.registry = &_enttRegistry;
 	v.cameraPos = _enttRegistry.get<position>(_camera);
 	v.zoom = ((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale-config::minScale)) + config::minScale;
-	std::visit(v, rl.target);
+	if(v.zoom >0)
+		std::visit(v, rl.target);
 }
 
 void State::Playing::loadTerrainTable()
