@@ -46,6 +46,26 @@ fdd fdd::operator-(const fdd& f)const
 	return fdd{x-f.x,y-f.y,z-f.z,r-f.r};
 }
 
+fdd fdd::operator*(const fdd& f) const
+{
+	return { x * f.x,y * f.y,z * f.z,r * f.r };
+}
+
+fdd fdd::operator/(const fdd& f) const
+{
+	return { x / f.x,y / f.y,z / f.z,r / f.r };
+}
+
+fdd fdd::operator*(const double& f) const
+{
+	return { x * f,y * f,z * f,r * f };
+}
+
+fdd fdd::operator/(const double& f) const
+{
+	return { x / f,y / f,z / f,r / f };
+}
+
 fdd& fdd::operator+=(const fdd &f)
 {
 	x+=f.x;
@@ -61,5 +81,41 @@ fdd& fdd::operator-=(const fdd &f)
 	y-=f.y;
 	z-=f.z;
 	r-=f.r;
+	return *this;
+}
+
+fdd& fdd::operator*=(const fdd& f)
+{
+	x *= f.x;
+	y *= f.y;
+	z *= f.z;
+	r *= f.r;
+	return *this;
+}
+
+fdd& fdd::operator/=(const fdd& f)
+{
+	x /= f.x;
+	y /= f.y;
+	z /= f.z;
+	r /= f.r;
+	return *this;
+}
+
+fdd& fdd::operator*=(const double& f)
+{
+	x *= f;
+	y *= f;
+	z *= f;
+	r *= f;
+	return *this;
+}
+
+fdd& fdd::operator/=(const double& f)
+{
+	x /= f;
+	y /= f;
+	z /= f;
+	r /= f;
 	return *this;
 }

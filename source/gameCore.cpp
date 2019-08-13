@@ -6,14 +6,20 @@
 #include <iostream>
 
 void gameCore::startGameLoop() {
-	std::cout << "LMAO";
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTick  = std::chrono::high_resolution_clock::now();
 	while (HI2::aptMainLoop() && !states.empty() && !_exit) {
-
+		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
+		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
+		
 		states.top()->input();
 
-		states.top()->update(0);
+
+		
+		states.top()->update((double)microSeconds / 1000000);
 
 		states.top()->draw();
+		
+		lastTick = currentTick;
 	}
 }
 

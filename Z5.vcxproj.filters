@@ -311,6 +311,9 @@
     <ClInclude Include="include\block.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\components\velocity.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Z5.includes" />

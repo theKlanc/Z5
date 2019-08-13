@@ -170,10 +170,10 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f
 		return f;
 	else
 	{
-		fdd transform;
+		fdd transform{0,0,0,0};
 		const universeNode* transformLocal = this;
 
-		while (transformLocal != u && ((transformLocal->_depth > 0) || (u->_depth > 0))) { // while transformLocal isn't u's parent and we can move one of them
+		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
 			if (transformLocal->_depth - u->_depth > 1) {//should move u
 				f += u->_parent->_position;
 				u = u->_parent;
@@ -183,16 +183,7 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f
 				transformLocal = transformLocal->_parent;
 			}
 		}
-
-		if (u->_depth == transformLocal->_depth) {// they are level
-			transform += transformLocal->_position;
-			return f - transform;
-		}
-		else
-		{
-			assert(u->_depth - transformLocal->_depth == 1);
-			return f - transform;
-		}
+		return f - transform;	
 	}
 }
 
