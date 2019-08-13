@@ -64,13 +64,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\clank\Source\Repos\theKlanc\Z5\deps\HardwareInterface;C:\SDL2\include;C:\Users\clank\Source\Repos\theKlanc\Z5\deps;C:\Users\clank\Source\Repos\theKlanc\Z5\include;$(IncludePath)</IncludePath>
-    <SourcePath>C:\Users\clank\Source\Repos\theKlanc\Z5\deps\HardwareInterface;C:\Users\clank\Source\Repos\theKlanc\Z5\source;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
     <LibraryPath>C:\SDL2\lib\x86;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Users\Lewis\Documents\Z5\source;C:\Users\Lewis\Documents\Z5\deps\HardwareInterface;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -102,6 +107,15 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
