@@ -10,6 +10,5 @@ public:
 	virtual ~nodeGenerator() = 0;
 	virtual terrainChunk getChunk(const point3Di& p) = 0;
 protected:
-	std::vector<block> *_terrainTable;
 	FastNoise _noiseGenerator;
 };

@@ -11,6 +11,9 @@ struct block{ // A block represents a 1m³ cube of material
 	bool opaque = true; // can we avoid rendering blocks under it?
 	double mass = 1220; // mass in kg
 	HI2::Texture* texture = nullptr;
+
+	
+	static std::vector<block> terrainTable;
 };
 
 void to_json(json& j, const block& b);

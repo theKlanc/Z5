@@ -35,7 +35,7 @@ namespace State {
 		void loadTerrainTable();
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
-		entt::DefaultRegistry _enttRegistry;
+		entt::registry _enttRegistry;
 		
 	};
 } // namespace State

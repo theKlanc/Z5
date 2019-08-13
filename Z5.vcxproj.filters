@@ -197,9 +197,6 @@
     <ClInclude Include="deps\entt\core\algorithm.hpp">
       <Filter>deps\entt</Filter>
     </ClInclude>
-    <ClInclude Include="include\block.hpp">
-      <Filter>deps\entt</Filter>
-    </ClInclude>
     <ClInclude Include="deps\entt\resource\cache.hpp">
       <Filter>deps\entt</Filter>
     </ClInclude>
@@ -311,8 +308,8 @@
     <ClInclude Include="deps\FastNoise\FastNoise.h">
       <Filter>deps\FastNoise</Filter>
     </ClInclude>
-    <ClInclude Include="include\components\test.hpp">
-      <Filter>include\components</Filter>
+    <ClInclude Include="include\block.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

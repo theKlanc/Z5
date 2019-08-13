@@ -22,7 +22,7 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 
 void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
 	fdd localPlayerPos = getLocalPos(playerPos, u);
-	if (_position.distance2D(localPlayerPos) < (_diameter + 100)) {
+	if (localPlayerPos.distance2D({0,0,0,0}) < (_diameter + 100)) {
 		iUpdateChunks(chunkFromPos(localPlayerPos));
 	}
 	for (universeNode& child : _children) {
@@ -31,7 +31,7 @@ void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
 }
 
 bool universeNode::shouldDraw(fdd f) {
-	return (_position.distance2D(f) < _diameter / 2 + 60);
+	return (f.distance2D({0,0,0,0}) < _diameter / 2 + 60);
 }
 
 std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
@@ -166,15 +166,15 @@ void universeNode::linkChildren() {
 fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
 								  // relative to our local node (*this)
 {
-	if (u == _parent)
+	if (u == this)
 		return f;
 	else
 	{
 		fdd transform;
 		const universeNode* transformLocal = this;
 
-		while (transformLocal != u->_parent && ((transformLocal->_depth > 0) || (u->_depth > 1))) { // while transformLocal isn't u's parent and we can move one of them
-			if (u->_depth - transformLocal->_depth > 1) {//should move u
+		while (transformLocal != u && ((transformLocal->_depth > 0) || (u->_depth > 0))) { // while transformLocal isn't u's parent and we can move one of them
+			if (transformLocal->_depth - u->_depth > 1) {//should move u
 				f += u->_parent->_position;
 				u = u->_parent;
 			}
