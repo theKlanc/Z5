@@ -7,6 +7,7 @@
 #include "components/drawable.hpp"
 #include <filesystem>
 #include <variant>
+#include "config.hpp"
 #include "components/velocity.hpp"
 
 State::Playing::Playing() {}
@@ -33,34 +34,49 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	_player = _enttRegistry.create();
 	_camera = _enttRegistry.create();
+	entt::entity dog = _enttRegistry.create();
+
+	auto& playerSprite = _enttRegistry.assign<drawable>(_player);
+	playerSprite.sprite = _core->getGraphics().loadTexture("player");
+
+	auto& dogSprite = _enttRegistry.assign<drawable>(dog);
+	dogSprite.sprite = _core->getGraphics().loadTexture("gromit");
+
+	auto& dogPos = _enttRegistry.assign<position>(dog);
+	dogPos.parent = result;
+	dogPos.pos.x = 0;
+	dogPos.pos.y = 0;
+	dogPos.pos.z = 0;
+	dogPos.pos.r = 0;
+
+	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
+	dogSpd.parent = result;
+	dogSpd.spd.x = .1;
+	dogSpd.spd.y = .1;
+	dogSpd.spd.z = .1;
+	dogSpd.spd.r = -0.1;
 
 	auto& playerPos = _enttRegistry.assign<position>(_player);
 	playerPos.parent = result;
-	playerPos.pos.x = 10;
-	playerPos.pos.y = 10;
-	playerPos.pos.z = 10;
+	playerPos.pos.x = 0;
+	playerPos.pos.y = 0;
+	playerPos.pos.z = 0;
 	playerPos.pos.r = 0;
-
-
-	auto& cameraPos = _enttRegistry.assign<position>(_camera);
-	cameraPos.parent = result;
-	cameraPos.pos.x = 11;
-	cameraPos.pos.y = 11;
-	cameraPos.pos.z = 11;
-	cameraPos.pos.r = 0;
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
 	playerSpd.parent = result;
-	playerSpd.spd.x = 1;
-	playerSpd.spd.y = 1;
-	playerSpd.spd.z = 0;
+	playerSpd.spd.x = -.1;
+	playerSpd.spd.y = -.1;
+	playerSpd.spd.z = -.1;
 	playerSpd.spd.r = 0.1;
 
-	auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-
-	auto& pos = _enttRegistry.get<position>(_player);
-
-	playerSprite.sprite = _core->getGraphics().loadTexture("player");
+	auto& cameraPos = _enttRegistry.assign<position>(_camera);
+	cameraPos.parent = result;
+	cameraPos.pos.x = 0;
+	cameraPos.pos.y = 0;
+	cameraPos.pos.z =8;
+	cameraPos.pos.r = 0;
+	
 }
 
 void State::Playing::input() {}
@@ -132,26 +148,31 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			
-			localPos.x *= config::spriteSize;
+			localPos.x *= config::spriteSize; // passem de coordenades del mon a coordenades de pantalla
 			localPos.y *= config::spriteSize;
 			
-			localPos.x += HI2::getScreenWidth() / 2;
-			localPos.y += HI2::getScreenHeight() / 2;
+			localPos.x += (HI2::getScreenWidth() * zoom) / 2 ; //canviem el sistema de referencia respecte al centre a respecte el TL
+			localPos.y += (HI2::getScreenHeight() * zoom) / 2 ; // NICE
 
-			localPos.x -= config::spriteSize/2;
-			localPos.y -= config::spriteSize/2;
-			// falta fer scaling segons depth
-			HI2::drawTexture(*sprite.sprite, localPos.x, localPos.y, 1, localPos.r);
+			localPos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+			localPos.y -= (config::spriteSize * zoom) / 2;
+
+			localPos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth())/2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+			localPos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight())/2;
+			
+			HI2::drawTexture(*sprite.sprite, localPos.x, localPos.y, zoom, localPos.r);
 		}
 		void operator()(const nodeLayer& node) const {
 			// here we should draw a nodeLayer
 		}
 		entt::registry* registry;
 		position cameraPos;
+		double zoom;
 	};
 	visitor v;
 	v.registry = &_enttRegistry;
 	v.cameraPos = _enttRegistry.get<position>(_camera);
+	v.zoom = ((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale-config::minScale)) + config::minScale;
 	std::visit(v, rl.target);
 }
 
