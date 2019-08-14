@@ -152,7 +152,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			localPos.y *= config::spriteSize;
 			
 			localPos.x += (HI2::getScreenWidth() * zoom) / 2 ; //canviem el sistema de referencia respecte al centre a respecte el TL
-			localPos.y += (HI2::getScreenHeight() * zoom) / 2 ; // NICE
+			localPos.y += (HI2::getScreenHeight() * zoom) / 2 ;
 
 			localPos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
 			localPos.y -= (config::spriteSize * zoom) / 2;
@@ -163,7 +163,31 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			HI2::drawTexture(*sprite.sprite, localPos.x, localPos.y, zoom, localPos.r);
 		}
 		void operator()(const nodeLayer& node) const {
-			// here we should draw a nodeLayer
+			fdd firstBlock = node.node->getLocalPos(cameraPos.pos,cameraPos.parent);
+			firstBlock.z=node.layerHeight;
+			fdd localPos = firstBlock - cameraPos.pos;
+			firstBlock.x-=(HI2::getScreenWidth()/config::spriteSize)/2;
+			firstBlock.y-=(HI2::getScreenHeight()/config::spriteSize)/2;
+			
+			
+			localPos.x *= config::spriteSize; // passem de coordenades del mon a coordenades de pantalla
+			localPos.y *= config::spriteSize;
+			
+			localPos.x += (HI2::getScreenWidth() * zoom) / 2 ; //canviem el sistema de referencia respecte al centre a respecte el TL
+			localPos.y += (HI2::getScreenHeight() * zoom) / 2 ;
+
+			localPos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+			localPos.y -= (config::spriteSize * zoom) / 2;
+
+			localPos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth())/2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+			localPos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight())/2;
+			for(int x =0;x<HI2::getScreenWidth();++x)
+			{
+				for(int y = 0;y<HI2::getScreenHeight();++y)
+				{
+					HI2::drawTexture(*node.node->getBlock({(int)round(firstBlock.x)+x,(int)round(firstBlock.y)+y,node.layerHeight}).texture, localPos.x, localPos.y, zoom, localPos.r);
+				}
+			}
 		}
 		entt::registry* registry;
 		position cameraPos;

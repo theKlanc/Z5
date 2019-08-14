@@ -43,7 +43,8 @@ public:
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
-
+	fdd getPosition();
+	universeNode* getParent();
 
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
@@ -62,8 +63,7 @@ public:
 
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);
-	terrainChunk& getChunk(const point3Di &pos);
-
+	int chunkIndex(const point3Di &pos) const;
 
 	std::string _name;
 	double _mass; // mass in kg

@@ -13,7 +13,8 @@
 #include "nodeGenerators/starGenerator.hpp"
 
 block& universeNode::getBlock(const point3Di& pos) {
-	return chunkAt(pos).getBlock(pos);
+	terrainChunk &tChunk = chunkAt(pos);
+	return tChunk.getBlock(pos);
 }
 
 void universeNode::setBlock(block* b, const point3Di& pos) {
@@ -22,7 +23,7 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 
 void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
 	fdd localPlayerPos = getLocalPos(playerPos, u);
-	if (localPlayerPos.distance2D({0,0,0,0}) < (_diameter + 100)) {
+	if (localPlayerPos.distance2D({ 0,0,0,0 }) < (_diameter + 100)) {
 		iUpdateChunks(chunkFromPos(localPlayerPos));
 	}
 	for (universeNode& child : _children) {
@@ -31,7 +32,7 @@ void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
 }
 
 bool universeNode::shouldDraw(fdd f) {
-	return (f.distance2D({0,0,0,0}) < _diameter / 2 + 60);
+	return (f.distance2D({ 0,0,0,0 }) < _diameter / 2 + 60);
 }
 
 std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
@@ -99,7 +100,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 						chunk.load();
 					}
 					else{*/
-					_generator->getChunk(chunkPos);
+					chunk=terrainChunk();_generator->getChunk(chunkPos);
 					//}
 				}
 			}
@@ -108,18 +109,30 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 }
 
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
-	return _chunks[(pos.x / config::chunkSize % config::chunkLoadRadius *
-		config::chunkLoadRadius * config::chunkLoadRadius) +
-		(pos.y / config::chunkSize % config::chunkLoadRadius *
-			config::chunkLoadRadius) +
-			(pos.z / config::chunkSize % config::chunkLoadRadius)];
+	int x = (pos.x / config::chunkSize % config::chunkLoadRadius);
+	if (x < 0)
+		x += config::chunkLoadRadius;
+	int y = (pos.y / config::chunkSize % config::chunkLoadRadius);
+	if (y < 0)
+		y += config::chunkLoadRadius;
+	int z = (pos.z / config::chunkSize % config::chunkLoadRadius);
+	if (z < 0)
+		z += config::chunkLoadRadius;
+	return _chunks[(x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + z];
 }
 
-terrainChunk& universeNode::getChunk(const point3Di& pos) {
-	return _chunks[(pos.x % config::chunkLoadRadius * config::chunkLoadRadius *
-		config::chunkLoadRadius) +
-		(pos.y % config::chunkLoadRadius * config::chunkLoadRadius) +
-		(pos.z % config::chunkLoadRadius)];
+int universeNode::chunkIndex(const point3Di& pos) const
+{
+	int x = (pos.x / config::chunkSize % config::chunkLoadRadius);
+	if (x < 0)
+		x += config::chunkLoadRadius;
+	int y = (pos.y / config::chunkSize % config::chunkLoadRadius);
+	if (y < 0)
+		y += config::chunkLoadRadius;
+	int z = (pos.z / config::chunkSize % config::chunkLoadRadius);
+	if (z < 0)
+		z += config::chunkLoadRadius;
+	return (x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + z;
 }
 
 void universeNode::linkChildren() {
@@ -170,7 +183,7 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f
 		return f;
 	else
 	{
-		fdd transform{0,0,0,0};
+		fdd transform{ 0,0,0,0 };
 		const universeNode* transformLocal = this;
 
 		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
@@ -183,8 +196,18 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		return f - transform;	
+		return f - transform;
 	}
+}
+
+fdd universeNode::getPosition()
+{
+	return _position;
+}
+
+universeNode* universeNode::getParent()
+{
+	return _parent;
 }
 
 void to_json(nlohmann::json& j, const universeNode& f) {

@@ -20,5 +20,6 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 			}
 		}
 	}
+	
 	return chunk;
 }
