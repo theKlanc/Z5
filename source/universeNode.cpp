@@ -14,6 +14,8 @@
 
 block& universeNode::getBlock(const point3Di& pos) {
 	terrainChunk &tChunk = chunkAt(pos);
+	if(!tChunk.loaded())
+		return block::terrainTable[0];
 	return tChunk.getBlock(pos);
 }
 

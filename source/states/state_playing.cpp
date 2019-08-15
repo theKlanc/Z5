@@ -185,7 +185,9 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			{
 				for(int y = 0;y<HI2::getScreenHeight();++y)
 				{
-					HI2::drawTexture(*node.node->getBlock({(int)round(firstBlock.x)+x,(int)round(firstBlock.y)+y,node.layerHeight}).texture, localPos.x, localPos.y, zoom, localPos.r);
+					block& b = node.node->getBlock({(int)round(firstBlock.x)+x,(int)round(firstBlock.y)+y,node.layerHeight});
+					if(b.visible)
+						HI2::drawTexture(*b.texture, localPos.x, localPos.y, zoom, localPos.r);
 				}
 			}
 		}
