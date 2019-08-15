@@ -18,7 +18,7 @@ void gameCore::startGameLoop() {
 		states.top()->update((double)microSeconds / 1000000);
 
 		states.top()->draw();
-		
+		std::cout << "Frametime: " << microSeconds/1000 << "ms" << std::endl;
 		lastTick = currentTick;
 	}
 }
