@@ -47,8 +47,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& dogPos = _enttRegistry.assign<position>(dog);
 	dogPos.parent = result;
-	dogPos.pos.x = 203;
-	dogPos.pos.y = 203;
+	dogPos.pos.x = 203.5;
+	dogPos.pos.y = 203.5;
 	dogPos.pos.z = dogPos.parent->getHeight({ (int)dogPos.pos.x,(int)dogPos.pos.y }) + 0.5;
 	dogPos.pos.r = 0;
 
@@ -61,8 +61,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& playerPos = _enttRegistry.assign<position>(_player);
 	playerPos.parent = result;
-	playerPos.pos.x = 200;
-	playerPos.pos.y = 200;
+	playerPos.pos.x = 200.5;
+	playerPos.pos.y = 200.5;
 	playerPos.pos.z = playerPos.parent->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 0.5;
 	playerPos.pos.r = 0;
 
@@ -219,7 +219,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b.visible){
 						HI2::drawTexture(*b.texture, drawPos.x + (x * zoom * config::spriteSize), drawPos.y + (y * zoom * config::spriteSize), zoom, localPos.r);
-							HI2::drawRectangle({ (int)(drawPos.x + (x * zoom * config::spriteSize)),(int)(drawPos.y + (y * zoom * config::spriteSize)) }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*(zoom-1)));
+						HI2::drawRectangle({ (int)(drawPos.x + (x * zoom * config::spriteSize)),(int)(drawPos.y + (y * zoom * config::spriteSize)) }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*((config::depthScale-zoom)-config::minScale)));
 					}
 				}
 			}
