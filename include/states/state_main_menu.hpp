@@ -7,7 +7,7 @@ namespace State {
 	  public:
 		MainMenu();
 		MainMenu(gameCore &gc);
-		void input() override;
+		void input(float dt) override;
 		void update(float dt) override;
 		void draw() override;
 

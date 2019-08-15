@@ -6,7 +6,7 @@ State::MainMenu::MainMenu(gameCore &gc)
 
 }
 
-void State::MainMenu::input() {}
+void State::MainMenu::input(float dt) {}
 
 void State::MainMenu::update(float dt) {}
 

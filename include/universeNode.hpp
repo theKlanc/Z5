@@ -45,6 +45,7 @@ public:
 	fdd getLocalPos(fdd f,universeNode* u) const;
 	fdd getPosition();
 	universeNode* getParent();
+	unsigned int getHeight(const point2D &pos);
 
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);

@@ -13,7 +13,7 @@ namespace State {
 		Playing();
 		Playing(gameCore &gc, std::string );
 
-		void input() override;
+		void input(float dt) override;
 		void update(float dt) override;
 		void draw() override;
 

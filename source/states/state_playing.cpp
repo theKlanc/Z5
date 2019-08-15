@@ -19,11 +19,11 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	//create savefile folder in case it doesn't exist, and copy needed files
 	if (!std::filesystem::exists(savePath)) {
 		std::filesystem::create_directories(savePath);
-		std::filesystem::copy_file(((HI2::getDataPath()/="defData"))/="/universe.json", savePath/="universe.json");
+		std::filesystem::copy_file(((HI2::getDataPath() /= "defData")) /= "/universe.json", savePath /= "universe.json");
 	}
 
 	//load universe.json
-	std::ifstream universeFile(savePath/="universe.json");
+	std::ifstream universeFile(savePath /= "universe.json");
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
@@ -47,37 +47,37 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& dogPos = _enttRegistry.assign<position>(dog);
 	dogPos.parent = result;
-	dogPos.pos.x = 0;
-	dogPos.pos.y = 0;
-	dogPos.pos.z = 15;
+	dogPos.pos.x = 203;
+	dogPos.pos.y = 203;
+	dogPos.pos.z = dogPos.parent->getHeight({ (int)dogPos.pos.x,(int)dogPos.pos.y }) + 0.5;
 	dogPos.pos.r = 0;
 
 	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
 	dogSpd.parent = result;
-	dogSpd.spd.x = .1;
-	dogSpd.spd.y = .1;
-	dogSpd.spd.z = .1;
+	dogSpd.spd.x = 0;
+	dogSpd.spd.y = 0;
+	dogSpd.spd.z = 0;
 	dogSpd.spd.r = -0.1;
 
 	auto& playerPos = _enttRegistry.assign<position>(_player);
 	playerPos.parent = result;
-	playerPos.pos.x = 0;
-	playerPos.pos.y = 0;
-	playerPos.pos.z = 15;
+	playerPos.pos.x = 200;
+	playerPos.pos.y = 200;
+	playerPos.pos.z = playerPos.parent->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 0.5;
 	playerPos.pos.r = 0;
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
 	playerSpd.parent = result;
-	playerSpd.spd.x = -.1;
-	playerSpd.spd.y = -.1;
-	playerSpd.spd.z = -.1;
+	playerSpd.spd.x = 0;
+	playerSpd.spd.y = 0;
+	playerSpd.spd.z = 0;
 	playerSpd.spd.r = 0.1;
 
 	auto& cameraPos = _enttRegistry.assign<position>(_camera);
 	cameraPos.parent = result;
-	cameraPos.pos.x = 0;
-	cameraPos.pos.y = 0;
-	cameraPos.pos.z = 15;
+	cameraPos.pos.x = 200;
+	cameraPos.pos.y = 200;
+	cameraPos.pos.z = cameraPos.parent->getHeight({ (int)cameraPos.pos.x,(int)cameraPos.pos.y }) + 0.5;
 	cameraPos.pos.r = 0;
 
 	auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
@@ -89,7 +89,37 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 }
 
-void State::Playing::input() {}
+void State::Playing::input(float dt)
+{
+	auto& cameraPos = _enttRegistry.get<position>(_camera);
+	auto& cameraSpd = _enttRegistry.get<velocity>(_camera);
+	int held = HI2::getKeysHeld();
+
+	if (held & HI2::BUTTON::KEY_MINUS) {
+		cameraSpd.spd = fdd();
+	}
+	if (held & HI2::BUTTON::KEY_UP) {
+		cameraSpd.spd.y -= 3 * dt;
+	}
+	if (held & HI2::BUTTON::KEY_DOWN) {
+		cameraSpd.spd.y += 3 * dt;
+	}
+	if (held & HI2::BUTTON::KEY_LEFT) {
+		cameraSpd.spd.x -= 3 * dt;
+	}
+	if (held & HI2::BUTTON::KEY_RIGHT) {
+		cameraSpd.spd.x += 3 * dt;
+	}
+	if (held & HI2::BUTTON::KEY_A) {
+		cameraPos.pos.z += 6 * dt;
+	}
+	if (held & HI2::BUTTON::KEY_B) {
+		cameraPos.pos.z -= 6 * dt;
+	}
+	if (held & HI2::BUTTON::KEY_PLUS) {
+		_core->quit();
+	}
+}
 
 void State::Playing::update(float dt) {
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
@@ -99,7 +129,7 @@ void State::Playing::update(float dt) {
 
 		pos.pos += (vel.spd * dt);
 	}
-	
+
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	_universeBase.updateChunks(cameraPosition.pos, cameraPosition.parent);//Update chunks
 
@@ -135,7 +165,7 @@ void State::Playing::draw() {
 		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
 			auto& pos = drawableEntityView.get<position>(entity);
 			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
-			if(depth>0 && depth < config::cameraDepth)
+			if (depth > 0 && depth < config::cameraDepth)
 				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
 		}
 
@@ -162,27 +192,35 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const drawable& sprite = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
-			point2Dd drawPos = translatePositionToDisplay({localPos.x,localPos.y},zoom);
+			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
 			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
+			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
 			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc en que esta la camera
 			firstBlock.z = node.layerHeight;
 
 			fdd localPos = firstBlock - cameraPos.pos;
-			
+
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
 			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
 
-			point2Dd drawPos = translatePositionToDisplay({(double)-((HI2::getScreenWidth() / config::spriteSize) / 2),(double)-((HI2::getScreenHeight() / config::spriteSize) / 2)},zoom);
-			
+			double fraccionalX = 0.5 - fmod(cameraPos.pos.x, 1);
+			double fraccionalY = 0.5 - fmod(cameraPos.pos.y, 1);
+			if (fraccionalX < 0)fraccionalX += 1;
+			if (fraccionalY < 0)fraccionalY += 1;
+
+			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
+
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
 				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 				{
 					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (b.visible)
-						HI2::drawTexture(*b.texture, drawPos.x+(x*zoom*config::spriteSize), drawPos.y+(y*zoom*config::spriteSize), zoom, localPos.r);
+					if (b.visible){
+						HI2::drawTexture(*b.texture, drawPos.x + (x * zoom * config::spriteSize), drawPos.y + (y * zoom * config::spriteSize), zoom, localPos.r);
+							HI2::drawRectangle({ (int)(drawPos.x + (x * zoom * config::spriteSize)),(int)(drawPos.y + (y * zoom * config::spriteSize)) }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*(zoom-1)));
+					}
 				}
 			}
 		}
@@ -212,7 +250,7 @@ void State::Playing::loadTerrainTable()
 	block::terrainTable = _terrainTable;
 }
 
-point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double &zoom) 
+point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)
 {
 	pos.x *= config::spriteSize * zoom; // passem de coordenades del mon a coordenades de pantalla
 	pos.y *= config::spriteSize * zoom;
@@ -223,8 +261,8 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double &
 	pos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
 	pos.y -= (config::spriteSize * zoom) / 2;
 
-	pos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth())/2;
-	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight())/2;
+	pos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth()) / 2;
+	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight()) / 2;
 
 	return pos;
 }

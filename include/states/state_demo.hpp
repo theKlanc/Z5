@@ -10,7 +10,7 @@ namespace State {
 		Demo(gameCore& c);
 		~Demo() override;
 
-		void input() override;
+		void input(float dt) override;
 		void update(float dt) override;
 		void draw() override;
 

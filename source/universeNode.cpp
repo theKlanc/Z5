@@ -23,13 +23,13 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 	chunkAt(pos).setBlock(b, pos);
 }
 
-void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
-	fdd localPlayerPos = getLocalPos(playerPos, u);
-	if (localPlayerPos.distance2D({ 0,0,0,0 }) < (_diameter/2 + 100)) {
-		iUpdateChunks(chunkFromPos(localPlayerPos));
+void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
+	fdd localCameraPos = getLocalPos(cameraPos, u);
+	if (localCameraPos.distance2D({ 0,0,0,0 }) < (_diameter/2 + 100)) {
+		iUpdateChunks(chunkFromPos(localCameraPos));
 	}
 	for (universeNode& child : _children) {
-		child.updateChunks(playerPos, u);
+		child.updateChunks(cameraPos, u);
 	}
 }
 
@@ -96,18 +96,18 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 				point3Di chunkPos{ x%config::chunkLoadRadius, y%config::chunkLoadRadius, z%config::chunkLoadRadius };
 				terrainChunk& chunk = getChunk(chunkPos);
 
-				if (chunkPos.z >=0 && (chunk != chunkPos || !chunk.loaded())) {
+				if (chunkPos.z >=0 && (chunk != point3Di{x,y,z} || !chunk.loaded())) {
 					if(chunk.loaded())
 					{
-						chunk.store(HI2::getSavesPath().concat(""));
+						chunk.store(((HI2::getSavesPath()/="nodes")/=std::to_string(_ID)).append(std::to_string(chunk.getPosition().x)).append(std::to_string(chunk.getPosition().y)).concat(std::to_string(chunk.getPosition().z)+".z5c"));
 					}
-					/*if()//if file already exists, load
+					if(std::filesystem::exists(((HI2::getSavesPath()/="nodes")/=std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).concat(std::to_string(z)+".z5c")))//if file already exists, load
 					{
-						chunk.load();
+						chunk.load(((HI2::getSavesPath()/="nodes")/=std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).concat(std::to_string(z)+".z5c"));
 					}
-					else{*/
-					chunk=_generator->getChunk(chunkPos);
-					//}
+					else{
+						chunk=_generator->getChunk(point3Di{x,y,z});
+					}
 				}
 			}
 		}
@@ -175,31 +175,6 @@ void universeNode::linkChildren() {
 	}
 }
 
-
-//fdd universeNode::getLocalPosOLD(
-//	fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
-//								  // relative to our local node (*this)
-//{
-//	fdd transform;
-//	const universeNode* transformParent = _parent;
-//	universeNode* pu = u;
-//
-//	while ((pu == nullptr && transformParent == nullptr) || pu->_parent != transformParent) {
-//		if (pu == nullptr || pu->_parent == nullptr || (transformParent != nullptr &&
-//			transformParent->_depth >=
-//			pu->_depth)) { // if tP is deeper than pu
-//			transform += transformParent->_position;
-//			transformParent = transformParent->_parent;
-//		}
-//		else if (transformParent == nullptr ||
-//			pu->_depth > transformParent->_depth) {
-//			f += pu->_position;
-//			pu = pu->_parent;
-//		}
-//	}
-//	return f -= transform;
-//}
-
 fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
 								  // relative to our local node (*this)
 {
@@ -232,6 +207,11 @@ fdd universeNode::getPosition()
 universeNode* universeNode::getParent()
 {
 	return _parent;
+}
+
+unsigned int universeNode::getHeight(const point2D& pos)
+{
+	return _generator->getHeight(pos);
 }
 
 void to_json(nlohmann::json& j, const universeNode& f) {

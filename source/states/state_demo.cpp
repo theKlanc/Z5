@@ -29,7 +29,7 @@ State::Demo::~Demo(){
 	effect.clean();
 }
 
-void State::Demo::input() {
+void State::Demo::input(float dt) {
 
 	int held = HI2::getKeysHeld();
 	if(held & HI2::BUTTON::KEY_MINUS){

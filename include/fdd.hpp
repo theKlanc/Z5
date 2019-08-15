@@ -2,7 +2,7 @@
 #include "json.hpp"
 using nlohmann::json;
 
-struct fdd {
+struct fdd { // Four DoF descriptor
 	double x;
 	double y;
 	double z;

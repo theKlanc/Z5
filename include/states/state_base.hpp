@@ -14,7 +14,7 @@ namespace State {
 		}
 		virtual ~State_Base() {}
 
-		virtual void input() = 0;
+		virtual void input(float dt) = 0;
 		virtual void update(float dt) = 0;
 		virtual void draw() = 0;
 

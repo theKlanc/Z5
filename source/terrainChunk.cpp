@@ -58,7 +58,7 @@ void terrainChunk::load(const std::filesystem::path& file) {
 
 void terrainChunk::store(const std::filesystem::path& file) {
 	if(_loaded){
-	_loaded = false;
+		_loaded = false;
 		if (!std::filesystem::exists(file.parent_path())) {
 			std::filesystem::create_directories(file.parent_path());
 		}

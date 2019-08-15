@@ -10,25 +10,25 @@ graphics::~graphics() {
 	freeAllTextures();
 	std::cout
 		<< "Closing a graphics object and emptying the atlas, if unintended, "
-		   "check for unnecessary copies of the graphics object"
+		"check for unnecessary copies of the graphics object"
 		<< std::endl;
 }
 
 bool graphics::isTextureLoaded(string textureFile)
-	const { // tells if a texture with said name is present on texTable
+const { // tells if a texture with said name is present on texTable
 	return texAtlas.find(textureFile) != texAtlas.end();
 }
 
-HI2::Texture *
-graphics::loadTexture(string spriteName) { // load a texture from a file into the
+HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from a file into the
 										 // first free space inside texTable[]
-	std::filesystem::path completeFileName = (HI2::getDataPath()/="sprites")/=(spriteName)+=".png";
+	std::filesystem::path completeFileName = (HI2::getDataPath() /= "sprites") /= (spriteName) += ".png";
 	if (texAtlas.find(spriteName) == texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
-		} else {
+		}
+		else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"
-					  << std::endl;
+				<< std::endl;
 			return nullptr;
 		}
 	}
@@ -43,12 +43,13 @@ void graphics::freeTexture(string fileName) { // frees a texture from texTable[]
 	}
 }
 
-HI2::Texture *graphics::getTexture(string fileName) {
+HI2::Texture* graphics::getTexture(string fileName) {
 	auto it = texAtlas.find(fileName);
 	if (it == texAtlas.end()) {
 		std::cout << ("Texture " + fileName + " not loaded \n") << std::endl;
 		return nullptr;
-	} else
+	}
+	else
 		return &it->second;
 }
 

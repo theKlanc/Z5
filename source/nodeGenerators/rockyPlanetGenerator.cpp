@@ -2,11 +2,10 @@
 
 terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 {
-	int _maxHeight = 400;
 	terrainChunk chunk(p);
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {
-			int terrainHeight = ((_noiseGenerator.GetNoise(p.x * config::chunkSize + x, p.y * config::chunkSize + y) + 1) / 2)*_maxHeight;
+			int terrainHeight = ((_noiseGenerator.GetNoise((p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y) + 1) / 2)*_maxHeight;
 			for (int z = 0; z < config::chunkSize; ++z) {
 				unsigned int currentHeight = p.z * config::chunkSize + z;
 				if (currentHeight > terrainHeight) {

@@ -9,6 +9,9 @@ public:
 	nodeGenerator();
 	virtual ~nodeGenerator() = 0;
 	virtual terrainChunk getChunk(const point3Di& p) = 0;
-protected:
+	unsigned int getHeight(const point2D& p);
+	protected:
 	FastNoise _noiseGenerator;
+	unsigned int _maxHeight;
+	
 };

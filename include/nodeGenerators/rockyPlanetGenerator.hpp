@@ -6,5 +6,4 @@ class rockyPlanetGenerator : public nodeGenerator{
 	rockyPlanetGenerator(): nodeGenerator(){}
 	virtual ~rockyPlanetGenerator(){}
 	terrainChunk getChunk(const point3Di& p);
-	private:
 };
