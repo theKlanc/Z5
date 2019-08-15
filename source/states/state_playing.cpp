@@ -10,17 +10,20 @@
 #include "config.hpp"
 #include "components/velocity.hpp"
 
+std::filesystem::path  State::Playing::savePath;
+
 State::Playing::Playing() {}
 
 State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_Base(gc) {
+	savePath = HI2::getSavesPath().append(saveName);
 	//create savefile folder in case it doesn't exist, and copy needed files
-	if (!std::filesystem::exists(HI2::getSavesPath().string().c_str() + saveName)) {
-		std::filesystem::create_directories(HI2::getSavesPath().string().c_str() + saveName);
-		std::filesystem::copy_file(HI2::getDataPath().string() + "defData/universe.json", HI2::getSavesPath().string() + saveName + "/universe.json");
+	if (!std::filesystem::exists(savePath)) {
+		std::filesystem::create_directories(savePath);
+		std::filesystem::copy_file(((HI2::getDataPath()/="defData"))/="/universe.json", savePath/="universe.json");
 	}
 
 	//load universe.json
-	std::ifstream universeFile(HI2::getSavesPath().string() + saveName + "/universe.json");
+	std::ifstream universeFile(savePath/="universe.json");
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
@@ -46,7 +49,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	dogPos.parent = result;
 	dogPos.pos.x = 0;
 	dogPos.pos.y = 0;
-	dogPos.pos.z = 0;
+	dogPos.pos.z = 15;
 	dogPos.pos.r = 0;
 
 	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -60,7 +63,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	playerPos.parent = result;
 	playerPos.pos.x = 0;
 	playerPos.pos.y = 0;
-	playerPos.pos.z = 0;
+	playerPos.pos.z = 15;
 	playerPos.pos.r = 0;
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -74,30 +77,39 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	cameraPos.parent = result;
 	cameraPos.pos.x = 0;
 	cameraPos.pos.y = 0;
-	cameraPos.pos.z =8;
+	cameraPos.pos.z = 15;
 	cameraPos.pos.r = 0;
-	
+
+	auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
+	cameraSpd.parent = result;
+	cameraSpd.spd.x = 0;
+	cameraSpd.spd.y = 0;
+	cameraSpd.spd.z = 10;
+	cameraSpd.spd.r = 0;
+
 }
 
 void State::Playing::input() {}
 
 void State::Playing::update(float dt) {
-	position& pos = _enttRegistry.get<position>(_player);
-	_universeBase.updateChunks(pos.pos, pos.parent);
-
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
-	for (const entt::entity& entity : movableEntityView) { // afegim les entitats dibuixables
+	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		velocity vel = movableEntityView.get<velocity>(entity);
 		position& pos = movableEntityView.get<position>(entity);
 
 		pos.pos += (vel.spd * dt);
 	}
+	
+	position& cameraPosition = _enttRegistry.get<position>(_camera);
+	_universeBase.updateChunks(cameraPosition.pos, cameraPosition.parent);//Update chunks
+
+	std::cout << "CameraHeight: " << cameraPosition.pos.z << std::endl;
 }
 
 void State::Playing::draw() {
 
 	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(RGBA8(0, 0, 0, 255));
+	HI2::setBackgroundColor(HI2::Color(20, 5, 100, 255));
 	{
 		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
@@ -113,7 +125,7 @@ void State::Playing::draw() {
 				int layer = floor(localCameraPos.z);
 
 				double partFraccional = fmod(localCameraPos.z, 1);
-				double depth = i - partFraccional - 1;
+				double depth = i + partFraccional;
 
 				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nodeLayer{node,layer}) });
 			}
@@ -123,7 +135,8 @@ void State::Playing::draw() {
 		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
 			auto& pos = drawableEntityView.get<position>(entity);
 			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
-			renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
+			if(depth>0 && depth < config::cameraDepth)
+				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
 		}
 
 	}
@@ -140,6 +153,8 @@ void State::Playing::draw() {
 
 }
 
+
+
 void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
@@ -147,47 +162,27 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const drawable& sprite = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
-			
-			localPos.x *= config::spriteSize; // passem de coordenades del mon a coordenades de pantalla
-			localPos.y *= config::spriteSize;
-			
-			localPos.x += (HI2::getScreenWidth() * zoom) / 2 ; //canviem el sistema de referencia respecte al centre a respecte el TL
-			localPos.y += (HI2::getScreenHeight() * zoom) / 2 ;
-
-			localPos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
-			localPos.y -= (config::spriteSize * zoom) / 2;
-
-			localPos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth())/2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
-			localPos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight())/2;
-			
-			HI2::drawTexture(*sprite.sprite, localPos.x, localPos.y, zoom, localPos.r);
+			point2Dd drawPos = translatePositionToDisplay({localPos.x,localPos.y},zoom);
+			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
 		}
 		void operator()(const nodeLayer& node) const {
-			fdd firstBlock = node.node->getLocalPos(cameraPos.pos,cameraPos.parent);
-			firstBlock.z=node.layerHeight;
+			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc en que esta la camera
+			firstBlock.z = node.layerHeight;
+
 			fdd localPos = firstBlock - cameraPos.pos;
-			firstBlock.x-=(HI2::getScreenWidth()/config::spriteSize)/2;
-			firstBlock.y-=(HI2::getScreenHeight()/config::spriteSize)/2;
 			
-			
-			localPos.x *= config::spriteSize; // passem de coordenades del mon a coordenades de pantalla
-			localPos.y *= config::spriteSize;
-			
-			localPos.x += (HI2::getScreenWidth() * zoom) / 2 ; //canviem el sistema de referencia respecte al centre a respecte el TL
-			localPos.y += (HI2::getScreenHeight() * zoom) / 2 ;
+			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
+			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
 
-			localPos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
-			localPos.y -= (config::spriteSize * zoom) / 2;
-
-			localPos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth())/2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
-			localPos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight())/2;
-			for(int x =0;x<HI2::getScreenWidth();++x)
+			point2Dd drawPos = translatePositionToDisplay({(double)-((HI2::getScreenWidth() / config::spriteSize) / 2),(double)-((HI2::getScreenHeight() / config::spriteSize) / 2)},zoom);
+			
+			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
-				for(int y = 0;y<HI2::getScreenHeight();++y)
+				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 				{
-					block& b = node.node->getBlock({(int)round(firstBlock.x)+x,(int)round(firstBlock.y)+y,node.layerHeight});
-					if(b.visible)
-						HI2::drawTexture(*b.texture, localPos.x, localPos.y, zoom, localPos.r);
+					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+					if (b.visible)
+						HI2::drawTexture(*b.texture, drawPos.x+(x*zoom*config::spriteSize), drawPos.y+(y*zoom*config::spriteSize), zoom, localPos.r);
 				}
 			}
 		}
@@ -198,8 +193,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 	visitor v;
 	v.registry = &_enttRegistry;
 	v.cameraPos = _enttRegistry.get<position>(_camera);
-	v.zoom = ((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale-config::minScale)) + config::minScale;
-	if(v.zoom >0)
+	v.zoom = (((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale - config::minScale)) + config::minScale) * config::zoom;
+	if (v.zoom > 0)
 		std::visit(v, rl.target);
 }
 
@@ -215,5 +210,22 @@ void State::Playing::loadTerrainTable()
 		}
 	}
 	block::terrainTable = _terrainTable;
+}
+
+point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double &zoom) 
+{
+	pos.x *= config::spriteSize * zoom; // passem de coordenades del mon a coordenades de pantalla
+	pos.y *= config::spriteSize * zoom;
+
+	pos.x += (HI2::getScreenWidth() * zoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
+	pos.y += (HI2::getScreenHeight() * zoom) / 2;
+
+	pos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+	pos.y -= (config::spriteSize * zoom) / 2;
+
+	pos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth())/2;
+	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight())/2;
+
+	return pos;
 }
 

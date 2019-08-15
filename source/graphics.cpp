@@ -22,11 +22,9 @@ bool graphics::isTextureLoaded(string textureFile)
 HI2::Texture *
 graphics::loadTexture(string spriteName) { // load a texture from a file into the
 										 // first free space inside texTable[]
-	string completeFileName =
-		HI2::getDataPath().string() + "sprites/" + spriteName + ".png";
+	std::filesystem::path completeFileName = (HI2::getDataPath()/="sprites")/=(spriteName)+=".png";
 	if (texAtlas.find(spriteName) == texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
-
 			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
 		} else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"

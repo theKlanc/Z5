@@ -47,7 +47,7 @@ bool terrainChunk::operator!=(const point3Di& right) const {
 	return _position != right;
 }
 
-const point3Di& terrainChunk::getPosition() { return _position; }
+const point3Di& terrainChunk::getPosition() const { return _position; }
 
 void terrainChunk::load(const std::filesystem::path& file) {
 	if (std::filesystem::exists(file)) {
@@ -57,9 +57,11 @@ void terrainChunk::load(const std::filesystem::path& file) {
 }
 
 void terrainChunk::store(const std::filesystem::path& file) {
+	if(_loaded){
 	_loaded = false;
-	if (!std::filesystem::exists(file.parent_path())) {
-		std::filesystem::create_directory(file.parent_path());
+		if (!std::filesystem::exists(file.parent_path())) {
+			std::filesystem::create_directories(file.parent_path());
+		}
+		// STORE TO file
 	}
-	// STORE TO file
 }

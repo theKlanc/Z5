@@ -17,7 +17,7 @@ public:
 	bool operator!= (const terrainChunk& right)const;
 	bool operator!= (const point3Di& right)const;
 	
-	const point3Di& getPosition();
+	const point3Di& getPosition() const;
 
 	void load(const std::filesystem::path& file);
 	void store(const std::filesystem::path& file);

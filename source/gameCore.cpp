@@ -11,13 +11,14 @@ void gameCore::startGameLoop() {
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
 		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
 		
+
 		states.top()->input();
 
-
-		
 		states.top()->update((double)microSeconds / 1000000);
 
 		states.top()->draw();
+
+		
 		std::cout << "Frametime: " << microSeconds/1000 << "ms" << std::endl;
 		lastTick = currentTick;
 	}

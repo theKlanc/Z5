@@ -3,9 +3,9 @@
 #include "universeNode.hpp"
 #include "entt/entity/registry.hpp"
 #include "block.hpp"
-#include "components/position.hpp"
 #include <variant>
 #include <vector>
+#include <filesystem>
 
 namespace State {
 	class Playing : public virtual State_Base {
@@ -36,6 +36,10 @@ namespace State {
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
+
+		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
+
+		static std::filesystem::path savePath;
 		
 	};
 } // namespace State

@@ -88,7 +88,7 @@ void State::Demo::draw() {
 	HI2::startFrame();
 	if(texture != nullptr)
 		HI2::drawTexture(*texture,0,0,2);
-	HI2::drawText(font,"OOF",point2D{0,0},1,RGBA8(0,255,0,255));
-	HI2::drawRectangle(pixelPos,40,40,RGBA8(255,255,255,255));
+	HI2::drawText(font,"OOF",point2D{0,0},1,HI2::Color(0,255,0,255));
+	HI2::drawRectangle(pixelPos,40,40,HI2::Color(255,255,255,255));
 	HI2::endFrame();
 }

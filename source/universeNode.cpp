@@ -25,7 +25,7 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 
 void universeNode::updateChunks(const fdd& playerPos, universeNode* u) {
 	fdd localPlayerPos = getLocalPos(playerPos, u);
-	if (localPlayerPos.distance2D({ 0,0,0,0 }) < (_diameter + 100)) {
+	if (localPlayerPos.distance2D({ 0,0,0,0 }) < (_diameter/2 + 100)) {
 		iUpdateChunks(chunkFromPos(localPlayerPos));
 	}
 	for (universeNode& child : _children) {
@@ -93,22 +93,29 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 			y < localChunk.y + (config::chunkLoadRadius / 2) - 2; ++y) {
 			for (int z = localChunk.z - (config::chunkLoadRadius / 2) + 2;
 				z < localChunk.z + (config::chunkLoadRadius / 2) - 2; ++z) {
-				point3Di chunkPos{ x, y, z };
-				terrainChunk& chunk = chunkAt(chunkPos);
+				point3Di chunkPos{ x%config::chunkLoadRadius, y%config::chunkLoadRadius, z%config::chunkLoadRadius };
+				terrainChunk& chunk = getChunk(chunkPos);
 
-				if (chunk != chunkPos || !chunk.loaded()) {
+				if (chunkPos.z >=0 && (chunk != chunkPos || !chunk.loaded())) {
+					if(chunk.loaded())
+					{
+						chunk.store(HI2::getSavesPath().concat(""));
+					}
 					/*if()//if file already exists, load
 					{
 						chunk.load();
 					}
 					else{*/
-					chunk=terrainChunk();_generator->getChunk(chunkPos);
+					chunk=_generator->getChunk(chunkPos);
 					//}
 				}
 			}
 		}
 	}
 }
+
+
+
 
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	int x = (pos.x / config::chunkSize % config::chunkLoadRadius);
@@ -121,6 +128,21 @@ terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	if (z < 0)
 		z += config::chunkLoadRadius;
 	return _chunks[(x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + z];
+}
+
+terrainChunk& universeNode::getChunk(const point3Di& pos)
+{
+	if (pos.z < 0)
+		return terrainChunk();
+	
+	int x = pos.x;
+	if (x < 0)
+		x += config::chunkLoadRadius;
+	int y = pos.y;
+	if (y < 0)
+		y += config::chunkLoadRadius;
+	
+	return _chunks[(x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + pos.z];
 }
 
 int universeNode::chunkIndex(const point3Di& pos) const

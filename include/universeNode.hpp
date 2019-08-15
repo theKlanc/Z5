@@ -63,6 +63,7 @@ public:
 
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);
+	terrainChunk& getChunk(const point3Di &pos);
 	int chunkIndex(const point3Di &pos) const;
 
 	std::string _name;
