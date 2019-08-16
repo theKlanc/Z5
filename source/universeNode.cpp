@@ -87,13 +87,13 @@ point3Di universeNode::chunkFromPos(const fdd& pos) {
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
-	for (int x = localChunk.x - (config::chunkLoadRadius / 2) + 2;
-		x < localChunk.x + (config::chunkLoadRadius / 2) - 2; ++x) {
-		for (int y = localChunk.y - (config::chunkLoadRadius / 2) + 2;
-			y < localChunk.y + (config::chunkLoadRadius / 2) - 2; ++y) {
-			for (int z = localChunk.z - (config::chunkLoadRadius / 2) + 2;
-				z < localChunk.z + (config::chunkLoadRadius / 2) - 2; ++z) {
-				point3Di chunkPos{ x%config::chunkLoadRadius, y%config::chunkLoadRadius, z%config::chunkLoadRadius };
+	for (int x = localChunk.x - floor(config::chunkLoadDiameter / 2);
+		x < localChunk.x + ceil(config::chunkLoadDiameter / 2); ++x) {
+		for (int y = localChunk.y - floor(config::chunkLoadDiameter / 2);
+			y < localChunk.y + ceil(config::chunkLoadDiameter / 2); ++y) {
+			for (int z = localChunk.z - floor(config::chunkLoadDiameter / 2);
+				z < localChunk.z + ceil(config::chunkLoadDiameter / 2); ++z) {
+				point3Di chunkPos{ x%config::chunkLoadDiameter, y%config::chunkLoadDiameter, z%config::chunkLoadDiameter };
 				terrainChunk& chunk = getChunk(chunkPos);
 
 				if (chunkPos.z >=0 && (chunk != point3Di{x,y,z} || !chunk.loaded())) {
@@ -118,16 +118,16 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 
 
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
-	int x = (pos.x / config::chunkSize % config::chunkLoadRadius);
+	int x = (pos.x / config::chunkSize % config::chunkLoadDiameter);
 	if (x < 0)
-		x += config::chunkLoadRadius;
-	int y = (pos.y / config::chunkSize % config::chunkLoadRadius);
+		x += config::chunkLoadDiameter;
+	int y = (pos.y / config::chunkSize % config::chunkLoadDiameter);
 	if (y < 0)
-		y += config::chunkLoadRadius;
-	int z = (pos.z / config::chunkSize % config::chunkLoadRadius);
+		y += config::chunkLoadDiameter;
+	int z = (pos.z / config::chunkSize % config::chunkLoadDiameter);
 	if (z < 0)
-		z += config::chunkLoadRadius;
-	return _chunks[(x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + z];
+		z += config::chunkLoadDiameter;
+	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
 }
 
 terrainChunk& universeNode::getChunk(const point3Di& pos)
@@ -137,26 +137,26 @@ terrainChunk& universeNode::getChunk(const point3Di& pos)
 	
 	int x = pos.x;
 	if (x < 0)
-		x += config::chunkLoadRadius;
+		x += config::chunkLoadDiameter;
 	int y = pos.y;
 	if (y < 0)
-		y += config::chunkLoadRadius;
+		y += config::chunkLoadDiameter;
 	
-	return _chunks[(x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + pos.z];
+	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + pos.z];
 }
 
 int universeNode::chunkIndex(const point3Di& pos) const
 {
-	int x = (pos.x / config::chunkSize % config::chunkLoadRadius);
+	int x = (pos.x / config::chunkSize % config::chunkLoadDiameter);
 	if (x < 0)
-		x += config::chunkLoadRadius;
-	int y = (pos.y / config::chunkSize % config::chunkLoadRadius);
+		x += config::chunkLoadDiameter;
+	int y = (pos.y / config::chunkSize % config::chunkLoadDiameter);
 	if (y < 0)
-		y += config::chunkLoadRadius;
-	int z = (pos.z / config::chunkSize % config::chunkLoadRadius);
+		y += config::chunkLoadDiameter;
+	int z = (pos.z / config::chunkSize % config::chunkLoadDiameter);
 	if (z < 0)
-		z += config::chunkLoadRadius;
-	return (x * config::chunkLoadRadius * config::chunkLoadRadius) + (y * config::chunkLoadRadius) + z;
+		z += config::chunkLoadDiameter;
+	return (x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z;
 }
 
 void universeNode::linkChildren() {

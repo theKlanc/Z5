@@ -37,7 +37,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 
 class universeNode {
 public:
-	universeNode():_chunks(config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius){}
+	universeNode():_chunks(config::chunkLoadDiameter*config::chunkLoadDiameter*config::chunkLoadDiameter){}
 	block& getBlock(const point3Di &pos);
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);

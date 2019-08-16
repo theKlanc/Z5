@@ -232,7 +232,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b.visible){
 						HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
-						HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*((config::depthScale-zoom)-config::minScale)));
+						if constexpr(config::drawDepthShadows)
+							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*((config::depthScale-zoom)-config::minScale)));
 					}
 				}
 			}

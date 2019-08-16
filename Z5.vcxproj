@@ -71,10 +71,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Lewis\Documents\Z5\deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <SourcePath>C:\Users\Lewis\Documents\Z5\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;$(IncludePath)</IncludePath>
@@ -89,6 +89,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -106,6 +107,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>

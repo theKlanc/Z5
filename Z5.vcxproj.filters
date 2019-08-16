@@ -40,12 +40,6 @@
     <Filter Include="deps\FastNoise">
       <UniqueIdentifier>{eca290c9-c3a1-4380-9632-151e67800532}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\_">
-      <UniqueIdentifier>{e2fe61e0-8364-47b1-b13e-f36bca2135f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="source\_">
-      <UniqueIdentifier>{15f273b7-2ce5-4226-9421-65c36b009227}</UniqueIdentifier>
-    </Filter>
     <Filter Include="deps\ReactPhysics3D">
       <UniqueIdentifier>{31cde478-50df-4db2-b32c-701c6c99af63}</UniqueIdentifier>
     </Filter>
@@ -104,30 +98,6 @@
     </ClCompile>
     <ClCompile Include="deps\FastNoise\FastNoise.cpp">
       <Filter>deps\FastNoise</Filter>
-    </ClCompile>
-    <ClCompile Include="source\block.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\fdd.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\gameCore.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\graphics.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\main.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodeGenerator.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\terrainChunk.cpp">
-      <Filter>source\_</Filter>
-    </ClCompile>
-    <ClCompile Include="source\universeNode.cpp">
-      <Filter>source\_</Filter>
     </ClCompile>
     <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\AABB.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
@@ -330,6 +300,30 @@
     <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
+    <ClCompile Include="source\block.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\fdd.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gameCore.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\graphics.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\terrainChunk.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\universeNode.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -502,27 +496,6 @@
     </ClInclude>
     <ClInclude Include="include\components\velocity.hpp">
       <Filter>include\components</Filter>
-    </ClInclude>
-    <ClInclude Include="include\block.hpp">
-      <Filter>include\_</Filter>
-    </ClInclude>
-    <ClInclude Include="include\config.hpp">
-      <Filter>include\_</Filter>
-    </ClInclude>
-    <ClInclude Include="include\gameCore.hpp">
-      <Filter>include\_</Filter>
-    </ClInclude>
-    <ClInclude Include="include\graphics.hpp">
-      <Filter>include\_</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodeGenerator.hpp">
-      <Filter>include\_</Filter>
-    </ClInclude>
-    <ClInclude Include="include\terrainChunk.hpp">
-      <Filter>include\_</Filter>
-    </ClInclude>
-    <ClInclude Include="include\universeNode.hpp">
-      <Filter>include\_</Filter>
     </ClInclude>
     <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\AABB.h">
       <Filter>deps\ReactPhysics3D</Filter>
@@ -781,6 +754,27 @@
     </ClInclude>
     <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.h">
       <Filter>deps\ReactPhysics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\block.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\config.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gameCore.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerator.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\terrainChunk.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\universeNode.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
