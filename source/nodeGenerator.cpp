@@ -5,7 +5,15 @@
 nodeGenerator::nodeGenerator()
 {
 	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
-	_noiseGenerator.SetSeed(time(nullptr));
+	_noiseGenerator.SetSeed(_seed);
+	_maxHeight=400;
+}
+
+nodeGenerator::nodeGenerator(unsigned int s)
+{
+	_seed = s;
+	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
+	_noiseGenerator.SetSeed(_seed);
 	_maxHeight=400;
 }
 

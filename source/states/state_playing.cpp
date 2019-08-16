@@ -215,12 +215,24 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
+				int finalXdrawPos = drawPos.x + (x * zoom * config::spriteSize);
+				if(finalXdrawPos+config::spriteSize * zoom < 0)
+					continue;
+				else if(finalXdrawPos > HI2::getScreenWidth())
+					break;
+				
 				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 				{
+					int finalYdrawPos = drawPos.y + (y * zoom * config::spriteSize);
+					if(finalYdrawPos+config::spriteSize * zoom < 0)
+						continue;
+					else if(finalYdrawPos > HI2::getScreenHeight())
+						break;
+					
 					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b.visible){
-						HI2::drawTexture(*b.texture, drawPos.x + (x * zoom * config::spriteSize), drawPos.y + (y * zoom * config::spriteSize), zoom, localPos.r);
-						HI2::drawRectangle({ (int)(drawPos.x + (x * zoom * config::spriteSize)),(int)(drawPos.y + (y * zoom * config::spriteSize)) }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*((config::depthScale-zoom)-config::minScale)));
+						HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
+						HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*((config::depthScale-zoom)-config::minScale)));
 					}
 				}
 			}

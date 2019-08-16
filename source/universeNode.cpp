@@ -246,7 +246,7 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<gasPlanetGenerator>();
 		break;
 	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>();
+		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID);
 		break;
 	case ASTEROID:
 		f._generator = std::make_unique<asteroidGenerator>();
