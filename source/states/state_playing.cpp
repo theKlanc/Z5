@@ -19,11 +19,12 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	//create savefile folder in case it doesn't exist, and copy needed files
 	if (!std::filesystem::exists(savePath)) {
 		std::filesystem::create_directories(savePath);
-		std::filesystem::copy_file(((HI2::getDataPath() /= "defData")) /= "/universe.json", savePath /= "universe.json");
+		std::cout << HI2::getDataPath().append("defData").append("universe.json") << std::endl;
+		std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath.append("universe.json"));
 	}
 
 	//load universe.json
-	std::ifstream universeFile(savePath /= "universe.json");
+	std::ifstream universeFile(savePath.append("universe.json"));
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
@@ -84,7 +85,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	cameraSpd.parent = result;
 	cameraSpd.spd.x = 0;
 	cameraSpd.spd.y = 0;
-	cameraSpd.spd.z = 10;
+	cameraSpd.spd.z = 0;
 	cameraSpd.spd.r = 0;
 
 }

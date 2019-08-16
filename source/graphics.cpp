@@ -19,9 +19,8 @@ const { // tells if a texture with said name is present on texTable
 	return texAtlas.find(textureFile) != texAtlas.end();
 }
 
-HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from a file into the
-										 // first free space inside texTable[]
-	std::filesystem::path completeFileName = (HI2::getDataPath() /= "sprites") /= (spriteName) += ".png";
+HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from a file into the first free space inside texTable[]
+	std::filesystem::path completeFileName = (HI2::getDataPath() /= "sprites") /= (spriteName) += ".webp";
 	if (texAtlas.find(spriteName) == texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));

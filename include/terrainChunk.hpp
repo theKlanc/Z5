@@ -21,6 +21,8 @@ public:
 
 	void load(const std::filesystem::path& file);
 	void store(const std::filesystem::path& file);
+
+	static terrainChunk emptyChunk;
 private:
 
 	point3Di _position;

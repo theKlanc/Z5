@@ -33,10 +33,10 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	bin/switch/Z5
 BUILD		:=	buildSwitch
-SOURCES		:=	source  source/states deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
-DATA		:=	data
+SOURCES		:=	source  source/states deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise source/nodeGenerators
+DATA		:=
 INCLUDES	:=	include deps  deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
-ROMFS	:=	romfs
+#ROMFS	:=	romfs
 
 
 APP_TITLE	:= Z5
