@@ -64,17 +64,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Lewis\Documents\Z5\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
-    <SourcePath>C:\Users\Lewis\Documents\Z5\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
     <LibraryPath>C:\SDL2\lib\x86;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Lewis\Documents\Z5\deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <SourcePath>C:\Users\Lewis\Documents\Z5\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;$(IncludePath)</IncludePath>
@@ -108,6 +108,11 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>

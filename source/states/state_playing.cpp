@@ -76,9 +76,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& cameraPos = _enttRegistry.assign<position>(_camera);
 	cameraPos.parent = result;
-	cameraPos.pos.x = 200;
-	cameraPos.pos.y = 200;
-	cameraPos.pos.z = cameraPos.parent->getHeight({ (int)cameraPos.pos.x,(int)cameraPos.pos.y }) + 0.5;
+	cameraPos.pos.x = playerPos.pos.x;
+	cameraPos.pos.y = playerPos.pos.y;
+	cameraPos.pos.z = playerPos.pos.z+config::cameraDepth/2;
 	cameraPos.pos.r = 0;
 
 	auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
@@ -92,30 +92,29 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 void State::Playing::input(float dt)
 {
-	auto& cameraPos = _enttRegistry.get<position>(_camera);
-	auto& cameraSpd = _enttRegistry.get<velocity>(_camera);
+	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	int held = HI2::getKeysHeld();
 
 	if (held & HI2::BUTTON::KEY_MINUS) {
-		cameraSpd.spd = fdd();
+		playerSpd.spd = fdd();
 	}
 	if (held & HI2::BUTTON::KEY_UP) {
-		cameraSpd.spd.y -= 3 * dt;
+		playerSpd.spd.y -= 3 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_DOWN) {
-		cameraSpd.spd.y += 3 * dt;
+		playerSpd.spd.y += 3 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_LEFT) {
-		cameraSpd.spd.x -= 3 * dt;
+		playerSpd.spd.x -= 3 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_RIGHT) {
-		cameraSpd.spd.x += 3 * dt;
+		playerSpd.spd.x += 3 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_A) {
-		cameraPos.pos.z += 6 * dt;
+		playerSpd.spd.z += 6 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_B) {
-		cameraPos.pos.z -= 6 * dt;
+		playerSpd.spd.z -= 6 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_PLUS) {
 		_core->quit();
@@ -131,10 +130,22 @@ void State::Playing::update(float dt) {
 		pos.pos += (vel.spd * dt);
 	}
 
-	position& cameraPosition = _enttRegistry.get<position>(_camera);
-	_universeBase.updateChunks(cameraPosition.pos, cameraPosition.parent);//Update chunks
+	position& playerPosition = _enttRegistry.get<position>(_player);
+	_universeBase.updateChunks(playerPosition.pos, playerPosition.parent);//Update chunks
 
-	std::cout << "CameraHeight: " << cameraPosition.pos.z << std::endl;
+	std::cout << "playerHeight: " << playerPosition.pos.z << std::endl;
+
+	//Update camera to follow the player;
+	position& cameraPosition = _enttRegistry.get<position>(_camera);
+	velocity& playervelocity = _enttRegistry.get<velocity>(_player);
+	velocity& cameravelocity = _enttRegistry.get<velocity>(_camera);
+	cameravelocity.parent=playervelocity.parent;
+	cameraPosition.parent=playerPosition.parent;
+	cameravelocity.spd.x=(playerPosition.pos.x-cameraPosition.pos.x);
+	cameravelocity.spd.y=(playerPosition.pos.y-cameraPosition.pos.y);
+	cameravelocity.spd.z=(playerPosition.pos.z+config::cameraDepth/2-cameraPosition.pos.z);
+	
+	
 }
 
 void State::Playing::draw() {
@@ -233,7 +244,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					if (b.visible){
 						HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
 						if constexpr(config::drawDepthShadows)
-							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 90*((config::depthScale-zoom)-config::minScale)));
+							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 150*(zoom/config::zoom>1?-((zoom/config::zoom-1)/(config::minScale-1)):((zoom/config::zoom-1)/(config::minScale-1)))));
 					}
 				}
 			}
