@@ -3,6 +3,8 @@
 #include "config.hpp"
 #include <cmath>
 
+terrainChunk terrainChunk::emptyChunk = terrainChunk();
+
 block& terrainChunk::getBlock(const point3Di& p) {
 	int x = p.x % config::chunkSize;
 	if (x < 0)

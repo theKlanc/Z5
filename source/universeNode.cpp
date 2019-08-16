@@ -133,7 +133,7 @@ terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 terrainChunk& universeNode::getChunk(const point3Di& pos)
 {
 	if (pos.z < 0)
-		return terrainChunk();
+		return terrainChunk::emptyChunk;
 	
 	int x = pos.x;
 	if (x < 0)
