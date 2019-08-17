@@ -11,10 +11,28 @@
 #include "nodeGenerators/spaceStationGenerator.hpp"
 #include "nodeGenerators/spaceshipGenerator.hpp"
 #include "nodeGenerators/starGenerator.hpp"
+#include "states/state_playing.hpp"
+#include <iostream>
+
+
+void universeNode::clean()
+{
+	for (terrainChunk& chunk : _chunks)
+	{
+		if (chunk.loaded())
+		{
+			chunk.store(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+		}
+	}
+	for (universeNode& child : _children)
+	{
+		child.clean();
+	}
+}
 
 block& universeNode::getBlock(const point3Di& pos) {
-	terrainChunk &tChunk = chunkAt(pos);
-	if(!tChunk.loaded())
+	terrainChunk& tChunk = chunkAt(pos);
+	if (!tChunk.loaded())
 		return block::terrainTable[0];
 	return tChunk.getBlock(pos);
 }
@@ -25,7 +43,7 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
 	fdd localCameraPos = getLocalPos(cameraPos, u);
-	if (localCameraPos.distance2D({ 0,0,0,0 }) < (_diameter/2 + 100)) {
+	if (localCameraPos.distance2D({ 0,0,0,0 }) < (_diameter / 2 + 100)) {
 		iUpdateChunks(chunkFromPos(localCameraPos));
 	}
 	for (universeNode& child : _children) {
@@ -93,20 +111,22 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 			y < localChunk.y + ceil(config::chunkLoadDiameter / 2); ++y) {
 			for (int z = localChunk.z - floor(config::chunkLoadDiameter / 2);
 				z < localChunk.z + ceil(config::chunkLoadDiameter / 2); ++z) {
-				point3Di chunkPos{ x%config::chunkLoadDiameter, y%config::chunkLoadDiameter, z%config::chunkLoadDiameter };
-				terrainChunk& chunk = getChunk(chunkPos);
+				point3Di chunkPos{ x % config::chunkLoadDiameter, y % config::chunkLoadDiameter, z % config::chunkLoadDiameter };
 
-				if (chunkPos.z >=0 && (chunk != point3Di{x,y,z} || !chunk.loaded())) {
-					if(chunk.loaded())
+				terrainChunk& chunk = getChunk(chunkPos);
+				if (chunk != point3Di{ x,y,z } || !chunk.loaded()) {
+					terrainChunk& chunk = getChunk(chunkPos);
+					if (chunk.loaded())
 					{
-						chunk.store(((HI2::getSavesPath()/="nodes")/=std::to_string(_ID)).append(std::to_string(chunk.getPosition().x)).append(std::to_string(chunk.getPosition().y)).concat(std::to_string(chunk.getPosition().z)+".z5c"));
+						chunk.store(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 					}
-					if(std::filesystem::exists(((HI2::getSavesPath()/="nodes")/=std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).concat(std::to_string(z)+".z5c")))//if file already exists, load
+					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
+					if (std::filesystem::exists(newChunkPath))//if file already exists, load
 					{
-						chunk.load(((HI2::getSavesPath()/="nodes")/=std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).concat(std::to_string(z)+".z5c"));
+						chunk.load(newChunkPath,{x,y,z});
 					}
-					else{
-						chunk=_generator->getChunk(point3Di{x,y,z});
+					else {
+						chunk = _generator->getChunk(point3Di{ x,y,z });
 					}
 				}
 			}
@@ -132,17 +152,17 @@ terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 
 terrainChunk& universeNode::getChunk(const point3Di& pos)
 {
-	if (pos.z < 0)
-		return terrainChunk::emptyChunk;
-	
 	int x = pos.x;
 	if (x < 0)
 		x += config::chunkLoadDiameter;
 	int y = pos.y;
 	if (y < 0)
 		y += config::chunkLoadDiameter;
-	
-	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + pos.z];
+	int z = pos.z;
+	if (z < 0)
+		z += config::chunkLoadDiameter;
+
+	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
 }
 
 int universeNode::chunkIndex(const point3Di& pos) const

@@ -6,6 +6,7 @@ using nlohmann::json;
 
 struct block{ // A block represents a 1m³ cube of material
 	std::string name;
+	int ID;
 	bool visible = true; // can it be rendered?
 	bool solid = true; // can an entity be inside it? Entities will float on non-solids according to their mass/buoyancy
 	bool opaque = true; // can we avoid rendering blocks under it?

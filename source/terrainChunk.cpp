@@ -2,8 +2,8 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "config.hpp"
 #include <cmath>
-
-terrainChunk terrainChunk::emptyChunk = terrainChunk();
+#include <iostream>
+#include "states/state_playing.hpp"
 
 block& terrainChunk::getBlock(const point3Di& p) {
 	int x = p.x % config::chunkSize;
@@ -31,6 +31,11 @@ void terrainChunk::setBlock(block* b, const point3Di& p) {
 	_blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] = b;
 }
 
+void terrainChunk::setLoaded()
+{
+	_loaded=true;
+}
+
 bool terrainChunk::loaded() const { return _loaded; }
 
 bool terrainChunk::operator==(const terrainChunk& right) const {
@@ -51,19 +56,65 @@ bool terrainChunk::operator!=(const point3Di& right) const {
 
 const point3Di& terrainChunk::getPosition() const { return _position; }
 
-void terrainChunk::load(const std::filesystem::path& file) {
-	if (std::filesystem::exists(file)) {
+void terrainChunk::load(const std::filesystem::path& fileName,const point3Di& chunkPos)
+{
+	if (std::filesystem::exists(fileName)) {
+		_position=chunkPos;
+		if (_loaded)
+		{
+			std::cout << "Loading a new chunk on top of another already loaded one";
+		}
+
+		_blocks.clear();
+		_blocks.resize(0);
+		
+		int blockID;
+		int length;
+				
+		std::ifstream file(fileName);
+		std::string input;
+		while(file >> input)
+		{
+			blockID = std::stoi(input);
+			file >> input;
+			length = std::stoi(input);
+			_blocks.insert(_blocks.end(),length,&block::terrainTable[blockID]);
+		}
+		
 		_loaded = true;
-		// LOAD FROM file
+		
 	}
 }
 
-void terrainChunk::store(const std::filesystem::path& file) {
-	if(_loaded){
+void terrainChunk::store(std::filesystem::path file) {
+	if (_loaded) {
 		_loaded = false;
+		file.append(std::to_string(_position.x)).append(std::to_string(_position.y)).append(std::to_string(_position.z)).concat(".z5c");
 		if (!std::filesystem::exists(file.parent_path())) {
 			std::filesystem::create_directories(file.parent_path());
 		}
+		std::ofstream outputFile(file);
+		//.z5c file format:
+		//RLE file which contains the IDs of the blocks on the chunk
+		//no header
+		//5 continuous blocks of dirt(3) followed by 3 blocks of air(1) would be:
+		//3:4;1:3;
 		// STORE TO file
+		int lastBlockID = _blocks[0]->ID;
+		int accumulatedLength = 0;
+		for (block* b : _blocks)
+		{
+			if (b->ID != lastBlockID)
+			{
+				outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
+				lastBlockID = b->ID;
+				accumulatedLength = 1;
+			}
+			else
+			{
+				accumulatedLength++;
+			}
+		}
+		outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
 	}
 }

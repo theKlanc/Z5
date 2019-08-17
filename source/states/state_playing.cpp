@@ -10,21 +10,23 @@
 #include "config.hpp"
 #include "components/velocity.hpp"
 
-std::filesystem::path  State::Playing::savePath;
-
 State::Playing::Playing() {}
 
+State::Playing::~Playing(){
+	_universeBase.clean();
+}
+
 State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_Base(gc) {
-	savePath = HI2::getSavesPath().append(saveName);
+	_savePath = HI2::getSavesPath().append(saveName);
 	//create savefile folder in case it doesn't exist, and copy needed files
-	if (!std::filesystem::exists(savePath)) {
-		std::filesystem::create_directories(savePath);
+	if (!std::filesystem::exists(savePath())) {
+		std::filesystem::create_directories(savePath());
 		std::cout << HI2::getDataPath().append("defData").append("universe.json") << std::endl;
-		std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath.append("universe.json"));
+		std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
 	}
 
 	//load universe.json
-	std::ifstream universeFile(savePath.append("universe.json"));
+	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
@@ -76,9 +78,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& cameraPos = _enttRegistry.assign<position>(_camera);
 	cameraPos.parent = result;
-	cameraPos.pos.x = playerPos.pos.x;
-	cameraPos.pos.y = playerPos.pos.y;
-	cameraPos.pos.z = playerPos.pos.z+config::cameraDepth/2;
+	cameraPos.pos.x = 200.5;
+	cameraPos.pos.y = 200.5;
+	cameraPos.pos.z = cameraPos.parent->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 0.5 + config::cameraDepth / 2;
 	cameraPos.pos.r = 0;
 
 	auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
@@ -139,13 +141,13 @@ void State::Playing::update(float dt) {
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	velocity& playervelocity = _enttRegistry.get<velocity>(_player);
 	velocity& cameravelocity = _enttRegistry.get<velocity>(_camera);
-	cameravelocity.parent=playervelocity.parent;
-	cameraPosition.parent=playerPosition.parent;
-	cameravelocity.spd.x=(playerPosition.pos.x-cameraPosition.pos.x);
-	cameravelocity.spd.y=(playerPosition.pos.y-cameraPosition.pos.y);
-	cameravelocity.spd.z=(playerPosition.pos.z+config::cameraDepth/2-cameraPosition.pos.z);
-	
-	
+	cameravelocity.parent = playervelocity.parent;
+	cameraPosition.parent = playerPosition.parent;
+	cameravelocity.spd.x = (playerPosition.pos.x - cameraPosition.pos.x);
+	cameravelocity.spd.y = (playerPosition.pos.y - cameraPosition.pos.y);
+	cameravelocity.spd.z = (playerPosition.pos.z + config::cameraDepth / 2 - cameraPosition.pos.z);
+
+
 }
 
 void State::Playing::draw() {
@@ -226,25 +228,25 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
-				int finalXdrawPos = drawPos.x + (x * zoom * config::spriteSize);
-				if(finalXdrawPos+config::spriteSize * zoom < 0)
+				int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
+				if (finalXdrawPos + config::spriteSize * zoom < 0)
 					continue;
-				else if(finalXdrawPos > HI2::getScreenWidth())
+				else if (finalXdrawPos > HI2::getScreenWidth())
 					break;
-				
+
 				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 				{
-					int finalYdrawPos = drawPos.y + (y * zoom * config::spriteSize);
-					if(finalYdrawPos+config::spriteSize * zoom < 0)
+					int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
+					if (finalYdrawPos + config::spriteSize * zoom < 0)
 						continue;
-					else if(finalYdrawPos > HI2::getScreenHeight())
+					else if (finalYdrawPos > HI2::getScreenHeight())
 						break;
-					
+
 					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (b.visible){
+					if (b.visible) {
 						HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
-						if constexpr(config::drawDepthShadows)
-							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 150*(zoom/config::zoom>1?-((zoom/config::zoom-1)/(config::minScale-1)):((zoom/config::zoom-1)/(config::minScale-1)))));
+						if constexpr (config::drawDepthShadows)
+							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom+1, (int)config::spriteSize * zoom+1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
 					}
 				}
 			}
@@ -263,7 +265,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 void State::Playing::loadTerrainTable()
 {
-	std::ifstream terrainTableFile(HI2::getDataPath().string() + "blockTable.json");
+	std::ifstream terrainTableFile(HI2::getDataPath().append("blockTable.json"));
 	json j;
 	terrainTableFile >> j;
 	j.get_to(_terrainTable);
@@ -292,3 +294,8 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 	return pos;
 }
 
+std::filesystem::path State::Playing::_savePath;
+
+std::filesystem::path State::Playing::savePath() {
+	return _savePath;
+}

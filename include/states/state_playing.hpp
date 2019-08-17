@@ -11,12 +11,15 @@ namespace State {
 	class Playing : public virtual State_Base {
 	  public:
 		Playing();
+		~Playing();
 		Playing(gameCore &gc, std::string );
 
 		void input(float dt) override;
 		void update(float dt) override;
 		void draw() override;
-
+		
+		static std::filesystem::path savePath();
+		
 	  private:
 		struct nodeLayer{
 			universeNode* node;
@@ -36,10 +39,10 @@ namespace State {
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
-
+		
+		static std::filesystem::path _savePath;
 		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
-		static std::filesystem::path savePath;
 		
 	};
 } // namespace State

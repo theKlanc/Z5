@@ -50,6 +50,7 @@ public:
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool drawBefore(universeNode& r)const;
+	void clean();
 
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;

@@ -7,9 +7,10 @@ class terrainChunk
 {
 public:
 	terrainChunk(){};
-	terrainChunk(const point3Di& p) : _position(p), _loaded(true), _blocks(config::chunkSize*config::chunkSize*config::chunkSize){}
+	terrainChunk(const point3Di& p) : _position(p), _loaded(false), _blocks(config::chunkSize*config::chunkSize*config::chunkSize){}
 	block& getBlock(const point3Di& p);
 	void setBlock(block* b, const point3Di& p);
+	void setLoaded();
 	bool loaded()const;
 	
 	bool operator== (const terrainChunk& right)const;
@@ -19,10 +20,9 @@ public:
 	
 	const point3Di& getPosition() const;
 
-	void load(const std::filesystem::path& file);
-	void store(const std::filesystem::path& file);
+	void load(const std::filesystem::path& file,const point3Di& chunkPos);
+	void store(std::filesystem::path file);
 
-	static terrainChunk emptyChunk;
 private:
 
 	point3Di _position;

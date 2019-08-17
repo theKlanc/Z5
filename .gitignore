@@ -11,3 +11,5 @@ doc/
 Debug/
 deps/entt/
 saves/default/universe.json
+Release/
+saves/
