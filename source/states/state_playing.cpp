@@ -36,7 +36,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	loadTerrainTable();
 
 	universeNode* result;
-	_universeBase.findNodeByID(4, result);
+	_universeBase.findNodeByID(11, result);
 
 	_player = _enttRegistry.create();
 	_camera = _enttRegistry.create();
@@ -50,9 +50,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& dogPos = _enttRegistry.assign<position>(dog);
 	dogPos.parent = result;
-	dogPos.pos.x = 203.5;
-	dogPos.pos.y = 203.5;
-	dogPos.pos.z = dogPos.parent->getHeight({ (int)dogPos.pos.x,(int)dogPos.pos.y }) + 0.5;
+	dogPos.pos.x = 0;
+	dogPos.pos.y = 0;
+	dogPos.pos.z = 1;
 	dogPos.pos.r = 0;
 
 	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -64,9 +64,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& playerPos = _enttRegistry.assign<position>(_player);
 	playerPos.parent = result;
-	playerPos.pos.x = 200.5;
-	playerPos.pos.y = 200.5;
-	playerPos.pos.z = playerPos.parent->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 0.5;
+	playerPos.pos.x = 0;
+	playerPos.pos.y = 0;
+	playerPos.pos.z = 1;
 	playerPos.pos.r = 0;
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -78,9 +78,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& cameraPos = _enttRegistry.assign<position>(_camera);
 	cameraPos.parent = result;
-	cameraPos.pos.x = 200.5;
-	cameraPos.pos.y = 200.5;
-	cameraPos.pos.z = cameraPos.parent->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 0.5 + config::cameraDepth / 2;
+	cameraPos.pos.x = 0;
+	cameraPos.pos.y = 0;
+	cameraPos.pos.z = 11;
 	cameraPos.pos.r = 0;
 
 	auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
@@ -139,7 +139,7 @@ void State::Playing::update(float dt) {
 
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
-	velocity& playervelocity = _enttRegistry.get<velocity>(_player);
+	velocity playervelocity = _enttRegistry.get<velocity>(_player);
 	velocity& cameravelocity = _enttRegistry.get<velocity>(_camera);
 	cameravelocity.parent = playervelocity.parent;
 	cameraPosition.parent = playerPosition.parent;
@@ -219,10 +219,18 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
 			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
 
-			double fraccionalX = 0.5 - fmod(cameraPos.pos.x, 1);
-			double fraccionalY = 0.5 - fmod(cameraPos.pos.y, 1);
-			if (fraccionalX < 0)fraccionalX += 1;
-			if (fraccionalY < 0)fraccionalY += 1;
+			double fraccionalX = 0.5 - fmod(cameraPos.pos.x, 1);			  //PURA TRASH
+			double fraccionalY = 0.5 - fmod(cameraPos.pos.y, 1);			  //PURA TRASH
+			if (fraccionalX < 0)fraccionalX += 1;							  //PURA TRASH
+			if (fraccionalY < 0)fraccionalY += 1;							  //PURA TRASH
+																			  //PURA TRASH
+			if(cameraPos.pos.x<0)											  //PURA TRASH
+			{																  //PURA TRASH
+				fraccionalX = -0.5 + fmod(1-cameraPos.pos.x, 1);			  //PURA TRASH
+				if (fraccionalX > 0)fraccionalX -= 1;						  //PURA TRASH
+				fraccionalY = -0.5 + fmod(1-cameraPos.pos.y, 1);			  //PURA TRASH
+				if (fraccionalY > 0)fraccionalY -= 1;						  //PURA TRASH
+			}																  //PURA TRASH
 
 			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
 

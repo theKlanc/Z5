@@ -34,7 +34,8 @@ block& universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
 	if (!tChunk.loaded())
 		return block::terrainTable[0];
-	return tChunk.getBlock(pos);
+	block& b = tChunk.getBlock(pos);
+	return b;
 }
 
 void universeNode::setBlock(block* b, const point3Di& pos) {
@@ -123,7 +124,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
 					if (std::filesystem::exists(newChunkPath))//if file already exists, load
 					{
-						chunk.load(newChunkPath,{x,y,z});
+						chunk.load(newChunkPath, { x,y,z });
 					}
 					else {
 						chunk = _generator->getChunk(point3Di{ x,y,z });

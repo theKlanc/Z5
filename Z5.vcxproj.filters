@@ -43,6 +43,9 @@
     <Filter Include="deps\ReactPhysics3D">
       <UniqueIdentifier>{31cde478-50df-4db2-b32c-701c6c99af63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{9bdd05d6-6477-4311-9de3-67aff17f33cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp">
@@ -780,5 +783,11 @@
   <ItemGroup>
     <None Include="Z5.includes" />
     <None Include="README.md" />
+    <None Include="data\defData\universe.json">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\blockTable.json">
+      <Filter>data</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -381,6 +381,8 @@
     <ClInclude Include="include\universeNode.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="data\blockTable.json" />
+    <None Include="data\defData\universe.json" />
     <None Include="README.md" />
     <None Include="Z5.includes" />
   </ItemGroup>

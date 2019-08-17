@@ -6,5 +6,5 @@ class rockyPlanetGenerator : public nodeGenerator{
 	rockyPlanetGenerator(): nodeGenerator(){}
 	rockyPlanetGenerator(unsigned int s): nodeGenerator(s){}
 	virtual ~rockyPlanetGenerator(){}
-	terrainChunk getChunk(const point3Di& p);
+	terrainChunk getChunk(const point3Di& p) override;
 };

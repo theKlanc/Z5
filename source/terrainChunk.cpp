@@ -68,8 +68,8 @@ void terrainChunk::load(const std::filesystem::path& fileName,const point3Di& ch
 		_blocks.clear();
 		_blocks.resize(0);
 		
-		int blockID;
-		int length;
+		unsigned blockID;
+		unsigned length;
 				
 		std::ifstream file(fileName);
 		std::string input;
@@ -100,8 +100,8 @@ void terrainChunk::store(std::filesystem::path file) {
 		//5 continuous blocks of dirt(3) followed by 3 blocks of air(1) would be:
 		//3:4;1:3;
 		// STORE TO file
-		int lastBlockID = _blocks[0]->ID;
-		int accumulatedLength = 0;
+		unsigned lastBlockID = _blocks[0]->ID;
+		unsigned accumulatedLength = 0;
 		for (block* b : _blocks)
 		{
 			if (b->ID != lastBlockID)

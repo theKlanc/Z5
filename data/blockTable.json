@@ -85,6 +85,14 @@
     "visible": true,
     "solid": true,
     "opaque": false,
-    "mass": 100
+    "mass": 105
+  },
+  {
+    "name": "steelplate",
+	"ID": 11,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850
   }
 ]
