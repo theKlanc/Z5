@@ -99,6 +99,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	cameraSpd.spd.z = 0;
 	cameraSpd.spd.r = 0;
 
+	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos,_chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
 	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
 }
@@ -131,6 +132,12 @@ void State::Playing::input(float dt)
 	}
 	if (held & HI2::BUTTON::KEY_PLUS) {
 		_core->quit();
+	}
+	if (held & HI2::BUTTON::KEY_ZR) {
+		config::zoom+=0.1*dt;
+	}
+	if (held & HI2::BUTTON::KEY_ZL) {
+		config::zoom-=0.1*dt;
 	}
 }
 
@@ -314,11 +321,18 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 
 void State::Playing::_chunkLoaderFunc()
 {
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTick = std::chrono::high_resolution_clock::now();
 	while(_chunkLoaderPlayerPosition!=nullptr)
 	{
 		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
 		if(_chunkLoaderPlayerPosition!=nullptr)
 			_chunkLoaderUniverseBase->updateChunks(p.pos,p.parent);
+		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
+		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
+		if(microSeconds<20000)
+			std::this_thread::sleep_for(std::chrono::microseconds(20000));
+
+		lastTick=currentTick;
 	}
 }
 
