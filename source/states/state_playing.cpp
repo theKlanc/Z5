@@ -10,9 +10,16 @@
 #include "config.hpp"
 #include "components/velocity.hpp"
 
+
+universeNode* State::Playing::_chunkLoaderUniverseBase;
+position* State::Playing::_chunkLoaderPlayerPosition;
+
 State::Playing::Playing() {}
 
 State::Playing::~Playing() {
+	delete _chunkLoaderPlayerPosition;
+	_chunkLoaderPlayerPosition = nullptr;
+	_chunkLoaderThread->join();
 	_universeBase.clean();
 }
 
@@ -47,7 +54,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& dogSprite = _enttRegistry.assign<drawable>(dog);
 	dogSprite.sprite = _core->getGraphics().loadTexture("gromit");
-
+	
 	auto& dogPos = _enttRegistry.assign<position>(dog);
 	dogPos.parent = result;
 	dogPos.pos.x = 0;
@@ -68,6 +75,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	playerPos.pos.y = 0;
 	playerPos.pos.z = 1;
 	playerPos.pos.r = 0;
+	
+	_chunkLoaderPlayerPosition = new position(playerPos);
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
 	playerSpd.parent = result;
@@ -90,6 +99,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	cameraSpd.spd.z = 0;
 	cameraSpd.spd.r = 0;
 
+	_chunkLoaderUniverseBase = &_universeBase;
+	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
 }
 
 void State::Playing::input(float dt)
@@ -133,7 +144,7 @@ void State::Playing::update(float dt) {
 	}
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
-	_universeBase.updateChunks(playerPosition.pos, playerPosition.parent);//Update chunks
+	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
 
 	std::cout << "playerHeight: " << playerPosition.pos.z << std::endl;
 
@@ -223,13 +234,12 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			if(tmp<0)
 				tmp=1-abs(tmp);
 			double fraccionalX = 0.5 - tmp;
+			if (fraccionalX < 0)fraccionalX += 1;
 			
 			tmp=fmod(cameraPos.pos.y, 1);
 			if(tmp<0)
 				tmp=1-abs(tmp);
 			double fraccionalY = 0.5 - tmp;
-			
-			if (fraccionalX < 0)fraccionalX += 1;
 			if (fraccionalY < 0)fraccionalY += 1;
 
 			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
@@ -300,6 +310,16 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight()) / 2;
 
 	return pos;
+}
+
+void State::Playing::_chunkLoaderFunc()
+{
+	while(_chunkLoaderPlayerPosition!=nullptr)
+	{
+		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
+		if(_chunkLoaderPlayerPosition!=nullptr)
+			_chunkLoaderUniverseBase->updateChunks(p.pos,p.parent);
+	}
 }
 
 std::filesystem::path State::Playing::_savePath;

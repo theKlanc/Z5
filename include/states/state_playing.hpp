@@ -6,6 +6,8 @@
 #include <variant>
 #include <vector>
 #include <filesystem>
+#include <thread>
+#include "components/position.hpp"
 
 namespace State {
 	class Playing : public virtual State_Base {
@@ -19,6 +21,9 @@ namespace State {
 		void draw() override;
 		
 		static std::filesystem::path savePath();
+
+		
+		
 		
 	  private:
 		struct nodeLayer{
@@ -43,6 +48,12 @@ namespace State {
 		static std::filesystem::path _savePath;
 		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
+		std::unique_ptr<std::thread> _chunkLoaderThread;
+
+		static void _chunkLoaderFunc();
+		
+		static universeNode* _chunkLoaderUniverseBase;
+		static position* _chunkLoaderPlayerPosition;
 		
 	};
 } // namespace State
