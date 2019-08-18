@@ -12,7 +12,7 @@
 
 State::Playing::Playing() {}
 
-State::Playing::~Playing(){
+State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
@@ -219,18 +219,18 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
 			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
 
-			double fraccionalX = 0.5 - fmod(cameraPos.pos.x, 1);			  //PURA TRASH
-			double fraccionalY = 0.5 - fmod(cameraPos.pos.y, 1);			  //PURA TRASH
-			if (fraccionalX < 0)fraccionalX += 1;							  //PURA TRASH
-			if (fraccionalY < 0)fraccionalY += 1;							  //PURA TRASH
-																			  //PURA TRASH
-			if(cameraPos.pos.x<0)											  //PURA TRASH
-			{																  //PURA TRASH
-				fraccionalX = -0.5 + fmod(1-cameraPos.pos.x, 1);			  //PURA TRASH
-				if (fraccionalX > 0)fraccionalX -= 1;						  //PURA TRASH
-				fraccionalY = -0.5 + fmod(1-cameraPos.pos.y, 1);			  //PURA TRASH
-				if (fraccionalY > 0)fraccionalY -= 1;						  //PURA TRASH
-			}																  //PURA TRASH
+			double tmp=fmod(cameraPos.pos.x, 1);
+			if(tmp<0)
+				tmp=1-abs(tmp);
+			double fraccionalX = 0.5 - tmp;
+			
+			tmp=fmod(cameraPos.pos.y, 1);
+			if(tmp<0)
+				tmp=1-abs(tmp);
+			double fraccionalY = 0.5 - tmp;
+			
+			if (fraccionalX < 0)fraccionalX += 1;
+			if (fraccionalY < 0)fraccionalY += 1;
 
 			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
 
@@ -254,7 +254,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					if (b.visible) {
 						HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
 						if constexpr (config::drawDepthShadows)
-							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom+1, (int)config::spriteSize * zoom+1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
+							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom + 1, (int)config::spriteSize * zoom + 1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
 					}
 				}
 			}
