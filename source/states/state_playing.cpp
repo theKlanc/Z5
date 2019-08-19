@@ -188,8 +188,8 @@ void State::Playing::draw() {
 
 
 		for (universeNode*& node : sortedDrawingNodes) {
-			std::vector<bool> visibility((HI2::getScreenWidth() / config::spriteSize) * HI2::getScreenHeight() / config::spriteSize,true);
-			for (int i = 0; i <=config::cameraDepth; i++) {//for depth afegim cada capa dels DrawingNodes
+			std::vector<bool> visibility((HI2::getScreenWidth() / config::spriteSize) * HI2::getScreenHeight() / config::spriteSize, true);
+			for (int i = 0; i <= config::cameraDepth; i++) {//for depth afegim cada capa dels DrawingNodes
 				position currentCameraPos = cameraPos;
 				currentCameraPos.pos.z -= i;
 				//obtenir posicio de la camera al node
@@ -277,9 +277,9 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 						continue;
 					else if (finalYdrawPos > HI2::getScreenHeight())
 						break;
-					const int index = x*HI2::getScreenHeight() / config::spriteSize + y;
+					const int index = x * HI2::getScreenHeight() / config::spriteSize + y;
 
-					
+
 					block* b = node.blocks[index];
 					if (node.visibility[index] && b->visible) {
 						HI2::drawTexture(*b->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
@@ -322,11 +322,11 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 		{
 			block& b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
 			result.blocks.push_back(&b);
-			visibility[i]=!b.opaque;
+			visibility[i] = !b.opaque;
 			i++;
 		}
 	}
-	visibility=growVisibility(visibility);
+	visibility = growVisibility(visibility);
 	return result;
 }
 
@@ -334,30 +334,66 @@ std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
 {
 	std::vector<bool> newVis(visibility);
 	int rowSize = HI2::getScreenHeight() / config::spriteSize;
-	for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
-	{
-		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+	if constexpr (true) {
+		std::vector<int> rows(HI2::getScreenWidth() / config::spriteSize);
+		for (int i = 0; i < HI2::getScreenWidth() / config::spriteSize; ++i)
+			rows.push_back(i);
+
+		auto testFunc = [rowSize,visibility,&newVis](const int& n)
 		{
-			int index = x*HI2::getScreenHeight() / config::spriteSize + y;
-			if(visibility[index])
+			for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 			{
-				if(x>0)
-					newVis[index - rowSize]=true;
-				if(x<HI2::getScreenWidth() / config::spriteSize-1)
-					newVis[index + rowSize]=true;
-				if(y>0)
-					newVis[index-1]=true;
-				if(y<HI2::getScreenHeight() / config::spriteSize-1)
-					newVis[index+1]=true;
-				
-				if(x>0 && y >0)
-					newVis[index - rowSize -1]=true;
-				if(x<HI2::getScreenWidth() / config::spriteSize-1 && y<HI2::getScreenHeight() / config::spriteSize-1)
-					newVis[index + rowSize +1]=true;
-				if(y>0 &&  x<HI2::getScreenWidth() / config::spriteSize-1)
-					newVis[index-1 + rowSize]=true;
-				if(y<HI2::getScreenHeight() / config::spriteSize-1 && x > 0)
-					newVis[index+1-rowSize]=true;
+				int index = n * HI2::getScreenHeight() / config::spriteSize + y;
+				if (visibility[index])
+				{
+					if (n > 0)
+						newVis[index - rowSize] = true;
+					if (n < HI2::getScreenWidth() / config::spriteSize - 1)
+						newVis[index + rowSize] = true;
+					if (y > 0)
+						newVis[index - 1] = true;
+					if (y < HI2::getScreenHeight() / config::spriteSize - 1)
+						newVis[index + 1] = true;
+
+					if (n > 0 && y > 0)
+						newVis[index - rowSize - 1] = true;
+					if (n < HI2::getScreenWidth() / config::spriteSize - 1 && y < HI2::getScreenHeight() / config::spriteSize - 1)
+						newVis[index + rowSize + 1] = true;
+					if (y > 0 && n < HI2::getScreenWidth() / config::spriteSize - 1)
+						newVis[index - 1 + rowSize] = true;
+					if (y < HI2::getScreenHeight() / config::spriteSize - 1 && n > 0)
+						newVis[index + 1 - rowSize] = true;
+				}
+			}
+		};
+		std::for_each(rows.begin(), rows.end(), testFunc);
+	}
+	else {
+		for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+		{
+			for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+			{
+				int index = x * HI2::getScreenHeight() / config::spriteSize + y;
+				if (visibility[index])
+				{
+					if (x > 0)
+						newVis[index - rowSize] = true;
+					if (x < HI2::getScreenWidth() / config::spriteSize - 1)
+						newVis[index + rowSize] = true;
+					if (y > 0)
+						newVis[index - 1] = true;
+					if (y < HI2::getScreenHeight() / config::spriteSize - 1)
+						newVis[index + 1] = true;
+
+					if (x > 0 && y > 0)
+						newVis[index - rowSize - 1] = true;
+					if (x < HI2::getScreenWidth() / config::spriteSize - 1 && y < HI2::getScreenHeight() / config::spriteSize - 1)
+						newVis[index + rowSize + 1] = true;
+					if (y > 0 && x < HI2::getScreenWidth() / config::spriteSize - 1)
+						newVis[index - 1 + rowSize] = true;
+					if (y < HI2::getScreenHeight() / config::spriteSize - 1 && x > 0)
+						newVis[index + 1 - rowSize] = true;
+				}
 			}
 		}
 	}
