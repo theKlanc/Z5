@@ -55,7 +55,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 
 	auto& dogSprite = _enttRegistry.assign<drawable>(dog);
 	dogSprite.sprite = _core->getGraphics().loadTexture("gromit");
-	
+
 	auto& dogPos = _enttRegistry.assign<position>(dog);
 	dogPos.parent = result;
 	dogPos.pos.x = 0;
@@ -76,7 +76,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	playerPos.pos.y = 0;
 	playerPos.pos.z = 1;
 	playerPos.pos.r = 0;
-	
+
 	_chunkLoaderPlayerPosition = new position(playerPos);
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -101,14 +101,14 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	cameraSpd.spd.r = 0;
 
 	//Create collision world
-	rp3d::WorldSettings collisionSettings; 
-    collisionSettings.defaultVelocitySolverNbIterations = 20; 
-    collisionSettings.isSleepingEnabled = true;
+	rp3d::WorldSettings collisionSettings;
+	collisionSettings.defaultVelocitySolverNbIterations = 20;
+	collisionSettings.isSleepingEnabled = true;
 
-	_collisionWorld=std::make_unique<rp3d::CollisionWorld>(collisionSettings);
-	
+	_collisionWorld = std::make_unique<rp3d::CollisionWorld>(collisionSettings);
+
 	//start chunkloader
-	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos,_chunkLoaderPlayerPosition->parent);
+	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos, _chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
 	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
 }
@@ -143,10 +143,10 @@ void State::Playing::input(float dt)
 		_core->quit();
 	}
 	if (held & HI2::BUTTON::KEY_ZR) {
-		config::zoom+=0.1*dt;
+		config::zoom += 0.1 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_ZL) {
-		config::zoom-=0.1*dt;
+		config::zoom -= 0.1 * dt;
 	}
 }
 
@@ -186,10 +186,12 @@ void State::Playing::draw() {
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
 
 
-		for (int i = config::cameraDepth; i >= 0; --i) {//for depth afegim cada capa dels DrawingNodes
-			position currentCameraPos = cameraPos;
-			currentCameraPos.pos.z -= i;
-			for (universeNode*& node : sortedDrawingNodes) {
+
+		for (universeNode*& node : sortedDrawingNodes) {
+			std::vector<bool> visibility((HI2::getScreenWidth() / config::spriteSize) * HI2::getScreenHeight() / config::spriteSize,true);
+			for (int i = 0; i <=config::cameraDepth; i++) {//for depth afegim cada capa dels DrawingNodes
+				position currentCameraPos = cameraPos;
+				currentCameraPos.pos.z -= i;
 				//obtenir posicio de la camera al node
 				fdd localCameraPos = node->getLocalPos(currentCameraPos.pos, currentCameraPos.parent);
 				//obtenir profunditat
@@ -198,7 +200,9 @@ void State::Playing::draw() {
 				double partFraccional = fmod(localCameraPos.z, 1);
 				double depth = i + partFraccional;
 
-				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nodeLayer{node,layer}) });
+				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
+
+				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nLayer) });
 			}
 		}
 
@@ -224,8 +228,6 @@ void State::Playing::draw() {
 
 }
 
-
-
 void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
@@ -246,23 +248,23 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
 			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
 
-			double tmp=fmod(cameraPos.pos.x, 1);
-			if(tmp<0)
-				tmp=1-abs(tmp);
+			double tmp = fmod(cameraPos.pos.x, 1);
+			if (tmp < 0)
+				tmp = 1 - abs(tmp);
 			double fraccionalX = 0.5 - tmp;
 			if (fraccionalX < 0)fraccionalX += 1;
-			
-			tmp=fmod(cameraPos.pos.y, 1);
-			if(tmp<0)
-				tmp=1-abs(tmp);
+
+			tmp = fmod(cameraPos.pos.y, 1);
+			if (tmp < 0)
+				tmp = 1 - abs(tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
 
-			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
+			const point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
 
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
-				int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
+				const int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
 				if (finalXdrawPos + config::spriteSize * zoom < 0)
 					continue;
 				else if (finalXdrawPos > HI2::getScreenWidth())
@@ -270,15 +272,17 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 				{
-					int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
+					const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
 					if (finalYdrawPos + config::spriteSize * zoom < 0)
 						continue;
 					else if (finalYdrawPos > HI2::getScreenHeight())
 						break;
+					const int index = x*HI2::getScreenHeight() / config::spriteSize + y;
 
-					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (b.visible) {
-						HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
+					
+					block* b = node.blocks[index];
+					if (node.visibility[index] && b->visible) {
+						HI2::drawTexture(*b->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
 						if constexpr (config::drawDepthShadows)
 							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom + 1, (int)config::spriteSize * zoom + 1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
 					}
@@ -295,6 +299,69 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 	v.zoom = (((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale - config::minScale)) + config::minScale) * config::zoom;
 	if (v.zoom > 0)
 		std::visit(v, rl.target);
+}
+
+State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos)
+{
+	fdd firstBlock = localCameraPos;
+	firstBlock.z = floor(localCameraPos.z);
+
+	firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
+	firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
+
+	const int layerHeight = floor(localCameraPos.z);
+
+	nodeLayer result;
+	result.node = node;
+	result.layerHeight = layerHeight;
+	result.visibility = visibility;
+	int i = 0;
+	for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+	{
+		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+		{
+			block& b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
+			result.blocks.push_back(&b);
+			visibility[i]=!b.opaque;
+			i++;
+		}
+	}
+	visibility=growVisibility(visibility);
+	return result;
+}
+
+std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
+{
+	std::vector<bool> newVis(visibility);
+	int rowSize = HI2::getScreenHeight() / config::spriteSize;
+	for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+	{
+		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+		{
+			int index = x*HI2::getScreenHeight() / config::spriteSize + y;
+			if(visibility[index])
+			{
+				if(x>0)
+					newVis[index - rowSize]=true;
+				if(x<HI2::getScreenWidth() / config::spriteSize-1)
+					newVis[index + rowSize]=true;
+				if(y>0)
+					newVis[index-1]=true;
+				if(y<HI2::getScreenHeight() / config::spriteSize-1)
+					newVis[index+1]=true;
+				
+				if(x>0 && y >0)
+					newVis[index - rowSize -1]=true;
+				if(x<HI2::getScreenWidth() / config::spriteSize-1 && y<HI2::getScreenHeight() / config::spriteSize-1)
+					newVis[index + rowSize +1]=true;
+				if(y>0 &&  x<HI2::getScreenWidth() / config::spriteSize-1)
+					newVis[index-1 + rowSize]=true;
+				if(y<HI2::getScreenHeight() / config::spriteSize-1 && x > 0)
+					newVis[index+1-rowSize]=true;
+			}
+		}
+	}
+	return newVis;
 }
 
 void State::Playing::loadTerrainTable()
@@ -331,17 +398,17 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 void State::Playing::_chunkLoaderFunc()
 {
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastTick = std::chrono::high_resolution_clock::now();
-	while(_chunkLoaderPlayerPosition!=nullptr)
+	while (_chunkLoaderPlayerPosition != nullptr)
 	{
 		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
-		if(_chunkLoaderPlayerPosition!=nullptr)
-			_chunkLoaderUniverseBase->updateChunks(p.pos,p.parent);
+		if (_chunkLoaderPlayerPosition != nullptr)
+			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
 		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
-		if(microSeconds<20000)
+		if (microSeconds < 20000)
 			std::this_thread::sleep_for(std::chrono::microseconds(20000));
 
-		lastTick=currentTick;
+		lastTick = currentTick;
 	}
 }
 

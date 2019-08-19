@@ -30,12 +30,17 @@ namespace State {
 		struct nodeLayer{
 			universeNode* node;
 			int layerHeight;
+			std::vector<block*> blocks;
+			std::vector<bool> visibility;
 		};
 
 		struct renderLayer{
 			double depth;
 			std::variant<entt::entity,nodeLayer> target;
 		};
+
+		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);
+		std::vector<bool> growVisibility(std::vector<bool> visibility);
 		void drawLayer(const renderLayer& rl);
 
 		entt::entity _player;
@@ -58,4 +63,5 @@ namespace State {
 		std::unique_ptr<rp3d::CollisionWorld> _collisionWorld;
 		
 	};
+
 } // namespace State
