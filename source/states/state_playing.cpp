@@ -42,6 +42,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	//load terrain table
 	loadTerrainTable();
 
+	//Set up basic entities
 	universeNode* result;
 	_universeBase.findNodeByID(11, result);
 
@@ -99,6 +100,14 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default") :State_B
 	cameraSpd.spd.z = 0;
 	cameraSpd.spd.r = 0;
 
+	//Create collision world
+	rp3d::WorldSettings collisionSettings; 
+    collisionSettings.defaultVelocitySolverNbIterations = 20; 
+    collisionSettings.isSleepingEnabled = true;
+
+	_collisionWorld=std::make_unique<rp3d::CollisionWorld>(collisionSettings);
+	
+	//start chunkloader
 	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos,_chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
 	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);

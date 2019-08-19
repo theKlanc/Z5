@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <thread>
 #include "components/position.hpp"
+#include "reactPhysics3D/src/reactphysics3d.h"
 
 namespace State {
 	class Playing : public virtual State_Base {
@@ -54,6 +55,7 @@ namespace State {
 		
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
+		std::unique_ptr<rp3d::CollisionWorld> _collisionWorld;
 		
 	};
 } // namespace State
