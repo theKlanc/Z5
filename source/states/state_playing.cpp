@@ -335,7 +335,7 @@ std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
 	std::vector<bool> newVis(visibility);
 	int rowSize = HI2::getScreenHeight() / config::spriteSize;
 	if constexpr (true) {
-		std::vector<int> rows(HI2::getScreenWidth() / config::spriteSize);
+		std::vector<int> rows;
 		for (int i = 0; i < HI2::getScreenWidth() / config::spriteSize; ++i)
 			rows.push_back(i);
 
