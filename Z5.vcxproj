@@ -207,9 +207,15 @@
     <ClCompile Include="deps\reactPhysics3D\src\utils\Logger.cpp" />
     <ClCompile Include="deps\reactPhysics3D\src\utils\Profiler.cpp" />
     <ClCompile Include="source\block.cpp" />
+    <ClCompile Include="source\components\body_.cpp" />
+    <ClCompile Include="source\components\drawable.cpp" />
+    <ClCompile Include="source\components\name.cpp" />
+    <ClCompile Include="source\components\position.cpp" />
+    <ClCompile Include="source\components\velocity.cpp" />
     <ClCompile Include="source\fdd.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\graphics.cpp" />
+    <ClCompile Include="source\jsonTools.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\nodeGenerator.cpp" />
     <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp" />
@@ -356,13 +362,16 @@
     <ClInclude Include="deps\reactPhysics3D\src\utils\Logger.h" />
     <ClInclude Include="deps\reactPhysics3D\src\utils\Profiler.h" />
     <ClInclude Include="include\block.hpp" />
+    <ClInclude Include="include\components\body.hpp" />
     <ClInclude Include="include\components\drawable.hpp" />
+    <ClInclude Include="include\components\name.hpp" />
     <ClInclude Include="include\components\position.hpp" />
     <ClInclude Include="include\components\velocity.hpp" />
     <ClInclude Include="include\config.hpp" />
     <ClInclude Include="include\fdd.hpp" />
     <ClInclude Include="include\gameCore.hpp" />
     <ClInclude Include="include\graphics.hpp" />
+    <ClInclude Include="include\jsonTools.hpp" />
     <ClInclude Include="include\nodeGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\artificialSatelliteGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\asteroidGenerator.hpp" />
@@ -384,7 +393,12 @@
     <None Include="data\blockTable.json" />
     <None Include="data\defData\universe.json" />
     <None Include="README.md" />
-    <None Include="Z5.includes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

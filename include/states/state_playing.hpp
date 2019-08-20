@@ -13,9 +13,8 @@
 namespace State {
 	class Playing : public virtual State_Base {
 	  public:
-		Playing();
 		~Playing();
-		Playing(gameCore &gc, std::string );
+		Playing(gameCore &gc, std::string saveName, int seed);
 
 		void input(float dt) override;
 		void update(float dt) override;
@@ -31,28 +30,38 @@ namespace State {
 			universeNode* node;
 			int layerHeight;
 		};
-
 		struct renderLayer{
 			double depth;
 			std::variant<entt::entity,nodeLayer> target;
 		};
 		void drawLayer(const renderLayer& rl);
+		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
+		void loadTerrainTable();
+		
 		entt::entity _player;
 		entt::entity _camera;
 
-		void loadTerrainTable();
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
 		
 		static std::filesystem::path _savePath;
-		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
+
+		void createNewGame(int seed);
+		
+		void loadGame();
+		void saveGame();
+
+		void loadEntities();
+		void saveEntities();
+		void fixEntities();
+
+
 
 		std::unique_ptr<std::thread> _chunkLoaderThread;
-
-		static void _chunkLoaderFunc();
 		
+		static void _chunkLoaderFunc();		
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
 		std::unique_ptr<rp3d::CollisionWorld> _collisionWorld;

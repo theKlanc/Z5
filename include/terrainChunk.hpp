@@ -2,6 +2,7 @@
 #include <vector>
 #include "block.hpp"
 #include "config.hpp"
+#include "reactPhysics3D/src/reactphysics3d.h"
 
 class terrainChunk
 {
@@ -12,6 +13,7 @@ public:
 	void setBlock(block* b, const point3Di& p);
 	void setLoaded();
 	bool loaded()const;
+	rp3d::CollisionBody* getCollider() const;
 	
 	bool operator== (const terrainChunk& right)const;
 	bool operator== (const point3Di& right)const;
@@ -25,7 +27,9 @@ public:
 
 private:
 
+	void updateColliders();
 	point3Di _position;
 	bool _loaded = false;
+	rp3d::CollisionBody* _collisionBody;
 	std::vector<block*> _blocks; //Block refs, we'll use unsigned shorts as IDs from the terrainTable if we need memory  "So big, should be on the heap. So fat, too much for the stack."
 };

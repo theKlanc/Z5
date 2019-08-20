@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -45,6 +41,12 @@
     </Filter>
     <Filter Include="data">
       <UniqueIdentifier>{9bdd05d6-6477-4311-9de3-67aff17f33cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{d0fd3e9b-f727-40b1-a5a7-6d4a41519b62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\components">
+      <UniqueIdentifier>{18319022-5a2e-40b4-9a74-5b5da918447f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -326,6 +328,24 @@
     </ClCompile>
     <ClCompile Include="source\universeNode.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jsonTools.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\drawable.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\position.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\velocity.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\name.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\body_.cpp">
+      <Filter>source\components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -779,15 +799,35 @@
     <ClInclude Include="include\universeNode.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\components\body.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jsonTools.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\name.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Z5.includes" />
-    <None Include="README.md" />
     <None Include="data\defData\universe.json">
       <Filter>data</Filter>
     </None>
     <None Include="data\blockTable.json">
       <Filter>data</Filter>
     </None>
+    <None Include="README.md">
+      <Filter>resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.jpg">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="todo.txt">
+      <Filter>resources</Filter>
+    </Text>
   </ItemGroup>
 </Project>

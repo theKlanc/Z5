@@ -239,7 +239,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position}, {"velocity", f._velocity},
-			 {"children", f._children} };
+			 {"children", f._children},{"id",f._ID} };
 }
 
 void from_json(const json& j, universeNode& f) {

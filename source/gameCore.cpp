@@ -43,7 +43,7 @@ void gameCore::clean() {
 gameCore::gameCore() {
 	HI2::systemInit();
 	// HI2::consoleInit();
-	pushState(std::make_unique<State::Playing>(*this,"default"));
+	pushState(std::make_unique<State::Playing>(*this,"default",0));
 	//pushState(std::make_unique<State::Demo>(*this));
 	_exit = false;
 	_pop = 0;

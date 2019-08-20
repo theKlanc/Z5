@@ -2,7 +2,11 @@
 #include <fdd.hpp>
 #include <universeNode.hpp>
 
-struct position{
+struct position {
 	fdd pos;
-	universeNode *parent;
+	universeNode* parent;
+	unsigned int parentID;
 };
+
+void to_json(nlohmann::json& j, const position& n);
+void from_json(const nlohmann::json& j, position& n);
