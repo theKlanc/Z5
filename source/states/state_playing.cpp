@@ -11,15 +11,17 @@
 #include "components/velocity.hpp"
 #include "entt/entity/helper.hpp"
 #include "jsonTools.hpp"
+#include "components/body.hpp"
+#include "components/name.hpp"
 
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 
 State::Playing::~Playing() {
-	
+
 	saveGame();
-	
+
 	delete _chunkLoaderPlayerPosition;
 	_chunkLoaderPlayerPosition = nullptr;
 	_chunkLoaderThread->join();
@@ -36,7 +38,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 	collisionSettings.isSleepingEnabled = true;
 
 	_collisionWorld = std::make_unique<rp3d::CollisionWorld>(collisionSettings);
-	
+
 	//create saveGame if it doesn't exist, otherwise load
 	if (!std::filesystem::exists(savePath())) {
 		if (seed == -1)
@@ -50,15 +52,15 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 		loadGame();
 	}
 
-	
+
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
-	for(auto entity: playerView) {															   //
-	    _player = entity;																	   //
+	for (auto entity : playerView) {															   //
+		_player = entity;																	   //
 		_chunkLoaderPlayerPosition = new position(_enttRegistry.get<position>(entity));		   //
 	}																						   //
 	auto cameraView = _enttRegistry.view<entt::tag<"CAMERA"_hs>>();					   //
-	for(auto entity: cameraView) {															   //
-	    _camera = entity;																	   //
+	for (auto entity : cameraView) {															   //
+		_camera = entity;																	   //
 	}																						   //
 
 	//start chunkloader
@@ -123,7 +125,10 @@ void State::Playing::update(float dt) {
 	}
 
 	//Test for collisions
-
+	//entity-entity
+	//entity-world
+	//world-world
+	
 	//Resolve collisions
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
@@ -137,6 +142,10 @@ void State::Playing::update(float dt) {
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
 	cameraPosition.pos.z = playerPosition.pos.z + (config::cameraDepth / 2);
+	if(_enttRegistry.has<body>(_player))
+	{
+		cameraPosition.pos.z+=_enttRegistry.get<body>(_player).height;
+	}
 
 
 }
@@ -170,6 +179,10 @@ void State::Playing::draw() {
 		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
 			auto& pos = drawableEntityView.get<position>(entity);
 			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
+			if (_enttRegistry.has<body>(entity))
+			{
+				depth -= _enttRegistry.get<body>(entity).height;
+			}
 			if (depth > 0 && depth < config::cameraDepth)
 				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
 		}
@@ -311,42 +324,21 @@ void State::Playing::createNewGame(int seed)
 	//Set up basic entities
 	universeNode* result;
 	_universeBase.findNodeByID(11, result);
+	
 
 	_player = _enttRegistry.create();
 	_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
-	_camera = _enttRegistry.create();
-	_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
-	
-	entt::entity dog = _enttRegistry.create();
 
 	auto& playerSprite = _enttRegistry.assign<drawable>(_player);
 	playerSprite.sprite = _core->getGraphics().loadTexture("player");
-	playerSprite.name="player";
-
-	auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-	dogSprite.sprite = _core->getGraphics().loadTexture("gromit");
-	dogSprite.name="gromit";
-	
-	auto& dogPos = _enttRegistry.assign<position>(dog);
-	dogPos.parent = result;
-	dogPos.parentID=11;
-	dogPos.pos.x = 0;
-	dogPos.pos.y = 0;
-	dogPos.pos.z = 1;
-	dogPos.pos.r = 0;
-
-	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
-	dogSpd.spd.x = 0;
-	dogSpd.spd.y = 0;
-	dogSpd.spd.z = 0;
-	dogSpd.spd.r = -0.1;
+	playerSprite.name = "player";
 
 	auto& playerPos = _enttRegistry.assign<position>(_player);
 	playerPos.parent = result;
-	playerPos.parentID=11;
+	playerPos.parentID = 11;
 	playerPos.pos.x = 0;
 	playerPos.pos.y = 0;
-	playerPos.pos.z = 1;
+	playerPos.pos.z = 0;
 	playerPos.pos.r = 0;
 
 	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -355,9 +347,21 @@ void State::Playing::createNewGame(int seed)
 	playerSpd.spd.z = 0;
 	playerSpd.spd.r = 0.1;
 
+	auto& playerName = _enttRegistry.assign<name>(_player);
+	playerName.nameString="Captain Lewis";
+
+	auto& playerBody = _enttRegistry.assign<body>(_player);
+	playerBody.height=0.9;
+	playerBody.width=0.6;
+	//playerBody.collider=
+	
+
+	_camera = _enttRegistry.create();
+	_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
+
 	auto& cameraPos = _enttRegistry.assign<position>(_camera);
 	cameraPos.parent = result;
-	cameraPos.parentID=11;
+	cameraPos.parentID = 11;
 	cameraPos.pos.x = 0;
 	cameraPos.pos.y = 0;
 	cameraPos.pos.z = 11;
@@ -367,7 +371,36 @@ void State::Playing::createNewGame(int seed)
 	cameraSpd.spd.x = 0;
 	cameraSpd.spd.y = 0;
 	cameraSpd.spd.z = 0;
-	cameraSpd.spd.r = 0;	
+	cameraSpd.spd.r = 0;
+
+
+	entt::entity dog = _enttRegistry.create();
+
+	auto& dogSprite = _enttRegistry.assign<drawable>(dog);
+	dogSprite.sprite = _core->getGraphics().loadTexture("dog");
+	dogSprite.name = "dog";
+
+	auto& dogPos = _enttRegistry.assign<position>(dog);
+	dogPos.parent = result;
+	dogPos.parentID = 11;
+	dogPos.pos.x = 0;
+	dogPos.pos.y = 0;
+	dogPos.pos.z = 0;
+	dogPos.pos.r = 0;
+
+	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
+	dogSpd.spd.x = 0;
+	dogSpd.spd.y = 0;
+	dogSpd.spd.z = 0;
+	dogSpd.spd.r = -0.1;
+
+	auto& dogName = _enttRegistry.assign<name>(dog);
+	dogName.nameString="Lieutenant Gromit";
+
+	auto& dogBody = _enttRegistry.assign<body>(dog);
+	dogBody.height=0.4;
+	dogBody.width=0.3;
+	//dogBody.collider=
 }
 
 void State::Playing::loadGame()
@@ -398,7 +431,7 @@ void State::Playing::loadEntities()
 	std::ifstream entitiesFile(savePath().append("entities.json"));
 	nlohmann::json entitiesJson;
 	entitiesFile >> entitiesJson;
-	from_json(entitiesJson,_enttRegistry);
+	from_json(entitiesJson, _enttRegistry);
 	fixEntities();
 }
 
@@ -406,7 +439,7 @@ void State::Playing::saveEntities()
 {
 	std::ofstream entitiesFile(savePath().append("entities.json"));
 	nlohmann::json entitiesJson;
-	to_json(entitiesJson,_enttRegistry);
+	to_json(entitiesJson, _enttRegistry);
 	entitiesJson >> entitiesFile;
 }
 
@@ -416,7 +449,7 @@ void State::Playing::fixEntities()
 	auto positionEntities = _enttRegistry.view<position>();
 	for (const entt::entity& entity : positionEntities) {
 		position& pos = _enttRegistry.get<position>(entity);
-		if(!_universeBase.findNodeByID(pos.parentID,pos.parent))
+		if (!_universeBase.findNodeByID(pos.parentID, pos.parent))
 		{
 			throw "Node not found wtf";
 		}
@@ -425,7 +458,7 @@ void State::Playing::fixEntities()
 	auto drawableEntities = _enttRegistry.view<drawable>();
 	for (const entt::entity& entity : drawableEntities) {
 		drawable& d = _enttRegistry.get<drawable>(entity);
-		d.sprite=_core->getGraphics().loadTexture(d.name);
+		d.sprite = _core->getGraphics().loadTexture(d.name);
 	}
 	//body
 }
