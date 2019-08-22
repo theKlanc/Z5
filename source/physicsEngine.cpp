@@ -65,16 +65,44 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 	auto bodyRight = _enttRegistry->get<body>(rightEntity);
 	double rightMass = bodyRight.mass;
 	fdd oldRightVel = velRight.spd;
-	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass));
-	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd);
+	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass))*0.95;
+	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd)*0.95;
 }
 
 void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo)
 {
-	throw "Not implemented exception";
+	entt::entity entity;
+	if(((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type==entity){
+		entity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
+	}
+	else
+	{
+		entity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
+	}
+	auto& vel = _enttRegistry->get<velocity>(entity);
+	auto vector = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getContactPoints()->getNormal();
+	if(abs(vector.x) > abs(vector.y) && abs(vector.x) > abs(vector.z))
+	{
+		vel.spd.x *= -0.95;
+	}
+	else if (abs(vector.y) > abs(vector.z) && abs(vector.y) > abs(vector.z))
+	{
+		vel.spd.y *= -0.95;
+	}
+	else
+	{
+		vel.spd.z *= -0.95;
+	}
 }
 
 void physicsEngine::solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo)
 {
-	throw "Not implemented exception";
+	universeNode* left = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
+	double leftMass = left->getMass();
+	universeNode* right = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
+	double rightMass = right->getMass();
+	fdd oldRightVel = left->getLocalFdd(right->getVelocity(),right->getParent());
+	fdd newRightVel = (((left->getVelocity() * 2 * leftMass) - (oldRightVel * leftMass) + (oldRightVel * rightMass)) / (leftMass + rightMass)) * 0.95;
+	left->setVelocity((oldRightVel + newRightVel - left->getVelocity()) * 0.95);
+	right->setVelocity(right->getLocalFdd(newRightVel, left->getParent()));
 }

@@ -86,7 +86,7 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 			length = std::stoi(input);
 			_blocks.insert(_blocks.end(), length, &block::terrainTable[blockID]);
 		}
-
+		updateColliders();
 		setLoaded();
 
 	}
@@ -122,5 +122,30 @@ void terrainChunk::store(std::filesystem::path file) {
 			}
 		}
 		outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
+	}
+}
+
+void terrainChunk::updateColliders()
+{
+	int i = 0;
+	_colliders.clear();
+	for (int i = 0; i < config::chunkSize; ++i)
+	{
+		for (int j = 0; j < config::chunkSize; ++j)
+		{
+			for (int k = 0; k < config::chunkSize; ++k)
+			{
+				if (_blocks[i]->solid)
+				{
+					_colliders.push_back(true);
+					_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)i,(rp3d::decimal)j,(rp3d::decimal)k},rp3d::Quaternion::identity() });
+				}
+				else
+				{
+					_colliders.push_back(false);
+				}
+				i++;
+			}
+		}
 	}
 }

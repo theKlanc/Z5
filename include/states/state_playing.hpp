@@ -25,7 +25,8 @@ namespace State {
 
 		
 		
-		
+
+		static physicsEngine _physicsEngine;
 	  private:
 		struct nodeLayer{
 			universeNode* node;
@@ -46,7 +47,6 @@ namespace State {
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
-		physicsEngine _physicsEngine;
 		
 		static std::filesystem::path _savePath;
 

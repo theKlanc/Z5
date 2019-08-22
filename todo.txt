@@ -1,15 +1,15 @@
 #crear la resta de generadors
 #associar generadors amb nodes al crearlos
 #crear camera (kinda done)
-chunkloader
-render
-implementar colisions
+#chunkloader
+#render
+//implementar colisions
 
 crear sistemes i components basics pel jugador
 crear observer per achievements i efectes de so
-crear zones de musica o en el seu defecte, assignar cançons a cada gameNode
+crear zones de musica o en el seu defecte, assignar cançons a cada universeNode
 crear UI
 crear items i inventari
-crear NPCs (mascotes animals i persones)
+//crear NPCs (mascotes animals i persones)
 --crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
-~~persistència (json i tal)
+#persistència (json i tal)

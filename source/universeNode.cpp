@@ -44,7 +44,7 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 }
 
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
-	fdd localCameraPos = getLocalPos(cameraPos, u);
+	fdd localCameraPos = getLocalFdd(cameraPos, u);
 	if (localCameraPos.distance2D({ 0,0,0,0 }) < (_diameter / 2 + 100)) {
 		iUpdateChunks(chunkFromPos(localCameraPos));
 	}
@@ -60,7 +60,7 @@ bool universeNode::shouldDraw(fdd f) {
 std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 {
 	std::vector<universeNode*> result;
-	fdd localPos = getLocalPos(f, u);
+	fdd localPos = getLocalFdd(f, u);
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
 	}
@@ -87,7 +87,7 @@ bool universeNode::findNodeByID(const unsigned int& id, universeNode*& result)
 
 bool universeNode::drawBefore(universeNode& r) const
 {
-	fdd localPos = getLocalPos(r._position, r._parent);
+	fdd localPos = getLocalFdd(r._position, r._parent);
 	return std::fmod(_position.z, 1.0f) < std::fmod(localPos.z, 1.0f);
 
 }
@@ -196,7 +196,7 @@ void universeNode::linkChildren() {
 	}
 }
 
-fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
+fdd universeNode::getLocalFdd(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
 								  // relative to our local node (*this)
 {
 	if (u == this)
@@ -225,9 +225,24 @@ fdd universeNode::getPosition()
 	return _position;
 }
 
+fdd universeNode::getVelocity()
+{
+	return _velocity;
+}
+
+void universeNode::setVelocity(fdd v)
+{
+	_velocity = v;
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
+}
+
+double universeNode::getMass()
+{
+	return _mass;
 }
 
 unsigned int universeNode::getHeight(const point2D& pos)

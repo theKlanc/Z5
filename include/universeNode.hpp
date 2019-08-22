@@ -42,9 +42,13 @@ public:
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
-	fdd getLocalPos(fdd f,universeNode* u) const;
+	fdd getLocalFdd(fdd f,universeNode* u) const;
 	fdd getPosition();
+	fdd getVelocity();
+	void setVelocity(fdd v);
+
 	universeNode* getParent();
+	double getMass();
 	unsigned int getHeight(const point2D &pos);
 	rp3d::CollisionBody* getNodeCollider();
 	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);

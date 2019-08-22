@@ -119,7 +119,7 @@ void State::Playing::update(float dt) {
 
 				position pL = _enttRegistry.get<position>(left);
 				position pR = _enttRegistry.get<position>(right);
-				fdd rightPos = pL.parent->getLocalPos(pR.pos, pR.parent);
+				fdd rightPos = pL.parent->getLocalFdd(pR.pos, pR.parent);
 
 				rp3d::Vector3 leftPosition(pL.pos.x, pL.pos.y, pL.pos.z);
 				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
@@ -143,6 +143,9 @@ void State::Playing::update(float dt) {
 #pragma region node-entity
 	
 #pragma endregion
+#pragma region node-node
+#pragma endregion
+	
 #pragma endregion 
 	
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
@@ -188,7 +191,7 @@ void State::Playing::draw() {
 			currentCameraPos.pos.z -= i;
 			for (universeNode*& node : sortedDrawingNodes) {
 				//obtenir posicio de la camera al node
-				fdd localCameraPos = node->getLocalPos(currentCameraPos.pos, currentCameraPos.parent);
+				fdd localCameraPos = node->getLocalFdd(currentCameraPos.pos, currentCameraPos.parent);
 				//obtenir profunditat
 				int layer = floor(localCameraPos.z);
 
@@ -202,7 +205,7 @@ void State::Playing::draw() {
 		auto drawableEntityView = _enttRegistry.view<drawable, position>();
 		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
 			auto& pos = drawableEntityView.get<position>(entity);
-			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
+			double depth = cameraPos.pos.z - cameraPos.parent->getLocalFdd(pos.pos, pos.parent).z;
 			if (_enttRegistry.has<body>(entity))
 			{
 				depth -= _enttRegistry.get<body>(entity).height;
@@ -233,13 +236,13 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 		void operator()(const entt::entity& entity) const {
 			const drawable& sprite = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
-			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
+			fdd localPos = cameraPos.parent->getLocalFdd(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
 			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
 			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
-			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc en que esta la camera
+			fdd firstBlock = node.node->getLocalFdd(cameraPos.pos, cameraPos.parent); //bloc en que esta la camera
 			firstBlock.z = node.layerHeight;
 
 			fdd localPos = firstBlock - cameraPos.pos;
@@ -365,6 +368,7 @@ void State::Playing::loadGame()
 
 void State::Playing::saveGame()
 {
+	return;
 	saveEntities();
 	std::ofstream universeFile(savePath().append("universe.json"));
 	nlohmann::json universeJson(_universeBase);
@@ -529,8 +533,8 @@ void State::Playing::createEntities()
 		ballSpd.spd.r = -0.1;
 
 		auto& ballBody = _enttRegistry.assign<body>(ball);
-		ballBody.height = 0.4;
-		ballBody.width = 0.3;
+		ballBody.height = 7.0f / 8.0f;
+		ballBody.width = 7.0f/8.0f;
 		ballBody.mass = 0.1;
 
 		// Initial position and orientation of the collision body 
