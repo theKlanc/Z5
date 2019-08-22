@@ -44,7 +44,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 	{
 		loadGame();
 	}
-
+	_universeBase.populateColliders(_physicsEngine.getWorld());
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
 	for (auto entity : playerView) {															   //
@@ -109,14 +109,6 @@ void State::Playing::update(float dt) {
 
 	//TODO update nodes positions
 
-	auto movableEntityView = _enttRegistry.view<velocity, position>();
-	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-		velocity vel = movableEntityView.get<velocity>(entity);
-		position& pos = movableEntityView.get<position>(entity);
-
-		pos.pos += (vel.spd * dt);
-	}
-
 	//Test for collisions
 	//entity-entity
 	auto bodyEntitiesView = _enttRegistry.view<body>();
@@ -150,7 +142,16 @@ void State::Playing::update(float dt) {
 	//entity-world
 	//world-world
 
-	//Resolve collisions
+	
+	auto movableEntityView = _enttRegistry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+		velocity vel = movableEntityView.get<velocity>(entity);
+		position& pos = movableEntityView.get<position>(entity);
+
+		pos.pos += (vel.spd * dt);
+	}
+
+	
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
@@ -425,7 +426,7 @@ void State::Playing::createEntities()
 
 		auto& playerBody = _enttRegistry.assign<body>(_player);
 		playerBody.height = 0.9;
-		playerBody.width = 0.6;
+		playerBody.width = 0.4;
 		playerBody.mass = 50;
 
 		// Initial position and orientation of the collision body 
@@ -496,8 +497,8 @@ void State::Playing::createEntities()
 		dogBody._collisionShape = new rp3d::CapsuleShape(dogBody.width / 2, dogBody.height);
 		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
 	}
-	for (int i = 0; i < 5; i++)
-		for(int j = 0;j<5;j++)
+	for (int i = 0; i < 10; i++)
+		for(int j = 0;j<10;j++)
 	{
 		entt::entity ball = _enttRegistry.create();
 
@@ -522,7 +523,7 @@ void State::Playing::createEntities()
 		auto& ballBody = _enttRegistry.assign<body>(ball);
 		ballBody.height = 0.4;
 		ballBody.width = 0.3;
-		ballBody.mass = 0.5;
+		ballBody.mass = 0.1;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);

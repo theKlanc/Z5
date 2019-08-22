@@ -37,7 +37,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 
 class universeNode {
 public:
-	universeNode():_chunks(config::chunkLoadDiameter*config::chunkLoadDiameter*config::chunkLoadDiameter){}
+	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
 	block& getBlock(const point3Di &pos);
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
@@ -47,6 +47,7 @@ public:
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
 
+	void populateColliders(rp3d::CollisionWorld* collisionWorld);
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool drawBefore(universeNode& r)const;
@@ -82,6 +83,8 @@ public:
 	std::unique_ptr<nodeGenerator> _generator;
 	unsigned int _depth;
 	unsigned int _ID;
+	rp3d::CollisionBody* _collider;
+	rp3d::CollisionShape* _collisionShape;
   
 };
 

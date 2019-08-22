@@ -17,6 +17,7 @@
 
 void universeNode::clean()
 {
+	delete _collisionShape;
 	for (terrainChunk& chunk : _chunks)
 	{
 		if (chunk.loaded())
@@ -233,6 +234,21 @@ universeNode* universeNode::getParent()
 unsigned int universeNode::getHeight(const point2D& pos)
 {
 	return _generator->getHeight(pos);
+}
+
+void universeNode::populateColliders(rp3d::CollisionWorld* collisionWorld)
+{
+	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+	rp3d::Transform transform(initPosition, initOrientation);
+	
+	_collider = collisionWorld->createCollisionBody(transform);
+
+	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ _diameter / 2,_diameter / 2,_diameter / 2 });
+	_collider->addCollisionShape(_collisionShape, transform);
+	for (universeNode& u : _children) {
+		u.populateColliders(collisionWorld);
+	}
 }
 
 void to_json(nlohmann::json& j, const universeNode& f) {

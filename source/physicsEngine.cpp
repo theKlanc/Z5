@@ -36,10 +36,7 @@ void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallback
 	double rightMass = bodyRight.mass;
 	fdd oldRightVel = velRight.spd;
 	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass));
-	velLeft.spd = oldRightVel + velRight.spd - velLeft.spd;
-	
-	
-	//std::cout << "collision detected"<<std::endl;
+	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd);
 }
 
 rp3d::CollisionWorld* physicsEngine::getWorld()
