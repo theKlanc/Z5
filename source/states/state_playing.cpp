@@ -13,7 +13,7 @@
 #include "jsonTools.hpp"
 #include "components/body.hpp"
 #include "components/name.hpp"
-
+#include "reactPhysics3D/src/reactphysics3d.h"
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -31,13 +31,6 @@ State::Playing::~Playing() {
 State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc) {
 
 	_savePath = HI2::getSavesPath().append(saveName);
-
-	//Create collision world
-	rp3d::WorldSettings collisionSettings;
-	collisionSettings.defaultVelocitySolverNbIterations = 20;
-	collisionSettings.isSleepingEnabled = true;
-
-	_collisionWorld = std::make_unique<rp3d::CollisionWorld>(collisionSettings);
 
 	//create saveGame if it doesn't exist, otherwise load
 	if (!std::filesystem::exists(savePath())) {
@@ -126,9 +119,23 @@ void State::Playing::update(float dt) {
 
 	//Test for collisions
 	//entity-entity
+	auto bodyEntitiesView = _enttRegistry.view<body>();
+	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
+			if(left!=right)
+			{
+				body leftBody = _enttRegistry.get<body>(left);
+				body rightBody = _enttRegistry.get<body>(right);
+				if(_physicsEngine.getWorld()->testAABBOverlap(leftBody.collider,rightBody.collider))
+				{
+					_physicsEngine.getWorld()->testCollision(leftBody.collider,rightBody.collider, &_physicsEngine);
+				}
+			}
+		}
+	}
 	//entity-world
 	//world-world
-	
+
 	//Resolve collisions
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
@@ -142,9 +149,9 @@ void State::Playing::update(float dt) {
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
 	cameraPosition.pos.z = playerPosition.pos.z + (config::cameraDepth / 2);
-	if(_enttRegistry.has<body>(_player))
+	if (_enttRegistry.has<body>(_player))
 	{
-		cameraPosition.pos.z+=_enttRegistry.get<body>(_player).height;
+		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
 	}
 
 
@@ -324,7 +331,7 @@ void State::Playing::createNewGame(int seed)
 	//Set up basic entities
 	universeNode* result;
 	_universeBase.findNodeByID(11, result);
-	
+
 
 	_player = _enttRegistry.create();
 	_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
@@ -348,13 +355,23 @@ void State::Playing::createNewGame(int seed)
 	playerSpd.spd.r = 0.1;
 
 	auto& playerName = _enttRegistry.assign<name>(_player);
-	playerName.nameString="Captain Lewis";
+	playerName.nameString = "Captain Lewis";
 
 	auto& playerBody = _enttRegistry.assign<body>(_player);
-	playerBody.height=0.9;
-	playerBody.width=0.6;
-	//playerBody.collider=
-	
+	playerBody.height = 0.9;
+	playerBody.width = 0.6;
+	playerBody.mass = 50;
+
+	// Initial position and orientation of the collision body 
+	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+	rp3d::Transform transform(initPosition, initOrientation);
+
+	playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+	playerBody.collider->setUserData((void*)_player);
+	playerBody._collisionShape = new rp3d::CapsuleShape(playerBody.width / 2, playerBody.height);
+	playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
+
 
 	_camera = _enttRegistry.create();
 	_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
@@ -395,12 +412,17 @@ void State::Playing::createNewGame(int seed)
 	dogSpd.spd.r = -0.1;
 
 	auto& dogName = _enttRegistry.assign<name>(dog);
-	dogName.nameString="Lieutenant Gromit";
+	dogName.nameString = "Lieutenant Gromit";
 
 	auto& dogBody = _enttRegistry.assign<body>(dog);
-	dogBody.height=0.4;
-	dogBody.width=0.3;
-	//dogBody.collider=
+	dogBody.height = 0.4;
+	dogBody.width = 0.3;
+	dogBody.mass = 10;
+	
+	dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+	dogBody.collider->setUserData((void*)dog);
+	dogBody._collisionShape = new rp3d::CapsuleShape(dogBody.width / 2, dogBody.height);
+	dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
 }
 
 void State::Playing::loadGame()
@@ -435,7 +457,7 @@ void State::Playing::loadEntities()
 	fixEntities();
 }
 
-void State::Playing::saveEntities()
+void State::Playing::saveEntities() const
 {
 	std::ofstream entitiesFile(savePath().append("entities.json"));
 	nlohmann::json entitiesJson;

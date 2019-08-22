@@ -9,6 +9,7 @@
 #include <thread>
 #include "components/position.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
+#include "physicsEngine.hpp"
 
 namespace State {
 	class Playing : public virtual State_Base {
@@ -45,6 +46,7 @@ namespace State {
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
+		physicsEngine _physicsEngine;
 		
 		static std::filesystem::path _savePath;
 
@@ -54,7 +56,7 @@ namespace State {
 		void saveGame();
 
 		void loadEntities();
-		void saveEntities();
+		void saveEntities() const;
 		void fixEntities();
 
 
@@ -64,7 +66,6 @@ namespace State {
 		static void _chunkLoaderFunc();		
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
-		std::unique_ptr<rp3d::CollisionWorld> _collisionWorld;
 		
 	};
 } // namespace State

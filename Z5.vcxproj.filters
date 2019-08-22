@@ -347,6 +347,9 @@
     <ClCompile Include="source\components\body_.cpp">
       <Filter>source\components</Filter>
     </ClCompile>
+    <ClCompile Include="source\physicsEngine.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -807,6 +810,9 @@
     </ClInclude>
     <ClInclude Include="include\components\name.hpp">
       <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\physicsEngine.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

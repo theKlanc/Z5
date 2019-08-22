@@ -227,6 +227,7 @@
     <ClCompile Include="source\nodegenerators\spaceshipGenerator.cpp" />
     <ClCompile Include="source\nodegenerators\spaceStationGenerator.cpp" />
     <ClCompile Include="source\nodegenerators\starGenerator.cpp" />
+    <ClCompile Include="source\physicsEngine.cpp" />
     <ClCompile Include="source\states\state_base.cpp" />
     <ClCompile Include="source\states\state_demo.cpp" />
     <ClCompile Include="source\states\state_main_menu.cpp" />
@@ -382,6 +383,7 @@
     <ClInclude Include="include\nodegenerators\spaceshipGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\spaceStationGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\starGenerator.hpp" />
+    <ClInclude Include="include\physicsEngine.hpp" />
     <ClInclude Include="include\states\state_base.hpp" />
     <ClInclude Include="include\states\state_demo.hpp" />
     <ClInclude Include="include\states\state_main_menu.hpp" />
