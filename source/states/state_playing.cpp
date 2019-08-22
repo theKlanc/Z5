@@ -29,7 +29,7 @@ State::Playing::~Playing() {
 }
 
 State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc) {
-
+	_physicsEngine.setRegistry(&_enttRegistry);
 	_savePath = HI2::getSavesPath().append(saveName);
 
 	//create saveGame if it doesn't exist, otherwise load
@@ -122,13 +122,27 @@ void State::Playing::update(float dt) {
 	auto bodyEntitiesView = _enttRegistry.view<body>();
 	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
-			if(left!=right)
+			if (left != right && left > right)
 			{
-				body leftBody = _enttRegistry.get<body>(left);
-				body rightBody = _enttRegistry.get<body>(right);
-				if(_physicsEngine.getWorld()->testAABBOverlap(leftBody.collider,rightBody.collider))
+
+				position pL = _enttRegistry.get<position>(left);
+				position pR = _enttRegistry.get<position>(right);
+				fdd rightPos = pL.parent->getLocalPos(pR.pos, pR.parent);
+
+				rp3d::Vector3 leftPosition(pL.pos.x, pL.pos.y, pL.pos.z);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform leftTransform(leftPosition, initOrientation);
+
+				rp3d::Vector3 rightPosition(pR.pos.x, pR.pos.y, pR.pos.z);
+				rp3d::Transform rightTransform(rightPosition, initOrientation);
+
+				body& leftBody = _enttRegistry.get<body>(left);
+				leftBody.collider->setTransform(leftTransform);
+				body& rightBody = _enttRegistry.get<body>(right);
+				rightBody.collider->setTransform(rightTransform);
+				if (_physicsEngine.getWorld()->testAABBOverlap(leftBody.collider, rightBody.collider))
 				{
-					_physicsEngine.getWorld()->testCollision(leftBody.collider,rightBody.collider, &_physicsEngine);
+					_physicsEngine.getWorld()->testCollision(leftBody.collider, rightBody.collider, &_physicsEngine);
 				}
 			}
 		}
@@ -328,101 +342,7 @@ void State::Playing::createNewGame(int seed)
 	//load terrain table
 	loadTerrainTable();
 
-	//Set up basic entities
-	universeNode* result;
-	_universeBase.findNodeByID(11, result);
-
-
-	_player = _enttRegistry.create();
-	_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
-
-	auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-	playerSprite.sprite = _core->getGraphics().loadTexture("player");
-	playerSprite.name = "player";
-
-	auto& playerPos = _enttRegistry.assign<position>(_player);
-	playerPos.parent = result;
-	playerPos.parentID = 11;
-	playerPos.pos.x = 0;
-	playerPos.pos.y = 0;
-	playerPos.pos.z = 0;
-	playerPos.pos.r = 0;
-
-	auto& playerSpd = _enttRegistry.assign<velocity>(_player);
-	playerSpd.spd.x = 0;
-	playerSpd.spd.y = 0;
-	playerSpd.spd.z = 0;
-	playerSpd.spd.r = 0.1;
-
-	auto& playerName = _enttRegistry.assign<name>(_player);
-	playerName.nameString = "Captain Lewis";
-
-	auto& playerBody = _enttRegistry.assign<body>(_player);
-	playerBody.height = 0.9;
-	playerBody.width = 0.6;
-	playerBody.mass = 50;
-
-	// Initial position and orientation of the collision body 
-	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
-	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-	rp3d::Transform transform(initPosition, initOrientation);
-
-	playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-	playerBody.collider->setUserData((void*)_player);
-	playerBody._collisionShape = new rp3d::CapsuleShape(playerBody.width / 2, playerBody.height);
-	playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
-
-
-	_camera = _enttRegistry.create();
-	_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
-
-	auto& cameraPos = _enttRegistry.assign<position>(_camera);
-	cameraPos.parent = result;
-	cameraPos.parentID = 11;
-	cameraPos.pos.x = 0;
-	cameraPos.pos.y = 0;
-	cameraPos.pos.z = 11;
-	cameraPos.pos.r = 0;
-
-	auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
-	cameraSpd.spd.x = 0;
-	cameraSpd.spd.y = 0;
-	cameraSpd.spd.z = 0;
-	cameraSpd.spd.r = 0;
-
-
-	entt::entity dog = _enttRegistry.create();
-
-	auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-	dogSprite.sprite = _core->getGraphics().loadTexture("dog");
-	dogSprite.name = "dog";
-
-	auto& dogPos = _enttRegistry.assign<position>(dog);
-	dogPos.parent = result;
-	dogPos.parentID = 11;
-	dogPos.pos.x = 0;
-	dogPos.pos.y = 0;
-	dogPos.pos.z = 0;
-	dogPos.pos.r = 0;
-
-	auto& dogSpd = _enttRegistry.assign<velocity>(dog);
-	dogSpd.spd.x = 0;
-	dogSpd.spd.y = 0;
-	dogSpd.spd.z = 0;
-	dogSpd.spd.r = -0.1;
-
-	auto& dogName = _enttRegistry.assign<name>(dog);
-	dogName.nameString = "Lieutenant Gromit";
-
-	auto& dogBody = _enttRegistry.assign<body>(dog);
-	dogBody.height = 0.4;
-	dogBody.width = 0.3;
-	dogBody.mass = 10;
-	
-	dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-	dogBody.collider->setUserData((void*)dog);
-	dogBody._collisionShape = new rp3d::CapsuleShape(dogBody.width / 2, dogBody.height);
-	dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
+	createEntities();
 }
 
 void State::Playing::loadGame()
@@ -450,11 +370,17 @@ void State::Playing::saveGame()
 
 void State::Playing::loadEntities()
 {
-	std::ifstream entitiesFile(savePath().append("entities.json"));
-	nlohmann::json entitiesJson;
-	entitiesFile >> entitiesJson;
-	from_json(entitiesJson, _enttRegistry);
-	fixEntities();
+	if (std::filesystem::exists(savePath().append("entities.json"))) {
+		std::ifstream entitiesFile(savePath().append("entities.json"));
+		nlohmann::json entitiesJson;
+		entitiesFile >> entitiesJson;
+		from_json(entitiesJson, _enttRegistry);
+		fixEntities();
+	}
+	else
+	{
+		createEntities();
+	}
 }
 
 void State::Playing::saveEntities() const
@@ -463,6 +389,151 @@ void State::Playing::saveEntities() const
 	nlohmann::json entitiesJson;
 	to_json(entitiesJson, _enttRegistry);
 	entitiesJson >> entitiesFile;
+}
+
+void State::Playing::createEntities()
+{
+	//Set up basic entities
+	universeNode* result;
+	_universeBase.findNodeByID(11, result);
+
+
+	{
+		_player = _enttRegistry.create();
+		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
+
+		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
+		playerSprite.sprite = _core->getGraphics().loadTexture("player");
+		playerSprite.name = "player";
+
+		auto& playerPos = _enttRegistry.assign<position>(_player);
+		playerPos.parent = result;
+		playerPos.parentID = 11;
+		playerPos.pos.x = 2;
+		playerPos.pos.y = 2;
+		playerPos.pos.z = 0;
+		playerPos.pos.r = 0;
+
+		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
+		playerSpd.spd.x = 0;
+		playerSpd.spd.y = 0;
+		playerSpd.spd.z = 0;
+		playerSpd.spd.r = 0.1;
+
+		auto& playerName = _enttRegistry.assign<name>(_player);
+		playerName.nameString = "Captain Lewis";
+
+		auto& playerBody = _enttRegistry.assign<body>(_player);
+		playerBody.height = 0.9;
+		playerBody.width = 0.6;
+		playerBody.mass = 50;
+
+		// Initial position and orientation of the collision body 
+		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+		rp3d::Transform transform(initPosition, initOrientation);
+
+		playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		playerBody.collider->setUserData((void*)_player);
+		playerBody._collisionShape = new rp3d::CapsuleShape(playerBody.width / 2, playerBody.height);
+		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
+	}
+
+	{
+		_camera = _enttRegistry.create();
+		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
+
+		auto& cameraPos = _enttRegistry.assign<position>(_camera);
+		cameraPos.parent = result;
+		cameraPos.parentID = 11;
+		cameraPos.pos.x = 0;
+		cameraPos.pos.y = 0;
+		cameraPos.pos.z = 11;
+		cameraPos.pos.r = 0;
+
+		auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
+		cameraSpd.spd.x = 0;
+		cameraSpd.spd.y = 0;
+		cameraSpd.spd.z = 0;
+		cameraSpd.spd.r = 0;
+	}
+	{
+		entt::entity dog = _enttRegistry.create();
+
+		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
+		dogSprite.sprite = _core->getGraphics().loadTexture("dog");
+		dogSprite.name = "dog";
+
+		auto& dogPos = _enttRegistry.assign<position>(dog);
+		dogPos.parent = result;
+		dogPos.parentID = 11;
+		dogPos.pos.x = 3;
+		dogPos.pos.y = 2;
+		dogPos.pos.z = 0;
+		dogPos.pos.r = 0;
+
+		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
+		dogSpd.spd.x = 0;
+		dogSpd.spd.y = 0;
+		dogSpd.spd.z = 0;
+		dogSpd.spd.r = -0.1;
+
+		auto& dogName = _enttRegistry.assign<name>(dog);
+		dogName.nameString = "Lieutenant Gromit";
+
+		auto& dogBody = _enttRegistry.assign<body>(dog);
+		dogBody.height = 0.4;
+		dogBody.width = 0.3;
+		dogBody.mass = 10;
+
+		// Initial position and orientation of the collision body 
+		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+		rp3d::Transform transform(initPosition, initOrientation);
+
+		dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		dogBody.collider->setUserData((void*)dog);
+		dogBody._collisionShape = new rp3d::CapsuleShape(dogBody.width / 2, dogBody.height);
+		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
+	}
+	for (int i = 0; i < 5; i++)
+		for(int j = 0;j<5;j++)
+	{
+		entt::entity ball = _enttRegistry.create();
+
+		auto& ballSprite = _enttRegistry.assign<drawable>(ball);
+		ballSprite.sprite = _core->getGraphics().loadTexture("ball");
+		ballSprite.name = "ball";
+
+		auto& ballPos = _enttRegistry.assign<position>(ball);
+		ballPos.parent = result;
+		ballPos.parentID = 11;
+		ballPos.pos.x = 4+i;
+		ballPos.pos.y = 4+j;
+		ballPos.pos.z = 0;
+		ballPos.pos.r = 0;
+
+		auto& ballSpd = _enttRegistry.assign<velocity>(ball);
+		ballSpd.spd.x = 0;
+		ballSpd.spd.y = 0;
+		ballSpd.spd.z = 0;
+		ballSpd.spd.r = -0.1;
+
+		auto& ballBody = _enttRegistry.assign<body>(ball);
+		ballBody.height = 0.4;
+		ballBody.width = 0.3;
+		ballBody.mass = 0.5;
+
+		// Initial position and orientation of the collision body 
+		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+		rp3d::Transform transform(initPosition, initOrientation);
+
+		ballBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		ballBody.collider->setUserData((void*)ball);
+		ballBody._collisionShape = new rp3d::SphereShape(0.4);
+		ballBody.collider->addCollisionShape(ballBody._collisionShape, transform);
+	}
 }
 
 void State::Playing::fixEntities()
@@ -483,6 +554,20 @@ void State::Playing::fixEntities()
 		d.sprite = _core->getGraphics().loadTexture(d.name);
 	}
 	//body
+	auto bodyEntities = _enttRegistry.view<body>();
+	for (const entt::entity& entity : bodyEntities) {
+		body& b = _enttRegistry.get<body>(entity);
+		position p = _enttRegistry.get<position>(entity);
+
+		rp3d::Vector3 initPosition(0, 0, 0);
+		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+		rp3d::Transform transform(initPosition, initOrientation);
+
+		b.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		b.collider->setUserData((void*)entity);
+		b._collisionShape = new rp3d::CapsuleShape(b.width / 2, b.height);
+		b.collider->addCollisionShape(b._collisionShape, transform);
+	}
 }
 
 void State::Playing::_chunkLoaderFunc()

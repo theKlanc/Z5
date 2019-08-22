@@ -57,6 +57,7 @@ namespace State {
 
 		void loadEntities();
 		void saveEntities() const;
+		void createEntities();
 		void fixEntities();
 
 
