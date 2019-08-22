@@ -26,17 +26,22 @@ physicsEngine::~physicsEngine()
 
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
 {
-	entt::entity leftEntity = (entt::entity)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData();
-	auto& velLeft = _enttRegistry->get<velocity>(leftEntity);
-	auto bodyLeft = _enttRegistry->get<body>(leftEntity);
-	double leftMass = bodyLeft.mass;
-	entt::entity rightEntity = (entt::entity)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData();
-	auto& velRight = _enttRegistry->get<velocity>(rightEntity);
-	auto bodyRight = _enttRegistry->get<body>(rightEntity);
-	double rightMass = bodyRight.mass;
-	fdd oldRightVel = velRight.spd;
-	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass));
-	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd);
+	if(((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
+	{
+		if(((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type==ENTITY)
+		{
+			solveEntityEntity(collisionCallbackInfo);
+		}
+		else
+		{
+			solveNodeNode(collisionCallbackInfo);
+		}
+	}
+	else
+	{
+		solveNodeEntity(collisionCallbackInfo);
+	}
+	
 }
 
 rp3d::CollisionWorld* physicsEngine::getWorld()
@@ -47,4 +52,29 @@ rp3d::CollisionWorld* physicsEngine::getWorld()
 void physicsEngine::setRegistry(entt::registry* reg)
 {
 	_enttRegistry = reg;
+}
+
+void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo)
+{
+	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
+	auto& velLeft = _enttRegistry->get<velocity>(leftEntity);
+	auto bodyLeft = _enttRegistry->get<body>(leftEntity);
+	double leftMass = bodyLeft.mass;
+	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
+	auto& velRight = _enttRegistry->get<velocity>(rightEntity);
+	auto bodyRight = _enttRegistry->get<body>(rightEntity);
+	double rightMass = bodyRight.mass;
+	fdd oldRightVel = velRight.spd;
+	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass));
+	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd);
+}
+
+void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo)
+{
+	throw "Not implemented exception";
+}
+
+void physicsEngine::solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo)
+{
+	throw "Not implemented exception";
 }

@@ -114,7 +114,6 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 			for (int z = localChunk.z - floor(config::chunkLoadDiameter / 2);
 				z < localChunk.z + ceil(config::chunkLoadDiameter / 2); ++z) {
 				point3Di chunkPos{ x % config::chunkLoadDiameter, y % config::chunkLoadDiameter, z % config::chunkLoadDiameter };
-
 				terrainChunk& chunk = getChunk(chunkPos);
 				if (chunk != point3Di{ x,y,z } || !chunk.loaded()) {
 					terrainChunk& chunk = getChunk(chunkPos);
@@ -236,6 +235,11 @@ unsigned int universeNode::getHeight(const point2D& pos)
 	return _generator->getHeight(pos);
 }
 
+rp3d::CollisionBody* universeNode::getNodeCollider()
+{
+	return _collider;
+}
+
 void universeNode::populateColliders(rp3d::CollisionWorld* collisionWorld)
 {
 	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -244,7 +248,7 @@ void universeNode::populateColliders(rp3d::CollisionWorld* collisionWorld)
 	
 	_collider = collisionWorld->createCollisionBody(transform);
 
-	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ _diameter / 2,_diameter / 2,_diameter / 2 });
+	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
 	_collider->addCollisionShape(_collisionShape, transform);
 	for (universeNode& u : _children) {
 		u.populateColliders(collisionWorld);

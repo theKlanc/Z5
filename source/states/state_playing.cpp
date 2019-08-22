@@ -109,8 +109,8 @@ void State::Playing::update(float dt) {
 
 	//TODO update nodes positions
 
-	//Test for collisions
-	//entity-entity
+#pragma region collisions
+#pragma region entity-entity
 	auto bodyEntitiesView = _enttRegistry.view<body>();
 	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
@@ -139,9 +139,11 @@ void State::Playing::update(float dt) {
 			}
 		}
 	}
-	//entity-world
-	//world-world
-
+#pragma endregion
+#pragma region node-entity
+	
+#pragma endregion
+#pragma endregion 
 	
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
@@ -435,7 +437,10 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-		playerBody.collider->setUserData((void*)_player);
+		collidedResponse* playerResponse = new collidedResponse();
+		playerResponse->type = ENTITY;
+		playerResponse->body.entity = _player;
+		playerBody.collider->setUserData((void*)playerResponse);
 		playerBody._collisionShape = new rp3d::CapsuleShape(playerBody.width / 2, playerBody.height);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
 	}
@@ -493,7 +498,10 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-		dogBody.collider->setUserData((void*)dog);
+		collidedResponse* dogResponse = new collidedResponse();
+		dogResponse->type = ENTITY;
+		dogResponse->body.entity = dog;
+		dogBody.collider->setUserData((void*)dogResponse);
 		dogBody._collisionShape = new rp3d::CapsuleShape(dogBody.width / 2, dogBody.height);
 		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
 	}
@@ -531,7 +539,11 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		ballBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-		ballBody.collider->setUserData((void*)ball);
+
+		collidedResponse* ballResponse = new collidedResponse();
+		ballResponse->type = ENTITY;
+		ballResponse->body.entity = ball;
+		ballBody.collider->setUserData((void*)ballResponse);
 		ballBody._collisionShape = new rp3d::SphereShape(0.4);
 		ballBody.collider->addCollisionShape(ballBody._collisionShape, transform);
 	}
@@ -565,7 +577,12 @@ void State::Playing::fixEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		b.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-		b.collider->setUserData((void*)entity);
+		
+		collidedResponse* bodyResponse = new collidedResponse();
+		bodyResponse->type = ENTITY;
+		bodyResponse->body.entity = entity;
+		b.collider->setUserData((void*)bodyResponse);
+		
 		b._collisionShape = new rp3d::CapsuleShape(b.width / 2, b.height);
 		b.collider->addCollisionShape(b._collisionShape, transform);
 	}

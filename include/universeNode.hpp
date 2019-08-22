@@ -46,6 +46,8 @@ public:
 	fdd getPosition();
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
+	rp3d::CollisionBody* getNodeCollider();
+	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
 
 	void populateColliders(rp3d::CollisionWorld* collisionWorld);
 	void linkChildren();
