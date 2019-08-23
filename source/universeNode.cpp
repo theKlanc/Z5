@@ -17,7 +17,7 @@
 
 void universeNode::clean()
 {
-	delete _collisionShape;
+	//delete _collisionShape;
 	for (terrainChunk& chunk : _chunks)
 	{
 		if (chunk.loaded())

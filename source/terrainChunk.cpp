@@ -138,7 +138,7 @@ void terrainChunk::updateColliders()
 				if (_blocks[i]->solid)
 				{
 					_colliders.push_back(true);
-					_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)i,(rp3d::decimal)j,(rp3d::decimal)k},rp3d::Quaternion::identity() });
+					//_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)i,(rp3d::decimal)j,(rp3d::decimal)k},rp3d::Quaternion::identity() });
 				}
 				else
 				{

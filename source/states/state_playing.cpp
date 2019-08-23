@@ -14,6 +14,7 @@
 #include "components/body.hpp"
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
+#include "physicsEngine.hpp"
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -29,7 +30,9 @@ State::Playing::~Playing() {
 }
 
 State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc) {
-	_physicsEngine.setRegistry(&_enttRegistry);
+	
+	Services::enttRegistry=&_enttRegistry;
+	Services::collisionWorld=_physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
 
 	//create saveGame if it doesn't exist, otherwise load
@@ -44,7 +47,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 	{
 		loadGame();
 	}
-	_universeBase.populateColliders(_physicsEngine.getWorld());
+	//_universeBase.populateColliders(_physicsEngine.getWorld());
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
 	for (auto entity : playerView) {															   //

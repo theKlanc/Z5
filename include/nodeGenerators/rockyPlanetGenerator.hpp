@@ -1,5 +1,6 @@
 #pragma once
 #include "nodeGenerator.hpp"
+#include "terrainChunk.hpp"
 
 class rockyPlanetGenerator : public nodeGenerator{
 	public:

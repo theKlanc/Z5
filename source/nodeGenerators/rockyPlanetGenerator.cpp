@@ -1,4 +1,5 @@
 #include "nodeGenerators/rockyPlanetGenerator.hpp"
+#include "terrainChunk.hpp"
 
 terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 {

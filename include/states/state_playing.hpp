@@ -26,7 +26,7 @@ namespace State {
 		
 		
 
-		static physicsEngine _physicsEngine;
+		
 	  private:
 		struct nodeLayer{
 			universeNode* node;
@@ -61,7 +61,7 @@ namespace State {
 		void fixEntities();
 
 
-
+		physicsEngine _physicsEngine;
 		std::unique_ptr<std::thread> _chunkLoaderThread;
 		
 		static void _chunkLoaderFunc();		

@@ -5,7 +5,6 @@
 #include "reactPhysics3D/src/collision/ContactManifold.h"
 #include "reactPhysics3D/src/constraint/ContactPoint.h"
 #include "entt/entity/fwd.hpp"
-#include "states/state_playing.hpp"
 #include "components/velocity.hpp"
 #include "components/body.hpp"
 
@@ -16,6 +15,7 @@ physicsEngine::physicsEngine()
 	rp3d::WorldSettings collisionSettings;
 	collisionSettings.defaultVelocitySolverNbIterations = 5;
 	collisionSettings.isSleepingEnabled = false;
+	collisionSettings.worldName="za warudo";
 
 	_zaWarudo = std::make_unique<rp3d::CollisionWorld>(collisionSettings);
 }
@@ -49,20 +49,16 @@ rp3d::CollisionWorld* physicsEngine::getWorld()
 	return _zaWarudo.get();
 }
 
-void physicsEngine::setRegistry(entt::registry* reg)
-{
-	_enttRegistry = reg;
-}
 
 void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
-	auto& velLeft = _enttRegistry->get<velocity>(leftEntity);
-	auto bodyLeft = _enttRegistry->get<body>(leftEntity);
+	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
+	auto bodyLeft = Services::enttRegistry->get<body>(leftEntity);
 	double leftMass = bodyLeft.mass;
 	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
-	auto& velRight = _enttRegistry->get<velocity>(rightEntity);
-	auto bodyRight = _enttRegistry->get<body>(rightEntity);
+	auto& velRight = Services::enttRegistry->get<velocity>(rightEntity);
+	auto bodyRight = Services::enttRegistry->get<body>(rightEntity);
 	double rightMass = bodyRight.mass;
 	fdd oldRightVel = velRight.spd;
 	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass))*0.95;
@@ -79,7 +75,7 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	{
 		entity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
 	}
-	auto& vel = _enttRegistry->get<velocity>(entity);
+	auto& vel = Services::enttRegistry->get<velocity>(entity);
 	auto vector = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getContactPoints()->getNormal();
 	if(abs(vector.x) > abs(vector.y) && abs(vector.x) > abs(vector.z))
 	{

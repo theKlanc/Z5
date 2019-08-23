@@ -350,6 +350,9 @@
     <ClCompile Include="source\physicsEngine.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\services.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -812,6 +815,9 @@
       <Filter>include\components</Filter>
     </ClInclude>
     <ClInclude Include="include\physicsEngine.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\services.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
