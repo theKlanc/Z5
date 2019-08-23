@@ -42,7 +42,8 @@ public:
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
-	fdd getLocalFdd(fdd f,universeNode* u) const;
+	fdd getLocalPos(fdd f,universeNode* u) const;
+	fdd getLocalVel(fdd f,universeNode* u) const;
 	fdd getPosition();
 	fdd getVelocity();
 	void setVelocity(fdd v);

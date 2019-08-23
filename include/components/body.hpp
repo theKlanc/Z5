@@ -9,6 +9,7 @@ struct body
 	double mass;
 	rp3d::CollisionBody* collider; //We'll just use cylindrical colliders for now
 	rp3d::CollisionShape* _collisionShape = nullptr;;
+	void* lastCollided = nullptr;
 };
 
 void to_json(nlohmann::json& j, const body& n);

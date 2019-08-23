@@ -20,7 +20,7 @@ void universeNode::clean()
 	Services::physicsMutex.lock();
 	delete _collisionShape;
 	Services::physicsMutex.unlock();
-	
+
 	for (terrainChunk& chunk : _chunks)
 	{
 		if (chunk.loaded())
@@ -47,7 +47,7 @@ void universeNode::setBlock(block* b, const point3Di& pos) {
 }
 
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
-	fdd localCameraPos = getLocalFdd(cameraPos, u);
+	fdd localCameraPos = getLocalPos(cameraPos, u);
 	if (localCameraPos.distance2D({ 0,0,0,0 }) < (_diameter / 2 + 100)) {
 		iUpdateChunks(chunkFromPos(localCameraPos));
 	}
@@ -63,7 +63,7 @@ bool universeNode::shouldDraw(fdd f) {
 std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 {
 	std::vector<universeNode*> result;
-	fdd localPos = getLocalFdd(f, u);
+	fdd localPos = getLocalPos(f, u);
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
 	}
@@ -90,7 +90,7 @@ bool universeNode::findNodeByID(const unsigned int& id, universeNode*& result)
 
 bool universeNode::drawBefore(universeNode& r) const
 {
-	fdd localPos = getLocalFdd(r._position, r._parent);
+	fdd localPos = getLocalPos(r._position, r._parent);
 	return std::fmod(_position.z, 1.0f) < std::fmod(localPos.z, 1.0f);
 
 }
@@ -199,7 +199,7 @@ void universeNode::linkChildren() {
 	}
 }
 
-fdd universeNode::getLocalFdd(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
+fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(position) f (which is relative to u)
 								  // relative to our local node (*this)
 {
 	if (u == this)
@@ -216,6 +216,29 @@ fdd universeNode::getLocalFdd(fdd f, universeNode* u) const // returns the fdd f
 			}
 			else {// move transformLocal
 				transform += transformLocal->_position;
+				transformLocal = transformLocal->_parent;
+			}
+		}
+		return f - transform;
+	}
+}
+
+fdd universeNode::getLocalVel(fdd f, universeNode* u) const
+{
+	if (u == this)
+		return f;
+	else
+	{
+		fdd transform{ 0,0,0,0 };
+		const universeNode* transformLocal = this;
+
+		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
+			if (transformLocal->_depth - u->_depth > 1) {//should move u
+				f += u->_velocity;
+				u = u->_parent;
+			}
+			else {// move transformLocal
+				transform += transformLocal->_velocity;
 				transformLocal = transformLocal->_parent;
 			}
 		}
@@ -256,6 +279,54 @@ unsigned int universeNode::getHeight(const point2D& pos)
 rp3d::CollisionBody* universeNode::getNodeCollider()
 {
 	return _collider;
+}
+
+std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, universeNode* parent)
+{
+	std::vector<rp3d::CollisionBody*> candidateBodies;
+	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
+	std::vector<int> posXlist;
+	posXlist.push_back(p.x);
+	std::vector<int> posYlist;
+	posYlist.push_back(p.y);
+	std::vector<int> posZlist;
+	posZlist.push_back(p.z);
+	if (chunkFromPos({ p.x,0,0 }).x != chunkFromPos({ p.x - 1,0,0 }).x)
+	{
+		posXlist.push_back(p.x - 1);
+	}
+	if (chunkFromPos({ p.x,0,0 }).x != chunkFromPos({ p.x + 1,0,0 }).x)
+	{
+		posXlist.push_back(p.x + 1);
+	}
+	if (chunkFromPos({ 0,p.y,0 }).y != chunkFromPos({ 0,p.y - 1,0 }).y)
+	{
+		posYlist.push_back(p.y - 1);
+	}
+	if (chunkFromPos({ 0,p.y,0 }).y != chunkFromPos({ 0,p.y + 1,0 }).y)
+	{
+		posYlist.push_back(p.y + 1);
+	}
+	if (chunkFromPos({ 0,0,p.z }).z != chunkFromPos({ 0,0,p.z - 1 }).z)
+	{
+		posZlist.push_back(p.z - 1);
+	}
+	if (chunkFromPos({ 0,0,p.z }).z != chunkFromPos({ 0,0,p.z + 1 }).z)
+	{
+		posZlist.push_back(p.z + 1);
+	}
+
+	for (int x : posXlist)
+	{
+		for (int y : posYlist)
+		{
+			for (int z : posZlist)
+			{
+				candidateBodies.push_back(chunkAt({ x,y,z }).getCollider());
+			}
+		}
+	}
+	return candidateBodies;
 }
 
 void universeNode::populateColliders()

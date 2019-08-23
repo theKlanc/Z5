@@ -53,7 +53,7 @@ void terrainChunk::setBlock(block* b, const point3Di& p) {
 	}
 	if (b->solid)
 	{
-		_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)x,(rp3d::decimal)y,(rp3d::decimal)z},rp3d::Quaternion::identity() });
+		_colliders[(x * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + z] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x+0.5),(rp3d::decimal)(y+0.5),(rp3d::decimal)(z+0.5)},rp3d::Quaternion::identity() });
 	}
 	Services::physicsMutex.unlock();
 }
