@@ -7,6 +7,7 @@
 #include "entt/entity/fwd.hpp"
 #include "components/velocity.hpp"
 #include "components/body.hpp"
+#include "components/position.hpp"
 
 
 physicsEngine::physicsEngine()
@@ -21,8 +22,7 @@ physicsEngine::physicsEngine()
 }
 
 physicsEngine::~physicsEngine()
-{
-}
+{}
 
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
 {
@@ -54,15 +54,24 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 {
 	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
 	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
-	auto bodyLeft = Services::enttRegistry->get<body>(leftEntity);
-	double leftMass = bodyLeft.mass;
+	auto positionLeft = Services::enttRegistry->get<position>(leftEntity);
+	
 	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
 	auto& velRight = Services::enttRegistry->get<velocity>(rightEntity);
-	auto bodyRight = Services::enttRegistry->get<body>(rightEntity);
+	auto positionRight = Services::enttRegistry->get<position>(rightEntity);
+	if(positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd*dt)).distance(positionRight.pos+(velRight.spd*dt)))//s allunyaven
+	{
+		return;
+	}
+	auto& bodyLeft = Services::enttRegistry->get<body>(leftEntity);
+	double leftMass = bodyLeft.mass;
+	auto& bodyRight = Services::enttRegistry->get<body>(rightEntity);
 	double rightMass = bodyRight.mass;
 	fdd oldRightVel = velRight.spd;
 	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass))*0.95;
+	//velRight.spd.r*=-1;
 	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd)*0.95;
+	//velLeft.spd.r*=-1;
 }
 
 void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo)

@@ -25,7 +25,6 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 			}
 		}
 	}
-	chunk.updateColliders();
 	chunk.setLoaded();
 	return chunk;
 }

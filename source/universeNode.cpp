@@ -17,7 +17,10 @@
 
 void universeNode::clean()
 {
-	//delete _collisionShape;
+	Services::physicsMutex.lock();
+	delete _collisionShape;
+	Services::physicsMutex.unlock();
+	
 	for (terrainChunk& chunk : _chunks)
 	{
 		if (chunk.loaded())
@@ -255,18 +258,19 @@ rp3d::CollisionBody* universeNode::getNodeCollider()
 	return _collider;
 }
 
-void universeNode::populateColliders(rp3d::CollisionWorld* collisionWorld)
+void universeNode::populateColliders()
 {
 	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
 	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 	rp3d::Transform transform(initPosition, initOrientation);
-	
-	_collider = collisionWorld->createCollisionBody(transform);
+	Services::physicsMutex.lock();
+	_collider = Services::collisionWorld->createCollisionBody(transform);
 
 	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
 	_collider->addCollisionShape(_collisionShape, transform);
+	Services::physicsMutex.unlock();
 	for (universeNode& u : _children) {
-		u.populateColliders(collisionWorld);
+		u.populateColliders();
 	}
 }
 
@@ -320,4 +324,5 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<spaceshipGenerator>();
 		break;
 	}
+	f.populateColliders();
 }

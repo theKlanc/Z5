@@ -28,6 +28,7 @@ class physicsEngine : public rp3d::CollisionCallback
 	~physicsEngine();
 	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
 	rp3d::CollisionWorld* getWorld();
+	double dt;
 private:
 	void solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo);
 	void solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo);

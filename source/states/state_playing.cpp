@@ -101,17 +101,18 @@ void State::Playing::input(float dt)
 		config::zoom -= 0.1 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_R) {
-		playerSpd.spd.r += dt;
+		playerSpd.spd.r += 10*dt;
 	}
 	if (held & HI2::BUTTON::KEY_L) {
-		playerSpd.spd.r -= dt;
+		playerSpd.spd.r -= 10*dt;
 	}
 }
 
 void State::Playing::update(float dt) {
 
 	//TODO update nodes positions
-
+	_physicsEngine.dt=dt;
+	Services::physicsMutex.lock();
 #pragma region collisions
 #pragma region entity-entity
 	auto bodyEntitiesView = _enttRegistry.view<body>();
@@ -150,7 +151,7 @@ void State::Playing::update(float dt) {
 #pragma endregion
 	
 #pragma endregion 
-	
+	Services::physicsMutex.unlock();
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		velocity vel = movableEntityView.get<velocity>(entity);
@@ -597,18 +598,10 @@ void State::Playing::fixEntities()
 
 void State::Playing::_chunkLoaderFunc()
 {
-	std::chrono::time_point<std::chrono::high_resolution_clock> lastTick = std::chrono::high_resolution_clock::now();
-	while (_chunkLoaderPlayerPosition != nullptr)
-	{
+	while (_chunkLoaderPlayerPosition != nullptr){
 		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
 		if (_chunkLoaderPlayerPosition != nullptr)
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
-		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
-		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
-		if (microSeconds < 20000)
-			std::this_thread::sleep_for(std::chrono::microseconds(20000));
-
-		lastTick = currentTick;
 	}
 }
 

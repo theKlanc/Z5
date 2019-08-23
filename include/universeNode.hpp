@@ -53,7 +53,7 @@ public:
 	rp3d::CollisionBody* getNodeCollider();
 	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
 
-	void populateColliders(rp3d::CollisionWorld* collisionWorld);
+	void populateColliders();
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool drawBefore(universeNode& r)const;
