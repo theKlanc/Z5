@@ -142,13 +142,13 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 
 
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
-	int x = (pos.x / config::chunkSize % config::chunkLoadDiameter);
+	int x = (int(floor((double)pos.x / config::chunkSize)) % config::chunkLoadDiameter);
 	if (x < 0)
 		x += config::chunkLoadDiameter;
-	int y = (pos.y / config::chunkSize % config::chunkLoadDiameter);
+	int y = (int(floor((double)pos.y / config::chunkSize)) % config::chunkLoadDiameter);
 	if (y < 0)
 		y += config::chunkLoadDiameter;
-	int z = (pos.z / config::chunkSize % config::chunkLoadDiameter);
+	int z = (int(floor((double)pos.z / config::chunkSize)) % config::chunkLoadDiameter);
 	if (z < 0)
 		z += config::chunkLoadDiameter;
 	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
@@ -261,6 +261,21 @@ void universeNode::setVelocity(fdd v)
 	_velocity = v;
 }
 
+unsigned universeNode::getID()
+{
+	return _ID;
+}
+
+std::vector<universeNode*> universeNode::getChildren()
+{
+	std::vector<universeNode*> result;
+	for (universeNode& u : _children)
+	{
+		result.push_back(&u);
+	}
+	return result;
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
@@ -322,7 +337,11 @@ std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, unive
 		{
 			for (int z : posZlist)
 			{
-				candidateBodies.push_back(chunkAt({ x,y,z }).getCollider());
+				auto chunk = chunkAt({ x,y,z });
+				if (chunk.loaded())
+				{
+					candidateBodies.push_back(chunkAt({ x,y,z }).getCollider());
+				}
 			}
 		}
 	}

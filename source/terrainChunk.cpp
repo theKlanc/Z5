@@ -131,7 +131,8 @@ void terrainChunk::store(std::filesystem::path file) {
 		//RLE file which contains the IDs of the blocks on the chunk
 		//no header
 		//5 continuous blocks of dirt(3) followed by 3 blocks of air(1) would be:
-		//3:4;1:3;
+		//3 5
+		//1 3
 		// STORE TO file
 		unsigned lastBlockID = _blocks[0]->ID;
 		unsigned accumulatedLength = 0;
@@ -155,10 +156,10 @@ void terrainChunk::store(std::filesystem::path file) {
 void terrainChunk::updateAllColliders()
 {
 	Services::physicsMutex.lock();
-	int i = 0;
+	int counter = 0;
 	if (_collisionBody == nullptr)
 	{
-		_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x,(rp3d::decimal)_position.y,(rp3d::decimal)_position.z},rp3d::Quaternion::identity() });
+		_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x*config::chunkSize,(rp3d::decimal)_position.y*config::chunkSize,(rp3d::decimal)_position.z*config::chunkSize},rp3d::Quaternion::identity() });
 	}
 	_colliders.clear();
 	for (int i = 0; i < config::chunkSize; ++i)
@@ -167,15 +168,14 @@ void terrainChunk::updateAllColliders()
 		{
 			for (int k = 0; k < config::chunkSize; ++k)
 			{
-				if (_blocks[i]->solid)
+				if (_blocks[counter++]->solid)
 				{
-					_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)i,(rp3d::decimal)j,(rp3d::decimal)k},rp3d::Quaternion::identity() }));
+					_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i+0.5),(rp3d::decimal)(j+0.5),(rp3d::decimal)(k+0.5)},rp3d::Quaternion::identity() }));
 				}
 				else
 				{
 					_colliders.push_back(nullptr);
 				}
-				i++;
 			}
 		}
 	}

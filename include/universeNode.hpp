@@ -47,6 +47,8 @@ public:
 	fdd getPosition();
 	fdd getVelocity();
 	void setVelocity(fdd v);
+	unsigned int getID();
+	std::vector<universeNode*> getChildren();
 
 	universeNode* getParent();
 	double getMass();

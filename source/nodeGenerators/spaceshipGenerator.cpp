@@ -22,3 +22,8 @@ terrainChunk spaceshipGenerator::getChunk(const point3Di& p)
 	chunk.setLoaded();
 	return chunk;
 }
+
+unsigned int spaceshipGenerator::getHeight(const point2D& p)
+{
+	return 2;
+}

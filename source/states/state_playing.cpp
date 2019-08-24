@@ -71,7 +71,7 @@ void State::Playing::input(float dt)
 	int held = HI2::getKeysHeld();
 
 	if (held & HI2::BUTTON::KEY_MINUS) {
-		playerSpd.spd = fdd();
+		playerSpd.spd.z += 10;
 	}
 	if (held & HI2::BUTTON::KEY_UP) {
 		playerSpd.spd.y -= 3 * dt;
@@ -110,7 +110,7 @@ void State::Playing::input(float dt)
 
 void State::Playing::update(float dt) {
 
-	
+
 	//TODO update nodes positions
 	_physicsEngine.dt = dt;
 	Services::physicsMutex.lock();
@@ -131,7 +131,7 @@ void State::Playing::update(float dt) {
 					rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 					rp3d::Transform leftTransform(leftPosition, initOrientation);
 
-					rp3d::Vector3 rightPosition(pR.pos.x, pR.pos.y, pR.pos.z);
+					rp3d::Vector3 rightPosition(rightPos.x, rightPos.y, rightPos.z);
 					rp3d::Transform rightTransform(rightPosition, initOrientation);
 
 					body& leftBody = _enttRegistry.get<body>(left);
@@ -152,29 +152,43 @@ void State::Playing::update(float dt) {
 		auto bodyEntitiesView = _enttRegistry.view<body>();
 		for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 			position entityPos = _enttRegistry.get<position>(left);
-			fdd leftPos = entityPos.pos;
 
-			rp3d::Vector3 leftPosition(leftPos.x, leftPos.y, leftPos.z);
-			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-			rp3d::Transform leftTransform(leftPosition, initOrientation);
-
-			body& leftBody = _enttRegistry.get<body>(left);
-			leftBody.collider->setTransform(leftTransform);
-
-			collidedResponse temp;
-			temp.type=NODE;
-			collidedBody temp2;
-			temp2.node=entityPos.parent;
-			temp.body=temp2;
-			if (_physicsEngine.getWorld()->testAABBOverlap(leftBody.collider, entityPos.parent->getNodeCollider()))
+			std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
+			for(universeNode* ntemp : entityPos.parent->getChildren())
 			{
-				auto& chunksToCheck = entityPos.parent->getTerrainColliders(leftPos, entityPos.parent);
-				for (auto& chunk : chunksToCheck)
+				collidableNodes.push_back(ntemp);
+			}
+			collidableNodes.push_back(entityPos.parent->getParent());
+			
+			for (universeNode* node : collidableNodes)
+			{
+				position pos = _enttRegistry.get<position>(left);
+				
+				fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+				collidedResponse cResponse;
+				cResponse.type = NODE;
+				collidedBody cBody;
+				cBody.node = node;
+				cResponse.body = cBody;
+				
+				rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform entityTransform(entityPosition, initOrientation);
+
+				body& entityBody = _enttRegistry.get<body>(left);
+				entityBody.collider->setTransform(entityTransform);
+				
+				if (_physicsEngine.getWorld()->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
 				{
-					chunk->setUserData((void*)&temp);
-					_physicsEngine.getWorld()->testCollision(leftBody.collider, chunk, &_physicsEngine);
+					auto& chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
+					for (auto& chunk : chunksToCheck)
+					{
+						chunk->setUserData((void*)& cResponse);
+						_physicsEngine.getWorld()->testCollision(entityBody.collider, chunk, &_physicsEngine);
+					}
 				}
 			}
+
 
 		}
 	}
@@ -184,15 +198,15 @@ void State::Playing::update(float dt) {
 	auto bodyEntitiesView = _enttRegistry.view<body>();
 	for (const entt::entity& left : bodyEntitiesView) {
 		auto& bodi = _enttRegistry.get<body>(left);
-		bodi.lastCollided=nullptr;
+		bodi.lastCollided = nullptr;
 	}
-	
+
 #pragma endregion 
 	Services::physicsMutex.unlock();
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		velocity& vel = movableEntityView.get<velocity>(entity);
-		vel.spd.z-=9.81*dt;
+		vel.spd.z -= 9.81 * dt;
 		position& pos = movableEntityView.get<position>(entity);
 
 		pos.pos += (vel.spd * dt);
@@ -410,7 +424,6 @@ void State::Playing::loadGame()
 
 void State::Playing::saveGame()
 {
-	return;
 	saveEntities();
 	std::ofstream universeFile(savePath().append("universe.json"));
 	nlohmann::json universeJson(_universeBase);
@@ -444,7 +457,8 @@ void State::Playing::createEntities()
 {
 	//Set up basic entities
 	universeNode* result;
-	_universeBase.findNodeByID(11, result);
+	int pID = 11;
+	_universeBase.findNodeByID(pID, result);
 
 
 	{
@@ -457,10 +471,10 @@ void State::Playing::createEntities()
 
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
-		playerPos.parentID = 11;
+		playerPos.parentID = pID;
 		playerPos.pos.x = 2;
 		playerPos.pos.y = 2;
-		playerPos.pos.z = 3;
+		playerPos.pos.z = result->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 2;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -495,20 +509,7 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 
-		auto& cameraPos = _enttRegistry.assign<position>(_camera);
-		cameraPos.parent = result;
-		cameraPos.parentID = 11;
-		cameraPos.pos.x = 0;
-		cameraPos.pos.y = 0;
-		cameraPos.pos.z = 11;
-		cameraPos.pos.r = 0;
-
-		auto& cameraSpd = _enttRegistry.assign<velocity>(_camera);
-		cameraSpd.spd.x = 0;
-		cameraSpd.spd.y = 0;
-		cameraSpd.spd.z = 0;
-		cameraSpd.spd.r = 0;
-		return;
+		_enttRegistry.assign<position>(_camera);
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
@@ -519,10 +520,10 @@ void State::Playing::createEntities()
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
-		dogPos.parentID = 11;
+		dogPos.parentID = pID;
 		dogPos.pos.x = 3;
 		dogPos.pos.y = 2;
-		dogPos.pos.z = 1;
+		dogPos.pos.z = result->getHeight({ (int)dogPos.pos.x,(int)dogPos.pos.y }) + 2;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -552,8 +553,8 @@ void State::Playing::createEntities()
 		dogBody._collisionShape = new rp3d::CapsuleShape(dogBody.width / 2, dogBody.height);
 		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
 	}
-	for (int i = 0; i < 10; i++)
-		for (int j = 0; j < 10; j++)
+	for (int i = 0; i < 2; i++)
+		for (int j = 0; j < 2; j++)
 		{
 			entt::entity ball = _enttRegistry.create();
 
@@ -563,10 +564,10 @@ void State::Playing::createEntities()
 
 			auto& ballPos = _enttRegistry.assign<position>(ball);
 			ballPos.parent = result;
-			ballPos.parentID = 11;
+			ballPos.parentID = pID;
 			ballPos.pos.x = 4 + i;
 			ballPos.pos.y = 4 + j;
-			ballPos.pos.z = 1;
+			ballPos.pos.z = result->getHeight({ (int)ballPos.pos.x,(int)ballPos.pos.y }) + 2 + 4 + j * 10 + i * 10;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);

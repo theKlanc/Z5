@@ -11,7 +11,7 @@ void gameCore::startGameLoop() {
 	while (HI2::aptMainLoop() && !states.empty() && !_exit) {
 		
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
-		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
+		auto microSeconds = 16000;//std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
 		
 
 		states.top()->input((double)microSeconds / 1000000);
