@@ -180,7 +180,7 @@ void State::Playing::update(float dt) {
 				
 				if (_physicsEngine.getWorld()->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
 				{
-					auto& chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
+					auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
 					for (auto& chunk : chunksToCheck)
 					{
 						chunk->setUserData((void*)& cResponse);
@@ -458,7 +458,7 @@ void State::Playing::createEntities()
 	//Set up basic entities
 	universeNode* result;
 	int pID = 11;
-	_universeBase.findNodeByID(pID, result);
+	bool temp = _universeBase.findNodeByID(pID, result);
 
 
 	{

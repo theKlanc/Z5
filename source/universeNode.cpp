@@ -66,7 +66,7 @@ std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 	fdd localPos = getLocalPos(f, u);
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
-	}
+ 	}
 	for (universeNode& child : _children) {
 		std::vector<universeNode*> temp = child.nodesToDraw(f, u);
 		result.insert(result.end(), temp.begin(), temp.end());
