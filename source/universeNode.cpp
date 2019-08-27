@@ -276,6 +276,15 @@ std::vector<universeNode*> universeNode::getChildren()
 	return result;
 }
 
+void universeNode::updatePositions(double dt)
+{
+	_position += _velocity * dt;
+	for (universeNode& child : _children)
+	{
+		child.updatePositions(dt);
+	}
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;

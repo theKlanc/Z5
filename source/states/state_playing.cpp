@@ -74,16 +74,16 @@ void State::Playing::input(float dt)
 		playerSpd.spd.z += 10;
 	}
 	if (held & HI2::BUTTON::KEY_UP) {
-		playerSpd.spd.y -= 3 * dt;
+		playerSpd.spd.y -= 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_DOWN) {
-		playerSpd.spd.y += 3 * dt;
+		playerSpd.spd.y += 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_LEFT) {
-		playerSpd.spd.x -= 3 * dt;
+		playerSpd.spd.x -= 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_RIGHT) {
-		playerSpd.spd.x += 3 * dt;
+		playerSpd.spd.x += 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_A) {
 		playerSpd.spd.z += 20 * dt;
@@ -110,7 +110,17 @@ void State::Playing::input(float dt)
 
 void State::Playing::update(float dt) {
 
+	_universeBase.updatePositions(dt);
+	auto movableEntityView = _enttRegistry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		vel.spd.z -= 9.81 * dt;
+		position& pos = movableEntityView.get<position>(entity);
 
+		pos.pos += (vel.spd * dt);
+	}
+
+	
 	//TODO update nodes positions
 	_physicsEngine.dt = dt;
 	Services::physicsMutex.lock();
@@ -203,14 +213,8 @@ void State::Playing::update(float dt) {
 
 #pragma endregion 
 	Services::physicsMutex.unlock();
-	auto movableEntityView = _enttRegistry.view<velocity, position>();
-	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-		velocity& vel = movableEntityView.get<velocity>(entity);
-		vel.spd.z -= 9.81 * dt;
-		position& pos = movableEntityView.get<position>(entity);
-
-		pos.pos += (vel.spd * dt);
-	}
+	
+	
 
 
 
@@ -301,22 +305,23 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc en que esta la camera
 			firstBlock.z = node.layerHeight;
 
-			fdd localPos = firstBlock - cameraPos.pos;
-
-			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
-			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
-
-			double tmp = fmod(cameraPos.pos.x, 1);
+			double tmp = fmod(firstBlock.x, 1);
 			if (tmp < 0)
 				tmp = 1 - abs(tmp);
 			double fraccionalX = 0.5 - tmp;
 			if (fraccionalX < 0)fraccionalX += 1;
 
-			tmp = fmod(cameraPos.pos.y, 1);
+			tmp = fmod(firstBlock.y, 1);
 			if (tmp < 0)
 				tmp = 1 - abs(tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
+			
+			fdd localPos = firstBlock - cameraPos.pos;
+
+			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
+			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
+			
 
 			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
 
@@ -488,7 +493,7 @@ void State::Playing::createEntities()
 
 		auto& playerBody = _enttRegistry.assign<body>(_player);
 		playerBody.height = 0.9;
-		playerBody.width = 0.4;
+		playerBody.width = 0.8;
 		playerBody.mass = 50;
 
 		// Initial position and orientation of the collision body 
@@ -501,6 +506,8 @@ void State::Playing::createEntities()
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.collider->setUserData((void*)playerResponse);
+		initPosition.z+=0.45;
+		transform.setPosition(initPosition);
 		playerBody._collisionShape = new rp3d::CapsuleShape(playerBody.width / 2, playerBody.height);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
 	}
@@ -510,6 +517,7 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 
 		_enttRegistry.assign<position>(_camera);
+		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
