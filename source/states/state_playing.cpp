@@ -92,6 +92,7 @@ void State::Playing::input(float dt)
 		playerSpd.spd.z -= 20 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_PLUS) {
+		exit(0);
 		_core->quit();
 	}
 	if (held & HI2::BUTTON::KEY_ZR) {

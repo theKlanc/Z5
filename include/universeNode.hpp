@@ -22,19 +22,6 @@ enum nodeType{
 	SPACESHIP,
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
-	{STAR,"STAR"},
-	{BLACK_HOLE,"BLACK_HOLE"},
-	{PLANET_GAS,"PLANET_GAS"},
-	{PLANET_ROCK,"PLANET_ROCK"},
-	{ASTEROID,"ASTEROID"},
-	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
-	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
-	{SPACE_STATION,"SPACE_STATION"},
-	{SPACESHIP,"SPACESHIP"},
-})
-
-
 class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
@@ -97,6 +84,19 @@ public:
 	rp3d::CollisionShape* _collisionShape;
   
 };
+
+
+NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
+	{STAR,"STAR"},
+	{BLACK_HOLE,"BLACK_HOLE"},
+	{PLANET_GAS,"PLANET_GAS"},
+	{PLANET_ROCK,"PLANET_ROCK"},
+	{ASTEROID,"ASTEROID"},
+	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
+	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
+	{SPACE_STATION,"SPACE_STATION"},
+	{SPACESHIP,"SPACESHIP"},
+})
 
 void to_json(json& j, const universeNode& f);
 void from_json(const json& j, universeNode& f);

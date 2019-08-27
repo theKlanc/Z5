@@ -33,9 +33,24 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	bin/switch/Z5
 BUILD		:=	buildSwitch
-SOURCES		:=	source  source/states deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise source/nodeGenerators
-DATA		:=
-INCLUDES	:=	include deps  deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src
+SOURCES		:=	deps source source/components source/states deps/HardwareInterface deps/FastNoise source/nodeGenerators
+
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/body
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/broadphase
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/narrowphase
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/narrowphase/GJK
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/narrowphase/SAT
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/shapes
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/constraint
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/containers
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/engine
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/mathematics
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/memory
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/utils
+
+DATA		:= datadummy
+INCLUDES	:= include deps deps/entt deps/HardwareInterface deps/reactPhysics3D/src
 #ROMFS	:=	romfs
 
 
@@ -54,7 +69,7 @@ CFLAGS	:=	-g -O0 -ffunction-sections \
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --cflags SDL2_mixer`
 
-CXXFLAGS	:= $(CFLAGS)  -fno-exceptions -fno-rtti -std=c++17
+CXXFLAGS	:= $(CFLAGS) -std=c++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
