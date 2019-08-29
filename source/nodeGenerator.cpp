@@ -13,10 +13,10 @@ nodeGenerator::nodeGenerator(unsigned int s)
 {
 	_seed = s;
 	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
-	_noiseGenerator.SetFractalGain(0.7);
+	_noiseGenerator.SetFractalGain(0.4);//0.7
 	_noiseGenerator.SetFrequency(0.001f);
-	_noiseGenerator.SetFractalLacunarity(2);
-	_noiseGenerator.SetFractalOctaves(4);
+	_noiseGenerator.SetFractalLacunarity(3);//2
+	_noiseGenerator.SetFractalOctaves(5);//5?
 	_noiseGenerator.SetSeed(_seed);
 	_maxHeight=400;
 }

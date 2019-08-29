@@ -3,13 +3,19 @@
 #crear camera (kinda done)
 #chunkloader
 #render
-//implementar colisions
-
-crear sistemes i components basics pel jugador
-crear observer per achievements i efectes de so
-crear zones de musica o en el seu defecte, assignar cançons a cada universeNode
-crear UI
-crear items i inventari
+#implementar colisions
+implementar colisions entre nodes
+arreglar angles de sortida de colisions
+fer una sola draw call per layer dibuixat
+millorar terrain generator i crear biomes
+crear observer
+crear soundObserver
+assignar bgm als nodes
+crear health i items
+dibuixar items
+dibuixar gui
+crear inventari
+crear colisionadors d altres tipus per a bales i tal
 //crear NPCs (mascotes animals i persones)
 --crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
 #persistència (json i tal)

@@ -138,7 +138,7 @@ void terrainChunk::store(std::filesystem::path file) {
 		unsigned accumulatedLength = 0;
 		for (block* b : _blocks)
 		{
-			if (b->ID != lastBlockID)
+      			if (b->ID != lastBlockID)
 			{
 				outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
 				lastBlockID = b->ID;

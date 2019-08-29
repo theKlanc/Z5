@@ -394,6 +394,7 @@
     <ClInclude Include="include\universeNode.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="data\blockTable.json" />
     <None Include="data\defData\universe.json" />
     <None Include="README.md" />

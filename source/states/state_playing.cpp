@@ -507,9 +507,9 @@ void State::Playing::createEntities()
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.collider->setUserData((void*)playerResponse);
-		initPosition.z+=0.45;
+		initPosition.z+= playerBody.width / 2;
 		transform.setPosition(initPosition);
-		playerBody._collisionShape = new rp3d::CapsuleShape(playerBody.width / 2, playerBody.height);
+		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
 	}
 
