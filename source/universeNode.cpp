@@ -25,7 +25,7 @@ void universeNode::clean()
 	{
 		if (chunk.loaded())
 		{
-			chunk.store(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+			chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 		}
 	}
 	for (universeNode& child : _children)
@@ -122,7 +122,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 					terrainChunk& chunk = getChunk(chunkPos);
 					if (chunk.loaded())
 					{
-						chunk.store(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 					}
 					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
 					if (std::filesystem::exists(newChunkPath))//if file already exists, load

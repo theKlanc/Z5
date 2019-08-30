@@ -119,7 +119,7 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 	}
 }
 
-void terrainChunk::store(std::filesystem::path file) {
+void terrainChunk::unload(std::filesystem::path file) {
 	if (_loaded) {
 		_loaded = false;
 		file.append(std::to_string(_position.x)).append(std::to_string(_position.y)).append(std::to_string(_position.z)).concat(".z5c");
@@ -150,6 +150,10 @@ void terrainChunk::store(std::filesystem::path file) {
 			}
 		}
 		outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
+		Services::physicsMutex.lock();
+		Services::collisionWorld->destroyCollisionBody(_collisionBody);
+		_collisionBody=nullptr;
+		Services::physicsMutex.unlock();
 	}
 }
 

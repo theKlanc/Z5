@@ -1,7 +1,7 @@
 #pragma once
 namespace config{
 		constexpr int chunkLoadDiameter = 8;
-		constexpr int chunkSize = 16;
+		constexpr int chunkSize = 8;
 		constexpr int cameraDepth = 20;
 		constexpr int spriteSize = 16;
 		static double zoom = 3;

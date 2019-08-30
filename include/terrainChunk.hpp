@@ -26,7 +26,7 @@ public:
 	const point3Di& getPosition() const;
 
 	void load(const std::filesystem::path& file,const point3Di& chunkPos);
-	void store(std::filesystem::path file);
+	void unload(std::filesystem::path file);
 
 private:
 
