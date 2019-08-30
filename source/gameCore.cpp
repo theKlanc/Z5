@@ -21,7 +21,7 @@ void gameCore::startGameLoop() {
 		states.top()->draw();
 
 		
-		std::cout << "Frametime: " << microSeconds/1000 << "ms" << std::endl;
+		HI2::logWrite("Frametime: " + std::to_string(microSeconds/1000) + "ms");
 		lastTick = currentTick;
 	}
 }

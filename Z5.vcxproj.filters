@@ -831,6 +831,7 @@
     <None Include="README.md">
       <Filter>resources</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.jpg">

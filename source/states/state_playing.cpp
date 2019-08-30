@@ -92,6 +92,7 @@ void State::Playing::input(float dt)
 		playerSpd.spd.z -= 20 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_PLUS) {
+		exit(0);
 		_core->quit();
 	}
 	if (held & HI2::BUTTON::KEY_ZR) {
@@ -506,7 +507,7 @@ void State::Playing::createEntities()
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.collider->setUserData((void*)playerResponse);
-		initPosition.z+=playerBody.width / 2;
+		initPosition.z += playerBody.width / 2;
 		transform.setPosition(initPosition);
 		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);

@@ -1,4 +1,3 @@
-#pragma once
 #include "physicsEngine.hpp"
 #include <iostream>
 #include "reactPhysics3D/src/reactphysics3d.h"
