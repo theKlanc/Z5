@@ -77,9 +77,10 @@
     <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <SourcePath>C:\Users\Lewis\Documents\Z5\source;C:\Users\Lewis\Documents\Z5\deps\HardwareInterface;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2\lib\x64;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -128,9 +129,12 @@
     <ClCompile>
       <AdditionalIncludeDirectories>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>WIN64</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\SDL2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@
 #include <iostream>
 #include "states/state_playing.hpp"
 
-terrainChunk::~terrainChunk(){}
+terrainChunk::~terrainChunk() {}
 
 terrainChunk::terrainChunk(const point3Di& p) : _position(p), _loaded(false),
 _blocks(config::chunkSize* config::chunkSize* config::chunkSize),
@@ -53,7 +53,7 @@ void terrainChunk::setBlock(block* b, const point3Di& p) {
 	}
 	if (b->solid)
 	{
-		_colliders[(x * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + z] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x+0.5),(rp3d::decimal)(y+0.5),(rp3d::decimal)(z+0.5)},rp3d::Quaternion::identity() });
+		_colliders[(x * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + z] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x + 0.5),(rp3d::decimal)(y + 0.5),(rp3d::decimal)(z + 0.5)},rp3d::Quaternion::identity() });
 	}
 	Services::physicsMutex.unlock();
 }
@@ -157,10 +157,10 @@ void terrainChunk::updateAllColliders()
 {
 	Services::physicsMutex.lock();
 	int counter = 0;
-	if (_collisionBody == nullptr)
-	{
-		_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x*config::chunkSize,(rp3d::decimal)_position.y*config::chunkSize,(rp3d::decimal)_position.z*config::chunkSize},rp3d::Quaternion::identity() });
-	}
+	if(_collisionBody!=nullptr)
+		Services::collisionWorld->destroyCollisionBody(_collisionBody);
+	_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x * config::chunkSize,(rp3d::decimal)_position.y * config::chunkSize,(rp3d::decimal)_position.z * config::chunkSize},rp3d::Quaternion::identity() });
+
 	_colliders.clear();
 	for (int i = 0; i < config::chunkSize; ++i)
 	{
@@ -170,7 +170,7 @@ void terrainChunk::updateAllColliders()
 			{
 				if (_blocks[counter++]->solid)
 				{
-					_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i+0.5),(rp3d::decimal)(j+0.5),(rp3d::decimal)(k+0.5)},rp3d::Quaternion::identity() }));
+					_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(k + 0.5)},rp3d::Quaternion::identity() }));
 				}
 				else
 				{

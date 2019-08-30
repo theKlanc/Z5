@@ -124,7 +124,7 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	auto& entityBody = Services::enttRegistry->get<body>(entity);
 	if (entityBody.lastCollided == node)// avoid colliding multiple times with the same node
 	{
-		//return;
+		return;
 	}
 	else
 	{
@@ -195,7 +195,7 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	entityVel.spd.z = result.z*-1;
 
 	//apply new velocity from surface
-	entityPosition.pos += entityVel.spd * dt * (partialDepth);
+	//entityPosition.pos += entityVel.spd * dt * (partialDepth);
 
 }
 
