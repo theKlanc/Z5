@@ -3,9 +3,10 @@
 #include "terrainChunk.hpp"
 
 class rockyPlanetGenerator : public nodeGenerator{
-	public:
-	rockyPlanetGenerator(): nodeGenerator(){}
-	rockyPlanetGenerator(unsigned int s): nodeGenerator(s){}
+public:
+	rockyPlanetGenerator(unsigned int s);
 	virtual ~rockyPlanetGenerator(){}
 	terrainChunk getChunk(const point3Di& p) override;
+private:
+	void fillWater(terrainChunk& c, const point3Di p);
 };

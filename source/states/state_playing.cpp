@@ -18,14 +18,17 @@
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
+std::mutex State::Playing::endChunkLoader;
 
 State::Playing::~Playing() {
 
-	saveGame();
-
-	delete _chunkLoaderPlayerPosition;
+	
+	//delete _chunkLoaderPlayerPosition;
+	endChunkLoader.lock();
 	_chunkLoaderPlayerPosition = nullptr;
 	_chunkLoaderThread->join();
+	endChunkLoader.unlock();
+	saveGame();
 	_universeBase.clean();
 }
 
@@ -71,7 +74,7 @@ void State::Playing::input(float dt)
 	int held = HI2::getKeysHeld();
 
 	if (held & HI2::BUTTON::KEY_MINUS) {
-		playerSpd.spd.z += 10;
+		playerSpd.spd = fdd();
 	}
 	if (held & HI2::BUTTON::KEY_UP) {
 		playerSpd.spd.y -= 10 * dt;
@@ -86,13 +89,12 @@ void State::Playing::input(float dt)
 		playerSpd.spd.x += 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_A) {
-		playerSpd.spd.z += 20 * dt;
+		playerSpd.spd.z += 60 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_B) {
-		playerSpd.spd.z -= 20 * dt;
+		playerSpd.spd.z -= 40 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_PLUS) {
-		exit(0);
 		_core->quit();
 	}
 	if (held & HI2::BUTTON::KEY_ZR) {
@@ -115,7 +117,7 @@ void State::Playing::update(float dt) {
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		velocity& vel = movableEntityView.get<velocity>(entity);
-		vel.spd.z -= 9.81 * dt;
+		//vel.spd.z -= 9.81 * dt;
 		position& pos = movableEntityView.get<position>(entity);
 
 		pos.pos += (vel.spd * dt);
@@ -229,7 +231,7 @@ void State::Playing::update(float dt) {
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
-	cameraPosition.pos.z = playerPosition.pos.z + (config::cameraDepth / 2);
+	cameraPosition.pos.z = playerPosition.pos.z + 5;
 	if (_enttRegistry.has<body>(_player))
 	{
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
@@ -400,6 +402,9 @@ void State::Playing::createNewGame(int seed)
 	std::cout << HI2::getDataPath().append("defData").append("universe.json") << std::endl;
 	std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
 
+	//load terrain table
+	loadTerrainTable();
+	
 	//load universe.json
 	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
@@ -407,8 +412,7 @@ void State::Playing::createNewGame(int seed)
 	j.get_to(_universeBase);
 	_universeBase.linkChildren();
 
-	//load terrain table
-	loadTerrainTable();
+	
 
 	createEntities();
 }
@@ -648,9 +652,11 @@ void State::Playing::fixEntities()
 void State::Playing::_chunkLoaderFunc()
 {
 	while (_chunkLoaderPlayerPosition != nullptr) {
+		endChunkLoader.lock();
 		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
 		if (_chunkLoaderPlayerPosition != nullptr)
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
+		endChunkLoader.unlock();
 	}
 }
 

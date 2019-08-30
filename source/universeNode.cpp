@@ -297,7 +297,7 @@ double universeNode::getMass()
 
 unsigned int universeNode::getHeight(const point2D& pos)
 {
-	return _generator->getHeight(pos);
+	return 6;
 }
 
 rp3d::CollisionBody* universeNode::getNodeCollider()

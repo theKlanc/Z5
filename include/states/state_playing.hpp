@@ -28,6 +28,8 @@ namespace State {
 
 		
 	  private:
+
+		
 		struct nodeLayer{
 			universeNode* node;
 			int layerHeight;
@@ -63,8 +65,9 @@ namespace State {
 
 		physicsEngine _physicsEngine;
 		std::unique_ptr<std::thread> _chunkLoaderThread;
-		
-		static void _chunkLoaderFunc();		
+
+		static std::mutex endChunkLoader;
+		static void _chunkLoaderFunc();
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
 		

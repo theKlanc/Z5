@@ -6,24 +6,91 @@ nodeGenerator::nodeGenerator()
 {
 	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
 	_noiseGenerator.SetSeed(_seed);
-	_maxHeight=400;
 }
 
 nodeGenerator::nodeGenerator(unsigned int s)
 {
 	_seed = s;
-	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
-	_noiseGenerator.SetFractalGain(0.4);//0.7
-	_noiseGenerator.SetFrequency(0.001f);
-	_noiseGenerator.SetFractalLacunarity(3);//2
-	_noiseGenerator.SetFractalOctaves(5);//5?
 	_noiseGenerator.SetSeed(_seed);
-	_maxHeight=400;
 }
 
 nodeGenerator::~nodeGenerator(){}
 
-unsigned nodeGenerator::getHeight(const point2D& p)
+terrainSection::terrainSection(double noise, int sectionWidth, block& b, block* surfaceBlock) : _block(b)
 {
-	return ((_noiseGenerator.GetNoise(p.x, p.y ) + 1) / 2)*_maxHeight;
+	_noiseCeiling=noise;
+	_sectionWidth=sectionWidth;
+	_surfaceBlock=surfaceBlock;	
+}
+
+double terrainSection::getNoiseCeiling()
+{
+	return _noiseCeiling;
+}
+
+double terrainSection::getSectionWidth()
+{
+	return _sectionWidth;
+}
+
+block& terrainSection::getBlock()
+{
+	return _block;
+}
+
+block* terrainSection::getSurfaceBlock()
+{
+	return _surfaceBlock;
+}
+
+block& terrainPainter::getBlock(int height, double noise)
+{
+	auto it = _terrainList.begin();
+	auto oldPair = *it;
+	int accumulatedHeight=0;
+	double lastNoise=0;
+	while(true) // while we haven't found the block
+	{
+		if(accumulatedHeight+it->getSectionWidth()<height) // if this section is too low
+		{
+			accumulatedHeight+=it->getSectionWidth();
+			lastNoise = it->getNoiseCeiling();
+			if(++it==_terrainList.end())//advance to next section, if end then exit
+			{
+				break;
+			}
+		}
+		else
+		{// we're in this section, calculate if we're below noise
+			int floorHeight = (noise-lastNoise)*it->getSectionWidth()+accumulatedHeight;
+			if(floorHeight>height)
+			{
+				return it->getBlock();
+			}
+			if(floorHeight==height)
+			{
+				if(it->getSurfaceBlock()!=nullptr)
+				{
+					return *it->getSurfaceBlock();
+				}
+				else
+					return it->getBlock();
+			}
+			else
+			{
+				return *_emptyBlock;
+			}
+		}
+	}
+	return *_emptyBlock;
+}
+
+void terrainPainter::addSection(terrainSection s)
+{
+	_terrainList.push_back(s);
+}
+
+void terrainPainter::setEmptyBlock(block* emptyBlock)
+{
+	_emptyBlock=emptyBlock;
 }

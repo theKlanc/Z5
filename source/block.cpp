@@ -2,6 +2,11 @@
 #include "json.hpp"
 using nlohmann::json;
 
+bool block::operator==(const block& right)
+{
+	return ID==right.ID;
+}
+
 void to_json(nlohmann::json &j, const block &b)
 {
 	j = json{{"name",b.name},{"ID",b.ID},{"visible",b.visible},{"solid",b.solid},{"opaque",b.opaque},{"mass",b.mass}};
