@@ -130,7 +130,7 @@
       <AdditionalIncludeDirectories>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WIN64</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_DEBUG</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;</AdditionalDependencies>
