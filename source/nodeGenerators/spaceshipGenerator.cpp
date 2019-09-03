@@ -3,7 +3,7 @@
 terrainChunk spaceshipGenerator::getChunk(const point3Di& p)
 {
 	terrainChunk chunk(p);
-	if (p.x != 0 || p.y != 0 || p.z != 0)
+	if (p.x != 1 || p.y != 1 || p.z != 1)
 	{
 		return chunk;
 	}

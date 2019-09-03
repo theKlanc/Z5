@@ -20,6 +20,8 @@ universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 std::mutex State::Playing::endChunkLoader;
 
+
+
 State::Playing::~Playing() {
 
 
@@ -79,16 +81,16 @@ void State::Playing::input(float dt)
 		playerSpd.spd = fdd();
 		playerSpd.spd.r=oldR;
 	}
-	if (held & HI2::BUTTON::KEY_UP) {
+	if (held & HI2::BUTTON::KEY_LSTICK_UP) {
 		playerSpd.spd.y -= 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_DOWN) {
+	if (held & HI2::BUTTON::KEY_LSTICK_DOWN) {
 		playerSpd.spd.y += 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_LEFT) {
+	if (held & HI2::BUTTON::KEY_LSTICK_LEFT) {
 		playerSpd.spd.x -= 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_RIGHT) {
+	if (held & HI2::BUTTON::KEY_LSTICK_RIGHT) {
 		playerSpd.spd.x += 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_A) {
@@ -113,6 +115,24 @@ void State::Playing::input(float dt)
 	if (held & HI2::BUTTON::KEY_L) {
 		playerSpd.spd.r -= 10 * dt;
 	}
+	if (held & HI2::BUTTON::KEY_Y) {
+		playerPos.parent->setBlock(&block::terrainTable[1],{(int)playerPos.pos.x,(int)playerPos.pos.y-1,(int)playerPos.pos.z});
+	}
+	if (held & HI2::BUTTON::KEY_X) {
+		playerPos.parent->setBlock(&block::terrainTable[currentBlock],{(int)playerPos.pos.x,(int)playerPos.pos.y-1,(int)playerPos.pos.z});
+	}
+	if (held & HI2::BUTTON::KEY_DLEFT) {
+		currentBlock--;
+		if(currentBlock<0)
+			currentBlock=block::terrainTable.size()-1;
+	}
+	if (held & HI2::BUTTON::KEY_DRIGHT) {
+		currentBlock++;
+		if(currentBlock>block::terrainTable.size()-1)
+			currentBlock=0;
+	}
+	
+	
 }
 
 void State::Playing::update(float dt) {
@@ -291,6 +311,8 @@ void State::Playing::draw() {
 	for (renderLayer& rl : renderOrders) {
 		drawLayer(rl);
 	}
+	if(block::terrainTable[currentBlock].visible)
+		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name +".png"),0,0,4,0);
 	HI2::endFrame();
 
 }
@@ -488,9 +510,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = pID;
-		playerPos.pos.x = 2;
-		playerPos.pos.y = 2;
-		playerPos.pos.z = result->getHeight({ (int)playerPos.pos.x,(int)playerPos.pos.y }) + 2;
+		playerPos.pos.x = 2+8;
+		playerPos.pos.y = 2+8;
+		playerPos.pos.z = 2+8;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -539,9 +561,9 @@ void State::Playing::createEntities()
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
 		dogPos.parentID = pID;
-		dogPos.pos.x = 3;
-		dogPos.pos.y = 2;
-		dogPos.pos.z = result->getHeight({ (int)dogPos.pos.x,(int)dogPos.pos.y }) + 2;
+		dogPos.pos.x =  2+8;
+		dogPos.pos.y =  2+8;
+		dogPos.pos.z =  2+8;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -585,9 +607,9 @@ void State::Playing::createEntities()
 			auto& ballPos = _enttRegistry.assign<position>(ball);
 			ballPos.parent = result;
 			ballPos.parentID = pID;
-			ballPos.pos.x = 4 + i;
-			ballPos.pos.y = 4 + j;
-			ballPos.pos.z = result->getHeight({ (int)ballPos.pos.x,(int)ballPos.pos.y }) + 2 + 4 + j + i;
+			ballPos.pos.x = 4 + i+8;
+			ballPos.pos.y = 4 + j+8;
+			ballPos.pos.z = i+j+4+8;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);

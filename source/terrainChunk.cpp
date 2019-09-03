@@ -8,9 +8,8 @@
 terrainChunk::~terrainChunk() {}
 
 terrainChunk::terrainChunk(const point3Di& p) : _position(p), _loaded(false),
-_blocks(config::chunkSize* config::chunkSize* config::chunkSize),
-_colliders(config::chunkSize* config::chunkSize* config::chunkSize,
-	nullptr)
+_blocks(config::chunkSize* config::chunkSize* config::chunkSize,&block::terrainTable[0]),
+_colliders(config::chunkSize* config::chunkSize* config::chunkSize,nullptr)
 {
 	Services::physicsMutex.lock();
 	_collisionBody = (Services::collisionWorld->createCollisionBody(

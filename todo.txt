@@ -5,7 +5,7 @@
 #render
 #implementar colisions
 implementar colisions entre nodes
-arreglar angles de sortida de colisions
+//arreglar angles de sortida de colisions
 fer una sola draw call per layer dibuixat
 millorar terrain generator i crear biomes
 crear observer
@@ -19,3 +19,8 @@ crear colisionadors d altres tipus per a bales i tal
 //crear NPCs (mascotes animals i persones)
 --crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
 #persistència (json i tal)
+
+
+# DONE
+// Half Done
+-- Kinda done?

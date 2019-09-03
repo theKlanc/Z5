@@ -123,7 +123,7 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	auto& entityBody = Services::enttRegistry->get<body>(entity);
 	if (entityBody.lastCollided == node)// avoid colliding multiple times with the same node
 	{
-		//return;
+		return;
 	}
 	else
 	{
@@ -174,27 +174,30 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 
 	//Calcular centroide de punts de contacte
 
-	auto contactPoint = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getContactPoints();
-
-	for (int i = 0; i < collisionCallbackInfo.contactManifoldElements->getContactManifold()->getNbContactPoints(); i++)
+	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
+	int contactManifoldCount=0;
+	while(contactManifold!=nullptr)
 	{
 		if (entityBodyIndex == 1)
-			entityContactNormal += contactPoint->getLocalPointOnShape1() * -1;
+			entityContactNormal += contactManifold->getContactPoints()->getLocalPointOnShape1() * -1;
 		else
-			entityContactNormal += contactPoint->getLocalPointOnShape2() * -1;
-		contactPoint = contactPoint->getNext();
+			entityContactNormal += contactManifold->getContactPoints()->getLocalPointOnShape2() * -1;
+		contactManifold=contactManifold->getNext();
+		contactManifoldCount++;
 	}
-	entityContactNormal /= collisionCallbackInfo.contactManifoldElements->getContactManifold()->getNbContactPoints();
+	entityContactNormal /= contactManifoldCount;
 
+
+	entityContactNormal.normalize();
 	//Calculate new velocity
 	rp3d::Vector3 d{ (rp3d::decimal)entityVel.spd.x,(rp3d::decimal)entityVel.spd.y,(rp3d::decimal)entityVel.spd.z };
-	auto result = (d - (2 * (entityContactNormal.dot(d)) * entityContactNormal));
+	auto result = (d - (2 * (entityContactNormal.dot(d)) * entityContactNormal)) ;
 	entityVel.spd.x = result.x;
 	entityVel.spd.y = result.y;
-	entityVel.spd.z = result.z*-0.9;
+	entityVel.spd.z = result.z;
 
 	//apply new velocity from surface
-	//entityPosition.pos += entityVel.spd * dt * (partialDepth);
+	entityPosition.pos += entityVel.spd * dt * (partialDepth)*0.5;
 
 }
 

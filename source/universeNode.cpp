@@ -43,6 +43,12 @@ block& universeNode::getBlock(const point3Di& pos) {
 }
 
 void universeNode::setBlock(block* b, const point3Di& pos) {
+	if(!chunkAt(pos).loaded())
+	{
+		chunkAt(pos) = terrainChunk(chunkFromPos({(double)pos.x,(double)pos.y,(double)pos.z,0}));
+		chunkAt(pos).setLoaded();
+		
+	}
 	chunkAt(pos).setBlock(b, pos);
 }
 
@@ -119,7 +125,6 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 				point3Di chunkPos{ x % config::chunkLoadDiameter, y % config::chunkLoadDiameter, z % config::chunkLoadDiameter };
 				terrainChunk& chunk = getChunk(chunkPos);
 				if (chunk != point3Di{ x,y,z } || !chunk.loaded()) {
-					terrainChunk& chunk = getChunk(chunkPos);
 					if (chunk.loaded())
 					{
 						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
