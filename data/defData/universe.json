@@ -24,7 +24,7 @@
       "diameter": 1392684000,
       "type": "STAR",
       "position": {
-        "x": 2.55434267e20,
+        "x": 255434267000000000000,
         "y": 0,
         "z": 0,
         "r": 0
@@ -110,6 +110,26 @@
               "velocity": {
                 "x": 0,
                 "y": 1022,
+                "z": 0,
+                "r": 0
+              },
+              "children": []
+            },
+            {
+              "id": 11,
+              "name": "Starship",
+              "type": "SPACESHIP",
+              "mass": 100000,
+              "diameter": 64,
+              "position": {
+                "x": 2768,
+                "y": 336,
+                "z": 446.2,
+                "r": 0
+              },
+              "velocity": {
+                "x": 1,
+                "y": 0,
                 "z": 0,
                 "r": 0
               },

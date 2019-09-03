@@ -1,10 +1,12 @@
 APPNAME := Z5
 BINDIR	:= bin
 PLATFORM := linux
-SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise
-INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src
+SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src
+INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src deps/reactPhysics3D/src
 
 BUILDDIR := build
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/broadphase deps/reactPhysics3D/src/collision/narrowphase
+SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/shapes
 
 FLAGS    := -D__LINUX__ -Werror=return-type
 CCFLAGS  := `sdl2-config --cflags` `pkgconf --cflags freetype2`

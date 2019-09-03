@@ -64,22 +64,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
     <LibraryPath>C:\SDL2\lib\x86;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <SourcePath>C:\Users\Lewis\Documents\Z5\source;C:\Users\Lewis\Documents\Z5\deps\HardwareInterface;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\SDL2\lib\x64;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,6 +90,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -106,6 +108,12 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -121,9 +129,12 @@
     <ClCompile>
       <AdditionalIncludeDirectories>C:\SDL2\include;C:\Users\Lewis\Documents\Z5\deps;C:\Users\Lewis\Documents\Z5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>WIN64;_DEBUG</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\SDL2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -132,10 +143,83 @@
     <ClCompile Include="deps\HardwareInterface\HardwareInterfacePC.cpp" />
     <ClCompile Include="deps\HardwareInterface\HardwareInterfaceSwitch.cpp" />
     <ClCompile Include="deps\HardwareInterface\HardwareInterfaceVita.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\body\Body.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\body\CollisionBody.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\body\RigidBody.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\broadphase\BroadPhaseAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\broadphase\DynamicAABBTree.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\CollisionCallback.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\CollisionDetection.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\ContactManifold.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\ContactManifoldInfo.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\ContactManifoldSet.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\HalfEdgeStructure.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\MiddlePhaseTriangleCallback.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\NarrowPhaseInfo.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\CapsuleVsCapsuleAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\CapsuleVsConvexPolyhedronAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\ConvexPolyhedronVsConvexPolyhedronAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\DefaultCollisionDispatch.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\GJKAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\SAT\SATAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\SphereVsCapsuleAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\SphereVsConvexPolyhedronAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\SphereVsSphereAlgorithm.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\PolygonVertexArray.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\PolyhedronMesh.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\ProxyShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\RaycastInfo.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\AABB.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\BoxShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\CapsuleShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\CollisionShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\ConcaveMeshShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\ConcaveShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\ConvexMeshShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\ConvexPolyhedronShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\ConvexShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\HeightFieldShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\SphereShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\shapes\TriangleShape.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\TriangleMesh.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\collision\TriangleVertexArray.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\constraint\BallAndSocketJoint.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\constraint\ContactPoint.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\constraint\FixedJoint.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\constraint\HingeJoint.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\constraint\Joint.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\constraint\SliderJoint.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\CollisionWorld.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\ConstraintSolver.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\ContactSolver.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\DynamicsWorld.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\Island.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\Material.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\OverlappingPair.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\engine\Timer.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\mathematics_functions.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Matrix2x2.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Matrix3x3.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Quaternion.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Transform.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector2.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector3.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\memory\DefaultPoolAllocator.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\memory\DefaultSingleFrameAllocator.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\memory\MemoryManager.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\utils\Logger.cpp" />
+    <ClCompile Include="deps\reactPhysics3D\src\utils\Profiler.cpp" />
     <ClCompile Include="source\block.cpp" />
+    <ClCompile Include="source\components\body_.cpp" />
+    <ClCompile Include="source\components\drawable.cpp" />
+    <ClCompile Include="source\components\name.cpp" />
+    <ClCompile Include="source\components\position.cpp" />
+    <ClCompile Include="source\components\velocity.cpp" />
     <ClCompile Include="source\fdd.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\graphics.cpp" />
+    <ClCompile Include="source\jsonTools.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\nodeGenerator.cpp" />
     <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp" />
@@ -147,6 +231,8 @@
     <ClCompile Include="source\nodegenerators\spaceshipGenerator.cpp" />
     <ClCompile Include="source\nodegenerators\spaceStationGenerator.cpp" />
     <ClCompile Include="source\nodegenerators\starGenerator.cpp" />
+    <ClCompile Include="source\physicsEngine.cpp" />
+    <ClCompile Include="source\services.cpp" />
     <ClCompile Include="source\states\state_base.cpp" />
     <ClCompile Include="source\states\state_demo.cpp" />
     <ClCompile Include="source\states\state_main_menu.cpp" />
@@ -195,14 +281,103 @@
     <ClInclude Include="deps\FastNoise\FastNoise.h" />
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp" />
     <ClInclude Include="deps\json.hpp" />
+    <ClInclude Include="deps\reactPhysics3D\src\body\Body.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\body\CollisionBody.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\body\RigidBody.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\broadphase\BroadPhaseAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\broadphase\DynamicAABBTree.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\CollisionCallback.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\CollisionDetection.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\ContactManifold.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\ContactManifoldInfo.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\ContactManifoldSet.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\ContactPointInfo.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\HalfEdgeStructure.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\MiddlePhaseTriangleCallback.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\NarrowPhaseInfo.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\CapsuleVsCapsuleAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\CapsuleVsConvexPolyhedronAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\CollisionDispatch.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\ConvexPolyhedronVsConvexPolyhedronAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\DefaultCollisionDispatch.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\GJKAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\NarrowPhaseAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\SAT\SATAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\SphereVsCapsuleAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\SphereVsConvexPolyhedronAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\SphereVsSphereAlgorithm.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\OverlapCallback.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\PolygonVertexArray.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\PolyhedronMesh.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\ProxyShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\RaycastInfo.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\AABB.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\BoxShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\CapsuleShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\CollisionShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\ConcaveMeshShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\ConcaveShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\ConvexMeshShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\ConvexPolyhedronShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\ConvexShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\HeightFieldShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\SphereShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\shapes\TriangleShape.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\TriangleMesh.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\collision\TriangleVertexArray.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\configuration.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\constraint\BallAndSocketJoint.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\constraint\ContactPoint.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\constraint\FixedJoint.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\constraint\HingeJoint.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\constraint\Joint.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\constraint\SliderJoint.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\containers_common.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\LinkedList.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\List.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\Map.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\Pair.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\Set.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\containers\Stack.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\decimal.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\CollisionWorld.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\ConstraintSolver.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\ContactSolver.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\DynamicsWorld.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\EventListener.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\Island.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\Material.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\OverlappingPair.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\engine\Timer.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\mathematics.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\mathematics_functions.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Matrix2x2.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Matrix3x3.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Quaternion.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Ray.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Transform.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector2.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector3.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\memory\DefaultAllocator.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\memory\DefaultPoolAllocator.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\memory\DefaultSingleFrameAllocator.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\memory\MemoryAllocator.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\memory\MemoryManager.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\reactphysics3d.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\utils\Logger.h" />
+    <ClInclude Include="deps\reactPhysics3D\src\utils\Profiler.h" />
     <ClInclude Include="include\block.hpp" />
+    <ClInclude Include="include\components\body.hpp" />
     <ClInclude Include="include\components\drawable.hpp" />
+    <ClInclude Include="include\components\name.hpp" />
     <ClInclude Include="include\components\position.hpp" />
     <ClInclude Include="include\components\velocity.hpp" />
     <ClInclude Include="include\config.hpp" />
     <ClInclude Include="include\fdd.hpp" />
     <ClInclude Include="include\gameCore.hpp" />
     <ClInclude Include="include\graphics.hpp" />
+    <ClInclude Include="include\jsonTools.hpp" />
     <ClInclude Include="include\nodeGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\artificialSatelliteGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\asteroidGenerator.hpp" />
@@ -213,6 +388,8 @@
     <ClInclude Include="include\nodegenerators\spaceshipGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\spaceStationGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\starGenerator.hpp" />
+    <ClInclude Include="include\physicsEngine.hpp" />
+    <ClInclude Include="include\services.hpp" />
     <ClInclude Include="include\states\state_base.hpp" />
     <ClInclude Include="include\states\state_demo.hpp" />
     <ClInclude Include="include\states\state_main_menu.hpp" />
@@ -221,8 +398,16 @@
     <ClInclude Include="include\universeNode.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="data\blockTable.json" />
+    <None Include="data\defData\universe.json" />
     <None Include="README.md" />
-    <None Include="Z5.includes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

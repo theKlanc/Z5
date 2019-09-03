@@ -4,5 +4,7 @@
 
 struct velocity {
 	fdd spd;
-	universeNode* parent;
 };
+
+void to_json(nlohmann::json& j, const velocity& n);
+void from_json(const nlohmann::json& j, velocity& n);

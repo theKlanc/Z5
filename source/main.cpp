@@ -3,8 +3,12 @@
 #include <stdint.h>
 #include <time.h>
 #include <iostream>
+#include <filesystem>
 
 int main() {
+	#ifdef _DEBUG
+	std::filesystem::remove_all("saves/");
+	#endif
 	gameCore core;
 	core.startGameLoop();
 	return 0;

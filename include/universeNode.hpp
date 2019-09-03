@@ -22,34 +22,33 @@ enum nodeType{
 	SPACESHIP,
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
-	{STAR,"STAR"},
-	{BLACK_HOLE,"BLACK_HOLE"},
-	{PLANET_GAS,"PLANET_GAS"},
-	{PLANET_ROCK,"PLANET_ROCK"},
-	{ASTEROID,"ASTEROID"},
-	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
-	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
-	{SPACE_STATION,"SPACE_STATION"},
-	{SPACESHIP,"SPACESHIP"},
-})
-
-
 class universeNode {
 public:
-	universeNode():_chunks(config::chunkLoadRadius*config::chunkLoadRadius*config::chunkLoadRadius){}
+	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
 	block& getBlock(const point3Di &pos);
 	void setBlock(block* b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
+	fdd getLocalVel(fdd f,universeNode* u) const;
 	fdd getPosition();
-	universeNode* getParent();
-	unsigned int getHeight(const point2D &pos);
+	fdd getVelocity();
+	void setVelocity(fdd v);
+	unsigned int getID();
+	std::vector<universeNode*> getChildren();
+	void updatePositions(double dt);
 
+	universeNode* getParent();
+	double getMass();
+	unsigned int getHeight(const point2D &pos);
+	rp3d::CollisionBody* getNodeCollider();
+	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
+
+	void populateColliders();
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
 	bool drawBefore(universeNode& r)const;
+	void clean();
 
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;
@@ -81,8 +80,23 @@ public:
 	std::unique_ptr<nodeGenerator> _generator;
 	unsigned int _depth;
 	unsigned int _ID;
+	rp3d::CollisionBody* _collider;
+	rp3d::CollisionShape* _collisionShape;
   
 };
+
+
+NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
+	{STAR,"STAR"},
+	{BLACK_HOLE,"BLACK_HOLE"},
+	{PLANET_GAS,"PLANET_GAS"},
+	{PLANET_ROCK,"PLANET_ROCK"},
+	{ASTEROID,"ASTEROID"},
+	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
+	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
+	{SPACE_STATION,"SPACE_STATION"},
+	{SPACESHIP,"SPACESHIP"},
+})
 
 void to_json(json& j, const universeNode& f);
 void from_json(const json& j, universeNode& f);
