@@ -561,8 +561,8 @@ void State::Playing::createEntities()
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
 		dogPos.parentID = pID;
-		dogPos.pos.x =  2+8;
-		dogPos.pos.y =  2+8;
+		dogPos.pos.x =  4+8;
+		dogPos.pos.y =  4+8;
 		dogPos.pos.z =  2+8;
 		dogPos.pos.r = 0;
 
