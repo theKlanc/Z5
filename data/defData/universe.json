@@ -120,15 +120,15 @@
               "name": "Starship",
               "type": "SPACESHIP",
               "mass": 100000,
-              "diameter": 32,
+              "diameter": 64,
               "position": {
-                "x": 201,
-                "y": 201,
-                "z": 131.1,
+                "x": 2768,
+                "y": 336,
+                "z": 440.2,
                 "r": 0
               },
               "velocity": {
-                "x": 0,
+                "x": 1,
                 "y": 0,
                 "z": 0,
                 "r": 0

@@ -14,14 +14,14 @@ void gameCore::startGameLoop() {
 		auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
 		
 
-		states.top()->input((double)microSeconds / 1000000);
+		states.top()->input((double)16000 / 1000000);
 
-		states.top()->update((double)microSeconds / 1000000);
+		states.top()->update((double)16000 / 1000000);
 
 		states.top()->draw();
 
 		
-		std::cout << "Frametime: " << microSeconds/1000 << "ms" << std::endl;
+		HI2::logWrite("Frametime: " + std::to_string(microSeconds/1000) + "ms");
 		lastTick = currentTick;
 	}
 }
@@ -43,7 +43,7 @@ void gameCore::clean() {
 gameCore::gameCore() {
 	HI2::systemInit();
 	// HI2::consoleInit();
-	pushState(std::make_unique<State::Playing>(*this,"default"));
+	pushState(std::make_unique<State::Playing>(*this,"default",0));
 	//pushState(std::make_unique<State::Demo>(*this));
 	_exit = false;
 	_pop = 0;

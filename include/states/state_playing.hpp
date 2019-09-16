@@ -9,13 +9,13 @@
 #include <thread>
 #include "components/position.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
+#include "physicsEngine.hpp"
 
 namespace State {
 	class Playing : public virtual State_Base {
 	  public:
-		Playing();
 		~Playing();
-		Playing(gameCore &gc, std::string );
+		Playing(gameCore &gc, std::string saveName, int seed);
 
 		void input(float dt) override;
 		void update(float dt) override;
@@ -25,15 +25,17 @@ namespace State {
 
 		
 		
+
 		
 	  private:
+
+		
 		struct nodeLayer{
 			universeNode* node;
 			int layerHeight;
 			std::vector<block*> blocks;
 			std::vector<bool> visibility;
 		};
-
 		struct renderLayer{
 			double depth;
 			std::variant<entt::entity,nodeLayer> target;
@@ -42,25 +44,38 @@ namespace State {
 		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);
 		std::vector<bool> growVisibility(std::vector<bool> visibility);
 		void drawLayer(const renderLayer& rl);
-
-		entt::entity _player;
-		entt::entity _camera;
+		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
 		void loadTerrainTable();
+		
+		entt::entity _player;
+		entt::entity _camera;
+		int currentBlock=7;
+
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
 		
 		static std::filesystem::path _savePath;
-		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
+		void createNewGame(int seed);
+		
+		void loadGame();
+		void saveGame();
+
+		void loadEntities();
+		void saveEntities() const;
+		void createEntities();
+		void fixEntities();
+
+
+		physicsEngine _physicsEngine;
 		std::unique_ptr<std::thread> _chunkLoaderThread;
 
+		static std::mutex endChunkLoader;
 		static void _chunkLoaderFunc();
-		
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
-		std::unique_ptr<rp3d::CollisionWorld> _collisionWorld;
 		
 	};
 

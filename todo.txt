@@ -1,15 +1,40 @@
 #crear la resta de generadors
 #associar generadors amb nodes al crearlos
 #crear camera (kinda done)
-chunkloader
-render
-implementar colisions
+#chunkloader
+#render
+#implementar colisions
+separar deteccio de colisions i agregacio+resolució
+implementar elasticitat en colisions correctament
+implementar gravetat correctament
+implementar friccio correctament
 
-crear sistemes i components basics pel jugador
-crear observer per achievements i efectes de so
-crear zones de musica o en el seu defecte, assignar cançons a cada gameNode
-crear UI
-crear items i inventari
-crear NPCs (mascotes animals i persones)
+
+implementar colisions entre nodes
+animacions locu, animacions
+maquina d estats per les entitats
+
+//arreglar angles de sortida de colisions
+fer una sola draw call per layer dibuixat
+millorar terrain generator i crear biomes
+crear observer
+crear soundObserver
+assignar bgm als nodes
+crear health i items
+dibuixar items
+dibuixar gui
+crear inventari
+crear colisionadors d altres tipus per a bales i tal
+lighting
+biomes i diferents tipus de biomes per cada planeta, somehow
+PERFORMANCE
+afegir llunes de jupiter saturn i neptu
+afegir planet 9
+//crear NPCs (mascotes animals i persones)
 --crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
-~~persistència (json i tal)
+#persistència (json i tal)
+
+
+# DONE
+// Half Done
+-- Kinda done?

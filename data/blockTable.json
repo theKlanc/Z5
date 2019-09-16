@@ -20,7 +20,7 @@
 	"ID": 2,
     "visible": true,
     "solid": false,
-    "opaque": true,
+    "opaque": false,
     "mass": 997
   },
   {
@@ -90,6 +90,21 @@
   {
     "name": "steelplate",
 	"ID": 11,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850
+  },
+  {
+    "name": "snow",
+	"ID": 12,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850
+  },{
+    "name": "deepGrass",
+	"ID": 13,
     "visible": true,
     "solid": true,
     "opaque": true,

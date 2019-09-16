@@ -3,7 +3,7 @@
 terrainChunk spaceshipGenerator::getChunk(const point3Di& p)
 {
 	terrainChunk chunk(p);
-	if (p.x != 0 || p.y != 0 || p.z != 0)
+	if (p.x != 1 || p.y != 1 || p.z != 1)
 	{
 		return chunk;
 	}
@@ -14,6 +14,8 @@ terrainChunk spaceshipGenerator::getChunk(const point3Di& p)
 					chunk.setBlock(&block::terrainTable.at(11), point3Di{ x,y,z });
 				else if(x==0 && y ==0)
 					chunk.setBlock(&block::terrainTable.at(11), point3Di{ x,y,z });
+				else if(z==3)
+					chunk.setBlock(&block::terrainTable.at(10), point3Di{ x,y,z });
 				else
 					chunk.setBlock(&block::terrainTable.at(0), point3Di{ x,y,z });
 			}

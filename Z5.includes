@@ -36,3 +36,4 @@ include/nodeTypes
 source/nodeTypes
 include/nodeGenerators
 source/nodeGenerators
+source/components

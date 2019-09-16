@@ -13,7 +13,7 @@ struct block{ // A block represents a 1m³ cube of material
 	double mass = 1220; // mass in kg
 	HI2::Texture* texture = nullptr;
 
-	
+	bool operator==(const block& right);
 	static std::vector<block> terrainTable;
 };
 

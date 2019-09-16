@@ -17,11 +17,15 @@
 
 void universeNode::clean()
 {
+	Services::physicsMutex.lock();
+	delete _collisionShape;
+	Services::physicsMutex.unlock();
+
 	for (terrainChunk& chunk : _chunks)
 	{
 		if (chunk.loaded())
 		{
-			chunk.store(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+			chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 		}
 	}
 	for (universeNode& child : _children)
@@ -39,6 +43,12 @@ block& universeNode::getBlock(const point3Di& pos) {
 }
 
 void universeNode::setBlock(block* b, const point3Di& pos) {
+	if(!chunkAt(pos).loaded())
+	{
+		chunkAt(pos) = terrainChunk(chunkFromPos({(double)pos.x,(double)pos.y,(double)pos.z,0}));
+		chunkAt(pos).setLoaded();
+		
+	}
 	chunkAt(pos).setBlock(b, pos);
 }
 
@@ -62,7 +72,7 @@ std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 	fdd localPos = getLocalPos(f, u);
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
-	}
+ 	}
 	for (universeNode& child : _children) {
 		std::vector<universeNode*> temp = child.nodesToDraw(f, u);
 		result.insert(result.end(), temp.begin(), temp.end());
@@ -113,13 +123,11 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 			for (int z = localChunk.z - floor(config::chunkLoadDiameter / 2);
 				z < localChunk.z + ceil(config::chunkLoadDiameter / 2); ++z) {
 				point3Di chunkPos{ x % config::chunkLoadDiameter, y % config::chunkLoadDiameter, z % config::chunkLoadDiameter };
-
 				terrainChunk& chunk = getChunk(chunkPos);
 				if (chunk != point3Di{ x,y,z } || !chunk.loaded()) {
-					terrainChunk& chunk = getChunk(chunkPos);
 					if (chunk.loaded())
 					{
-						chunk.store(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 					}
 					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
 					if (std::filesystem::exists(newChunkPath))//if file already exists, load
@@ -139,13 +147,13 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 
 
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
-	int x = (pos.x / config::chunkSize % config::chunkLoadDiameter);
+	int x = (int(floor((double)pos.x / config::chunkSize)) % config::chunkLoadDiameter);
 	if (x < 0)
 		x += config::chunkLoadDiameter;
-	int y = (pos.y / config::chunkSize % config::chunkLoadDiameter);
+	int y = (int(floor((double)pos.y / config::chunkSize)) % config::chunkLoadDiameter);
 	if (y < 0)
 		y += config::chunkLoadDiameter;
-	int z = (pos.z / config::chunkSize % config::chunkLoadDiameter);
+	int z = (int(floor((double)pos.z / config::chunkSize)) % config::chunkLoadDiameter);
 	if (z < 0)
 		z += config::chunkLoadDiameter;
 	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
@@ -196,7 +204,7 @@ void universeNode::linkChildren() {
 	}
 }
 
-fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f (which is relative to u)
+fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(position) f (which is relative to u)
 								  // relative to our local node (*this)
 {
 	if (u == this)
@@ -220,9 +228,66 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd f
 	}
 }
 
+fdd universeNode::getLocalVel(fdd f, universeNode* u) const
+{
+	if (u == this)
+		return f;
+	else
+	{
+		fdd transform{ 0,0,0,0 };
+		const universeNode* transformLocal = this;
+
+		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
+			if (transformLocal->_depth - u->_depth > 1) {//should move u
+				f += u->_velocity;
+				u = u->_parent;
+			}
+			else {// move transformLocal
+				transform += transformLocal->_velocity;
+				transformLocal = transformLocal->_parent;
+			}
+		}
+		return f - transform;
+	}
+}
+
 fdd universeNode::getPosition()
 {
 	return _position;
+}
+
+fdd universeNode::getVelocity()
+{
+	return _velocity;
+}
+
+void universeNode::setVelocity(fdd v)
+{
+	_velocity = v;
+}
+
+unsigned universeNode::getID()
+{
+	return _ID;
+}
+
+std::vector<universeNode*> universeNode::getChildren()
+{
+	std::vector<universeNode*> result;
+	for (universeNode& u : _children)
+	{
+		result.push_back(&u);
+	}
+	return result;
+}
+
+void universeNode::updatePositions(double dt)
+{
+	_position += _velocity * dt;
+	for (universeNode& child : _children)
+	{
+		child.updatePositions(dt);
+	}
 }
 
 universeNode* universeNode::getParent()
@@ -230,16 +295,94 @@ universeNode* universeNode::getParent()
 	return _parent;
 }
 
+double universeNode::getMass()
+{
+	return _mass;
+}
+
 unsigned int universeNode::getHeight(const point2D& pos)
 {
-	return _generator->getHeight(pos);
+	return 6;
+}
+
+rp3d::CollisionBody* universeNode::getNodeCollider()
+{
+	return _collider;
+}
+
+std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, universeNode* parent)
+{
+	std::vector<rp3d::CollisionBody*> candidateBodies;
+	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
+	std::vector<int> posXlist;
+	posXlist.push_back(p.x);
+	std::vector<int> posYlist;
+	posYlist.push_back(p.y);
+	std::vector<int> posZlist;
+	posZlist.push_back(p.z);
+	if (chunkFromPos({ p.x,0,0 }).x != chunkFromPos({ p.x - 1,0,0 }).x)
+	{
+		posXlist.push_back(p.x - 1);
+	}
+	if (chunkFromPos({ p.x,0,0 }).x != chunkFromPos({ p.x + 1,0,0 }).x)
+	{
+		posXlist.push_back(p.x + 1);
+	}
+	if (chunkFromPos({ 0,p.y,0 }).y != chunkFromPos({ 0,p.y - 1,0 }).y)
+	{
+		posYlist.push_back(p.y - 1);
+	}
+	if (chunkFromPos({ 0,p.y,0 }).y != chunkFromPos({ 0,p.y + 1,0 }).y)
+	{
+		posYlist.push_back(p.y + 1);
+	}
+	if (chunkFromPos({ 0,0,p.z }).z != chunkFromPos({ 0,0,p.z - 1 }).z)
+	{
+		posZlist.push_back(p.z - 1);
+	}
+	if (chunkFromPos({ 0,0,p.z }).z != chunkFromPos({ 0,0,p.z + 1 }).z)
+	{
+		posZlist.push_back(p.z + 1);
+	}
+
+	for (int x : posXlist)
+	{
+		for (int y : posYlist)
+		{
+			for (int z : posZlist)
+			{
+				auto chunk = chunkAt({ x,y,z });
+				if (chunk.loaded())
+				{
+					candidateBodies.push_back(chunkAt({ x,y,z }).getCollider());
+				}
+			}
+		}
+	}
+	return candidateBodies;
+}
+
+void universeNode::populateColliders()
+{
+	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+	rp3d::Transform transform(initPosition, initOrientation);
+	Services::physicsMutex.lock();
+	_collider = Services::collisionWorld->createCollisionBody(transform);
+
+	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
+	_collider->addCollisionShape(_collisionShape, transform);
+	Services::physicsMutex.unlock();
+	for (universeNode& u : _children) {
+		u.populateColliders();
+	}
 }
 
 void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position}, {"velocity", f._velocity},
-			 {"children", f._children} };
+			 {"children", f._children},{"id",f._ID} };
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -285,4 +428,5 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<spaceshipGenerator>();
 		break;
 	}
+	f.populateColliders();
 }
