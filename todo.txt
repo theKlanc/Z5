@@ -4,7 +4,16 @@
 #chunkloader
 #render
 #implementar colisions
+separar deteccio de colisions i agregacio+resolució
+implementar elasticitat en colisions correctament
+implementar gravetat correctament
+implementar friccio correctament
+
+
 implementar colisions entre nodes
+animacions locu, animacions
+maquina d estats per les entitats
+
 //arreglar angles de sortida de colisions
 fer una sola draw call per layer dibuixat
 millorar terrain generator i crear biomes
@@ -16,6 +25,11 @@ dibuixar items
 dibuixar gui
 crear inventari
 crear colisionadors d altres tipus per a bales i tal
+lighting
+biomes i diferents tipus de biomes per cada planeta, somehow
+PERFORMANCE
+afegir llunes de jupiter saturn i neptu
+afegir planet 9
 //crear NPCs (mascotes animals i persones)
 --crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
 #persistència (json i tal)
