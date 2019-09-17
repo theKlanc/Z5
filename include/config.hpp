@@ -8,4 +8,5 @@ namespace config{
 		constexpr double depthScale = 1.25;
 		constexpr double minScale = 0.75;
 		constexpr bool drawDepthShadows = true;
+		constexpr unsigned short minShadow = 150;
 };
