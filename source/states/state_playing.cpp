@@ -321,10 +321,11 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
 		void operator()(const entt::entity& entity) const {
+			
 			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
 			if(depthFactor<0)
 				depthFactor=0;
-			depthFactor=pow(depthFactor-1,3);
+			//depthFactor=1-pow(1-depthFactor,2);
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
@@ -347,7 +348,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
 			if(depthFactor<0)
 				depthFactor=0;
-			depthFactor=pow(depthFactor-1,3);
+			//depthFactor=pow(depthFactor,2);
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
