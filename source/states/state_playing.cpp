@@ -27,8 +27,10 @@ State::Playing::~Playing() {
 
 	//delete _chunkLoaderPlayerPosition;
 	endChunkLoader.lock();
-	_chunkLoaderPlayerPosition = nullptr;
-	_chunkLoaderThread->join();
+	{
+		_chunkLoaderPlayerPosition = nullptr;
+		_chunkLoaderThread->join();
+	}
 	endChunkLoader.unlock();
 	saveGame();
 	_universeBase.clean();
@@ -79,7 +81,7 @@ void State::Playing::input(float dt)
 	if (held & HI2::BUTTON::KEY_MINUS) {
 		double oldR = playerSpd.spd.r;
 		playerSpd.spd = fdd();
-		playerSpd.spd.r=oldR;
+		playerSpd.spd.r = oldR;
 	}
 	if (held & HI2::BUTTON::KEY_LSTICK_UP) {
 		playerSpd.spd.y -= 10 * dt;
@@ -100,8 +102,8 @@ void State::Playing::input(float dt)
 		playerSpd.spd.z -= 40 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_PLUS) {
-		playerPos.pos.z+=5;
-		playerSpd.spd.z=0;
+		playerPos.pos.z += 5;
+		playerSpd.spd.z = 0;
 	}
 	if (held & HI2::BUTTON::KEY_ZR) {
 		config::zoom += 0.1 * dt;
@@ -116,23 +118,20 @@ void State::Playing::input(float dt)
 		playerSpd.spd.r -= 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_Y) {
-		playerPos.parent->setBlock(&block::terrainTable[1],{(int)playerPos.pos.x,(int)playerPos.pos.y-1,(int)playerPos.pos.z});
+		playerPos.parent->setBlock(&block::terrainTable[1], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_X) {
-		playerPos.parent->setBlock(&block::terrainTable[currentBlock],{(int)playerPos.pos.x,(int)playerPos.pos.y-1,(int)playerPos.pos.z});
+		playerPos.parent->setBlock(&block::terrainTable[currentBlock], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_DLEFT) {
 		currentBlock--;
-		if(currentBlock<0)
-			currentBlock=block::terrainTable.size()-1;
+		if (currentBlock < 0)
+			currentBlock = block::terrainTable.size() - 1;
 	}
 	if (held & HI2::BUTTON::KEY_DRIGHT) {
-		currentBlock++;
-		if(currentBlock>block::terrainTable.size()-1)
-			currentBlock=0;
+		currentBlock = (currentBlock + 1) % block::terrainTable.size();
 	}
-	
-	
+
 }
 
 void State::Playing::update(float dt) {
@@ -151,7 +150,7 @@ void State::Playing::update(float dt) {
 	//TODO update nodes positions
 	_physicsEngine.dt = dt;
 	Services::physicsMutex.lock();
-#pragma region collisions
+#pragma region collision detection
 #pragma region entity-entity
 	{
 		auto bodyEntitiesView = _enttRegistry.view<body>();
@@ -234,8 +233,7 @@ void State::Playing::update(float dt) {
 #pragma endregion
 	auto bodyEntitiesView = _enttRegistry.view<body>();
 	for (const entt::entity& left : bodyEntitiesView) {
-		auto& bodi = _enttRegistry.get<body>(left);
-		bodi.lastCollided = nullptr;
+		_enttRegistry.get<body&>(left).lastCollided = nullptr;
 	}
 
 #pragma endregion 
@@ -248,7 +246,7 @@ void State::Playing::update(float dt) {
 	position& playerPosition = _enttRegistry.get<position>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
 
-	std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z"<< std::endl;
+	std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
 
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
@@ -315,8 +313,8 @@ void State::Playing::draw() {
 	for (renderLayer& rl : renderOrders) {
 		drawLayer(rl);
 	}
-	if(block::terrainTable[currentBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name +".png"),0,0,4,0);
+	if (block::terrainTable[currentBlock].visible)
+		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name + ".png"), 0, 0, 4, 0);
 	HI2::endFrame();
 
 }
@@ -325,15 +323,40 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
 		void operator()(const entt::entity& entity) const {
+			
+			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
+			if(depthFactor<0)
+				depthFactor=0;
+			//depthFactor=1-pow(1-depthFactor,2);
+			int topVis = 255 - config::minShadow;
+			double shadowVal = depthFactor * topVis;
+			short mask = shadowVal + config::minShadow;
 			const drawable& sprite = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
+			if constexpr (config::drawDepthShadows) {
+				HI2::setTextureColorMod(*sprite.sprite, HI2::Color(mask, mask, mask, 0));
+			}
 			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
 			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
-			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc en que esta la camera
+			//      deep - - - - shallow
+			// dFt  0                  1
+			// shdw 0                105
+			// mask 150              255
+			// 
+			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
+			if(depthFactor<0)
+				depthFactor=0;
+			//depthFactor=pow(depthFactor,2);
+			int topVis = 255 - config::minShadow;
+			double shadowVal = depthFactor * topVis;
+			short mask = shadowVal + config::minShadow;
+
+
+			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
 			firstBlock.z = node.layerHeight;
 
 			double tmp = fmod(firstBlock.x, 1);
@@ -373,12 +396,16 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 						break;
 					const int index = x * HI2::getScreenHeight() / config::spriteSize + y;
 
-
-					block* b = node.blocks[index];
+					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (node.visibility[index] && b->visible) {
-						HI2::drawTexture(*b->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
-						if constexpr (config::drawDepthShadows)
-							HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom + 1, (int)config::spriteSize * zoom + 1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
+						if constexpr (config::drawDepthShadows) {
+							HI2::setTextureColorMod(*b.texture, HI2::Color(mask, mask, mask, 0));
+							HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
+						}
+						else
+						{
+							HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
+						}
 					}
 				}
 			}
@@ -550,7 +577,7 @@ void State::Playing::loadGame()
 {
 	//load terrain table
 	loadTerrainTable();
-	
+
 	//load universe.json
 	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
@@ -558,7 +585,7 @@ void State::Playing::loadGame()
 	j.get_to(_universeBase);
 	_universeBase.linkChildren();
 
-	
+
 
 	loadEntities();
 }
@@ -613,9 +640,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = pID;
-		playerPos.pos.x = 2+8;
-		playerPos.pos.y = 2+8;
-		playerPos.pos.z = 2+8;
+		playerPos.pos.x = 2 + 8;
+		playerPos.pos.y = 2 + 8;
+		playerPos.pos.z = 2 + 8;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -664,9 +691,9 @@ void State::Playing::createEntities()
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
 		dogPos.parentID = pID;
-		dogPos.pos.x =  4+8;
-		dogPos.pos.y =  4+8;
-		dogPos.pos.z =  2+8;
+		dogPos.pos.x = 4 + 8;
+		dogPos.pos.y = 4 + 8;
+		dogPos.pos.z = 2 + 8;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -710,9 +737,9 @@ void State::Playing::createEntities()
 			auto& ballPos = _enttRegistry.assign<position>(ball);
 			ballPos.parent = result;
 			ballPos.parentID = pID;
-			ballPos.pos.x = 4 + i+8;
-			ballPos.pos.y = 4 + j+8;
-			ballPos.pos.z = i+j+4+8;
+			ballPos.pos.x = 4 + i + 8;
+			ballPos.pos.y = 4 + j + 8;
+			ballPos.pos.z = i + j + 4 + 8;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);

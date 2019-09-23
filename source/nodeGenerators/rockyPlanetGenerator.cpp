@@ -29,11 +29,13 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s) : nodeGenerator(s)
 
 terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 {
-	terrainChunk chunk(p);
 	if (p.z < 0)
 	{
-		return chunk;
+		return terrainChunk();
 	}
+	
+	terrainChunk chunk(p);
+	
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {
 			double noise = getNoise({(p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y});

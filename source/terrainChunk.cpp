@@ -5,11 +5,20 @@
 #include <iostream>
 #include "states/state_playing.hpp"
 
-terrainChunk::~terrainChunk() {}
+terrainChunk::~terrainChunk()
+{
+	//if (_collisionBody != nullptr) 
+	//{
+	//	Services::physicsMutex.lock();
+	//	Services::collisionWorld->destroyCollisionBody(_collisionBody);
+	//	_collisionBody = nullptr;
+	//	Services::physicsMutex.unlock();
+	//}
+}
 
 terrainChunk::terrainChunk(const point3Di& p) : _position(p), _loaded(false),
-_blocks(config::chunkSize* config::chunkSize* config::chunkSize,&block::terrainTable[0]),
-_colliders(config::chunkSize* config::chunkSize* config::chunkSize,nullptr)
+_blocks(config::chunkSize* config::chunkSize* config::chunkSize, &block::terrainTable[0]),
+_colliders(config::chunkSize* config::chunkSize* config::chunkSize, nullptr)
 {
 	Services::physicsMutex.lock();
 	_collisionBody = (Services::collisionWorld->createCollisionBody(
@@ -137,7 +146,7 @@ void terrainChunk::unload(std::filesystem::path file) {
 		unsigned accumulatedLength = 0;
 		for (block* b : _blocks)
 		{
-      			if (b->ID != lastBlockID)
+			if (b->ID != lastBlockID)
 			{
 				outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
 				lastBlockID = b->ID;
@@ -149,35 +158,43 @@ void terrainChunk::unload(std::filesystem::path file) {
 			}
 		}
 		outputFile << lastBlockID << ' ' << accumulatedLength << std::endl;
-		Services::physicsMutex.lock();
-		Services::collisionWorld->destroyCollisionBody(_collisionBody);
-		_collisionBody=nullptr;
-		Services::physicsMutex.unlock();
+		if (_collisionBody != nullptr) {
+			Services::physicsMutex.lock();
+			{
+				Services::collisionWorld->destroyCollisionBody(_collisionBody);
+				_collisionBody = nullptr;
+			}
+			Services::physicsMutex.unlock();
+		}
 	}
 }
 
 void terrainChunk::updateAllColliders()
 {
 	Services::physicsMutex.lock();
-	int counter = 0;
-	if(_collisionBody!=nullptr)
-		Services::collisionWorld->destroyCollisionBody(_collisionBody);
-	_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x * config::chunkSize,(rp3d::decimal)_position.y * config::chunkSize,(rp3d::decimal)_position.z * config::chunkSize},rp3d::Quaternion::identity() });
-
-	_colliders.clear();
-	for (int i = 0; i < config::chunkSize; ++i)
 	{
-		for (int j = 0; j < config::chunkSize; ++j)
+		int counter = 0;
+		if (_collisionBody != nullptr){
+			Services::collisionWorld->destroyCollisionBody(_collisionBody);
+			_collisionBody=nullptr;
+		}
+		_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x * config::chunkSize,(rp3d::decimal)_position.y * config::chunkSize,(rp3d::decimal)_position.z * config::chunkSize},rp3d::Quaternion::identity() });
+
+		_colliders.clear();
+		for (int i = 0; i < config::chunkSize; ++i)
 		{
-			for (int k = 0; k < config::chunkSize; ++k)
+			for (int j = 0; j < config::chunkSize; ++j)
 			{
-				if (_blocks[counter++]->solid)
+				for (int k = 0; k < config::chunkSize; ++k)
 				{
-					_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(k + 0.5)},rp3d::Quaternion::identity() }));
-				}
-				else
-				{
-					_colliders.push_back(nullptr);
+					if (_blocks[counter++]->solid)
+					{
+						_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(k + 0.5)},rp3d::Quaternion::identity() }));
+					}
+					else
+					{
+						_colliders.push_back(nullptr);
+					}
 				}
 			}
 		}
