@@ -397,7 +397,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					const int index = x * HI2::getScreenHeight() / config::spriteSize + y;
 
 					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (node.visibility[index] && b->visible) {
+					if (node.visibility[index] && b.visible) {
 						if constexpr (config::drawDepthShadows) {
 							HI2::setTextureColorMod(*b.texture, HI2::Color(mask, mask, mask, 0));
 							HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
