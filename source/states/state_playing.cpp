@@ -36,7 +36,7 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc), _standardFont("data/fonts/test.ttf", 30) {
+State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc), _standardFont("data/fonts/test.ttf") {
 
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
@@ -311,7 +311,7 @@ void State::Playing::draw(float dt) {
 	}
 	if (block::terrainTable[currentBlock].visible)
 		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name + ".png"), HI2::getScreenWidth() - config::spriteSize * 4, HI2::getScreenWidth() - config::spriteSize * 4, 4, 0);
-	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 10, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
+	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 
 }
