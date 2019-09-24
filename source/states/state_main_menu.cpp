@@ -10,4 +10,4 @@ void State::MainMenu::input(float dt) {}
 
 void State::MainMenu::update(float dt) {}
 
-void State::MainMenu::draw() {}
+void State::MainMenu::draw(float dt) {}

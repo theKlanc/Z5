@@ -36,7 +36,7 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc) {
+State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc), _standardFont("data/fonts/test.ttf", 30) {
 
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
@@ -262,7 +262,7 @@ void State::Playing::update(float dt) {
 
 }
 
-void State::Playing::draw() {
+void State::Playing::draw(float dt) {
 
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(20, 5, 100, 255));
@@ -314,7 +314,8 @@ void State::Playing::draw() {
 		drawLayer(rl);
 	}
 	if (block::terrainTable[currentBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name + ".png"), 0, 0, 4, 0);
+		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name + ".png"), HI2::getScreenWidth() - config::spriteSize * 4, HI2::getScreenWidth() - config::spriteSize * 4, 4, 0);
+	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 10, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 
 }
@@ -323,10 +324,10 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
 		void operator()(const entt::entity& entity) const {
-			
+
 			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
-			if(depthFactor<0)
-				depthFactor=0;
+			if (depthFactor < 0)
+				depthFactor = 0;
 			//depthFactor=1-pow(1-depthFactor,2);
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
@@ -348,8 +349,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			// mask 150              255
 			// 
 			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
-			if(depthFactor<0)
-				depthFactor=0;
+			if (depthFactor < 0)
+				depthFactor = 0;
 			//depthFactor=pow(depthFactor,2);
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;

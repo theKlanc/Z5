@@ -12,7 +12,7 @@ namespace State {
 
 		void input(float dt) override;
 		void update(float dt) override;
-		void draw() override;
+		void draw(float dt) override;
 
 	  private:
 		HI2::Texture* texture;

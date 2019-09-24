@@ -9,7 +9,7 @@ namespace State {
 		MainMenu(gameCore &gc);
 		void input(float dt) override;
 		void update(float dt) override;
-		void draw() override;
+		void draw(float dt) override;
 
 	  private:
 	};
