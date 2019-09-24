@@ -84,7 +84,7 @@ void State::Demo::update(float dt) {
 
 }
 
-void State::Demo::draw() {
+void State::Demo::draw(float dt) {
 	HI2::startFrame();
 	if(texture != nullptr)
 		HI2::drawTexture(*texture,0,0,2);

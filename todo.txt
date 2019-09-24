@@ -15,6 +15,8 @@ implementar colisions entre nodes
 animacions locu, animacions
 maquina d estats per les entitats
 
+fog
+
 //arreglar angles de sortida de colisions
 
 fer una sola draw call per layer dibuixat

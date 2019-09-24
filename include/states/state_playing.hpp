@@ -19,7 +19,7 @@ namespace State {
 
 		void input(float dt) override;
 		void update(float dt) override;
-		void draw() override;
+		void draw(float dt) override;
 		
 		static std::filesystem::path savePath();
 
@@ -67,6 +67,8 @@ namespace State {
 		physicsEngine _physicsEngine;
 		std::unique_ptr<std::thread> _chunkLoaderThread;
 
+		HI2::Font _standardFont;
+		
 		static std::mutex endChunkLoader;
 		static void _chunkLoaderFunc();
 		static universeNode* _chunkLoaderUniverseBase;
