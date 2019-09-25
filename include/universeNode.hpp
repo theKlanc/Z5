@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <memory>
 #include <vector>
 #include "fdd.hpp"
@@ -59,6 +59,7 @@ public:
 
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
+	point3Di chunkFromPos(const point3Di& pos);
 
 
 	void iUpdateChunks(const point3Di& localChunk);
