@@ -23,6 +23,99 @@ physicsEngine::physicsEngine()
 physicsEngine::~physicsEngine()
 {}
 
+void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	Services::physicsMutex.lock();
+	{
+		this->dt = dt;
+#pragma region entity-entity
+		{
+			auto bodyEntitiesView = registry.view<body>();
+			for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+				for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
+					if (left != right && left > right)
+					{
+
+						position pL = registry.get<position>(left);
+						position pR = registry.get<position>(right);
+						fdd rightPos = pL.parent->getLocalPos(pR.pos, pR.parent);
+
+						rp3d::Vector3 leftPosition(pL.pos.x, pL.pos.y, pL.pos.z);
+						rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+						rp3d::Transform leftTransform(leftPosition, initOrientation);
+
+						rp3d::Vector3 rightPosition(rightPos.x, rightPos.y, rightPos.z);
+						rp3d::Transform rightTransform(rightPosition, initOrientation);
+
+						body& leftBody = registry.get<body>(left);
+						leftBody.collider->setTransform(leftTransform);
+						body& rightBody = registry.get<body>(right);
+						rightBody.collider->setTransform(rightTransform);
+						if (_zaWarudo->testAABBOverlap(leftBody.collider, rightBody.collider))
+						{
+							_zaWarudo->testCollision(leftBody.collider, rightBody.collider, this);
+						}
+					}
+				}
+			}
+		}
+#pragma endregion
+#pragma region node-entity
+{
+	auto bodyEntitiesView = registry.view<body>();
+	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+		position entityPos = registry.get<position>(left);
+
+		std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
+		for (universeNode* ntemp : entityPos.parent->getChildren())
+		{
+			collidableNodes.push_back(ntemp);
+		}
+		collidableNodes.push_back(entityPos.parent->getParent());
+
+		for (universeNode* node : collidableNodes)
+		{
+			position pos = registry.get<position>(left);
+
+			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+			collidedResponse cResponse;
+			cResponse.type = NODE;
+			collidedBody cBody;
+			cBody.node = node;
+			cResponse.body = cBody;
+
+			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
+			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+			rp3d::Transform entityTransform(entityPosition, initOrientation);
+
+			body& entityBody = registry.get<body>(left);
+			entityBody.collider->setTransform(entityTransform);
+
+			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
+			{
+				auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
+				for (auto& chunk : chunksToCheck)
+				{
+					chunk->setUserData((void*)& cResponse);
+					_zaWarudo->testCollision(entityBody.collider, chunk, this);
+				}
+			}
+		}
+
+
+	}
+}
+#pragma endregion
+#pragma region node-node
+#pragma endregion
+		auto bodyEntitiesView = registry.view<body>();
+		for (const entt::entity& left : bodyEntitiesView) {
+			registry.get<body&>(left).lastCollided = nullptr;
+		}
+	}
+	Services::physicsMutex.unlock();
+}
+
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
@@ -48,6 +141,14 @@ rp3d::CollisionWorld* physicsEngine::getWorld()
 	return _zaWarudo.get();
 }
 
+void physicsEngine::detectCollisions()
+{
+}
+
+void physicsEngine::solveCollisions()
+{
+}
+
 
 void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
@@ -63,7 +164,7 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 
 	velLeft.spd = positionRight.parent->getLocalVel(velLeft.spd, positionLeft.parent);
 	positionLeft.parent = positionRight.parent;
-	
+
 	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * dt)).distance(positionRight.pos + (velRight.spd * dt)))//s allunyaven
 	{
 		return;
@@ -145,7 +246,7 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 		rp3d::CollisionBody* body1 = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
 		rp3d::CollisionBody* body2 = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2();
 
-		if (entityBodyIndex==1)
+		if (entityBodyIndex == 1)
 		{
 			auto t = body1->getTransform();
 			body1->setTransform({ {(rp3d::decimal)entityPosition.pos.x,(rp3d::decimal)entityPosition.pos.y,(rp3d::decimal)entityPosition.pos.z},rp3d::Quaternion::identity() });
@@ -175,14 +276,14 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	//Calcular centroide de punts de contacte
 
 	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
-	int contactManifoldCount=0;
-	while(contactManifold!=nullptr)
+	int contactManifoldCount = 0;
+	while (contactManifold != nullptr)
 	{
 		if (entityBodyIndex == 1)
 			entityContactNormal += contactManifold->getContactPoints()->getLocalPointOnShape1() * -1;
 		else
 			entityContactNormal += contactManifold->getContactPoints()->getLocalPointOnShape2() * -1;
-		contactManifold=contactManifold->getNext();
+		contactManifold = contactManifold->getNext();
 		contactManifoldCount++;
 	}
 	entityContactNormal /= contactManifoldCount;
@@ -191,13 +292,13 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	entityContactNormal.normalize();
 	//Calculate new velocity
 	rp3d::Vector3 d{ (rp3d::decimal)entityVel.spd.x,(rp3d::decimal)entityVel.spd.y,(rp3d::decimal)entityVel.spd.z };
-	auto result = (d - (2 * (entityContactNormal.dot(d)) * entityContactNormal)) ;
+	auto result = (d - (2 * (entityContactNormal.dot(d)) * entityContactNormal));
 	entityVel.spd.x = result.x;
 	entityVel.spd.y = result.y;
 	entityVel.spd.z = result.z;
 
 	//apply new velocity from surface
-	entityPosition.pos += entityVel.spd * dt * (partialDepth)*0.5;
+	entityPosition.pos += entityVel.spd * dt * (partialDepth) * 0.5;
 
 }
 
