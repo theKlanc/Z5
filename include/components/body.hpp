@@ -7,9 +7,10 @@ struct body
 	double height;
 	double width;
 	double mass;
-	rp3d::CollisionBody* collider; //We'll just use cylindrical colliders for now
-	rp3d::CollisionShape* _collisionShape = nullptr;;
+	rp3d::CollisionBody* collider;
+	rp3d::CollisionShape* _collisionShape = nullptr;
 	void* lastCollided = nullptr;
+	double elasticity = 0;
 };
 
 void to_json(nlohmann::json& j, const body& n);

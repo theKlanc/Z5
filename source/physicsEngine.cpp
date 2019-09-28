@@ -28,12 +28,61 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 	Services::physicsMutex.lock();
 	{
 		this->dt = dt;
+
+#pragma region node-node
+#pragma endregion
+#pragma region node-entity
+		{
+			auto bodyEntitiesView = registry.view<body>();
+			for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+				position entityPos = registry.get<position>(left);
+
+				std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
+				for (universeNode* ntemp : entityPos.parent->getChildren())
+				{
+					collidableNodes.push_back(ntemp);
+				}
+				collidableNodes.push_back(entityPos.parent->getParent());
+
+				for (universeNode* node : collidableNodes)
+				{
+					position pos = registry.get<position>(left);
+
+					fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+					collidedResponse cResponse;
+					cResponse.type = NODE;
+					collidedBody cBody;
+					cBody.node = node;
+					cResponse.body = cBody;
+
+					rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
+					rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+					rp3d::Transform entityTransform(entityPosition, initOrientation);
+
+					body& entityBody = registry.get<body>(left);
+					entityBody.collider->setTransform(entityTransform);
+
+					if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
+					{
+						auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
+						for (auto& chunk : chunksToCheck)
+						{
+							chunk->setUserData((void*)& cResponse);
+							_zaWarudo->testCollision(entityBody.collider, chunk, this);
+						}
+					}
+				}
+
+
+			}
+		}
+#pragma endregion
 #pragma region entity-entity
 		{
 			auto bodyEntitiesView = registry.view<body>();
 			for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 				for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
-					if (left != right && left > right)
+					if (left > right)
 					{
 
 						position pL = registry.get<position>(left);
@@ -60,54 +109,7 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 			}
 		}
 #pragma endregion
-#pragma region node-entity
-{
-	auto bodyEntitiesView = registry.view<body>();
-	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
-		position entityPos = registry.get<position>(left);
-
-		std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
-		for (universeNode* ntemp : entityPos.parent->getChildren())
-		{
-			collidableNodes.push_back(ntemp);
-		}
-		collidableNodes.push_back(entityPos.parent->getParent());
-
-		for (universeNode* node : collidableNodes)
-		{
-			position pos = registry.get<position>(left);
-
-			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
-			collidedResponse cResponse;
-			cResponse.type = NODE;
-			collidedBody cBody;
-			cBody.node = node;
-			cResponse.body = cBody;
-
-			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
-			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-			rp3d::Transform entityTransform(entityPosition, initOrientation);
-
-			body& entityBody = registry.get<body>(left);
-			entityBody.collider->setTransform(entityTransform);
-
-			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
-			{
-				auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
-				for (auto& chunk : chunksToCheck)
-				{
-					chunk->setUserData((void*)& cResponse);
-					_zaWarudo->testCollision(entityBody.collider, chunk, this);
-				}
-			}
-		}
-
-
-	}
-}
-#pragma endregion
-#pragma region node-node
-#pragma endregion
+		
 		auto bodyEntitiesView = registry.view<body>();
 		for (const entt::entity& left : bodyEntitiesView) {
 			registry.get<body&>(left).lastCollided = nullptr;
@@ -122,16 +124,16 @@ void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallback
 	{
 		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ENTITY)
 		{
-			solveEntityEntity(collisionCallbackInfo);
+			EntityEntityCallback(collisionCallbackInfo);
 		}
 		else
 		{
-			solveNodeNode(collisionCallbackInfo);
+			NodeNodeCallback(collisionCallbackInfo);
 		}
 	}
 	else
 	{
-		solveNodeEntity(collisionCallbackInfo);
+		NodeEntityCallback(collisionCallbackInfo);
 	}
 
 }
@@ -150,7 +152,7 @@ void physicsEngine::solveCollisions()
 }
 
 
-void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
+void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
 	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
 	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
@@ -178,7 +180,7 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
 }
 
-void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	//std::cout << "Node-Entity collision" << std::endl;
 	rp3d::Vector3 nodeShapePosition;
@@ -302,7 +304,7 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 
 }
 
-void physicsEngine::solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	universeNode* left = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
 	double leftMass = left->getMass();

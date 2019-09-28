@@ -35,9 +35,9 @@ private:
 	void detectCollisions();
 	void solveCollisions();
 	
-	void solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo);
-	void solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo);
-	void solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo);
+	void EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
+	void NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
+	void NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo);
 	std::unique_ptr<rp3d::CollisionWorld> _zaWarudo;
 	double dt;
 };

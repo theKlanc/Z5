@@ -148,8 +148,7 @@ void State::Playing::update(float dt) {
 
 
 	//TODO update nodes positions
-	
-	_physicsEngine.processCollisions(_universeBase,_enttRegistry, dt);
+	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
@@ -468,6 +467,7 @@ void State::Playing::createEntities()
 		playerBody.height = 0.9;
 		playerBody.width = 0.8;
 		playerBody.mass = 50;
+		playerBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -519,6 +519,7 @@ void State::Playing::createEntities()
 		dogBody.height = 0.4;
 		dogBody.width = 0.3;
 		dogBody.mass = 10;
+		dogBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -562,6 +563,7 @@ void State::Playing::createEntities()
 			ballBody.height = 7.0f / 8.0f;
 			ballBody.width = 7.0f / 8.0f;
 			ballBody.mass = 0.1;
+			ballBody.elasticity = 0.98;
 
 			// Initial position and orientation of the collision body 
 			rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
