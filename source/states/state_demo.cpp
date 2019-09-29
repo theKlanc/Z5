@@ -29,7 +29,7 @@ State::Demo::~Demo(){
 	effect.clean();
 }
 
-void State::Demo::input(float dt) {
+void State::Demo::input(double dt) {
 
 	int held = HI2::getKeysHeld();
 	if(held & HI2::BUTTON::KEY_MINUS){
@@ -61,7 +61,7 @@ void State::Demo::input(float dt) {
 	}
 }
 
-void State::Demo::update(float dt) {
+void State::Demo::update(double dt) {
 	pixelPos.x+=pixelSpd.x;
 	pixelPos.y+=pixelSpd.y;
 	//bounds checks
@@ -84,7 +84,7 @@ void State::Demo::update(float dt) {
 
 }
 
-void State::Demo::draw(float dt) {
+void State::Demo::draw(double dt) {
 	HI2::startFrame();
 	if(texture != nullptr)
 		HI2::drawTexture(*texture,0,0,2);

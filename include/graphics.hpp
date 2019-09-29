@@ -7,9 +7,10 @@ class graphics {
 	~graphics();
 	bool isTextureLoaded(std::string textureFile) const;
 	HI2::Texture* loadTexture(std::string fileName);
-	void freeTexture(std::string fileName);
+	void freeTexture(std::string spriteName);
 	void freeTexture(HI2::Texture& texture);
-	HI2::Texture* getTexture(std::string fileName);
+	HI2::Texture* getTexture(std::string spriteName);
+	void stepAnimations(double ms);
 
   private:
 	void freeAllTextures();

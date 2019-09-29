@@ -102,12 +102,77 @@
     "solid": true,
     "opaque": true,
     "mass": 7850
-  },{
+  },
+  {
     "name": "deepGrass",
 	"ID": 13,
     "visible": true,
     "solid": true,
     "opaque": true,
     "mass": 7850
-  }
+  },
+  {
+    "name": "panelData",
+	"ID": 14,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850
+  },
+  {
+    "name": "panelMap",
+	"ID": 15,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850
+  },
+  {
+    "name": "redChair",
+	"ID": 16,
+    "visible": true,
+    "solid": false,
+    "opaque": true,
+    "mass": 8
+  },
+  {
+    "name": "table_BL",
+	"ID": 17,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 12
+  },
+  {
+    "name": "table_BR",
+	"ID": 18,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 12
+  },
+  {
+    "name": "table_TL",
+	"ID": 19,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 12
+  },
+  {
+    "name": "table_TR",
+	"ID": 20,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 12
+  },
+  {
+    "name": "table_center",
+	"ID": 21,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 12
+  }  
 ]

@@ -16,6 +16,7 @@ animacions locu, animacions
 maquina d estats per les entitats
 
 fog
+priority ChunkLoader
 
 //arreglar angles de sortida de colisions
 
