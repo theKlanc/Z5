@@ -217,7 +217,7 @@ void State::Playing::draw(double dt) {
 		drawLayer(rl);
 	}
 	if (block::terrainTable[currentBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name), HI2::getScreenWidth() - config::spriteSize * 4, HI2::getScreenWidth() - config::spriteSize * 4, 4, 0);
+		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, 0);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 
