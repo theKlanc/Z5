@@ -14,9 +14,9 @@ namespace State {
 		}
 		virtual ~State_Base() {}
 
-		virtual void input(float dt) = 0;
-		virtual void update(float dt) = 0;
-		virtual void draw(float dt) = 0;
+		virtual void input(double dt) = 0;
+		virtual void update(double dt) = 0;
+		virtual void draw(double dt) = 0;
 
 	  protected: // aqui puc posar variables que els estats hagin de compartir
 		gameCore* _core;

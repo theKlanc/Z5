@@ -17,9 +17,9 @@ namespace State {
 		~Playing();
 		Playing(gameCore &gc, std::string saveName, int seed);
 
-		void input(float dt) override;
-		void update(float dt) override;
-		void draw(float dt) override;
+		void input(double dt) override;
+		void update(double dt) override;
+		void draw(double dt) override;
 		
 		static std::filesystem::path savePath();
 
@@ -45,7 +45,7 @@ namespace State {
 		
 		entt::entity _player;
 		entt::entity _camera;
-		unsigned int currentBlock=7;
+		int currentBlock=7;
 
 		std::vector<block> _terrainTable;
 		universeNode _universeBase;

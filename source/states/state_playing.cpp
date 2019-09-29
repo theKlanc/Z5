@@ -72,7 +72,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
 }
 
-void State::Playing::input(float dt)
+void State::Playing::input(double dt)
 {
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
@@ -106,10 +106,10 @@ void State::Playing::input(float dt)
 		playerSpd.spd.z = 0;
 	}
 	if (held & HI2::BUTTON::KEY_ZR) {
-		config::zoom += 0.1 * dt;
+		config::zoom += 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_ZL) {
-		config::zoom -= 0.1 * dt;
+		config::zoom -= 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_R) {
 		playerSpd.spd.r += 10 * dt;
@@ -134,7 +134,7 @@ void State::Playing::input(float dt)
 
 }
 
-void State::Playing::update(float dt) {
+void State::Playing::update(double dt) {
 
 	_universeBase.updatePositions(dt);
 	auto movableEntityView = _enttRegistry.view<velocity, position>();
@@ -169,8 +169,8 @@ void State::Playing::update(float dt) {
 
 }
 
-void State::Playing::draw(float dt) {
-
+void State::Playing::draw(double dt) {
+	_core->getGraphics().stepAnimations(dt*1000);
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(20, 5, 100, 255));
 	{
@@ -217,7 +217,7 @@ void State::Playing::draw(float dt) {
 		drawLayer(rl);
 	}
 	if (block::terrainTable[currentBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name + ".png"), HI2::getScreenWidth() - config::spriteSize * 4, HI2::getScreenWidth() - config::spriteSize * 4, 4, 0);
+		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name), HI2::getScreenWidth() - config::spriteSize * 4, HI2::getScreenWidth() - config::spriteSize * 4, 4, 0);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 

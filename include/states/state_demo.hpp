@@ -10,9 +10,9 @@ namespace State {
 		Demo(gameCore& c);
 		~Demo() override;
 
-		void input(float dt) override;
-		void update(float dt) override;
-		void draw(float dt) override;
+		void input(double dt) override;
+		void update(double dt) override;
+		void draw(double dt) override;
 
 	  private:
 		HI2::Texture* texture;
