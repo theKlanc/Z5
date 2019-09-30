@@ -9,7 +9,6 @@ struct body
 	double mass;
 	rp3d::CollisionBody* collider;
 	rp3d::CollisionShape* _collisionShape = nullptr;
-	void* lastCollided = nullptr;
 	double elasticity = 0;
 };
 

@@ -38,11 +38,6 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 		solveEntityEntity(registry, dt);
 	}
 	Services::physicsMutex.unlock();
-
-	auto bodyEntitiesView = registry.view<body>();
-	for (const entt::entity& left : bodyEntitiesView) {
-		registry.get<body&>(left).lastCollided = nullptr;
-	}
 }
 
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
@@ -234,16 +229,6 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 		{
 			return;
 		}
-	}
-
-	auto& entityBody = Services::enttRegistry->get<body>(entity);
-	if (entityBody.lastCollided == node)// avoid colliding multiple times with the same node
-	{
-		return;
-	}
-	else
-	{
-		entityBody.lastCollided = node;
 	}
 
 	auto& entityVel = Services::enttRegistry->get<velocity>(entity);
