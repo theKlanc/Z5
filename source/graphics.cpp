@@ -35,7 +35,7 @@ HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from 
 				pathList.push_back(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png");
 				frameCounter++;
 			}
-			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList)));
+			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,200)));
 		}
 		else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"

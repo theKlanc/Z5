@@ -1,7 +1,8 @@
 #include "nodeGenerators/rockyPlanetGenerator.hpp"
 #include "terrainChunk.hpp"
+#include "fdd.hpp"
 
-rockyPlanetGenerator::rockyPlanetGenerator(unsigned s) : nodeGenerator(s)
+rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : nodeGenerator(s), _diameter(diameter)
 {
 	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
 	_noiseGenerator.SetFractalGain(0.4);//0.7
@@ -29,19 +30,22 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s) : nodeGenerator(s)
 
 terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 {
-	if (p.z < 0)
+	if (p.z < 0 || fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x) * config::chunkSize,(double)(p.y) * config::chunkSize,0,0 }) > _diameter / 2)
 	{
 		return terrainChunk();
 	}
-	
+
 	terrainChunk chunk(p);
-	
+
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {
-			double noise = getNoise({(p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y});
-			for (int z = 0; z < config::chunkSize; ++z) {
-				unsigned int currentHeight = p.z * config::chunkSize + z;
-				chunk.setBlock(&_terrainPainter.getBlock(currentHeight, noise), point3Di{ x,y,z });
+			if (fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x * config::chunkSize) + x,(double)(p.y * config::chunkSize) + y,0,0 }) <= _diameter / 2)
+			{
+				double noise = getNoise({ (p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y });
+				for (int z = 0; z < config::chunkSize; ++z) {
+					unsigned int currentHeight = p.z * config::chunkSize + z;
+					chunk.setBlock(&_terrainPainter.getBlock(currentHeight, noise), point3Di{ x,y,z });
+				}
 			}
 		}
 	}
@@ -72,12 +76,12 @@ void rockyPlanetGenerator::populateTrees(terrainChunk& c, const point3Di p)
 {
 	for (int x = -2; x <= config::chunkSize + 2; ++x) {
 		for (int y = -2; y <= config::chunkSize + 2; ++y) {
-			if ((p.x*config::chunkSize+x) % 9 == 0 && (p.y*config::chunkSize+y) % 9 == 0) {
+			if ((p.x * config::chunkSize + x) % 9 == 0 && (p.y * config::chunkSize + y) % 9 == 0) {
 				int floorHeight = _terrainPainter.getHeight(getNoise({ p.x * config::chunkSize + x,p.y * config::chunkSize + y }));
-				if (_terrainPainter.getBlock(floorHeight).ID == 13 || _terrainPainter.getBlock(floorHeight).ID == 3 ) {
-					if (floorHeight+1 - (p.z * config::chunkSize) > -4 && floorHeight+1 - (p.z * config::chunkSize) < config::chunkSize + 4)
+				if (_terrainPainter.getBlock(floorHeight).ID == 13 || _terrainPainter.getBlock(floorHeight).ID == 3) {
+					if (floorHeight + 1 - (p.z * config::chunkSize) > -4 && floorHeight + 1 - (p.z * config::chunkSize) < config::chunkSize + 4)
 					{
-						placeTree(c, { x,y,floorHeight+1 - (p.z * config::chunkSize) });
+						placeTree(c, { x,y,floorHeight + 1 - (p.z * config::chunkSize) });
 					}
 				}
 			}

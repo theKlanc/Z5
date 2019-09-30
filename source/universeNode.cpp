@@ -308,6 +308,11 @@ double universeNode::getMass()
 	return _mass;
 }
 
+double universeNode::getDiameter()
+{
+	return _diameter;
+}
+
 unsigned int universeNode::getHeight(const point2D& pos)
 {
 	return 6;
@@ -418,7 +423,7 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<gasPlanetGenerator>();
 		break;
 	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID);
+		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID,f._diameter);
 		break;
 	case ASTEROID:
 		f._generator = std::make_unique<asteroidGenerator>();

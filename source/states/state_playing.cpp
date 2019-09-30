@@ -121,15 +121,15 @@ void State::Playing::input(double dt)
 		playerPos.parent->setBlock(&block::terrainTable[1], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_X) {
-		playerPos.parent->setBlock(&block::terrainTable[currentBlock], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		playerPos.parent->setBlock(&block::terrainTable[selectedBlock], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_DLEFT) {
-		currentBlock--;
-		if (currentBlock < 0)
-			currentBlock = block::terrainTable.size() - 1;
+		selectedBlock--;
+		if (selectedBlock < 0)
+			selectedBlock = block::terrainTable.size() - 1;
 	}
 	if (held & HI2::BUTTON::KEY_DRIGHT) {
-		currentBlock = (currentBlock + 1) % block::terrainTable.size();
+		selectedBlock = (selectedBlock + 1) % block::terrainTable.size();
 	}
 
 }
@@ -216,8 +216,8 @@ void State::Playing::draw(double dt) {
 	for (renderLayer& rl : renderOrders) {
 		drawLayer(rl);
 	}
-	if (block::terrainTable[currentBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[currentBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, 0);
+	if (block::terrainTable[selectedBlock].visible)
+		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, 0);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 
