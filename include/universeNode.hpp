@@ -35,11 +35,12 @@ public:
 	fdd getVelocity();
 	void setVelocity(fdd v);
 	unsigned int getID();
+	double getMass();
+	double getDiameter();
 	std::vector<universeNode*> getChildren();
 	void updatePositions(double dt);
 
 	universeNode* getParent();
-	double getMass();
 	unsigned int getHeight(const point2D &pos);
 	rp3d::CollisionBody* getNodeCollider();
 	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
