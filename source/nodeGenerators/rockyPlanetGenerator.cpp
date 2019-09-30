@@ -13,7 +13,7 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 	_terrainPainter.setEmptyBlock(&block::terrainTable[1]);
 
 
-	_terrainPainter.addSection(terrainSection(0, 60, block::terrainTable[5])); // fixed stone
+	_terrainPainter.addSection(terrainSection(0.0001, 60, block::terrainTable[5])); // fixed stone
 	_terrainPainter.addSection(terrainSection(0.2, 60, block::terrainTable[5])); // stone
 	_terrainPainter.addSection(terrainSection(0.4, 60, block::terrainTable[3])); //dirt
 	_terrainPainter.addSection(terrainSection(0.48, 60, block::terrainTable[9])); // underwater sand
