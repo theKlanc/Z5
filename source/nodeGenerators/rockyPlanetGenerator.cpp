@@ -50,7 +50,7 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 		}
 	}
 	fillWater(chunk, p, 240);
-	populateTrees(chunk, p);
+	populateTrees(chunk, p, 240 );
 	chunk.setLoaded();
 	return chunk;
 }
@@ -72,16 +72,20 @@ void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int wate
 	}
 }
 
-void rockyPlanetGenerator::populateTrees(terrainChunk& c, const point3Di p)
+void rockyPlanetGenerator::populateTrees(terrainChunk& c, const point3Di p, int waterLevel)
 {
 	for (int x = -2; x <= config::chunkSize + 2; ++x) {
 		for (int y = -2; y <= config::chunkSize + 2; ++y) {
-			if ((p.x * config::chunkSize + x) % 9 == 0 && (p.y * config::chunkSize + y) % 9 == 0) {
-				int floorHeight = _terrainPainter.getHeight(getNoise({ p.x * config::chunkSize + x,p.y * config::chunkSize + y }));
-				if (_terrainPainter.getBlock(floorHeight).ID == 13 || _terrainPainter.getBlock(floorHeight).ID == 3) {
-					if (floorHeight + 1 - (p.z * config::chunkSize) > -4 && floorHeight + 1 - (p.z * config::chunkSize) < config::chunkSize + 4)
-					{
-						placeTree(c, { x,y,floorHeight + 1 - (p.z * config::chunkSize) });
+			if (fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x * config::chunkSize) + x,(double)(p.y * config::chunkSize) + y,0,0 }) <= _diameter / 2) {
+				if ((p.x * config::chunkSize + x) % 9 == 0 && (p.y * config::chunkSize + y) % 9 == 0) {
+					int floorHeight = _terrainPainter.getHeight(getNoise({ p.x * config::chunkSize + x,p.y * config::chunkSize + y }));
+					if (floorHeight > waterLevel) {
+						if (_terrainPainter.getBlock(floorHeight).ID == 13 || _terrainPainter.getBlock(floorHeight).ID == 3) {
+							if (floorHeight + 1 - (p.z * config::chunkSize) > -6 && floorHeight + 1 - (p.z * config::chunkSize) < config::chunkSize + 6)
+							{
+								placeTree(c, { x,y,floorHeight + 1 - (p.z * config::chunkSize) });
+							}
+						}
 					}
 				}
 			}
