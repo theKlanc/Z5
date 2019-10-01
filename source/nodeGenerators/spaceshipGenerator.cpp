@@ -13,13 +13,13 @@ terrainChunk spaceshipGenerator::getChunk(const point3Di& p)
 		for (int y = 0; y < config::chunkSize; ++y) {
 			for (int z = 0; z < config::chunkSize; ++z) {
 				if (z == 0)
-					chunk.setBlock(&block::terrainTable.at(11), point3Di{ x,y,z });
+					chunk.setBlock({&baseBlock::terrainTable.at(11),0}, point3Di{ x,y,z });
 				else if (x == 0 && y == 0)
-					chunk.setBlock(&block::terrainTable.at(11), point3Di{ x,y,z });
+					chunk.setBlock({&baseBlock::terrainTable.at(11),0}, point3Di{ x,y,z });
 				else if (z == 3)
-					chunk.setBlock(&block::terrainTable.at(10), point3Di{ x,y,z });
+					chunk.setBlock({&baseBlock::terrainTable.at(10),0}, point3Di{ x,y,z });
 				else
-					chunk.setBlock(&block::terrainTable.at(0), point3Di{ x,y,z });
+					chunk.setBlock({&baseBlock::terrainTable.at(0),0}, point3Di{ x,y,z });
 			}
 		}
 	}

@@ -10,20 +10,20 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 	_noiseGenerator.SetFractalLacunarity(3);//2
 	_noiseGenerator.SetFractalOctaves(5);//5?
 
-	_terrainPainter.setEmptyBlock(&block::terrainTable[1]);
+	_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[1]);
 
 
-	_terrainPainter.addSection(terrainSection(0.0001, 60, block::terrainTable[5])); // fixed stone
-	_terrainPainter.addSection(terrainSection(0.2, 60, block::terrainTable[5])); // stone
-	_terrainPainter.addSection(terrainSection(0.4, 60, block::terrainTable[3])); //dirt
-	_terrainPainter.addSection(terrainSection(0.48, 60, block::terrainTable[9])); // underwater sand
-	_terrainPainter.addSection(terrainSection(0.5, 5, block::terrainTable[9])); // surface sand
-	_terrainPainter.addSection(terrainSection(0.6, 40, block::terrainTable[3], &block::terrainTable[4])); //grassdirt
-	_terrainPainter.addSection(terrainSection(0.65, 10, block::terrainTable[13])); //deep grass
-	_terrainPainter.addSection(terrainSection(0.7, 60, block::terrainTable[5])); //stone
-	_terrainPainter.addSection(terrainSection(0.75, 40, block::terrainTable[5], &block::terrainTable[12])); //snowstone
-	_terrainPainter.addSection(terrainSection(0.8, 40, block::terrainTable[12])); //snow
-	_terrainPainter.addSection(terrainSection(1, 10, block::terrainTable[12])); //snow
+	_terrainPainter.addSection(terrainSection(0.0001, 60, baseBlock::terrainTable[5])); // fixed stone
+	_terrainPainter.addSection(terrainSection(0.2, 60, baseBlock::terrainTable[5])); // stone
+	_terrainPainter.addSection(terrainSection(0.4, 60, baseBlock::terrainTable[3])); //dirt
+	_terrainPainter.addSection(terrainSection(0.48, 60, baseBlock::terrainTable[9])); // underwater sand
+	_terrainPainter.addSection(terrainSection(0.5, 5, baseBlock::terrainTable[9])); // surface sand
+	_terrainPainter.addSection(terrainSection(0.6, 40, baseBlock::terrainTable[3], &baseBlock::terrainTable[4])); //grassdirt
+	_terrainPainter.addSection(terrainSection(0.65, 10, baseBlock::terrainTable[13])); //deep grass
+	_terrainPainter.addSection(terrainSection(0.7, 60, baseBlock::terrainTable[5])); //stone
+	_terrainPainter.addSection(terrainSection(0.75, 40, baseBlock::terrainTable[5], &baseBlock::terrainTable[12])); //snowstone
+	_terrainPainter.addSection(terrainSection(0.8, 40, baseBlock::terrainTable[12])); //snow
+	_terrainPainter.addSection(terrainSection(1, 10, baseBlock::terrainTable[12])); //snow
 
 
 }
@@ -44,7 +44,7 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 				double noise = getNoise({ (p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y });
 				for (int z = 0; z < config::chunkSize; ++z) {
 					unsigned int currentHeight = p.z * config::chunkSize + z;
-					chunk.setBlock(&_terrainPainter.getBlock(currentHeight, noise), point3Di{ x,y,z });
+					chunk.setBlock({&_terrainPainter.getBlock(currentHeight, noise),(rand()%4)*M_PI/2}, point3Di{ x,y,z });
 				}
 			}
 		}
@@ -63,8 +63,8 @@ void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int wate
 				int currentHeight = p.z * config::chunkSize + z;
 				if (currentHeight < waterLevel)
 				{
-					if (c.getBlock({ x,y,z }) == block::terrainTable[1]) {
-						c.setBlock(&block::terrainTable[2], { x,y,z });
+					if (*c.getBlock({ x,y,z }).base == baseBlock::terrainTable[1]) {
+						c.setBlock({&baseBlock::terrainTable[2],(rand()%4)*M_PI/2}, { x,y,z });
 					}
 				}
 			}
@@ -103,7 +103,7 @@ void rockyPlanetGenerator::placeTree(terrainChunk& c, const point3Di p)
 			{
 				if (x >= 0 && x < config::chunkSize && y >= 0 && y < config::chunkSize && z >= 0 && z < config::chunkSize)
 				{
-					c.setBlock(&block::terrainTable[8], { x,y,z });
+					c.setBlock({&baseBlock::terrainTable[8],(rand()%4)*M_PI/2}, { x,y,z });
 				}
 			}
 		}
@@ -113,7 +113,7 @@ void rockyPlanetGenerator::placeTree(terrainChunk& c, const point3Di p)
 	{
 		if (p.x >= 0 && p.x < config::chunkSize && p.y >= 0 && p.y < config::chunkSize && z >= 0 && z < config::chunkSize)
 		{
-			c.setBlock(&block::terrainTable[7], { p.x,p.y,z });
+			c.setBlock({&baseBlock::terrainTable[7],0}, { p.x,p.y,z });
 		}
 	}
 }

@@ -4,7 +4,7 @@
 
 using nlohmann::json;
 
-struct block{ // A block represents a 1m³ cube of material
+struct baseBlock{ // A baseBlock represents a 1m³ cube of material
 	std::string name;
 	unsigned ID;
 	bool visible = true; // can it be rendered?
@@ -13,9 +13,15 @@ struct block{ // A block represents a 1m³ cube of material
 	double mass = 1220; // mass in kg
 	HI2::Texture* texture = nullptr;
 
-	bool operator==(const block& right);
-	static std::vector<block> terrainTable;
+	bool operator==(const baseBlock& right);
+	static std::vector<baseBlock> terrainTable;
 };
 
-void to_json(json& j, const block& b);
-void from_json(const json& j, block& b);
+struct metaBlock
+{
+	baseBlock* base;
+	double rotation = 0;
+};
+
+void to_json(json& j, const baseBlock& b);
+void from_json(const json& j, baseBlock& b);

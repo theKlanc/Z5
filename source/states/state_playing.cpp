@@ -15,7 +15,7 @@
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
-
+#include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 std::mutex State::Playing::endChunkLoader;
@@ -118,18 +118,26 @@ void State::Playing::input(double dt)
 		playerSpd.spd.r -= 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_Y) {
-		playerPos.parent->setBlock(&block::terrainTable[1], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],0 }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_X) {
-		playerPos.parent->setBlock(&block::terrainTable[selectedBlock], { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_DLEFT) {
 		selectedBlock--;
 		if (selectedBlock < 0)
-			selectedBlock = block::terrainTable.size() - 1;
+			selectedBlock = baseBlock::terrainTable.size() - 1;
 	}
 	if (held & HI2::BUTTON::KEY_DRIGHT) {
-		selectedBlock = (selectedBlock + 1) % block::terrainTable.size();
+		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
+	}
+	if (held & HI2::BUTTON::KEY_DUP) {
+		selectedRotation+=M_PI/2;
+	}
+	if (held & HI2::BUTTON::KEY_DDOWN) {
+		selectedRotation-=M_PI/2;
+		if (selectedRotation < 0)
+			selectedRotation+=M_PI*2;
 	}
 
 }
@@ -263,7 +271,7 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
-	_core->getGraphics().stepAnimations(dt*1000);
+	_core->getGraphics().stepAnimations(dt * 1000);
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(20, 5, 100, 255));
 	{
@@ -309,8 +317,8 @@ void State::Playing::draw(double dt) {
 	for (renderLayer& rl : renderOrders) {
 		drawLayer(rl);
 	}
-	if (block::terrainTable[selectedBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(block::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, 0);
+	if (baseBlock::terrainTable[selectedBlock].visible)
+		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, selectedRotation);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 
@@ -394,18 +402,18 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					else if (finalYdrawPos > HI2::getScreenHeight())
 						break;
 
-					block& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (b.visible) {
+					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+					if (b != nullptr && b->base->visible) {
 						if constexpr (config::drawDepthShadows) {
 							//	HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom + 1, (int)config::spriteSize * zoom + 1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
 
 							//mask anira de 255 a 150
-							HI2::setTextureColorMod(*b.texture, HI2::Color(mask, mask, mask, 0));
-							HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
+							HI2::setTextureColorMod(*b->base->texture, HI2::Color(mask, mask, mask, 0));
+							HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
 						}
 						else
 						{
-							HI2::drawTexture(*b.texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r);
+							HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
 						}
 					}
 				}
@@ -429,12 +437,12 @@ void State::Playing::loadTerrainTable()
 	json j;
 	terrainTableFile >> j;
 	j.get_to(_terrainTable);
-	for (block& b : _terrainTable) {
+	for (baseBlock& b : _terrainTable) {
 		if (b.visible) {
 			b.texture = _core->getGraphics().loadTexture(b.name);
 		}
 	}
-	block::terrainTable = _terrainTable;
+	baseBlock::terrainTable = _terrainTable;
 }
 
 point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)

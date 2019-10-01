@@ -25,8 +25,8 @@ enum nodeType{
 class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
-	block& getBlock(const point3Di &pos);
-	void setBlock(block* b, const point3Di &pos);
+	metaBlock* getBlock(const point3Di &pos);
+	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;

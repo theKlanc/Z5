@@ -34,21 +34,19 @@ void universeNode::clean()
 	}
 }
 
-block& universeNode::getBlock(const point3Di& pos) {
+metaBlock* universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
 	auto debug = chunkFromPos(pos);
 	if (!tChunk.loaded() || tChunk.getPosition() != debug)
-		return block::terrainTable[0];
-	block& b = tChunk.getBlock(pos);
-	return b;
+		return nullptr;
+	return &tChunk.getBlock(pos);
 }
 
-void universeNode::setBlock(block* b, const point3Di& pos) {
+void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 	if (!chunkAt(pos).loaded())
 	{
 		chunkAt(pos) = terrainChunk(chunkFromPos({ (double)pos.x,(double)pos.y,(double)pos.z,0 }));
 		chunkAt(pos).setLoaded();
-
 	}
 	chunkAt(pos).setBlock(b, pos);
 }

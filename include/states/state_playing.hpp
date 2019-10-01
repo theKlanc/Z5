@@ -46,8 +46,9 @@ namespace State {
 		entt::entity _player;
 		entt::entity _camera;
 		int selectedBlock=7;
+		double selectedRotation=0;
 
-		std::vector<block> _terrainTable;
+		std::vector<baseBlock> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
 		
