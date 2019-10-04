@@ -118,7 +118,7 @@ void State::Playing::input(double dt)
 		playerSpd.spd.r -= 10 * dt;
 	}
 	if (held & HI2::BUTTON::KEY_Y) {
-		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],0 }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 	if (held & HI2::BUTTON::KEY_X) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
@@ -132,12 +132,10 @@ void State::Playing::input(double dt)
 		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
 	}
 	if (held & HI2::BUTTON::KEY_DUP) {
-		selectedRotation+=M_PI/2;
+		selectedRotation++;
 	}
 	if (held & HI2::BUTTON::KEY_DDOWN) {
-		selectedRotation-=M_PI/2;
-		if (selectedRotation < 0)
-			selectedRotation+=M_PI*2;
+		selectedRotation--;
 	}
 
 }
@@ -318,7 +316,7 @@ void State::Playing::draw(double dt) {
 		drawLayer(rl);
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
-		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, selectedRotation);
+		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation)*(M_PI/2));
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::endFrame();
 
@@ -409,7 +407,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 							//mask anira de 255 a 150
 							HI2::setTextureColorMod(*b->base->texture, HI2::Color(mask, mask, mask, 0));
-							HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
+							HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation)*(M_PI/2));
 						}
 						else
 						{

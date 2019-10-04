@@ -12,7 +12,6 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 
 	_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[1]);
 
-
 	_terrainPainter.addSection(terrainSection(0.0001, 60, baseBlock::terrainTable[5])); // fixed stone
 	_terrainPainter.addSection(terrainSection(0.2, 60, baseBlock::terrainTable[5])); // stone
 	_terrainPainter.addSection(terrainSection(0.4, 60, baseBlock::terrainTable[3])); //dirt
@@ -44,7 +43,7 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 				double noise = getNoise({ (p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y });
 				for (int z = 0; z < config::chunkSize; ++z) {
 					unsigned int currentHeight = p.z * config::chunkSize + z;
-					chunk.setBlock({&_terrainPainter.getBlock(currentHeight, noise),(rand()%4)*M_PI/2}, point3Di{ x,y,z });
+					chunk.setBlock({&_terrainPainter.getBlock(currentHeight, noise),(blockRotation)(rand()%4)}, point3Di{ x,y,z });
 				}
 			}
 		}
@@ -64,7 +63,7 @@ void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int wate
 				if (currentHeight < waterLevel)
 				{
 					if (*c.getBlock({ x,y,z }).base == baseBlock::terrainTable[1]) {
-						c.setBlock({&baseBlock::terrainTable[2],(rand()%4)*M_PI/2}, { x,y,z });
+						c.setBlock({&baseBlock::terrainTable[2],(blockRotation)(rand()%4)}, { x,y,z });
 					}
 				}
 			}
@@ -103,7 +102,7 @@ void rockyPlanetGenerator::placeTree(terrainChunk& c, const point3Di p)
 			{
 				if (x >= 0 && x < config::chunkSize && y >= 0 && y < config::chunkSize && z >= 0 && z < config::chunkSize)
 				{
-					c.setBlock({&baseBlock::terrainTable[8],(rand()%4)*M_PI/2}, { x,y,z });
+					c.setBlock({&baseBlock::terrainTable[8],(blockRotation)(rand()%4)}, { x,y,z });
 				}
 			}
 		}
@@ -113,7 +112,7 @@ void rockyPlanetGenerator::placeTree(terrainChunk& c, const point3Di p)
 	{
 		if (p.x >= 0 && p.x < config::chunkSize && p.y >= 0 && p.y < config::chunkSize && z >= 0 && z < config::chunkSize)
 		{
-			c.setBlock({&baseBlock::terrainTable[7],0}, { p.x,p.y,z });
+			c.setBlock({&baseBlock::terrainTable[7],UP}, { p.x,p.y,z });
 		}
 	}
 }

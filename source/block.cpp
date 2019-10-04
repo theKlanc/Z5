@@ -2,17 +2,62 @@
 #include "json.hpp"
 using nlohmann::json;
 
+blockRotation operator++(blockRotation& a, int)
+{
+	switch (a)
+	{
+	case UP:
+		a = LEFT;
+		break;
+	case LEFT:
+		a = DOWN;
+		break;
+	case DOWN:
+		a = RIGHT;
+		break;
+	case RIGHT:
+		a = UP;
+		break;
+	}
+	return a;
+}
+
+blockRotation operator--(blockRotation& a, int)
+{
+	switch (a)
+	{
+	case DOWN:
+		a = LEFT;
+		break;
+	case RIGHT:
+		a = DOWN;
+		break;
+	case UP:
+		a = RIGHT;
+		break;
+	case LEFT:
+		a = UP;
+		break;
+	}
+	return a;
+}
+
 bool baseBlock::operator==(const baseBlock& right)
 {
-	return ID==right.ID;
+	return ID == right.ID;
 }
 
-void to_json(nlohmann::json &j, const baseBlock &b)
+bool metaBlock::operator==(const metaBlock& right)
 {
-	j = json{{"name",b.name},{"ID",b.ID},{"visible",b.visible},{"solid",b.solid},{"opaque",b.opaque},{"mass",b.mass}};
+	return base==right.base && rotation==right.rotation;
 }
 
-void from_json(const nlohmann::json &j, baseBlock &b)
+void to_json(nlohmann::json& j, const baseBlock& b)
+{
+	j = json{ {"name",b.name},{"ID",b.ID},{"visible",b.visible},{"solid",b.solid},{"opaque",b.opaque},{"mass",b.mass} };
+}
+
+void from_json(const nlohmann::json& j, baseBlock& b)
 {
 	j.at("name").get_to(b.name);
 	j.at("ID").get_to(b.ID);

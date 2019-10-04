@@ -4,7 +4,18 @@
 
 using nlohmann::json;
 
-struct baseBlock{ // A baseBlock represents a 1m³ cube of material
+enum blockRotation
+{
+	UP = 0,
+	LEFT = 1,
+	DOWN = 2,
+	RIGHT = 3,
+};
+
+blockRotation operator++(blockRotation& a, int);
+blockRotation operator--(blockRotation& a, int);
+
+struct baseBlock { // A baseBlock represents a 1m³ cube of material
 	std::string name;
 	unsigned ID;
 	bool visible = true; // can it be rendered?
@@ -20,7 +31,13 @@ struct baseBlock{ // A baseBlock represents a 1m³ cube of material
 struct metaBlock
 {
 	baseBlock* base;
-	double rotation = 0;
+	blockRotation rotation = UP;
+	bool operator==(const metaBlock& right);
+
+	bool operator!=(const metaBlock& right)
+	{
+		return !(*this == right);
+	}
 };
 
 void to_json(json& j, const baseBlock& b);
