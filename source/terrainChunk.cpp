@@ -52,8 +52,7 @@ void terrainChunk::setBlock(metaBlock b, const point3Di& p) {
 	int z = p.z % config::chunkSize;
 	if (z < 0)
 		z += config::chunkSize;
-	_blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z].base = b.base;
-	_blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z].rotation = b.rotation;
+	_blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] = b;
 	Services::physicsMutex.lock();
 	if (_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] != nullptr)
 	{
@@ -160,7 +159,7 @@ void terrainChunk::unload(std::filesystem::path file) {
 		{
 			if (b != lastBlock)
 			{
-				if(lastBlock.saveMeta){
+				if (lastBlock.saveMeta) {
 					outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
 				}
 				else
@@ -175,7 +174,13 @@ void terrainChunk::unload(std::filesystem::path file) {
 				accumulatedLength++;
 			}
 		}
-		outputFile << lastBlock.base->ID << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
+		if (lastBlock.saveMeta) {
+			outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
+		}
+		else
+		{
+			outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
+		}
 
 		if (_collisionBody != nullptr) {
 			Services::physicsMutex.lock();
