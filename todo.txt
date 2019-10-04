@@ -5,14 +5,17 @@
 #render
 #implementar colisions
 #arreglar memleak
-separar deteccio de colisions i agregacio+resolució
-implementar elasticitat en colisions correctament
-implementar gravetat correctament
-implementar friccio correctament
+passar a dynamics world
+//separar deteccio de colisions i agregacio+resolució
+//implementar elasticitat en colisions correctament
+//implementar gravetat correctament
+//implementar friccio correctament
+//implementar colisions entre nodes
 
 
-implementar colisions entre nodes
-animacions locu, animacions
+#animacions locu, animacions
+#rotacions de block
+rotacions de layers
 maquina d estats per les entitats
 
 fog

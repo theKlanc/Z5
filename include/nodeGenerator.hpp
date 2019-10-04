@@ -7,30 +7,30 @@
 class terrainSection
 {
 public:
-	terrainSection(double noise, int sectionWidth, block& b, block* surfaceBlock = nullptr);
+	terrainSection(double noise, int sectionWidth, baseBlock& b, baseBlock* surfaceBlock = nullptr);
 	double getNoiseCeiling();
 	double getSectionWidth();
-	block& getBlock();
-	block* getSurfaceBlock();
+	baseBlock& getBlock();
+	baseBlock* getSurfaceBlock();
 
 private:
 	double _noiseCeiling;
 	int _sectionWidth;
-	block& _block;
-	block* _surfaceBlock;
+	baseBlock& _block;
+	baseBlock* _surfaceBlock;
 
 };
 
 class terrainPainter
 {
 public:
-	block& getBlock(int height, double noise);
-	block& getBlock(int height);
+	baseBlock& getBlock(int height, double noise);
+	baseBlock& getBlock(int height);
 	void addSection(terrainSection s);
-	void setEmptyBlock(block* emptyBlock);
+	void setEmptyBlock(baseBlock* emptyBlock);
 	int getHeight(const double& noise);
 private:
-	block* _emptyBlock;
+	baseBlock* _emptyBlock;
 	std::vector<terrainSection> _terrainList;
 };
 

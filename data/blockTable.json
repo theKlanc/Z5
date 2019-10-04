@@ -136,40 +136,24 @@
     "mass": 8
   },
   {
-    "name": "table_BL",
+    "name": "table_center",
 	"ID": 17,
     "visible": true,
     "solid": true,
-    "opaque": false,
+    "opaque": true,
     "mass": 12
   },
   {
-    "name": "table_BR",
+    "name": "table_side",
 	"ID": 18,
     "visible": true,
     "solid": true,
-    "opaque": false,
+    "opaque": true,
     "mass": 12
   },
   {
-    "name": "table_TL",
+    "name": "table_corner",
 	"ID": 19,
-    "visible": true,
-    "solid": true,
-    "opaque": false,
-    "mass": 12
-  },
-  {
-    "name": "table_TR",
-	"ID": 20,
-    "visible": true,
-    "solid": true,
-    "opaque": false,
-    "mass": 12
-  },
-  {
-    "name": "table_center",
-	"ID": 21,
     "visible": true,
     "solid": true,
     "opaque": true,

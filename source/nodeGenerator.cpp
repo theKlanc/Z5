@@ -22,7 +22,7 @@ double nodeGenerator::getNoise(point2D p)
 }
 
 
-terrainSection::terrainSection(double noise, int sectionWidth, block& b, block* surfaceBlock) : _block(b)
+terrainSection::terrainSection(double noise, int sectionWidth, baseBlock& b, baseBlock* surfaceBlock) : _block(b)
 {
 	_noiseCeiling = noise;
 	_sectionWidth = sectionWidth;
@@ -39,22 +39,22 @@ double terrainSection::getSectionWidth()
 	return _sectionWidth;
 }
 
-block& terrainSection::getBlock()
+baseBlock& terrainSection::getBlock()
 {
 	return _block;
 }
 
-block* terrainSection::getSurfaceBlock()
+baseBlock* terrainSection::getSurfaceBlock()
 {
 	return _surfaceBlock;
 }
 
-block& terrainPainter::getBlock(int height, double noise)
+baseBlock& terrainPainter::getBlock(int height, double noise)
 {
 	auto it = _terrainList.begin();
 	int accumulatedHeight = 0;
 	double lastNoise = 0;
-	while (true) // while we haven't found the block
+	while (true) // while we haven't found the baseBlock
 	{
 		if (accumulatedHeight + it->getSectionWidth() < height) // if this section is too low
 		{
@@ -90,7 +90,7 @@ block& terrainPainter::getBlock(int height, double noise)
 	return *_emptyBlock;
 }
 
-block& terrainPainter::getBlock(int height)
+baseBlock& terrainPainter::getBlock(int height)
 {
 	auto it = _terrainList.begin();
 	int accumulatedHeight = 0;
@@ -142,7 +142,7 @@ void terrainPainter::addSection(terrainSection s)
 	_terrainList.push_back(s);
 }
 
-void terrainPainter::setEmptyBlock(block* emptyBlock)
+void terrainPainter::setEmptyBlock(baseBlock* emptyBlock)
 {
 	_emptyBlock = emptyBlock;
 }
