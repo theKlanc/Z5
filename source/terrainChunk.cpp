@@ -120,10 +120,11 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 		{
 			blockID = std::stoi(input);
 			file >> input;
-			rotation = (blockRotation)std::stoi(input);
+			int intRot = std::stoi(input);
+			rotation = (blockRotation)(intRot == 5 ? rand() % 4 : intRot);
 			file >> input;
 			length = std::stoi(input);
-			_blocks.insert(_blocks.end(), length, { &baseBlock::terrainTable[blockID],rotation });
+			_blocks.insert(_blocks.end(), length, { &baseBlock::terrainTable[blockID],rotation, intRot == 5 });
 		}
 		updateAllColliders();
 		setLoaded();
@@ -152,7 +153,7 @@ void terrainChunk::unload(std::filesystem::path file) {
 		{
 			if (b != lastBlock)
 			{
-				outputFile << lastBlock.base->ID << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
+				outputFile << lastBlock.base->ID << ' ' << (lastBlock.saveMeta ? lastBlock.rotation : 5) << ' ' << accumulatedLength << std::endl;
 				lastBlock = b;
 				accumulatedLength = 1;
 			}

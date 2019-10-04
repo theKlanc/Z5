@@ -49,7 +49,9 @@ bool baseBlock::operator==(const baseBlock& right)
 
 bool metaBlock::operator==(const metaBlock& right)
 {
-	return base==right.base && rotation==right.rotation;
+	if (saveMeta == right.saveMeta && saveMeta == false)
+		return base == right.base;
+	return base == right.base && rotation == right.rotation;
 }
 
 void to_json(nlohmann::json& j, const baseBlock& b)
