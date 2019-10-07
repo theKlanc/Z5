@@ -346,7 +346,7 @@ void universeNode::populateColliders()
 	Services::physicsMutex.lock();
 	{
 		_collider = Services::dynamicsWorld->createRigidBody(transform);
-		_collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
+		//_collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 		_collider->setMass(_mass);
 		_collider->setCenterOfMassLocal({ 0,0,0 });
 	}

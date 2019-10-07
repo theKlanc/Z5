@@ -1,3 +1,4 @@
+#define IS_DOUBLE_PRECISION_ENABLED
 #include <cstdint>
 #include <stdint.h>
 #include <time.h>

@@ -53,11 +53,12 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				u->getNodeCollider()->setTransform(rp3d::Transform{ {static_cast<reactphysics3d::decimal>(uPosOnCamera.x),
 					static_cast<reactphysics3d::decimal>(uPosOnCamera.y), static_cast<reactphysics3d::decimal>(uPosOnCamera.z)
 				},rp3d::Quaternion::identity() });
-				u->getNodeCollider()->setLinearVelocity(rp3d::Vector3{ static_cast<reactphysics3d::decimal>(uVelOnCamera.x),
+				u->getNodeCollider()->setLinearVelocity(rp3d::Vector3{static_cast<reactphysics3d::decimal>(uVelOnCamera.x),
 					static_cast<reactphysics3d::decimal>(uVelOnCamera.y), static_cast<reactphysics3d::decimal>(uVelOnCamera.z)
 					});//TODO rotation
 			}
 			auto positionView = registry.view<position, body>();
+
 			for (entt::entity e : positionView)
 			{
 				body& b = registry.get<body>(e);
@@ -70,11 +71,12 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				{
 					velocity& v = registry.get<velocity>(e);
 					fdd	eVelOnCamera = cameraPos.parent->getLocalVel(v.spd, p.parent);
-					b.collider->setLinearVelocity(rp3d::Vector3{ static_cast<reactphysics3d::decimal>(ePosOnCamera.x),
-						static_cast<reactphysics3d::decimal>(ePosOnCamera.y), static_cast<reactphysics3d::decimal>(ePosOnCamera.z)
+					b.collider->setLinearVelocity(rp3d::Vector3{ static_cast<reactphysics3d::decimal>(eVelOnCamera.x),
+						static_cast<reactphysics3d::decimal>(eVelOnCamera.y), static_cast<reactphysics3d::decimal>(eVelOnCamera.z)
 						});
 				}
 			}
+
 		}
 
 		//calcular ticks

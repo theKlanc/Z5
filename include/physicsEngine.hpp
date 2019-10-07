@@ -31,6 +31,6 @@ public:
 private:
 	double _dt;
 	double _remainingTime = 0;
-	const double _physicsStep = 1.0f/120.0f;
+	const double _physicsStep = 1.0f/60.0f;
 	std::unique_ptr<rp3d::DynamicsWorld> _zaWarudo;
 };

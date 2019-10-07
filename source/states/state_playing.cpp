@@ -66,6 +66,13 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 		_camera = entity;																	   //
 	}																						   //
 
+	position& playerPosition = _enttRegistry.get<position>(_player);
+	position& cameraPosition = _enttRegistry.get<position>(_camera);
+	cameraPosition.parent = playerPosition.parent;
+	cameraPosition.pos.x = playerPosition.pos.x;
+	cameraPosition.pos.y = playerPosition.pos.y;
+	cameraPosition.pos.z = playerPosition.pos.z + 5;
+	
 	//start chunkloader
 	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos, _chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
@@ -142,17 +149,6 @@ void State::Playing::input(double dt)
 
 void State::Playing::update(double dt) {
 
-	//_universeBase.updatePositions(dt);
-	//auto movableEntityView = _enttRegistry.view<velocity, position>();
-	//for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-	//	velocity& vel = movableEntityView.get<velocity>(entity);
-	//	vel.spd.z -= 9.81 * dt;
-	//	position& pos = movableEntityView.get<position>(entity);
-	//
-	//	pos.pos += (vel.spd * dt);
-	//}
-
-
 	position& playerPosition = _enttRegistry.get<position>(_player);
 	velocity& playerVelocity = _enttRegistry.get<velocity>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
@@ -160,19 +156,14 @@ void State::Playing::update(double dt) {
 	std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
 	std::cout << std::fixed << std::setprecision(2) << "playerVel: " << std::setw(10) << playerVelocity.spd.x << "x " << std::setw(10) << playerVelocity.spd.y << "y " << std::setw(10) << playerVelocity.spd.z << "z" << std::endl << std::endl;
 
+	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
+	
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
 	cameraPosition.pos.z = playerPosition.pos.z + 5;
-	if (_enttRegistry.has<body>(_player))
-	{
-		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
-	}
-
-	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
-
 }
 
 void State::Playing::draw(double dt) {
@@ -206,7 +197,7 @@ void State::Playing::draw(double dt) {
 			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
 			if (_enttRegistry.has<body>(entity))
 			{
-				depth -= _enttRegistry.get<body>(entity).height;
+				depth -= _enttRegistry.get<body>(entity).height*0.95;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
 				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
@@ -470,7 +461,7 @@ void State::Playing::createEntities()
 		playerName.nameString = "Captain Lewis";
 
 		auto& playerBody = _enttRegistry.assign<body>(_player);
-		playerBody.height = 0.9;
+		playerBody.height = 0.8;
 		playerBody.width = 0.8;
 		playerBody.mass = 50;
 		playerBody.elasticity = 0.3;
@@ -522,7 +513,7 @@ void State::Playing::createEntities()
 		dogName.nameString = "Lieutenant Gromit";
 
 		auto& dogBody = _enttRegistry.assign<body>(dog);
-		dogBody.height = 0.4;
+		dogBody.height = 0.3;
 		dogBody.width = 0.3;
 		dogBody.mass = 10;
 		dogBody.elasticity = 0.3;
