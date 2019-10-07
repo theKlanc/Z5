@@ -5,6 +5,6 @@ class gasPlanetGenerator : public nodeGenerator{
 	public:
 	gasPlanetGenerator(): nodeGenerator(){}
 	virtual ~gasPlanetGenerator(){}
-	terrainChunk getChunk(const point3Di& p);
+	terrainChunk getChunk(const point3Di& p, rp3d::RigidBody* rb);
 	private:
 };

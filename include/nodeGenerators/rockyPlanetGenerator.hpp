@@ -6,7 +6,7 @@ class rockyPlanetGenerator : public nodeGenerator{
 public:
 	rockyPlanetGenerator(unsigned int s, unsigned diameter);
 	virtual ~rockyPlanetGenerator(){}
-	terrainChunk getChunk(const point3Di& p) override;
+	terrainChunk getChunk(const point3Di& p, rp3d::RigidBody* rb) override;
 private:
 	unsigned _diameter;
 	

@@ -39,7 +39,7 @@ State::Playing::~Playing() {
 State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc), _standardFont("data/fonts/test.ttf") {
 
 	Services::enttRegistry = &_enttRegistry;
-	Services::collisionWorld = _physicsEngine.getWorld();
+	Services::dynamicsWorld = _physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
 
 	//create saveGame if it doesn't exist, otherwise load
@@ -142,24 +142,23 @@ void State::Playing::input(double dt)
 
 void State::Playing::update(double dt) {
 
-	_universeBase.updatePositions(dt);
-	auto movableEntityView = _enttRegistry.view<velocity, position>();
-	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-		velocity& vel = movableEntityView.get<velocity>(entity);
-		vel.spd.z -= 9.81 * dt;
-		position& pos = movableEntityView.get<position>(entity);
+	//_universeBase.updatePositions(dt);
+	//auto movableEntityView = _enttRegistry.view<velocity, position>();
+	//for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+	//	velocity& vel = movableEntityView.get<velocity>(entity);
+	//	vel.spd.z -= 9.81 * dt;
+	//	position& pos = movableEntityView.get<position>(entity);
+	//
+	//	pos.pos += (vel.spd * dt);
+	//}
 
-		pos.pos += (vel.spd * dt);
-	}
-
-
-	//TODO update nodes positions
-	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
+	velocity& playerVelocity = _enttRegistry.get<velocity>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
 
 	std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
+	std::cout << std::fixed << std::setprecision(2) << "playerVel: " << std::setw(10) << playerVelocity.spd.x << "x " << std::setw(10) << playerVelocity.spd.y << "y " << std::setw(10) << playerVelocity.spd.z << "z" << std::endl << std::endl;
 
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
@@ -172,6 +171,7 @@ void State::Playing::update(double dt) {
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
 	}
 
+	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
 }
 
@@ -480,7 +480,7 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		playerBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
@@ -488,7 +488,7 @@ void State::Playing::createEntities()
 		initPosition.z += playerBody.width / 2;
 		transform.setPosition(initPosition);
 		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
-		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
+		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform, playerBody.mass);
 	}
 
 	{
@@ -532,7 +532,7 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		dogBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
 		collidedResponse* dogResponse = new collidedResponse();
 		dogResponse->type = ENTITY;
 		dogResponse->body.entity = dog;
@@ -540,7 +540,7 @@ void State::Playing::createEntities()
 		initPosition.z += dogBody.width / 2;
 		transform.setPosition(initPosition);
 		dogBody._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
+		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform, dogBody.mass);
 	}
 	for (int i = 0; i < 5; i++)
 		for (int j = 0; j < 5; j++)
@@ -576,7 +576,7 @@ void State::Playing::createEntities()
 			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 			rp3d::Transform transform(initPosition, initOrientation);
 
-			ballBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+			ballBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
 
 			collidedResponse* ballResponse = new collidedResponse();
 			ballResponse->type = ENTITY;
@@ -585,7 +585,7 @@ void State::Playing::createEntities()
 			ballBody._collisionShape = new rp3d::SphereShape(0.4);
 			initPosition.z += ballBody.width / 2;
 			transform.setPosition(initPosition);
-			ballBody.collider->addCollisionShape(ballBody._collisionShape, transform);
+			ballBody.collider->addCollisionShape(ballBody._collisionShape, transform, ballBody.mass);
 		}
 }
 
@@ -616,7 +616,7 @@ void State::Playing::fixEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		b.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		b.collider = _physicsEngine.getWorld()->createRigidBody(transform);
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
@@ -624,7 +624,7 @@ void State::Playing::fixEntities()
 		b.collider->setUserData((void*)bodyResponse);
 
 		b._collisionShape = new rp3d::CapsuleShape(b.width / 2, b.height);
-		b.collider->addCollisionShape(b._collisionShape, transform);
+		b.collider->addCollisionShape(b._collisionShape, transform, b.mass);
 	}
 }
 

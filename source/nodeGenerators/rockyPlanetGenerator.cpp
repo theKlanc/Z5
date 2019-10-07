@@ -27,14 +27,14 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 
 }
 
-terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
+terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p, rp3d::RigidBody* rb)
 {
 	if (p.z < 0 || fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x) * config::chunkSize,(double)(p.y) * config::chunkSize,0,0 }) > _diameter / 2)
 	{
 		return terrainChunk();
 	}
 
-	terrainChunk chunk(p);
+	terrainChunk chunk(p,rb);
 
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {

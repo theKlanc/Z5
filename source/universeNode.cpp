@@ -45,7 +45,7 @@ metaBlock* universeNode::getBlock(const point3Di& pos) {
 void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 	if (!chunkAt(pos).loaded())
 	{
-		chunkAt(pos) = terrainChunk(chunkFromPos({ (double)pos.x,(double)pos.y,(double)pos.z,0 }));
+		chunkAt(pos) = terrainChunk(chunkFromPos({ (double)pos.x,(double)pos.y,(double)pos.z,0 }), _collider);
 		chunkAt(pos).setLoaded();
 	}
 	chunkAt(pos).setBlock(b, pos);
@@ -141,7 +141,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 						chunk.load(newChunkPath, { x,y,z });
 					}
 					else {
-						chunk = _generator->getChunk(point3Di{ x,y,z });
+						chunk = _generator->getChunk(point3Di{ x,y,z }, _collider);
 					}
 				}
 			}
@@ -221,7 +221,7 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 		const universeNode* transformLocal = this;
 
 		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
-			if (transformLocal->_depth - u->_depth > 1) {//should move u
+			if (transformLocal->_depth < u->_depth && transformLocal->_depth - u->_depth > 1) {//should move u
 				f += u->_position;
 				u = u->_parent;
 			}
@@ -244,7 +244,7 @@ fdd universeNode::getLocalVel(fdd f, universeNode* u) const
 		const universeNode* transformLocal = this;
 
 		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
-			if (transformLocal->_depth - u->_depth > 1) {//should move u
+			if (transformLocal->_depth < u->_depth && transformLocal->_depth - u->_depth > 1) {//should move u
 				f += u->_velocity;
 				u = u->_parent;
 			}
@@ -272,17 +272,34 @@ void universeNode::setVelocity(fdd v)
 	_velocity = v;
 }
 
+void universeNode::setPosition(fdd p)
+{
+	_position = p;
+}
+
 unsigned universeNode::getID()
 {
 	return _ID;
 }
 
-std::vector<universeNode*> universeNode::getChildren()
+std::vector<universeNode*> universeNode::getDirectChildren()
 {
 	std::vector<universeNode*> result;
 	for (universeNode& u : _children)
 	{
 		result.push_back(&u);
+	}
+	return result;
+}
+
+std::vector<universeNode*> universeNode::getFlattenedTree()
+{
+	std::vector<universeNode*> result;
+	result.push_back(this);
+	for (universeNode& u : _children)
+	{
+		std::vector<universeNode*> t = u.getFlattenedTree();
+		result.insert(result.end(), t.begin(), t.end());
 	}
 	return result;
 }
@@ -316,61 +333,9 @@ unsigned int universeNode::getHeight(const point2D& pos)
 	return 6;
 }
 
-rp3d::CollisionBody* universeNode::getNodeCollider()
+rp3d::RigidBody* universeNode::getNodeCollider()
 {
 	return _collider;
-}
-
-std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, universeNode* parent)
-{
-	std::vector<rp3d::CollisionBody*> candidateBodies;
-	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-	std::vector<int> posXlist;
-	posXlist.push_back(p.x);
-	std::vector<int> posYlist;
-	posYlist.push_back(p.y);
-	std::vector<int> posZlist;
-	posZlist.push_back(p.z);
-	if (chunkFromPos({ p.x,0,0, 0 }).x != chunkFromPos({ p.x - 1,0,0, 0 }).x)
-	{
-		posXlist.push_back(p.x - 1);
-	}
-	if (chunkFromPos({ p.x,0,0, 0 }).x != chunkFromPos({ p.x + 1,0,0, 0 }).x)
-	{
-		posXlist.push_back(p.x + 1);
-	}
-	if (chunkFromPos({ 0,p.y,0, 0 }).y != chunkFromPos({ 0,p.y - 1,0, 0 }).y)
-	{
-		posYlist.push_back(p.y - 1);
-	}
-	if (chunkFromPos({ 0,p.y,0, 0 }).y != chunkFromPos({ 0,p.y + 1,0, 0 }).y)
-	{
-		posYlist.push_back(p.y + 1);
-	}
-	if (chunkFromPos({ 0,0,p.z, 0 }).z != chunkFromPos({ 0,0,p.z - 1, 0 }).z)
-	{
-		posZlist.push_back(p.z - 1);
-	}
-	if (chunkFromPos({ 0,0,p.z,0 }).z != chunkFromPos({ 0,0,p.z + 1, 0 }).z)
-	{
-		posZlist.push_back(p.z + 1);
-	}
-
-	for (int x : posXlist)
-	{
-		for (int y : posYlist)
-		{
-			for (int z : posZlist)
-			{
-				auto chunk = chunkAt({ x,y,z });
-				if (chunk.loaded())
-				{
-					candidateBodies.push_back(chunkAt({ x,y,z }).getCollider());
-				}
-			}
-		}
-	}
-	return candidateBodies;
 }
 
 void universeNode::populateColliders()
@@ -379,10 +344,12 @@ void universeNode::populateColliders()
 	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 	rp3d::Transform transform(initPosition, initOrientation);
 	Services::physicsMutex.lock();
-	_collider = Services::collisionWorld->createCollisionBody(transform);
-
-	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
-	_collider->addCollisionShape(_collisionShape, transform);
+	{
+		_collider = Services::dynamicsWorld->createRigidBody(transform);
+		_collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
+		_collider->setMass(_mass);
+		_collider->setCenterOfMassLocal({ 0,0,0 });
+	}
 	Services::physicsMutex.unlock();
 	for (universeNode& u : _children) {
 		u.populateColliders();
@@ -421,7 +388,7 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<gasPlanetGenerator>();
 		break;
 	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID,f._diameter);
+		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID, f._diameter);
 		break;
 	case ASTEROID:
 		f._generator = std::make_unique<asteroidGenerator>();

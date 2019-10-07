@@ -2,5 +2,6 @@
 
 
 entt::registry* Services::enttRegistry;
-rp3d::CollisionWorld* Services::collisionWorld;
+
+rp3d::DynamicsWorld* Services::dynamicsWorld;
 std::mutex Services::physicsMutex;

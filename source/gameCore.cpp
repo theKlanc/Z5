@@ -11,21 +11,19 @@ void gameCore::startGameLoop() {
 	while (HI2::aptMainLoop() && !states.empty() && !_exit) {
 		
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
-		double microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
-		double msOg = microSeconds;
-		if(microSeconds/1000000.0f>(double)(1.0f/29.0f))
+		double seconds = (double)(std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count())/1000000.0f;
+		double secOg = seconds;
+		if(seconds>(double)(1.0f/29.0f))
 		{
-			microSeconds=(1.0f/29.0f)*1000000.0f;
+			seconds=(1.0f/29.0f);
 		}
 		
-		states.top()->input((double)microSeconds/1000000);
+		states.top()->input(seconds);
 
-		states.top()->update((double)microSeconds/1000000);
+		states.top()->update(seconds);
 
-		states.top()->draw((double)msOg/1000000);
+		states.top()->draw(secOg);
 
-		
-		//std::cout<<"FPS: "<<1/((double)microSeconds/1000000)<<std::endl;
 		lastTick = currentTick;
 	}
 }

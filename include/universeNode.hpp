@@ -34,16 +34,17 @@ public:
 	fdd getPosition();
 	fdd getVelocity();
 	void setVelocity(fdd v);
+	void setPosition(fdd p);
 	unsigned int getID();
 	double getMass();
 	double getDiameter();
-	std::vector<universeNode*> getChildren();
+	std::vector<universeNode*> getDirectChildren();//returns a vector with the children of universeNode
+	std::vector<universeNode*> getFlattenedTree();//returns a vector with the children, grandchildren, grandgrandchildren etc. of universeNode
 	void updatePositions(double dt);
 
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
-	rp3d::CollisionBody* getNodeCollider();
-	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
+	rp3d::RigidBody* getNodeCollider();
 
 	void populateColliders();
 	void linkChildren();
@@ -82,7 +83,7 @@ public:
 	std::unique_ptr<nodeGenerator> _generator;
 	unsigned int _depth;
 	unsigned int _ID;
-	rp3d::CollisionBody* _collider;
+	rp3d::RigidBody* _collider;
 	rp3d::CollisionShape* _collisionShape;
   
 };

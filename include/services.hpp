@@ -7,6 +7,6 @@
 struct Services
 {
 	static entt::registry* enttRegistry;
-	static rp3d::CollisionWorld* collisionWorld;
+	static rp3d::DynamicsWorld* dynamicsWorld;
 	static std::mutex physicsMutex;
 };

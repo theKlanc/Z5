@@ -7,7 +7,7 @@ struct body
 	double height;
 	double width;
 	double mass;
-	rp3d::CollisionBody* collider;
+	rp3d::RigidBody* collider;
 	rp3d::CollisionShape* _collisionShape = nullptr;
 	double elasticity = 0;
 };

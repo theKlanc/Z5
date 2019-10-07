@@ -10,12 +10,11 @@ class terrainChunk
 public:
 	terrainChunk() = default;
 	~terrainChunk();
-	terrainChunk(const point3Di& p); // THIS TRASH ALLOCATES, avoid destroying without unloading
+	terrainChunk(const point3Di& p, rp3d::RigidBody* rigidBody); // THIS TRASH ALLOCATES, avoid destroying without unloading
 	metaBlock& getBlock(const point3Di& p);
 	void setBlock(metaBlock b, const point3Di& p);
 	void setLoaded();
 	bool loaded()const;
-	rp3d::CollisionBody* getCollider() const;
 	void updateAllColliders();
 
 	bool operator== (const terrainChunk& right)const;
@@ -32,8 +31,8 @@ private:
 
 	point3Di _position;
 	bool _loaded = false;
-	rp3d::CollisionBody* _collisionBody = nullptr;
 	std::vector<metaBlock> _blocks;
 	std::vector<rp3d::ProxyShape*> _colliders;
+	rp3d::RigidBody* _parentRigidBody;
 	inline static rp3d::BoxShape _colliderBox = rp3d::BoxShape({ 0.5,0.5,0.5 });
 };

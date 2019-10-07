@@ -5,6 +5,6 @@ class starGenerator : public nodeGenerator{
 	public:
 	starGenerator(): nodeGenerator(){}
 	virtual ~starGenerator(){}
-	terrainChunk getChunk(const point3Di& p);
+	terrainChunk getChunk(const point3Di& p, rp3d::RigidBody* rb);
 	private:
 };

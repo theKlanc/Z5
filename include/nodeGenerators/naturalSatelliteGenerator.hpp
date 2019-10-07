@@ -5,6 +5,6 @@ class naturalSatelliteGenerator : public nodeGenerator{
 	public:
 	naturalSatelliteGenerator(): nodeGenerator(){}
 	virtual ~naturalSatelliteGenerator(){}
-	terrainChunk getChunk(const point3Di& p);
+	terrainChunk getChunk(const point3Di& p, rp3d::RigidBody* rb);
 	private:
 };

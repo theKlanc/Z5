@@ -7,27 +7,16 @@
 
 terrainChunk::~terrainChunk()
 {
-	//if (_collisionBody != nullptr) 
+	//if (_rigidBody != nullptr) 
 	//{
 	//	Services::physicsMutex.lock();
-	//	Services::collisionWorld->destroyCollisionBody(_collisionBody);
-	//	_collisionBody = nullptr;
+	//	Services::collisionWorld->destroyCollisionBody(_rigidBody);
+	//	_rigidBody = nullptr;
 	//	Services::physicsMutex.unlock();
 	//}
 }
 
-terrainChunk::terrainChunk(const point3Di& p) : _position(p), _loaded(false),
-_blocks(config::chunkSize* config::chunkSize* config::chunkSize, { &baseBlock::terrainTable[0],UP }),
-_colliders(config::chunkSize* config::chunkSize* config::chunkSize, nullptr)
-{
-	Services::physicsMutex.lock();
-	_collisionBody = (Services::collisionWorld->createCollisionBody(
-		rp3d::Transform{
-			{(rp3d::decimal)p.x * config::chunkSize, (rp3d::decimal)p.y * config::chunkSize, (rp3d::decimal)p.z * config::chunkSize},
-			rp3d::Quaternion::identity()
-		}));
-	Services::physicsMutex.unlock();
-}
+terrainChunk::terrainChunk(const point3Di& p, rp3d::RigidBody* rb) : _position(p), _loaded(false), _blocks(config::chunkSize* config::chunkSize* config::chunkSize, { &baseBlock::terrainTable[0],UP }), _colliders(config::chunkSize* config::chunkSize* config::chunkSize, nullptr), _parentRigidBody(rb) {}
 
 metaBlock& terrainChunk::getBlock(const point3Di& p) {
 	int x = p.x % config::chunkSize;
@@ -56,12 +45,12 @@ void terrainChunk::setBlock(metaBlock b, const point3Di& p) {
 	Services::physicsMutex.lock();
 	if (_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] != nullptr)
 	{
-		_collisionBody->removeCollisionShape(_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z]);
+		_parentRigidBody->removeCollisionShape(_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z]);
 		_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] = nullptr;
 	}
 	if (b.base->solid)
 	{
-		_colliders[(x * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + z] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x + 0.5),(rp3d::decimal)(y + 0.5),(rp3d::decimal)(z + 0.5)},rp3d::Quaternion::identity() });
+		_colliders[(x * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + z] = _parentRigidBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x + 0.5) + _position.x * config::chunkSize,(rp3d::decimal)(y + 0.5) + _position.y * config::chunkSize,(rp3d::decimal)(z + 0.5) + _position.z * config::chunkSize},rp3d::Quaternion::identity() }, b.base->mass);
 	}
 	Services::physicsMutex.unlock();
 }
@@ -72,10 +61,6 @@ void terrainChunk::setLoaded() {
 
 bool terrainChunk::loaded() const {
 	return _loaded;
-}
-
-rp3d::CollisionBody* terrainChunk::getCollider() const {
-	return _collisionBody;
 }
 
 bool terrainChunk::operator==(const terrainChunk& right) const {
@@ -134,7 +119,6 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 		}
 		updateAllColliders();
 		setLoaded();
-
 	}
 }
 
@@ -181,15 +165,17 @@ void terrainChunk::unload(std::filesystem::path file) {
 		{
 			outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
 		}
-
-		if (_collisionBody != nullptr) {
-			Services::physicsMutex.lock();
+		Services::physicsMutex.lock();
+		{
+			for (rp3d::ProxyShape* collider : _colliders)
 			{
-				Services::collisionWorld->destroyCollisionBody(_collisionBody);
-				_collisionBody = nullptr;
+				if (collider != nullptr) {
+					_parentRigidBody->removeCollisionShape(collider);
+					collider = nullptr;
+				}
 			}
-			Services::physicsMutex.unlock();
 		}
+		Services::physicsMutex.unlock();
 	}
 }
 
@@ -198,11 +184,6 @@ void terrainChunk::updateAllColliders()
 	Services::physicsMutex.lock();
 	{
 		int counter = 0;
-		if (_collisionBody != nullptr) {
-			Services::collisionWorld->destroyCollisionBody(_collisionBody);
-			_collisionBody = nullptr;
-		}
-		_collisionBody = Services::collisionWorld->createCollisionBody(rp3d::Transform{ {(rp3d::decimal)_position.x * config::chunkSize,(rp3d::decimal)_position.y * config::chunkSize,(rp3d::decimal)_position.z * config::chunkSize},rp3d::Quaternion::identity() });
 
 		_colliders.clear();
 		for (int i = 0; i < config::chunkSize; ++i)
@@ -213,7 +194,8 @@ void terrainChunk::updateAllColliders()
 				{
 					if (_blocks[counter++].base->solid)
 					{
-						_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(k + 0.5)},rp3d::Quaternion::identity() }));
+						auto v = _parentRigidBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i + 0.5) + _position.x * config::chunkSize,(rp3d::decimal)(j + 0.5) + _position.y * config::chunkSize,(rp3d::decimal)(k + 0.5) + _position.z * config::chunkSize},rp3d::Quaternion::identity() }, _blocks[counter - 1].base->mass);
+						_colliders.push_back(v);
 					}
 					else
 					{

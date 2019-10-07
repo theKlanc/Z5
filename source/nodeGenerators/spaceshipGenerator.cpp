@@ -1,13 +1,13 @@
 #include "nodeGenerators/spaceshipGenerator.hpp"
 
-terrainChunk spaceshipGenerator::getChunk(const point3Di& p)
+terrainChunk spaceshipGenerator::getChunk(const point3Di& p, rp3d::RigidBody* rb)
 {
 	if (p.x != 1 || p.y != 1 || p.z != 1)
 	{
 		return terrainChunk();
 	}
 
-	terrainChunk chunk(p);
+	terrainChunk chunk(p,rb);
 
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {
