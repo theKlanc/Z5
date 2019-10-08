@@ -15,7 +15,7 @@ physicsEngine::physicsEngine()
 	//Create collision world
 	rp3d::WorldSettings worldSettings;
 	//collisionSettings.defaultVelocitySolverNbIterations = 5;
-	//collisionSettings.isSleepingEnabled = false;
+	//worldSettings.isSleepingEnabled = false;
 	worldSettings.worldName = "za warudo";
 	worldSettings.defaultBounciness = 0.5f;
 	rp3d::Vector3 gravityVector(0, 0, 0);

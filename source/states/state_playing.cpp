@@ -154,8 +154,15 @@ void State::Playing::update(double dt) {
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
 
 	std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
-	std::cout << std::fixed << std::setprecision(2) << "playerVel: " << std::setw(10) << playerVelocity.spd.x << "x " << std::setw(10) << playerVelocity.spd.y << "y " << std::setw(10) << playerVelocity.spd.z << "z" << std::endl << std::endl;
+	std::cout << std::fixed << std::setprecision(2) << "playerVel: " << std::setw(10) << playerVelocity.spd.x << "x " << std::setw(10) << playerVelocity.spd.y << "y " << std::setw(10) << playerVelocity.spd.z << "z" << std::endl;
 
+	universeNode* ship;
+	_universeBase.findNodeByID(11,ship);
+	
+	std::cout << std::fixed << std::setprecision(2) << "StarShipPos: " << std::setw(10) << ship->getPosition().x << "x " << std::setw(10) << ship->getPosition().y << "y " << std::setw(10) << ship->getPosition().z << "z" << std::endl;
+	std::cout << std::fixed << std::setprecision(2) << "StarShipVel: " << std::setw(10) << ship->getVelocity().x << "x " << std::setw(10) << ship->getVelocity().y << "y " << std::setw(10) << ship->getVelocity().z << "z" << std::endl << std::endl;
+
+	
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 	
 	//Update camera to follow the player;
@@ -472,6 +479,7 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		playerBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
+		playerBody.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
@@ -524,6 +532,7 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		dogBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
+		dogBody.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
 		collidedResponse* dogResponse = new collidedResponse();
 		dogResponse->type = ENTITY;
 		dogResponse->body.entity = dog;
@@ -568,7 +577,7 @@ void State::Playing::createEntities()
 			rp3d::Transform transform(initPosition, initOrientation);
 
 			ballBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
-
+			ballBody.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
 			collidedResponse* ballResponse = new collidedResponse();
 			ballResponse->type = ENTITY;
 			ballResponse->body.entity = ball;
@@ -608,6 +617,7 @@ void State::Playing::fixEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		b.collider = _physicsEngine.getWorld()->createRigidBody(transform);
+		b.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
