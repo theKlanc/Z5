@@ -40,7 +40,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 
 	Services::enttRegistry = &_enttRegistry;
 	Services::dynamicsWorld = _physicsEngine.getWorld();
-	_savePath = HI2::getSavesPath().append(saveName);
+	_savePath = HI2::getSavesPath()+"/"+saveName;
 
 	//create saveGame if it doesn't exist, otherwise load
 	if (!std::filesystem::exists(savePath())) {
@@ -72,7 +72,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
 	cameraPosition.pos.z = playerPosition.pos.z + 5;
-	
+
 	//start chunkloader
 	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos, _chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
@@ -157,14 +157,14 @@ void State::Playing::update(double dt) {
 	std::cout << std::fixed << std::setprecision(2) << "playerVel: " << std::setw(10) << playerVelocity.spd.x << "x " << std::setw(10) << playerVelocity.spd.y << "y " << std::setw(10) << playerVelocity.spd.z << "z" << std::endl;
 
 	universeNode* ship;
-	_universeBase.findNodeByID(11,ship);
-	
+	_universeBase.findNodeByID(11, ship);
+
 	std::cout << std::fixed << std::setprecision(2) << "StarShipPos: " << std::setw(10) << ship->getPosition().x << "x " << std::setw(10) << ship->getPosition().y << "y " << std::setw(10) << ship->getPosition().z << "z" << std::endl;
 	std::cout << std::fixed << std::setprecision(2) << "StarShipVel: " << std::setw(10) << ship->getVelocity().x << "x " << std::setw(10) << ship->getVelocity().y << "y " << std::setw(10) << ship->getVelocity().z << "z" << std::endl << std::endl;
 
-	
+
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
-	
+
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	cameraPosition.parent = playerPosition.parent;
@@ -204,7 +204,7 @@ void State::Playing::draw(double dt) {
 			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
 			if (_enttRegistry.has<body>(entity))
 			{
-				depth -= _enttRegistry.get<body>(entity).height*0.95;
+				depth -= _enttRegistry.get<body>(entity).height * 0.95;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
 				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
@@ -336,7 +336,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 void State::Playing::loadTerrainTable()
 {
-	std::ifstream terrainTableFile(HI2::getDataPath().append("blockTable.json"));
+	std::ifstream terrainTableFile(HI2::getDataPath()+"/blockTable.json");
 	json j;
 	terrainTableFile >> j;
 	j.get_to(_terrainTable);
@@ -368,14 +368,14 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 void State::Playing::createNewGame(int seed)
 {
 	std::filesystem::create_directories(savePath());
-	std::cout << HI2::getDataPath().append("defData").append("universe.json") << std::endl;
-	std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
+	std::cout << HI2::getDataPath() + "/defData/universe.json" << std::endl;
+	std::filesystem::copy_file(HI2::getDataPath() + "/defData/universe.json", savePath() + "/universe.json");
 
 	//load terrain table
 	loadTerrainTable();
 
 	//load universe.json
-	std::ifstream universeFile(savePath().append("universe.json"));
+	std::ifstream universeFile(savePath()+"/universe.json");
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
@@ -392,7 +392,7 @@ void State::Playing::loadGame()
 	loadTerrainTable();
 
 	//load universe.json
-	std::ifstream universeFile(savePath().append("universe.json"));
+	std::ifstream universeFile(savePath()+"/universe.json");
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
@@ -406,15 +406,15 @@ void State::Playing::loadGame()
 void State::Playing::saveGame()
 {
 	saveEntities();
-	std::ofstream universeFile(savePath().append("universe.json"));
+	std::ofstream universeFile(savePath()+"/universe.json");
 	nlohmann::json universeJson(_universeBase);
 	universeJson >> universeFile;
 }
 
 void State::Playing::loadEntities()
 {
-	if (std::filesystem::exists(savePath().append("entities.json"))) {
-		std::ifstream entitiesFile(savePath().append("entities.json"));
+	if (std::filesystem::exists(savePath()+"/entities.json")) {
+		std::ifstream entitiesFile(savePath()+"/entities.json");
 		nlohmann::json entitiesJson;
 		entitiesFile >> entitiesJson;
 		from_json(entitiesJson, _enttRegistry);
@@ -428,7 +428,7 @@ void State::Playing::loadEntities()
 
 void State::Playing::saveEntities() const
 {
-	std::ofstream entitiesFile(savePath().append("entities.json"));
+	std::ofstream entitiesFile(savePath()+"/entities.json");
 	nlohmann::json entitiesJson;
 	to_json(entitiesJson, _enttRegistry);
 	entitiesJson >> entitiesFile;
@@ -479,7 +479,7 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		playerBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
-		playerBody.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
+		playerBody.collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
@@ -532,7 +532,7 @@ void State::Playing::createEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		dogBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
-		dogBody.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
+		dogBody.collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 		collidedResponse* dogResponse = new collidedResponse();
 		dogResponse->type = ENTITY;
 		dogResponse->body.entity = dog;
@@ -577,7 +577,7 @@ void State::Playing::createEntities()
 			rp3d::Transform transform(initPosition, initOrientation);
 
 			ballBody.collider = _physicsEngine.getWorld()->createRigidBody(transform);
-			ballBody.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
+			ballBody.collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 			collidedResponse* ballResponse = new collidedResponse();
 			ballResponse->type = ENTITY;
 			ballResponse->body.entity = ball;
@@ -617,7 +617,7 @@ void State::Playing::fixEntities()
 		rp3d::Transform transform(initPosition, initOrientation);
 
 		b.collider = _physicsEngine.getWorld()->createRigidBody(transform);
-		b.collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
+		b.collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
@@ -640,8 +640,8 @@ void State::Playing::_chunkLoaderFunc()
 	}
 }
 
-std::filesystem::path State::Playing::_savePath;
+std::string State::Playing::_savePath;
 
-std::filesystem::path State::Playing::savePath() {
+std::string State::Playing::savePath() {
 	return _savePath;
 }

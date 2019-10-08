@@ -21,7 +21,7 @@ namespace State {
 		void update(double dt) override;
 		void draw(double dt) override;
 
-		static std::filesystem::path savePath();
+		static std::string savePath();
 
 
 
@@ -52,7 +52,7 @@ namespace State {
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
 
-		static std::filesystem::path _savePath;
+		static std::string _savePath;
 
 		void createNewGame(int seed);
 

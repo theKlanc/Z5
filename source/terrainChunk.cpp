@@ -83,7 +83,7 @@ const point3Di& terrainChunk::getPosition() const {
 	return _position;
 }
 
-void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& chunkPos) {
+void terrainChunk::load(const std::string& fileName, const point3Di& chunkPos) {
 	if (std::filesystem::exists(fileName)) {
 		_position = chunkPos;
 		if (_loaded)
@@ -122,13 +122,11 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 	}
 }
 
-void terrainChunk::unload(std::filesystem::path file) {
+void terrainChunk::unload(std::string file) {
 	if (_loaded) {
 		_loaded = false;
-		file.append(std::to_string(_position.x)).append(std::to_string(_position.y)).append(std::to_string(_position.z)).concat(".z5c");
-		if (!std::filesystem::exists(file.parent_path())) {
-			std::filesystem::create_directories(file.parent_path());
-		}
+		file = file + "/" + std::to_string(_position.x) + "/" + std::to_string(_position.y) + "/" + std::to_string(_position.z) + ".z5c";
+		std::filesystem::create_directories(std::filesystem::path(file).parent_path());
 		std::ofstream outputFile(file);
 		//.z5c file format:
 		//RLE file which contains the IDs of the blocks on the chunk

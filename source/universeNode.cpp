@@ -25,7 +25,7 @@ void universeNode::clean()
 	{
 		if (chunk.loaded())
 		{
-			chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+			chunk.unload(State::Playing::savePath() + "/nodes/" + std::to_string(_ID));
 		}
 	}
 	for (universeNode& child : _children)
@@ -133,12 +133,12 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 				if (chunk != point3Di{ x,y,z } || !chunk.loaded()) {
 					if (chunk.loaded())
 					{
-						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+						chunk.unload(State::Playing::savePath() + "/nodes/" + std::to_string(_ID));
 					}
-					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
-					if (std::filesystem::exists(newChunkPath))//if file already exists, load
+					std::string cheapNewChunkPath = State::Playing::savePath() + "/" + std::to_string(_ID) + "/" + std::to_string(x) + "/" + std::to_string(y) + "/" + std::to_string(z) + ".z5c";
+					if (false && std::filesystem::exists(cheapNewChunkPath))//if file already exists, load
 					{
-						chunk.load(newChunkPath, { x,y,z });
+						chunk.load(cheapNewChunkPath, { x,y,z });
 					}
 					else {
 						chunk = _generator->getChunk(point3Di{ x,y,z }, _collider);
@@ -346,7 +346,7 @@ void universeNode::populateColliders()
 	Services::physicsMutex.lock();
 	{
 		_collider = Services::dynamicsWorld->createRigidBody(transform);
-		_collider->setAngularVelocityFactor(rp3d::Vector3{0,0,0});
+		_collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 		//_collider->setAngularVelocityFactor(rp3d::Vector3{ 0,0,0 });
 		_collider->setMass(_mass);
 		_collider->setCenterOfMassLocal({ 0,0,0 });

@@ -20,22 +20,22 @@ const { // tells if a texture with said name is present on texTable
 }
 
 HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from a file into the first free space inside texTable[]
-	std::filesystem::path fileNameWithoutExt = (HI2::getDataPath() /= "sprites") /= (spriteName);
-	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".png";
+	std::string fileNameWithoutExt = HI2::getDataPath() + "/sprites/" + spriteName;
+	std::string completeFileName = fileNameWithoutExt + ".png";
 	if (texAtlas.find(spriteName) == texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
 		}
-		else if(std::filesystem::exists(fileNameWithoutExt.string() + "_1.png"))
+		else if (std::filesystem::exists(fileNameWithoutExt + "_1.png"))
 		{
 			int frameCounter = 1;
-			std::vector<std::filesystem::path> pathList;
-			while(std::filesystem::exists(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png"))
+			std::vector<std::string> pathList;
+			while (std::filesystem::exists(fileNameWithoutExt + "_" + std::to_string(frameCounter) + ".png"))
 			{
-				pathList.push_back(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png");
+				pathList.push_back(fileNameWithoutExt + "_" + std::to_string(frameCounter) + ".png");
 				frameCounter++;
 			}
-			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,200)));
+			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList, 200)));
 		}
 		else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"
@@ -66,7 +66,7 @@ HI2::Texture* graphics::getTexture(string spriteName) {
 
 void graphics::stepAnimations(double ms)
 {
-	for(auto& tex : texAtlas)
+	for (auto& tex : texAtlas)
 	{
 		tex.second.step(ms);
 	}
