@@ -13,53 +13,54 @@
 
 namespace State {
 	class Playing : public virtual State_Base {
-	  public:
+	public:
 		~Playing();
-		Playing(gameCore &gc, std::string saveName, int seed);
+		Playing(gameCore& gc, std::string saveName, int seed);
 
-		void input(float dt) override;
-		void update(float dt) override;
-		void draw(float dt) override;
-		
+		void input(double dt) override;
+		void update(double dt) override;
+		void draw(double dt) override;
+
 		static std::filesystem::path savePath();
 
-		
-		
 
-		
-	  private:
 
-		
-		struct nodeLayer{
+
+
+	private:
+
+
+		struct nodeLayer {
 			universeNode* node;
 			int layerHeight;
 			std::vector<block*> blocks;
 			std::vector<bool> visibility;
 		};
-		struct renderLayer{
+		struct renderLayer {
 			double depth;
-			std::variant<entt::entity,nodeLayer> target;
+			std::variant<entt::entity, nodeLayer> target;
 		};
 
 		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);
 		std::vector<bool> growVisibility(std::vector<bool> visibility);
 		void drawLayer(const renderLayer& rl);
-		static point2Dd translatePositionToDisplay(point2Dd pos, const double &zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
+		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
 		void loadTerrainTable();
-		
+
 		entt::entity _player;
 		entt::entity _camera;
-		unsigned int currentBlock=7;
+		int selectedBlock = 7;
+		blockRotation selectedRotation = UP;
 
-		std::vector<block> _terrainTable;
+		std::vector<baseBlock> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
-		
+
 		static std::filesystem::path _savePath;
 
 		void createNewGame(int seed);
-		
+
 		void loadGame();
 		void saveGame();
 
@@ -73,12 +74,12 @@ namespace State {
 		std::unique_ptr<std::thread> _chunkLoaderThread;
 
 		HI2::Font _standardFont;
-		
+
 		static std::mutex endChunkLoader;
 		static void _chunkLoaderFunc();
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
-		
+
 	};
 
 } // namespace State

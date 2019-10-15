@@ -6,8 +6,8 @@ State::MainMenu::MainMenu(gameCore &gc)
 
 }
 
-void State::MainMenu::input(float dt) {}
+void State::MainMenu::input(double dt) {}
 
-void State::MainMenu::update(float dt) {}
+void State::MainMenu::update(double dt) {}
 
-void State::MainMenu::draw(float dt) {}
+void State::MainMenu::draw(double dt) {}

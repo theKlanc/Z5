@@ -34,20 +34,19 @@ void universeNode::clean()
 	}
 }
 
-block& universeNode::getBlock(const point3Di& pos) {
+metaBlock* universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
-	if (!tChunk.loaded())
-		return block::terrainTable[0];
-	block& b = tChunk.getBlock(pos);
-	return b;
+	auto debug = chunkFromPos(pos);
+	if (!tChunk.loaded() || tChunk.getPosition() != debug)
+		return nullptr;
+	return &tChunk.getBlock(pos);
 }
 
-void universeNode::setBlock(block* b, const point3Di& pos) {
-	if(!chunkAt(pos).loaded())
+void universeNode::setBlock(metaBlock b, const point3Di& pos) {
+	if (!chunkAt(pos).loaded())
 	{
-		chunkAt(pos) = terrainChunk(chunkFromPos({(double)pos.x,(double)pos.y,(double)pos.z,0}));
+		chunkAt(pos) = terrainChunk(chunkFromPos({ (double)pos.x,(double)pos.y,(double)pos.z,0 }));
 		chunkAt(pos).setLoaded();
-		
 	}
 	chunkAt(pos).setBlock(b, pos);
 }
@@ -72,7 +71,7 @@ std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 	fdd localPos = getLocalPos(f, u);
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
- 	}
+	}
 	for (universeNode& child : _children) {
 		std::vector<universeNode*> temp = child.nodesToDraw(f, u);
 		result.insert(result.end(), temp.begin(), temp.end());
@@ -110,9 +109,16 @@ bool universeNode::operator==(const universeNode& right) const {
 }
 
 point3Di universeNode::chunkFromPos(const fdd& pos) {
-	return point3Di{ int(pos.x) / config::chunkSize,
-					int(pos.y) / config::chunkSize,
-					int(pos.z) / config::chunkSize };
+	return point3Di{ (int)floor((double)pos.x / config::chunkSize),
+					(int)floor((double)pos.y / config::chunkSize),
+					(int)floor((double)pos.z / config::chunkSize) };
+}
+
+point3Di universeNode::chunkFromPos(const point3Di& pos)
+{
+	return point3Di{ (int)floor((double)pos.x / config::chunkSize),
+					(int)floor((double)pos.y / config::chunkSize),
+					(int)floor((double)pos.z / config::chunkSize) };
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -290,6 +296,23 @@ void universeNode::updatePositions(double dt)
 	}
 }
 
+fdd universeNode::getGravityAcceleration(fdd localPosition)
+{
+	fdd magicGravity = {0,0,-1*(G*(_mass/((_diameter/2)*(_diameter/2)))),0};
+	fdd realGravity = (_centerOfMass-localPosition).setMagnitude(G*(_mass/((_diameter/2)*(_diameter/2))));
+	float factorMagic = 1;
+	double distance = _centerOfMass.distance(localPosition);
+	//logistic sigmoid raonable 1/(1+e^(-k*x)) amb x de -10 a 10 aprox
+	//distance de radius => x=-10
+	//distance de radius*1.1 => x=10
+	if(distance>_diameter/2)
+	{
+		
+	}
+	
+	return magicGravity;
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
@@ -298,6 +321,11 @@ universeNode* universeNode::getParent()
 double universeNode::getMass()
 {
 	return _mass;
+}
+
+double universeNode::getDiameter()
+{
+	return _diameter;
 }
 
 unsigned int universeNode::getHeight(const point2D& pos)
@@ -320,27 +348,27 @@ std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, unive
 	posYlist.push_back(p.y);
 	std::vector<int> posZlist;
 	posZlist.push_back(p.z);
-	if (chunkFromPos({ p.x,0,0 }).x != chunkFromPos({ p.x - 1,0,0 }).x)
+	if (chunkFromPos({ p.x,0,0, 0 }).x != chunkFromPos({ p.x - 1,0,0, 0 }).x)
 	{
 		posXlist.push_back(p.x - 1);
 	}
-	if (chunkFromPos({ p.x,0,0 }).x != chunkFromPos({ p.x + 1,0,0 }).x)
+	if (chunkFromPos({ p.x,0,0, 0 }).x != chunkFromPos({ p.x + 1,0,0, 0 }).x)
 	{
 		posXlist.push_back(p.x + 1);
 	}
-	if (chunkFromPos({ 0,p.y,0 }).y != chunkFromPos({ 0,p.y - 1,0 }).y)
+	if (chunkFromPos({ 0,p.y,0, 0 }).y != chunkFromPos({ 0,p.y - 1,0, 0 }).y)
 	{
 		posYlist.push_back(p.y - 1);
 	}
-	if (chunkFromPos({ 0,p.y,0 }).y != chunkFromPos({ 0,p.y + 1,0 }).y)
+	if (chunkFromPos({ 0,p.y,0, 0 }).y != chunkFromPos({ 0,p.y + 1,0, 0 }).y)
 	{
 		posYlist.push_back(p.y + 1);
 	}
-	if (chunkFromPos({ 0,0,p.z }).z != chunkFromPos({ 0,0,p.z - 1 }).z)
+	if (chunkFromPos({ 0,0,p.z, 0 }).z != chunkFromPos({ 0,0,p.z - 1, 0 }).z)
 	{
 		posZlist.push_back(p.z - 1);
 	}
-	if (chunkFromPos({ 0,0,p.z }).z != chunkFromPos({ 0,0,p.z + 1 }).z)
+	if (chunkFromPos({ 0,0,p.z,0 }).z != chunkFromPos({ 0,0,p.z + 1, 0 }).z)
 	{
 		posZlist.push_back(p.z + 1);
 	}
@@ -394,6 +422,14 @@ void from_json(const json& j, universeNode& f) {
 	f._mass = j.at("mass").get<double>();
 	f._diameter = j.at("diameter").get<double>();
 	f._position = j.at("position").get<fdd>();
+	if(j.contains("com"))
+	{
+		f._centerOfMass = j.at("com").get<fdd>();
+	}
+	else
+	{
+		f._centerOfMass={0,0,0,0};
+	}
 	f._velocity = j.at("velocity").get<fdd>();
 	f._children = std::vector<universeNode>();
 	for (const nlohmann::json& element : j.at("children")) {
@@ -410,7 +446,7 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<gasPlanetGenerator>();
 		break;
 	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID);
+		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID,f._diameter);
 		break;
 	case ASTEROID:
 		f._generator = std::make_unique<asteroidGenerator>();

@@ -305,9 +305,6 @@
     <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
-    <ClCompile Include="source\block.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\fdd.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -351,6 +348,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\services.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\block.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -784,9 +784,6 @@
     <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.h">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClInclude>
-    <ClInclude Include="include\block.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\config.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -818,6 +815,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\services.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\block.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

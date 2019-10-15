@@ -4,6 +4,8 @@
 [submodule "deps/HardwareInterface"]
 	path = deps/HardwareInterface
 	url = https://github.com/theKlanc/HardwareInterface/
+	branch = master
+	update = merge
 [submodule "deps/reactPhysics3D"]
 	path = deps/reactPhysics3D
 	url = https://github.com/DanielChappuis/reactphysics3d

@@ -23,22 +23,53 @@ physicsEngine::physicsEngine()
 physicsEngine::~physicsEngine()
 {}
 
+void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	_remainingTime += dt;
+	
+	Services::physicsMutex.lock();
+	{
+		while (_remainingTime > _timeStep) {
+			universeBase.updatePositions(_timeStep);
+			auto movableEntityView = registry.view<velocity, position>();
+			for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+				velocity& vel = movableEntityView.get<velocity>(entity);
+				position& pos = movableEntityView.get<position>(entity);
+				
+				vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+				pos.pos += (vel.spd * _timeStep);
+			}
+			
+			detectNodeNode(universeBase, _timeStep);
+			solveNodeNode(universeBase, _timeStep);
+
+			detectNodeEntity(universeBase, registry, _timeStep);
+			solveNodeEntity(universeBase, registry, _timeStep);
+
+			detectEntityEntity(registry, _timeStep);
+			solveEntityEntity(registry, _timeStep);
+			_remainingTime -= _timeStep;
+		}
+	}
+	Services::physicsMutex.unlock();
+}
+
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
 	{
 		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ENTITY)
 		{
-			solveEntityEntity(collisionCallbackInfo);
+			EntityEntityCallback(collisionCallbackInfo);
 		}
 		else
 		{
-			solveNodeNode(collisionCallbackInfo);
+			NodeNodeCallback(collisionCallbackInfo);
 		}
 	}
 	else
 	{
-		solveNodeEntity(collisionCallbackInfo);
+		NodeEntityCallback(collisionCallbackInfo);
 	}
 
 }
@@ -49,7 +80,101 @@ rp3d::CollisionWorld* physicsEngine::getWorld()
 }
 
 
-void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
+
+void physicsEngine::detectNodeNode(universeNode& universe, double dt)
+{
+}
+
+void physicsEngine::solveNodeNode(universeNode& universe, double dt)
+{
+}
+
+void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	auto bodyEntitiesView = registry.view<body>();
+	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+		position entityPos = registry.get<position>(left);
+
+		std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
+		for (universeNode* ntemp : entityPos.parent->getChildren())
+		{
+			collidableNodes.push_back(ntemp);
+		}
+		collidableNodes.push_back(entityPos.parent->getParent());
+
+		for (universeNode* node : collidableNodes)
+		{
+			position pos = registry.get<position>(left);
+
+			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+			collidedResponse cResponse;
+			cResponse.type = NODE;
+			collidedBody cBody;
+			cBody.node = node;
+			cResponse.body = cBody;
+
+			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
+			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+			rp3d::Transform entityTransform(entityPosition, initOrientation);
+
+			body& entityBody = registry.get<body>(left);
+			entityBody.collider->setTransform(entityTransform);
+
+			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
+			{
+				auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
+				for (auto& chunk : chunksToCheck)
+				{
+					chunk->setUserData((void*)& cResponse);
+					_zaWarudo->testCollision(entityBody.collider, chunk, this);
+				}
+			}
+		}
+	}
+}
+
+void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+}
+
+void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
+{
+	auto bodyEntitiesView = registry.view<body>();
+	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
+			if (left > right)
+			{
+
+				position pL = registry.get<position>(left);
+				position pR = registry.get<position>(right);
+				fdd rightPos = pL.parent->getLocalPos(pR.pos, pR.parent);
+
+				rp3d::Vector3 leftPosition(pL.pos.x, pL.pos.y, pL.pos.z);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform leftTransform(leftPosition, initOrientation);
+
+				rp3d::Vector3 rightPosition(rightPos.x, rightPos.y, rightPos.z);
+				rp3d::Transform rightTransform(rightPosition, initOrientation);
+
+				body& leftBody = registry.get<body>(left);
+				leftBody.collider->setTransform(leftTransform);
+				body& rightBody = registry.get<body>(right);
+				rightBody.collider->setTransform(rightTransform);
+				if (_zaWarudo->testAABBOverlap(leftBody.collider, rightBody.collider))
+				{
+					_zaWarudo->testCollision(leftBody.collider, rightBody.collider, this);
+				}
+			}
+		}
+	}
+}
+
+void physicsEngine::solveEntityEntity(entt::registry& registry, double dt)
+{
+}
+
+
+void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
 	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
 	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
@@ -64,7 +189,7 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 	velLeft.spd = positionRight.parent->getLocalVel(velLeft.spd, positionLeft.parent);
 	positionLeft.parent = positionRight.parent;
 	
-	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * dt)).distance(positionRight.pos + (velRight.spd * dt)))//s allunyaven
+	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * _timeStep)).distance(positionRight.pos + (velRight.spd * _timeStep)))//s allunyaven
 	{
 		return;
 	}
@@ -77,7 +202,7 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
 }
 
-void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	//std::cout << "Node-Entity collision" << std::endl;
 	rp3d::Vector3 nodeShapePosition;
@@ -114,26 +239,16 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 		auto entityPosition = Services::enttRegistry->get<position>(entity);
 		auto entityVelocity = Services::enttRegistry->get<velocity>(entity);
 		//avoid colliding with an object when getting away from it
-		if (fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos) <= fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos + (entityVelocity.spd * dt)))
+		if (fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos) <= fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos + (entityVelocity.spd * _timeStep)))
 		{
 			return;
 		}
 	}
 
-	auto& entityBody = Services::enttRegistry->get<body>(entity);
-	if (entityBody.lastCollided == node)// avoid colliding multiple times with the same node
-	{
-		return;
-	}
-	else
-	{
-		entityBody.lastCollided = node;
-	}
-
 	auto& entityVel = Services::enttRegistry->get<velocity>(entity);
 
 #pragma region solve position to surface
-	fdd spd = entityVel.spd * dt;
+	fdd spd = entityVel.spd * _timeStep;
 	double partialDepth = 0.5;
 	double partialStep = 0.5;
 	auto& entityPosition = Services::enttRegistry->get<position>(entity);
@@ -197,11 +312,11 @@ void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallba
 	entityVel.spd.z = result.z;
 
 	//apply new velocity from surface
-	entityPosition.pos += entityVel.spd * dt * (partialDepth)*0.5;
+	entityPosition.pos += entityVel.spd * _timeStep * (partialDepth)*0.5;
 
 }
 
-void physicsEngine::solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	universeNode* left = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
 	double leftMass = left->getMass();

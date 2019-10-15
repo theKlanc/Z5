@@ -15,6 +15,18 @@ void from_json(const nlohmann::json &j, fdd &f)
 	j.at("z").get_to(f.z);
 	j.at("r").get_to(f.r);
 }
+
+fdd fdd::setMagnitude(double mag)
+{
+	*this*=(mag/magnitude());
+	return *this;
+}
+
+double fdd::magnitude() const
+{
+	return distance({0,0,0,0});
+}
+
 double fdd::distance(const fdd &r) const
 {
 //((x2 - x1)2 + (y2 - y1)2 + (z2 - z1)2)1/2

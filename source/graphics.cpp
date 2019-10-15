@@ -20,10 +20,22 @@ const { // tells if a texture with said name is present on texTable
 }
 
 HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from a file into the first free space inside texTable[]
-	std::filesystem::path completeFileName = (HI2::getDataPath() /= "sprites") /= (spriteName) += ".png";
+	std::filesystem::path fileNameWithoutExt = (HI2::getDataPath() /= "sprites") /= (spriteName);
+	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".png";
 	if (texAtlas.find(spriteName) == texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
+		}
+		else if(std::filesystem::exists(fileNameWithoutExt.string() + "_1.png"))
+		{
+			int frameCounter = 1;
+			std::vector<std::filesystem::path> pathList;
+			while(std::filesystem::exists(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png"))
+			{
+				pathList.push_back(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png");
+				frameCounter++;
+			}
+			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,200)));
 		}
 		else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"
@@ -34,22 +46,30 @@ HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from 
 	return &(texAtlas.find(spriteName)->second);
 }
 
-void graphics::freeTexture(string fileName) { // frees a texture from texTable[]
-	auto it = texAtlas.find(fileName);
+void graphics::freeTexture(string spriteName) { // frees a texture from texTable[]
+	auto it = texAtlas.find(spriteName);
 	if (it != texAtlas.end()) {
 		it->second.clean();
 		texAtlas.erase(it);
 	}
 }
 
-HI2::Texture* graphics::getTexture(string fileName) {
-	auto it = texAtlas.find(fileName);
+HI2::Texture* graphics::getTexture(string spriteName) {
+	auto it = texAtlas.find(spriteName);
 	if (it == texAtlas.end()) {
-		std::cout << ("Texture " + fileName + " not loaded \n") << std::endl;
+		std::cout << ("Texture " + spriteName + " not loaded \n") << std::endl;
 		return nullptr;
 	}
 	else
 		return &it->second;
+}
+
+void graphics::stepAnimations(double ms)
+{
+	for(auto& tex : texAtlas)
+	{
+		tex.second.step(ms);
+	}
 }
 
 void graphics::freeAllTextures() { // frees all textures

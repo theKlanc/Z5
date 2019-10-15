@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <memory>
 #include <vector>
 #include "fdd.hpp"
@@ -7,6 +7,8 @@
 #include "terrainChunk.hpp"
 #include "nodeGenerator.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
+
+const double G = (6.67408e-11);
 
 using nlohmann::json;
 
@@ -25,8 +27,8 @@ enum nodeType{
 class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
-	block& getBlock(const point3Di &pos);
-	void setBlock(block* b, const point3Di &pos);
+	metaBlock* getBlock(const point3Di &pos);
+	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
@@ -35,11 +37,13 @@ public:
 	fdd getVelocity();
 	void setVelocity(fdd v);
 	unsigned int getID();
+	double getMass();
+	double getDiameter();
 	std::vector<universeNode*> getChildren();
 	void updatePositions(double dt);
+	fdd getGravityAcceleration(fdd localPosition);
 
 	universeNode* getParent();
-	double getMass();
 	unsigned int getHeight(const point2D &pos);
 	rp3d::CollisionBody* getNodeCollider();
 	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
@@ -59,6 +63,7 @@ public:
 
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
+	point3Di chunkFromPos(const point3Di& pos);
 
 
 	void iUpdateChunks(const point3Di& localChunk);
@@ -70,6 +75,7 @@ public:
 	double _mass; // mass in kg
 	double _diameter; // diameter in m
 	fdd _position;
+	fdd _centerOfMass;
 	fdd _velocity;
 
 	std::vector<terrainChunk> _chunks; // So big, should be on the heap. So fat, too much for the stack.
