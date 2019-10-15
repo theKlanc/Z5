@@ -25,17 +25,31 @@ physicsEngine::~physicsEngine()
 
 void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	_dt = dt;
+	_remainingTime += dt;
+	
 	Services::physicsMutex.lock();
 	{
-		detectNodeNode(universeBase, dt);
-		solveNodeNode(universeBase, dt);
+		while (_remainingTime > _timeStep) {
+			universeBase.updatePositions(_timeStep);
+			auto movableEntityView = registry.view<velocity, position>();
+			for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+				velocity& vel = movableEntityView.get<velocity>(entity);
+				position& pos = movableEntityView.get<position>(entity);
+				
+				vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+				pos.pos += (vel.spd * _timeStep);
+			}
+			
+			detectNodeNode(universeBase, _timeStep);
+			solveNodeNode(universeBase, _timeStep);
 
-		detectNodeEntity(universeBase, registry, dt);
-		solveNodeEntity(universeBase, registry, dt);
+			detectNodeEntity(universeBase, registry, _timeStep);
+			solveNodeEntity(universeBase, registry, _timeStep);
 
-		detectEntityEntity(registry, dt);
-		solveEntityEntity(registry, dt);
+			detectEntityEntity(registry, _timeStep);
+			solveEntityEntity(registry, _timeStep);
+			_remainingTime -= _timeStep;
+		}
 	}
 	Services::physicsMutex.unlock();
 }
@@ -175,7 +189,7 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 	velLeft.spd = positionRight.parent->getLocalVel(velLeft.spd, positionLeft.parent);
 	positionLeft.parent = positionRight.parent;
 	
-	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * _dt)).distance(positionRight.pos + (velRight.spd * _dt)))//s allunyaven
+	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * _timeStep)).distance(positionRight.pos + (velRight.spd * _timeStep)))//s allunyaven
 	{
 		return;
 	}
@@ -225,7 +239,7 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 		auto entityPosition = Services::enttRegistry->get<position>(entity);
 		auto entityVelocity = Services::enttRegistry->get<velocity>(entity);
 		//avoid colliding with an object when getting away from it
-		if (fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos) <= fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos + (entityVelocity.spd * _dt)))
+		if (fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos) <= fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos + (entityVelocity.spd * _timeStep)))
 		{
 			return;
 		}
@@ -234,7 +248,7 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 	auto& entityVel = Services::enttRegistry->get<velocity>(entity);
 
 #pragma region solve position to surface
-	fdd spd = entityVel.spd * _dt;
+	fdd spd = entityVel.spd * _timeStep;
 	double partialDepth = 0.5;
 	double partialStep = 0.5;
 	auto& entityPosition = Services::enttRegistry->get<position>(entity);
@@ -298,7 +312,7 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 	entityVel.spd.z = result.z;
 
 	//apply new velocity from surface
-	entityPosition.pos += entityVel.spd * _dt * (partialDepth)*0.5;
+	entityPosition.pos += entityVel.spd * _timeStep * (partialDepth)*0.5;
 
 }
 

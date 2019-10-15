@@ -31,7 +31,8 @@ class physicsEngine : public rp3d::CollisionCallback
 	rp3d::CollisionWorld* getWorld();
 	
 private:
-	double _dt;
+	double _timeStep = 1.0f/config::physicsHz;
+	double _remainingTime = 0;
 	
 	void detectNodeNode(universeNode& universe, double dt);
 	void solveNodeNode(universeNode& universe, double dt);

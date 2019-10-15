@@ -298,7 +298,7 @@ void universeNode::updatePositions(double dt)
 
 fdd universeNode::getGravityAcceleration(fdd localPosition)
 {
-	fdd magicGravity = {0,0,G*(_mass/((_diameter/2)*(_diameter/2))),0};
+	fdd magicGravity = {0,0,-1*(G*(_mass/((_diameter/2)*(_diameter/2)))),0};
 	fdd realGravity = (_centerOfMass-localPosition).setMagnitude(G*(_mass/((_diameter/2)*(_diameter/2))));
 	float factorMagic = 1;
 	double distance = _centerOfMass.distance(localPosition);
@@ -310,7 +310,7 @@ fdd universeNode::getGravityAcceleration(fdd localPosition)
 		
 	}
 	
-	
+	return magicGravity;
 }
 
 universeNode* universeNode::getParent()

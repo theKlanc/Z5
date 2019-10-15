@@ -142,17 +142,6 @@ void State::Playing::input(double dt)
 
 void State::Playing::update(double dt) {
 
-	_universeBase.updatePositions(dt);
-	auto movableEntityView = _enttRegistry.view<velocity, position>();
-	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-		velocity& vel = movableEntityView.get<velocity>(entity);
-		vel.spd.z -= 9.81 * dt;
-		position& pos = movableEntityView.get<position>(entity);
-
-		pos.pos += (vel.spd * dt);
-	}
-
-
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -171,8 +160,6 @@ void State::Playing::update(double dt) {
 	{
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
 	}
-
-
 }
 
 void State::Playing::draw(double dt) {
