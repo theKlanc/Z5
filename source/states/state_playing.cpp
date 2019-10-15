@@ -343,9 +343,9 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 	{
 		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 		{
-			block& b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
-			result.blocks.push_back(&b);
-			visibility[i] = !b.opaque;
+			metaBlock* b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
+			result.blocks.push_back(b);
+			visibility[i] = (b == nullptr ? true : !b->base->opaque);
 			i++;
 		}
 	}
@@ -362,7 +362,7 @@ std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
 		for (int i = 0; i < HI2::getScreenWidth() / config::spriteSize; ++i)
 			rows.push_back(i);
 
-		auto testFunc = [rowSize,visibility,&newVis](const int& n)
+		auto testFunc = [rowSize, visibility, &newVis](const int& n)
 		{
 			for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 			{

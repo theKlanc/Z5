@@ -33,7 +33,7 @@ namespace State {
 		struct nodeLayer {
 			universeNode* node;
 			int layerHeight;
-			std::vector<block*> blocks;
+			std::vector<metaBlock*> blocks;
 			std::vector<bool> visibility;
 		};
 		struct renderLayer {
