@@ -8,7 +8,7 @@ struct fdd { // Four DoF descriptor
 	double z;
 	double r;
 
-
+	fdd setMagnitude(double mag);
 	double magnitude()const;
 	double distance(const fdd& r)const;
 	double distance2D(const fdd& r)const;

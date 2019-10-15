@@ -310,8 +310,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b != nullptr && b->base->visible) {
 						if constexpr (config::drawDepthShadows) {
-							//	HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom + 1, (int)config::spriteSize * zoom + 1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
-
 							//mask anira de 255 a 150
 							HI2::setTextureColorMod(*b->base->texture, HI2::Color(mask, mask, mask, 0));
 							HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation) * (M_PI / 2));

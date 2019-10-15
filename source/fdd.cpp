@@ -16,6 +16,12 @@ void from_json(const nlohmann::json &j, fdd &f)
 	j.at("r").get_to(f.r);
 }
 
+fdd fdd::setMagnitude(double mag)
+{
+	*this*=(mag/magnitude());
+	return *this;
+}
+
 double fdd::magnitude() const
 {
 	return distance({0,0,0,0});
