@@ -9,3 +9,6 @@
 [submodule "deps/reactPhysics3D"]
 	path = deps/reactPhysics3D
 	url = https://github.com/DanielChappuis/reactphysics3d
+[submodule "deps/json"]
+	path = deps/json
+	url = https://github.com/nlohmann/json
