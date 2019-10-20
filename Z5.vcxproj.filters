@@ -400,9 +400,6 @@
     <ClInclude Include="include\nodegenerators\starGenerator.hpp">
       <Filter>include\nodeGenerators</Filter>
     </ClInclude>
-    <ClInclude Include="deps\json.hpp">
-      <Filter>deps</Filter>
-    </ClInclude>
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp">
       <Filter>deps\HardwareInterface</Filter>
     </ClInclude>
@@ -819,6 +816,9 @@
     </ClInclude>
     <ClInclude Include="include\block.hpp">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\json\single_include\nlohmann\json.hpp">
+      <Filter>deps</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
