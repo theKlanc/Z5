@@ -425,7 +425,7 @@ void State::Playing::createEntities()
 {
 	//Set up basic entities
 	universeNode* result;
-	int pID = 11;
+	int pID = 4;
 	bool temp = _universeBase.findNodeByID(pID, result);
 
 
@@ -440,9 +440,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = pID;
-		playerPos.pos.x = 2 + 8;
-		playerPos.pos.y = 2 + 8;
-		playerPos.pos.z = 2 + 8;
+		playerPos.pos.x = 0;
+		playerPos.pos.y = 0;
+		playerPos.pos.z = 260;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -479,8 +479,8 @@ void State::Playing::createEntities()
 	{
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
-
 		_enttRegistry.assign<position>(_camera);
+		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
