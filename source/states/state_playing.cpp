@@ -494,7 +494,7 @@ void State::Playing::createEntities()
 		dogPos.parentID = pID;
 		dogPos.pos.x = 4 + 8;
 		dogPos.pos.y = 4 + 8;
-		dogPos.pos.z = 2 + 8;
+		dogPos.pos.z = 260;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -541,7 +541,7 @@ void State::Playing::createEntities()
 			ballPos.parentID = pID;
 			ballPos.pos.x = 4 + i + 8;
 			ballPos.pos.y = 4 + j + 8;
-			ballPos.pos.z = i + j + 4 + 8;
+			ballPos.pos.z = 260+ i + j + 4 + 8;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);

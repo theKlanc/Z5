@@ -4,7 +4,7 @@ namespace config{
 		constexpr int chunkSize = 4;
 		constexpr int cameraDepth = 25;
 		constexpr int spriteSize = 16;
-		static double zoom = 2;
+		static double zoom = 3;
 		constexpr double depthScale = 1.20;
 		constexpr double minScale = 0.60;
 		constexpr double physicsHz = 240;
