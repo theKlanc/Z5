@@ -575,7 +575,6 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
-		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
