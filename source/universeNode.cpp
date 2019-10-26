@@ -298,7 +298,7 @@ void universeNode::updatePositions(double dt)
 
 fdd universeNode::getGravityAcceleration(fdd localPosition)
 {
-	fdd magicGravity = { 0,0,(localPosition.z>0?-1:1) * (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
+	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
 	fdd realGravity = (_centerOfMass - localPosition).setMagnitude(G * (_mass / ((_diameter / 2) * (_diameter / 2))));
 	double factorMagic = 1;
 	double distance = _centerOfMass.distance(localPosition);
@@ -343,33 +343,36 @@ std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, unive
 {
 	std::vector<rp3d::CollisionBody*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
+	p.x=floor(p.x);
+	p.y=floor(p.y);
+	p.z=floor(p.z);
 	std::vector<int> posXlist;
 	posXlist.push_back(p.x);
 	std::vector<int> posYlist;
 	posYlist.push_back(p.y);
 	std::vector<int> posZlist;
 	posZlist.push_back(p.z);
-	if (chunkFromPos({ p.x,0,0, 0 }).x != chunkFromPos({ p.x - 1,0,0, 0 }).x)
+	if (chunkFromPos({ p.x,0,0, 0 }).x > chunkFromPos({ p.x - 1,0,0, 0 }).x)
 	{
 		posXlist.push_back(p.x - 1);
 	}
-	if (chunkFromPos({ p.x,0,0, 0 }).x != chunkFromPos({ p.x + 1,0,0, 0 }).x)
+	if (chunkFromPos({ p.x,0,0, 0 }).x < chunkFromPos({ p.x + 1,0,0, 0 }).x)
 	{
 		posXlist.push_back(p.x + 1);
 	}
-	if (chunkFromPos({ 0,p.y,0, 0 }).y != chunkFromPos({ 0,p.y - 1,0, 0 }).y)
+	if (chunkFromPos({ 0,p.y,0, 0 }).y > chunkFromPos({ 0,p.y - 1,0, 0 }).y)
 	{
 		posYlist.push_back(p.y - 1);
 	}
-	if (chunkFromPos({ 0,p.y,0, 0 }).y != chunkFromPos({ 0,p.y + 1,0, 0 }).y)
+	if (chunkFromPos({ 0,p.y,0, 0 }).y < chunkFromPos({ 0,p.y + 1,0, 0 }).y)
 	{
 		posYlist.push_back(p.y + 1);
 	}
-	if (chunkFromPos({ 0,0,p.z, 0 }).z != chunkFromPos({ 0,0,p.z - 1, 0 }).z)
+	if (chunkFromPos({ 0,0,p.z, 0 }).z > chunkFromPos({ 0,0,p.z - 1, 0 }).z)
 	{
 		posZlist.push_back(p.z - 1);
 	}
-	if (chunkFromPos({ 0,0,p.z,0 }).z != chunkFromPos({ 0,0,p.z + 1, 0 }).z)
+	if (chunkFromPos({ 0,0,p.z,0 }).z < chunkFromPos({ 0,0,p.z + 1, 0 }).z)
 	{
 		posZlist.push_back(p.z + 1);
 	}
