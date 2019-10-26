@@ -353,6 +353,9 @@
     <ClCompile Include="source\block.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\config.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -399,9 +402,6 @@
     </ClInclude>
     <ClInclude Include="include\nodegenerators\starGenerator.hpp">
       <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\json.hpp">
-      <Filter>deps</Filter>
     </ClInclude>
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp">
       <Filter>deps\HardwareInterface</Filter>
@@ -819,6 +819,9 @@
     </ClInclude>
     <ClInclude Include="include\block.hpp">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\json\single_include\nlohmann\json.hpp">
+      <Filter>deps</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

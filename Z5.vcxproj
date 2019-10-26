@@ -64,7 +64,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)deps\json\single_include\nlohmann;$(ProjectDir)include;$(IncludePath)</IncludePath>
     <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
     <LibraryPath>C:\SDL2\lib\x86;C:\SDL2\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
@@ -87,7 +87,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -216,6 +216,7 @@
     <ClCompile Include="source\components\name.cpp" />
     <ClCompile Include="source\components\position.cpp" />
     <ClCompile Include="source\components\velocity.cpp" />
+    <ClCompile Include="source\config.cpp" />
     <ClCompile Include="source\fdd.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\graphics.cpp" />
@@ -280,7 +281,7 @@
     <ClInclude Include="deps\entt\signal\sigh.hpp" />
     <ClInclude Include="deps\FastNoise\FastNoise.h" />
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp" />
-    <ClInclude Include="deps\json.hpp" />
+    <ClInclude Include="deps\json\single_include\nlohmann\json.hpp" />
     <ClInclude Include="deps\reactPhysics3D\src\body\Body.h" />
     <ClInclude Include="deps\reactPhysics3D\src\body\CollisionBody.h" />
     <ClInclude Include="deps\reactPhysics3D\src\body\RigidBody.h" />

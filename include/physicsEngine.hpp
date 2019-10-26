@@ -28,7 +28,7 @@ class physicsEngine : public rp3d::CollisionCallback
 	~physicsEngine();
 	void processCollisions(universeNode& universeBase, entt::registry& registry, double dt);
 	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
-	rp3d::CollisionWorld* getWorld();
+	rp3d::CollisionWorld* getWorld() const;
 	
 private:
 	double _timeStep = 1.0f/config::physicsHz;

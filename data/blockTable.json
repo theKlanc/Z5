@@ -158,5 +158,13 @@
     "solid": true,
     "opaque": true,
     "mass": 12
+  },
+  {
+    "name": "turntable",
+	"ID": 20,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 8
   }  
 ]
