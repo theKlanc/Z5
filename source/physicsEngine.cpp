@@ -23,33 +23,183 @@ physicsEngine::physicsEngine()
 physicsEngine::~physicsEngine()
 {}
 
+void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	_remainingTime += dt;
+
+	Services::physicsMutex.lock();
+	{
+		while (_remainingTime > _timeStep) {
+			universeBase.updatePositions(_timeStep);
+			auto movableEntityView = registry.view<velocity, position>();
+			for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+				velocity& vel = movableEntityView.get<velocity>(entity);
+				position& pos = movableEntityView.get<position>(entity);
+
+				if (config::gravityEnabled)
+				{
+					vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+				}
+				pos.pos += (vel.spd * _timeStep);
+			}
+
+			detectNodeNode(universeBase, _timeStep);
+			solveNodeNode(universeBase, _timeStep);
+
+			detectNodeEntity(universeBase, registry, _timeStep);
+			solveNodeEntity(universeBase, registry, _timeStep);
+
+			detectEntityEntity(registry, _timeStep);
+			solveEntityEntity(registry, _timeStep);
+			_remainingTime -= _timeStep;
+		}
+	}
+	Services::physicsMutex.unlock();
+}
+
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
 	{
 		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ENTITY)
 		{
-			solveEntityEntity(collisionCallbackInfo);
+			EntityEntityCallback(collisionCallbackInfo);
 		}
 		else
 		{
-			solveNodeNode(collisionCallbackInfo);
+			NodeNodeCallback(collisionCallbackInfo);
 		}
 	}
 	else
 	{
-		solveNodeEntity(collisionCallbackInfo);
+		NodeEntityCallback(collisionCallbackInfo);
 	}
 
 }
 
-rp3d::CollisionWorld* physicsEngine::getWorld()
+rp3d::CollisionWorld* physicsEngine::getWorld() const
 {
 	return _zaWarudo.get();
 }
 
 
-void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
+
+void physicsEngine::detectNodeNode(universeNode& universe, double dt)
+{
+}
+
+void physicsEngine::solveNodeNode(universeNode& universe, double dt)
+{
+}
+
+void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	auto bodyEntitiesView = registry.view<body>();
+	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+		position entityPos = registry.get<position>(left);
+		body& entityBody = registry.get<body>(left);
+		entityBody.maxContactDepth = 0;
+		entityBody.contactNormal = rp3d::Vector3();
+		std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
+		for (universeNode* ntemp : entityPos.parent->getChildren())
+		{
+			collidableNodes.push_back(ntemp);
+		}
+		collidableNodes.push_back(entityPos.parent->getParent());
+
+		for (universeNode* node : collidableNodes)
+		{
+			position pos = registry.get<position>(left);
+
+			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+			collidedResponse cResponse;
+			cResponse.type = NODE;
+			collidedBody cBody;
+			cBody.node = node;
+			cResponse.body = cBody;
+
+			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
+			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+			rp3d::Transform entityTransform(entityPosition, initOrientation);
+
+
+			entityBody.collider->setTransform(entityTransform);
+
+			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
+			{
+				auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
+				for (auto& chunk : chunksToCheck)
+				{
+					chunk->setUserData((void*)&cResponse);
+					_zaWarudo->testCollision(entityBody.collider, chunk, this);
+				}
+			}
+		}
+	}
+}
+
+void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	auto bodyView = registry.view<body, position, velocity>();
+	for (const entt::entity& entity : bodyView)
+	{
+		body& bdy = bodyView.get<body>(entity);
+		if (bdy.maxContactDepth == 0)
+			continue;
+		position& pos = bodyView.get<position>(entity);
+		velocity& vel = bodyView.get<velocity>(entity);
+		fdd oldSpeed = vel.spd;
+		//backtrack position along the old velocity until we're "just" colliding with the node (tangentially)
+		pos.pos -= vel.spd * dt * (bdy.maxContactDepth / ((oldSpeed * dt).magnitude()));
+		//Calculate new velocity
+		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
+		auto result = (d - (2 * (bdy.contactNormal.dot(d)) * bdy.contactNormal));
+		vel.spd.x = result.x;
+		vel.spd.y = result.y;
+		vel.spd.z = result.z;
+
+		//apply new velocity from surface
+		pos.pos += vel.spd * dt * (bdy.maxContactDepth / ((oldSpeed * dt).magnitude()));
+	}
+}
+
+void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
+{
+	auto bodyEntitiesView = registry.view<body>();
+	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
+			if (left > right)
+			{
+				position pL = registry.get<position>(left);
+				position pR = registry.get<position>(right);
+				fdd rightPos = pL.parent->getLocalPos(pR.pos, pR.parent);
+
+				rp3d::Vector3 leftPosition(pL.pos.x, pL.pos.y, pL.pos.z);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform leftTransform(leftPosition, initOrientation);
+
+				rp3d::Vector3 rightPosition(rightPos.x, rightPos.y, rightPos.z);
+				rp3d::Transform rightTransform(rightPosition, initOrientation);
+
+				body& leftBody = registry.get<body>(left);
+				leftBody.collider->setTransform(leftTransform);
+				body& rightBody = registry.get<body>(right);
+				rightBody.collider->setTransform(rightTransform);
+				if (_zaWarudo->testAABBOverlap(leftBody.collider, rightBody.collider))
+				{
+					_zaWarudo->testCollision(leftBody.collider, rightBody.collider, this);
+				}
+			}
+		}
+	}
+}
+
+void physicsEngine::solveEntityEntity(entt::registry& registry, double dt)
+{
+}
+
+
+void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
 	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
 	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
@@ -63,8 +213,8 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 
 	velLeft.spd = positionRight.parent->getLocalVel(velLeft.spd, positionLeft.parent);
 	positionLeft.parent = positionRight.parent;
-	
-	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * dt)).distance(positionRight.pos + (velRight.spd * dt)))//s allunyaven
+
+	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * _timeStep)).distance(positionRight.pos + (velRight.spd * _timeStep)))//s allunyaven
 	{
 		return;
 	}
@@ -77,131 +227,56 @@ void physicsEngine::solveEntityEntity(const CollisionCallbackInfo& collisionCall
 	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
 }
 
-void physicsEngine::solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	//std::cout << "Node-Entity collision" << std::endl;
-	rp3d::Vector3 nodeShapePosition;
 	universeNode* oldParent;
 	entt::entity entity;
 	universeNode* node;
-	int entityBodyIndex = 0;
-	rp3d::Vector3 entityContactNormal{ 0,0,0 };
+	rp3d::CollisionBody* entityCollisionBody;
 	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == ENTITY) { // BODY1 �s l entity
-		entity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
-		entityBodyIndex = 1;
+		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
 		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
-		nodeShapePosition = collisionCallbackInfo.proxyShape2->getLocalToWorldTransform().getPosition();
 	}
 	else
 	{
-		entity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
-		entityBodyIndex = 2;
+		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2();
 		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
-		nodeShapePosition = collisionCallbackInfo.proxyShape1->getLocalToWorldTransform().getPosition();
 	}
+	entity = ((collidedResponse*)entityCollisionBody->getUserData())->body.entity;
 
-	{//convert to local
-		position& pos = Services::enttRegistry->get<position>(entity);
-		oldParent = pos.parent;
-		pos.pos = node->getLocalPos(pos.pos, oldParent);
-		pos.parent = node;
-
-		velocity& vel = Services::enttRegistry->get<velocity>(entity);
-		vel.spd = node->getLocalVel(vel.spd, oldParent);
-	}
-
-	{
-		auto entityPosition = Services::enttRegistry->get<position>(entity);
-		auto entityVelocity = Services::enttRegistry->get<velocity>(entity);
-		//avoid colliding with an object when getting away from it
-		if (fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos) <= fdd{ nodeShapePosition.x,nodeShapePosition.y,nodeShapePosition.z,0 }.distance(entityPosition.pos + (entityVelocity.spd * dt)))
-		{
-			return;
-		}
-	}
-
-	auto& entityBody = Services::enttRegistry->get<body>(entity);
-	if (entityBody.lastCollided == node)// avoid colliding multiple times with the same node
-	{
-		return;
-	}
-	else
-	{
-		entityBody.lastCollided = node;
-	}
-
-	auto& entityVel = Services::enttRegistry->get<velocity>(entity);
-
-#pragma region solve position to surface
-	fdd spd = entityVel.spd * dt;
-	double partialDepth = 0.5;
-	double partialStep = 0.5;
-	auto& entityPosition = Services::enttRegistry->get<position>(entity);
-
-	for (int i = 0; i < 10; i++)
-	{
-		spd /= 2;
-		partialStep /= 2;
-		rp3d::CollisionBody* body1 = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
-		rp3d::CollisionBody* body2 = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2();
-
-		if (entityBodyIndex==1)
-		{
-			auto t = body1->getTransform();
-			body1->setTransform({ {(rp3d::decimal)entityPosition.pos.x,(rp3d::decimal)entityPosition.pos.y,(rp3d::decimal)entityPosition.pos.z},rp3d::Quaternion::identity() });
-		}
-		else
-		{
-			auto t = body2->getTransform();
-			body2->setTransform({ {(rp3d::decimal)entityPosition.pos.x,(rp3d::decimal)entityPosition.pos.y,(rp3d::decimal)entityPosition.pos.z},rp3d::Quaternion::identity() });
-		}
-		if (_zaWarudo->testOverlap(body1, body2))
-		{
-			entityPosition.pos -= spd;
-			partialDepth += partialStep;
-		}
-		else
-		{
-			entityPosition.pos += spd;
-			partialDepth -= partialStep;
-		}
-	}
-
-	entityPosition.pos -= spd;
-
-
-#pragma endregion
-
-	//Calcular centroide de punts de contacte
-
+	position& pos = Services::enttRegistry->get<position>(entity);
+	body& entityBody = Services::enttRegistry->get<body>(entity);
 	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
-	int contactManifoldCount=0;
-	while(contactManifold!=nullptr)
+	while (contactManifold != nullptr)
 	{
-		if (entityBodyIndex == 1)
-			entityContactNormal += contactManifold->getContactPoints()->getLocalPointOnShape1() * -1;
-		else
-			entityContactNormal += contactManifold->getContactPoints()->getLocalPointOnShape2() * -1;
-		contactManifold=contactManifold->getNext();
-		contactManifoldCount++;
+		auto contactPoint = contactManifold->getContactPoints();
+		while (contactPoint != nullptr)
+		{
+			if (entityBody.maxContactDepth < contactPoint->getPenetrationDepth())
+			{
+				if (pos.parent == node)
+				{//convert to local
+				//TODO avoid this if possible
+
+					oldParent = pos.parent;
+					pos.pos = node->getLocalPos(pos.pos, oldParent);
+					pos.parent = node;
+
+					velocity& vel = Services::enttRegistry->get<velocity>(entity);
+					vel.spd = node->getLocalVel(vel.spd, oldParent);
+				}
+
+				entityBody.maxContactDepth = contactPoint->getPenetrationDepth();
+				entityBody.contactNormal = contactPoint->getNormal();
+			}
+			contactPoint = contactPoint->getNext();
+		}
+		contactManifold = contactManifold->getNext();
 	}
-	entityContactNormal /= contactManifoldCount;
-
-
-	entityContactNormal.normalize();
-	//Calculate new velocity
-	rp3d::Vector3 d{ (rp3d::decimal)entityVel.spd.x,(rp3d::decimal)entityVel.spd.y,(rp3d::decimal)entityVel.spd.z };
-	auto result = (d - (2 * (entityContactNormal.dot(d)) * entityContactNormal)) ;
-	entityVel.spd.x = result.x;
-	entityVel.spd.y = result.y;
-	entityVel.spd.z = result.z;
-
-	//apply new velocity from surface
-	entityPosition.pos += entityVel.spd * dt * (partialDepth)*0.5;
-
 }
 
-void physicsEngine::solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	universeNode* left = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
 	double leftMass = left->getMass();
