@@ -2,12 +2,14 @@
 namespace config{
 		constexpr int chunkLoadDiameter = 16;
 		constexpr int chunkSize = 4;
-		constexpr int cameraDepth = 25;
+		extern int cameraDepth;
 		constexpr int spriteSize = 16;
-		static double zoom = 3;
-		constexpr double depthScale = 1.20;
-		constexpr double minScale = 0.60;
+		extern double zoom;
+		extern double depthScale;
+		extern double minScale;
+		extern int cameraHeight;
 		constexpr double physicsHz = 240;
 		constexpr bool drawDepthShadows = true;
-		constexpr unsigned short minShadow = 100;
+		extern unsigned short minShadow;
+		extern bool gravityEnabled;
 };

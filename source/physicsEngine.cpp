@@ -36,7 +36,10 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				velocity& vel = movableEntityView.get<velocity>(entity);
 				position& pos = movableEntityView.get<position>(entity);
 
-				vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+				if (config::gravityEnabled)
+				{
+					vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+				}
 				pos.pos += (vel.spd * _timeStep);
 			}
 
@@ -74,7 +77,7 @@ void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallback
 
 }
 
-rp3d::CollisionWorld* physicsEngine::getWorld()
+rp3d::CollisionWorld* physicsEngine::getWorld() const
 {
 	return _zaWarudo.get();
 }
@@ -137,7 +140,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 
 void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	auto& bodyView = registry.view<body, position, velocity>();
+	auto bodyView = registry.view<body, position, velocity>();
 	for (const entt::entity& entity : bodyView)
 	{
 		body& bdy = bodyView.get<body>(entity);
@@ -227,7 +230,6 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo)
 {
 	//std::cout << "Node-Entity collision" << std::endl;
-	rp3d::Vector3 nodeShapePosition;
 	universeNode* oldParent;
 	entt::entity entity;
 	universeNode* node;
@@ -236,13 +238,11 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == ENTITY) { // BODY1 �s l entity
 		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
 		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
-		nodeShapePosition = collisionCallbackInfo.proxyShape2->getLocalToWorldTransform().getPosition();
 	}
 	else
 	{
 		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2();
 		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
-		nodeShapePosition = collisionCallbackInfo.proxyShape1->getLocalToWorldTransform().getPosition();
 	}
 	entity = ((collidedResponse*)entityCollisionBody->getUserData())->body.entity;
 
@@ -258,7 +258,7 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 			{
 				if (pos.parent == node)
 				{//convert to local
-		//TODO avoid this if possible
+				//TODO avoid this if possible
 
 					oldParent = pos.parent;
 					pos.pos = node->getLocalPos(pos.pos, oldParent);

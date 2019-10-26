@@ -353,6 +353,9 @@
     <ClCompile Include="source\block.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\config.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">

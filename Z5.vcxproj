@@ -87,7 +87,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -216,6 +216,7 @@
     <ClCompile Include="source\components\name.cpp" />
     <ClCompile Include="source\components\position.cpp" />
     <ClCompile Include="source\components\velocity.cpp" />
+    <ClCompile Include="source\config.cpp" />
     <ClCompile Include="source\fdd.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\graphics.cpp" />
