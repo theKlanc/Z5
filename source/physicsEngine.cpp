@@ -234,7 +234,6 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 	entt::entity entity;
 	universeNode* node;
 	rp3d::CollisionBody* entityCollisionBody;
-	rp3d::Vector3 entityContactNormal{ 0,0,0 };
 	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == ENTITY) { // BODY1 �s l entity
 		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
 		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
