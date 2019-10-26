@@ -76,53 +76,62 @@ void State::Playing::input(double dt)
 {
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
-	int held = HI2::getKeysHeld();
+	unsigned long long held = HI2::getKeysHeld();
+	unsigned long long down = HI2::getKeysDown();
 
+	//STOP
 	if (held & HI2::BUTTON::KEY_MINUS) {
 		double oldR = playerSpd.spd.r;
 		playerSpd.spd = fdd();
 		playerSpd.spd.r = oldR;
 	}
-	if (held & HI2::BUTTON::KEY_LSTICK_UP) {
+
+	//MOVE
+	if (held & (HI2::BUTTON::KEY_LSTICK_UP | HI2::BUTTON::KEY_W)) {
 		playerSpd.spd.y -= 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_LSTICK_DOWN) {
+	if (held & (HI2::BUTTON::KEY_LSTICK_DOWN | HI2::BUTTON::KEY_S)) {
 		playerSpd.spd.y += 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_LSTICK_LEFT) {
+	if (held & (HI2::BUTTON::KEY_LSTICK_LEFT | HI2::BUTTON::KEY_A)) {
 		playerSpd.spd.x -= 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_LSTICK_RIGHT) {
+	if (held & (HI2::BUTTON::KEY_LSTICK_RIGHT | HI2::BUTTON::KEY_D)) {
 		playerSpd.spd.x += 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_A) {
+
+	//MOVE VERTICALLY
+	if (held & HI2::BUTTON::KEY_R) {
 		playerSpd.spd.z += 60 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_B) {
+	if (held & HI2::BUTTON::KEY_F) {
 		playerSpd.spd.z -= 40 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_PLUS) {
+
+	//TELEPORT UPWARDS
+	if (down & HI2::BUTTON::KEY_PLUS) {
 		playerPos.pos.z += 5;
 		playerSpd.spd.z = 0;
 	}
-	if (held & HI2::BUTTON::KEY_ZR) {
-		config::zoom += 10 * dt;
-	}
-	if (held & HI2::BUTTON::KEY_ZL) {
-		config::zoom -= 10 * dt;
-	}
-	if (held & HI2::BUTTON::KEY_R) {
+
+
+	//ROTATE PLAYER
+	if (held & HI2::BUTTON::KEY_E) {
 		playerSpd.spd.r += 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_L) {
+	if (held & HI2::BUTTON::KEY_Q) {
 		playerSpd.spd.r -= 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_Y) {
+
+	//PLACE BLOCK
+	if (held & HI2::BUTTON::KEY_P) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
-	if (held & HI2::BUTTON::KEY_X) {
+	if (held & HI2::BUTTON::KEY_O) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
+
+	//SELECT BLOCK
 	if (held & HI2::BUTTON::KEY_DLEFT) {
 		selectedBlock--;
 		if (selectedBlock < 0)
@@ -131,6 +140,8 @@ void State::Playing::input(double dt)
 	if (held & HI2::BUTTON::KEY_DRIGHT) {
 		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
 	}
+
+	//BLOCK ROTATE
 	if (held & HI2::BUTTON::KEY_DUP) {
 		selectedRotation++;
 	}
@@ -138,134 +149,103 @@ void State::Playing::input(double dt)
 		selectedRotation--;
 	}
 
+	//TOGGLE GRAVITY
+	if (down & HI2::BUTTON::KEY_G)
+	{
+		config::gravityEnabled = !config::gravityEnabled;
+	}
+
+	//CAMERA ZOOM
+	if (held & HI2::BUTTON::KEY_ZR) {
+		config::zoom += 10 * dt;
+		std::cout << "Zoom: " << config::zoom << std::endl;
+	}
+	if (held & HI2::BUTTON::KEY_ZL) {
+		config::zoom -= 10 * dt;
+		std::cout << "Zoom: " << config::zoom << std::endl;
+	}
+
+	//CAMERA DEPTH
+	if (down & HI2::BUTTON::KEY_H)
+	{
+		config::cameraDepth++;
+		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
+	}
+	if (down & HI2::BUTTON::KEY_B)
+	{
+		config::cameraDepth--;
+		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
+	}
+
+	// CAMERA HEIGHT
+	if (down & HI2::BUTTON::KEY_U)
+	{
+		config::cameraHeight--;
+		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
+	}
+	if (down & HI2::BUTTON::KEY_I)
+	{
+		config::cameraHeight++;
+		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
+	}
+
+	// minScale
+	if (down & HI2::BUTTON::KEY_J)
+	{
+		config::minScale += 0.05;
+		std::cout << "MinScale: " << config::minScale << std::endl;
+	}
+	if (down & HI2::BUTTON::KEY_N)
+	{
+		config::minScale -= 0.05;
+		std::cout << "MinScale: " << config::minScale << std::endl;
+	}
+
+	// Scale
+	if (down & HI2::BUTTON::KEY_K)
+	{
+		config::depthScale += 0.05;
+		std::cout << "DepthScale: " << config::depthScale << std::endl;
+	}
+	if (down & HI2::BUTTON::KEY_M)
+	{
+		config::depthScale -= 0.05;
+		std::cout << "DepthScale: " << config::depthScale << std::endl;
+	}
+	// Shadow
+	if (held & HI2::BUTTON::KEY_T)
+	{
+		config::minShadow--;
+		std::cout << "minShadow: " << config::minShadow << std::endl;
+	}
+	if (held & HI2::BUTTON::KEY_Y)
+	{
+		config::minShadow++;
+		std::cout << "minShadow: " << config::minShadow << std::endl;
+	}
+
 }
 
 void State::Playing::update(double dt) {
 
-	_universeBase.updatePositions(dt);
-	auto movableEntityView = _enttRegistry.view<velocity, position>();
-	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-		velocity& vel = movableEntityView.get<velocity>(entity);
-		vel.spd.z -= 9.81 * dt;
-		position& pos = movableEntityView.get<position>(entity);
-
-		pos.pos += (vel.spd * dt);
-	}
-
-
 	//TODO update nodes positions
-	_physicsEngine.dt = dt;
-	Services::physicsMutex.lock();
-#pragma region collision detection
-#pragma region entity-entity
-	{
-		auto bodyEntitiesView = _enttRegistry.view<body>();
-		for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
-			for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
-				if (left != right && left > right)
-				{
-
-					position pL = _enttRegistry.get<position>(left);
-					position pR = _enttRegistry.get<position>(right);
-					fdd rightPos = pL.parent->getLocalPos(pR.pos, pR.parent);
-
-					rp3d::Vector3 leftPosition(pL.pos.x, pL.pos.y, pL.pos.z);
-					rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-					rp3d::Transform leftTransform(leftPosition, initOrientation);
-
-					rp3d::Vector3 rightPosition(rightPos.x, rightPos.y, rightPos.z);
-					rp3d::Transform rightTransform(rightPosition, initOrientation);
-
-					body& leftBody = _enttRegistry.get<body>(left);
-					leftBody.collider->setTransform(leftTransform);
-					body& rightBody = _enttRegistry.get<body>(right);
-					rightBody.collider->setTransform(rightTransform);
-					if (_physicsEngine.getWorld()->testAABBOverlap(leftBody.collider, rightBody.collider))
-					{
-						_physicsEngine.getWorld()->testCollision(leftBody.collider, rightBody.collider, &_physicsEngine);
-					}
-				}
-			}
-		}
-	}
-#pragma endregion
-#pragma region node-entity
-	{
-		auto bodyEntitiesView = _enttRegistry.view<body>();
-		for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
-			position entityPos = _enttRegistry.get<position>(left);
-
-			std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
-			for (universeNode* ntemp : entityPos.parent->getChildren())
-			{
-				collidableNodes.push_back(ntemp);
-			}
-			collidableNodes.push_back(entityPos.parent->getParent());
-
-			for (universeNode* node : collidableNodes)
-			{
-				position pos = _enttRegistry.get<position>(left);
-
-				fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
-				collidedResponse cResponse;
-				cResponse.type = NODE;
-				collidedBody cBody;
-				cBody.node = node;
-				cResponse.body = cBody;
-
-				rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
-				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-				rp3d::Transform entityTransform(entityPosition, initOrientation);
-
-				body& entityBody = _enttRegistry.get<body>(left);
-				entityBody.collider->setTransform(entityTransform);
-
-				if (_physicsEngine.getWorld()->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
-				{
-					auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
-					for (auto& chunk : chunksToCheck)
-					{
-						chunk->setUserData((void*)& cResponse);
-						_physicsEngine.getWorld()->testCollision(entityBody.collider, chunk, &_physicsEngine);
-					}
-				}
-			}
-
-
-		}
-	}
-#pragma endregion
-#pragma region node-node
-#pragma endregion
-	auto bodyEntitiesView = _enttRegistry.view<body>();
-	for (const entt::entity& left : bodyEntitiesView) {
-		_enttRegistry.get<body&>(left).lastCollided = nullptr;
-	}
-
-#pragma endregion 
-	Services::physicsMutex.unlock();
-
-
-
-
+	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
 
-	std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
+	//std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
 
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
-	cameraPosition.pos.z = playerPosition.pos.z + 5;
+	cameraPosition.pos.z = playerPosition.pos.z + config::cameraHeight;
 	if (_enttRegistry.has<body>(_player))
 	{
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
 	}
-
-
 }
 
 void State::Playing::draw(double dt) {
@@ -403,8 +383,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b != nullptr && b->base->visible) {
 						if constexpr (config::drawDepthShadows) {
-							//	HI2::drawRectangle({ finalXdrawPos,finalYdrawPos }, (int)config::spriteSize * zoom + 1, (int)config::spriteSize * zoom + 1, HI2::Color(0, 0, 0, 150 * (zoom / config::zoom > 1 ? -((zoom / config::zoom - 1) / (config::minScale - 1)) : ((zoom / config::zoom - 1) / (config::minScale - 1)))));
-
 							//mask anira de 255 a 150
 							HI2::setTextureColorMod(*b->base->texture, HI2::Color(mask, mask, mask, 0));
 							HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation) * (M_PI / 2));
@@ -463,7 +441,6 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 void State::Playing::createNewGame(int seed)
 {
 	std::filesystem::create_directories(savePath());
-	std::cout << HI2::getDataPath().append("defData").append("universe.json") << std::endl;
 	std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
 
 	//load terrain table
@@ -533,7 +510,7 @@ void State::Playing::createEntities()
 {
 	//Set up basic entities
 	universeNode* result;
-	int pID = 11;
+	int pID = 4;
 	bool temp = _universeBase.findNodeByID(pID, result);
 
 
@@ -548,9 +525,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = pID;
-		playerPos.pos.x = 2 + 8;
-		playerPos.pos.y = 2 + 8;
-		playerPos.pos.z = 2 + 8;
+		playerPos.pos.x = 0;
+		playerPos.pos.y = 0;
+		playerPos.pos.z = 260;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -566,6 +543,7 @@ void State::Playing::createEntities()
 		playerBody.height = 0.9;
 		playerBody.width = 0.8;
 		playerBody.mass = 50;
+		playerBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -586,8 +564,8 @@ void State::Playing::createEntities()
 	{
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
-
 		_enttRegistry.assign<position>(_camera);
+		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
@@ -601,7 +579,7 @@ void State::Playing::createEntities()
 		dogPos.parentID = pID;
 		dogPos.pos.x = 4 + 8;
 		dogPos.pos.y = 4 + 8;
-		dogPos.pos.z = 2 + 8;
+		dogPos.pos.z = 260;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -617,6 +595,7 @@ void State::Playing::createEntities()
 		dogBody.height = 0.4;
 		dogBody.width = 0.3;
 		dogBody.mass = 10;
+		dogBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -647,7 +626,7 @@ void State::Playing::createEntities()
 			ballPos.parentID = pID;
 			ballPos.pos.x = 4 + i + 8;
 			ballPos.pos.y = 4 + j + 8;
-			ballPos.pos.z = i + j + 4 + 8;
+			ballPos.pos.z = 260 + i + j + 4 + 8;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);
@@ -660,6 +639,7 @@ void State::Playing::createEntities()
 			ballBody.height = 7.0f / 8.0f;
 			ballBody.width = 7.0f / 8.0f;
 			ballBody.mass = 0.1;
+			ballBody.elasticity = 0.98;
 
 			// Initial position and orientation of the collision body 
 			rp3d::Vector3 initPosition(0.0, 0.0, 0.0);

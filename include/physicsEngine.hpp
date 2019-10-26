@@ -26,12 +26,25 @@ class physicsEngine : public rp3d::CollisionCallback
 	public:
 	physicsEngine();
 	~physicsEngine();
+	void processCollisions(universeNode& universeBase, entt::registry& registry, double dt);
 	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
-	rp3d::CollisionWorld* getWorld();
-	double dt;
+	rp3d::CollisionWorld* getWorld() const;
+	
 private:
-	void solveEntityEntity(const CollisionCallbackInfo& collisionCallbackInfo);
-	void solveNodeEntity(const CollisionCallbackInfo& collisionCallbackInfo);
-	void solveNodeNode(const CollisionCallbackInfo& collisionCallbackInfo);
+	double _timeStep = 1.0f/config::physicsHz;
+	double _remainingTime = 0;
+	
+	void detectNodeNode(universeNode& universe, double dt);
+	void solveNodeNode(universeNode& universe, double dt);
+
+	void detectNodeEntity(universeNode& universeBase, entt::registry& registry, double dt);
+	void solveNodeEntity(universeNode& universeBase, entt::registry& registry, double dt);
+
+	void detectEntityEntity(entt::registry& registry, double dt);
+	void solveEntityEntity(entt::registry& registry, double dt);
+	
+	void EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
+	void NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
+	void NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo);
 	std::unique_ptr<rp3d::CollisionWorld> _zaWarudo;
 };

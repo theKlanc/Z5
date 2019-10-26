@@ -296,6 +296,24 @@ void universeNode::updatePositions(double dt)
 	}
 }
 
+fdd universeNode::getGravityAcceleration(fdd localPosition)
+{
+	fdd magicGravity = { 0,0,(localPosition.z>0?-1:1) * (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
+	fdd realGravity = (_centerOfMass - localPosition).setMagnitude(G * (_mass / ((_diameter / 2) * (_diameter / 2))));
+	double factorMagic = 1;
+	double distance = _centerOfMass.distance(localPosition);
+	if (distance > _diameter / 2)
+	{
+		factorMagic = distance - _diameter / 2;
+		factorMagic /= 10;
+		if (factorMagic > 1)
+			factorMagic = 1;
+		factorMagic = 1 - factorMagic;
+	}
+
+	return magicGravity * factorMagic + realGravity * (1 - factorMagic);
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
@@ -405,6 +423,14 @@ void from_json(const json& j, universeNode& f) {
 	f._mass = j.at("mass").get<double>();
 	f._diameter = j.at("diameter").get<double>();
 	f._position = j.at("position").get<fdd>();
+	if (j.contains("com"))
+	{
+		f._centerOfMass = j.at("com").get<fdd>();
+	}
+	else
+	{
+		f._centerOfMass = { 0,0,0,0 };
+	}
 	f._velocity = j.at("velocity").get<fdd>();
 	f._children = std::vector<universeNode>();
 	for (const nlohmann::json& element : j.at("children")) {
@@ -421,7 +447,7 @@ void from_json(const json& j, universeNode& f) {
 		f._generator = std::make_unique<gasPlanetGenerator>();
 		break;
 	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID,f._diameter);
+		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID, f._diameter);
 		break;
 	case ASTEROID:
 		f._generator = std::make_unique<asteroidGenerator>();

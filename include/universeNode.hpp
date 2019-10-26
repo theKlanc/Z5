@@ -8,6 +8,8 @@
 #include "nodeGenerator.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 
+const double G = (6.67408e-11);
+
 using nlohmann::json;
 
 enum nodeType{
@@ -39,6 +41,7 @@ public:
 	double getDiameter();
 	std::vector<universeNode*> getChildren();
 	void updatePositions(double dt);
+	fdd getGravityAcceleration(fdd localPosition);
 
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
@@ -72,6 +75,7 @@ public:
 	double _mass; // mass in kg
 	double _diameter; // diameter in m
 	fdd _position;
+	fdd _centerOfMass;
 	fdd _velocity;
 
 	std::vector<terrainChunk> _chunks; // So big, should be on the heap. So fat, too much for the stack.
