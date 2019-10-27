@@ -71,7 +71,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)deps\json\single_include\nlohmann;$(IncludePath)</IncludePath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
     <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
