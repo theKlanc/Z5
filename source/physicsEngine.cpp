@@ -30,18 +30,14 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 	Services::physicsMutex.lock();
 	{
 		while (_remainingTime > _timeStep) {
-			universeBase.updatePositions(_timeStep);
-			auto movableEntityView = registry.view<velocity, position>();
-			for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-				velocity& vel = movableEntityView.get<velocity>(entity);
-				position& pos = movableEntityView.get<position>(entity);
 
-				if (config::gravityEnabled)
-				{
-					vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
-				}
-				pos.pos += (vel.spd * _timeStep);
-			}
+			if (config::gravityEnabled)
+				applyGravity(universeBase, registry, _timeStep);
+
+			applyBuoyancy(registry, _timeStep);
+			applyDrag(registry, _timeStep);
+
+			applyVelocity(universeBase, registry, _timeStep);
 
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);
@@ -82,7 +78,48 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 	return _zaWarudo.get();
 }
 
+void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	auto movableEntityView = registry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) {
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		const position& pos = movableEntityView.get<position>(entity);
 
+		vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+	}
+}
+
+void physicsEngine::applyBuoyancy(entt::registry& registry, double dt)
+{
+	auto movableEntityView = registry.view<velocity, position, body>();
+	for (const entt::entity& entity : movableEntityView) {
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		const position& pos = movableEntityView.get<position>(entity);
+		const body& bdy = movableEntityView.get<body>(entity);
+
+		double fluidDensity = (pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2)})->base->mass);
+		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * fluidDensity;
+		//Bforce = p_fluidDensity * V * g_gravityAcceleration
+		vel.spd += (buoyancy / bdy.mass) * _timeStep;
+	}
+}
+
+void physicsEngine::applyDrag(entt::registry& registry, double dt)
+{
+	//TODO
+}
+
+
+void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	universeBase.updatePositions(_timeStep);
+	auto movableEntityView = registry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+		const velocity& vel = movableEntityView.get<velocity>(entity);
+		position& pos = movableEntityView.get<position>(entity);
+		pos.pos += (vel.spd * _timeStep);
+	}
+}
 
 void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 {

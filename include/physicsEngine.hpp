@@ -33,6 +33,12 @@ class physicsEngine : public rp3d::CollisionCallback
 private:
 	double _timeStep = 1.0f/config::physicsHz;
 	double _remainingTime = 0;
+
+	void applyGravity(universeNode& universeBase, entt::registry& registry, double dt);
+	void applyBuoyancy(entt::registry& registry, double dt);
+	void applyDrag(entt::registry& registry, double dt);
+
+	void applyVelocity(universeNode& universeBase, entt::registry& registry, double dt);
 	
 	void detectNodeNode(universeNode& universe, double dt);
 	void solveNodeNode(universeNode& universe, double dt);

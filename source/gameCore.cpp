@@ -13,10 +13,10 @@ void gameCore::startGameLoop() {
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
 		double microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
 		double msOg = microSeconds;
-		if(microSeconds/1000000.0f>(double)(1.0f/29.0f))
-		{
-			microSeconds=(1.0f/29.0f)*1000000.0f;
-		}
+		//if(microSeconds/1000000.0f>(double)(1.0f/29.0f))
+		//{
+		//	microSeconds=(1.0f/29.0f)*1000000.0f;
+		//}
 		
 		states.top()->input((double)microSeconds/1000000);
 
