@@ -97,8 +97,10 @@ void physicsEngine::applyBuoyancy(entt::registry& registry, double dt)
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
 
-		double fluidDensity = (pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2)})->base->mass);
-		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * fluidDensity;
+		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		if (block == nullptr || block->base->solid)
+			continue;
+		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * block->base->mass;
 		//Bforce = p_fluidDensity * V * g_gravityAcceleration
 		vel.spd += (buoyancy / bdy.mass) * _timeStep;
 	}
@@ -106,7 +108,22 @@ void physicsEngine::applyBuoyancy(entt::registry& registry, double dt)
 
 void physicsEngine::applyDrag(entt::registry& registry, double dt)
 {
-	//TODO
+	auto movableEntityView = registry.view<velocity, position, body>();
+	for (const entt::entity& entity : movableEntityView) {
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		const position& pos = movableEntityView.get<position>(entity);
+		const body& bdy = movableEntityView.get<body>(entity);
+		//F=(1/2)*(densityOfFluid)*(velocity^2)*(Area)*(DragCoefficient)
+		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		if (block == nullptr)
+			continue;
+		fdd drag = (vel.spd * vel.spd) * 0.5 * block->base->mass * (bdy.volume / bdy.volume) * -0.6;
+		if (drag.magnitude() > vel.spd.magnitude())
+			drag.setMagnitude(vel.spd.magnitude());
+		else
+			std::cout << "normal drag yay";
+		vel.spd += (drag / bdy.mass) * _timeStep;
+	}
 }
 
 
