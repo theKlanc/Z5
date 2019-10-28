@@ -333,7 +333,13 @@ void State::Playing::draw(double dt) {
 		HI2::setTextureColorMod(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
 		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
+	position playerPos= _enttRegistry.get<position>(_player);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
+	HI2::drawText(_standardFont, "ID: "+std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+	HI2::drawText(_standardFont, "X: "+std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
+	HI2::drawText(_standardFont, "Y: "+std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
+	HI2::drawText(_standardFont, "Z: "+std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
+
 	HI2::endFrame();
 
 }
