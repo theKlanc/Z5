@@ -19,7 +19,7 @@
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 std::mutex State::Playing::endChunkLoader;
-
+bool lungsFull = true;
 
 
 State::Playing::~Playing() {
@@ -76,6 +76,7 @@ void State::Playing::input(double dt)
 {
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
+	auto& playerBdy = _enttRegistry.get<body>(_player);
 	unsigned long long held = HI2::getKeysHeld();
 	unsigned long long down = HI2::getKeysDown();
 
@@ -85,7 +86,7 @@ void State::Playing::input(double dt)
 	}
 
 	//MOVE
-	if (held & (HI2::BUTTON::KEY_LSTICK_UP | HI2::BUTTON::KEY_W)) { 
+	if (held & (HI2::BUTTON::KEY_LSTICK_UP | HI2::BUTTON::KEY_W)) {
 		playerSpd.spd.y -= 10 * dt;
 	}
 	if (held & (HI2::BUTTON::KEY_LSTICK_DOWN | HI2::BUTTON::KEY_S)) {
@@ -151,14 +152,14 @@ void State::Playing::input(double dt)
 	if (down & HI2::BUTTON::KEY_G)
 	{
 		config::gravityEnabled = !config::gravityEnabled;
-		std::cout << "Gravity " << (config::gravityEnabled?"En":"Dis") << "abled" << std::endl;
+		std::cout << "Gravity " << (config::gravityEnabled ? "En" : "Dis") << "abled" << std::endl;
 	}
 
 	//TOGGLE DRAG
 	if (down & HI2::BUTTON::KEY_C)
 	{
 		config::dragEnabled = !config::dragEnabled;
-		std::cout << "Drag " << (config::dragEnabled?"En":"Dis") << "abled" << std::endl;
+		std::cout << "Drag " << (config::dragEnabled ? "En" : "Dis") << "abled" << std::endl;
 	}
 
 	//CAMERA ZOOM
@@ -218,7 +219,7 @@ void State::Playing::input(double dt)
 		config::depthScale -= 0.05;
 		std::cout << "DepthScale: " << config::depthScale << std::endl;
 	}
-	
+
 	// Shadow
 	if (held & HI2::BUTTON::KEY_T)
 	{
@@ -232,11 +233,31 @@ void State::Playing::input(double dt)
 	}
 
 	// Fullscreen
-	if(down & HI2::BUTTON::KEY_F11)
+	if (down & HI2::BUTTON::KEY_F11)
 	{
 		HI2::toggleFullscreen();
 	}
 
+	// Breathe
+	if (down & HI2::BUTTON::KEY_X)
+	{
+		if (lungsFull)
+		{
+			lungsFull = !lungsFull;
+			playerBdy.volume -= 0.01;
+			std::cout << "Exhale" << std::endl;
+		}
+		else
+		{
+			metaBlock* block = playerPos.parent->getBlock({ (int)playerPos.pos.x,(int)playerPos.pos.y,(int)(playerPos.pos.z + playerBdy.height) });
+			if (block != nullptr && block->base->name == "air")
+			{
+				lungsFull = !lungsFull;
+				playerBdy.volume += 0.01;
+				std::cout << "Inhale" << std::endl;
+			}
+		}
+	}
 }
 
 void State::Playing::update(double dt) {
@@ -405,7 +426,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 								HI2::setTextureColorMod(*bCopy.base->texture, HI2::Color(mask, mask, mask, 0));
 								HI2::drawTexture(*bCopy.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation) * (M_PI / 2));
 							}
-							else{
+							else {
 								HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
 							}
 						}
@@ -560,8 +581,8 @@ void State::Playing::createEntities()
 		auto& playerBody = _enttRegistry.assign<body>(_player);
 		playerBody.height = 0.9;
 		playerBody.width = 0.8;
-		playerBody.mass = 95;
-		playerBody.volume = 0.07;		
+		playerBody.mass = 65;
+		playerBody.volume = 0.07;
 		playerBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
