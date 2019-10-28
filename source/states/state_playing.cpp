@@ -151,6 +151,14 @@ void State::Playing::input(double dt)
 	if (down & HI2::BUTTON::KEY_G)
 	{
 		config::gravityEnabled = !config::gravityEnabled;
+		std::cout << "Gravity " << (config::gravityEnabled?"En":"Dis") << "abled" << std::endl;
+	}
+
+	//TOGGLE DRAG
+	if (down & HI2::BUTTON::KEY_C)
+	{
+		config::dragEnabled = !config::dragEnabled;
+		std::cout << "Drag " << (config::dragEnabled?"En":"Dis") << "abled" << std::endl;
 	}
 
 	//CAMERA ZOOM
@@ -653,7 +661,8 @@ void State::Playing::createEntities()
 		auto& playerBody = _enttRegistry.assign<body>(_player);
 		playerBody.height = 0.9;
 		playerBody.width = 0.8;
-		playerBody.mass = 50;
+		playerBody.mass = 95;
+		playerBody.volume = 0.07;		
 		playerBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
@@ -676,6 +685,7 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
+		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
@@ -706,6 +716,7 @@ void State::Playing::createEntities()
 		dogBody.width = 0.3;
 		dogBody.mass = 10;
 		dogBody.elasticity = 0.3;
+		dogBody.volume = 0.02;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -748,8 +759,9 @@ void State::Playing::createEntities()
 			auto& ballBody = _enttRegistry.assign<body>(ball);
 			ballBody.height = 7.0f / 8.0f;
 			ballBody.width = 7.0f / 8.0f;
-			ballBody.mass = 0.1;
+			ballBody.mass = 0.3;
 			ballBody.elasticity = 0.98;
+			ballBody.volume = 0.2;
 
 			// Initial position and orientation of the collision body 
 			rp3d::Vector3 initPosition(0.0, 0.0, 0.0);

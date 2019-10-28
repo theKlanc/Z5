@@ -30,18 +30,18 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 	Services::physicsMutex.lock();
 	{
 		while (_remainingTime > _timeStep) {
-			universeBase.updatePositions(_timeStep);
-			auto movableEntityView = registry.view<velocity, position>();
-			for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-				velocity& vel = movableEntityView.get<velocity>(entity);
-				position& pos = movableEntityView.get<position>(entity);
 
-				if (config::gravityEnabled)
-				{
-					vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
-				}
-				pos.pos += (vel.spd * _timeStep);
+			if (config::gravityEnabled)
+			{
+				applyGravity(universeBase, registry, _timeStep);
+				applyBuoyancy(registry, _timeStep);
 			}
+			if (config::dragEnabled)
+			{
+				applyDrag(registry, _timeStep);
+			}
+
+			applyVelocity(universeBase, registry, _timeStep);
 
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);
@@ -82,7 +82,73 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 	return _zaWarudo.get();
 }
 
+void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	auto movableEntityView = registry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) {
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		const position& pos = movableEntityView.get<position>(entity);
 
+		vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * _timeStep);
+	}
+}
+
+void physicsEngine::applyBuoyancy(entt::registry& registry, double dt)
+{
+	auto movableEntityView = registry.view<velocity, position, body>();
+	for (const entt::entity& entity : movableEntityView) {
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		const position& pos = movableEntityView.get<position>(entity);
+		const body& bdy = movableEntityView.get<body>(entity);
+
+		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		if (block == nullptr || block->base->solid)
+			continue;
+		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * block->base->mass;
+		//Bforce = p_fluidDensity * V * g_gravityAcceleration
+		vel.spd += (buoyancy / bdy.mass) * _timeStep;
+	}
+}
+
+void physicsEngine::applyDrag(entt::registry& registry, double dt)
+{
+	auto movableEntityView = registry.view<velocity, position, body>();
+	for (const entt::entity& entity : movableEntityView) {
+		velocity& vel = movableEntityView.get<velocity>(entity);
+		const position& pos = movableEntityView.get<position>(entity);
+		const body& bdy = movableEntityView.get<body>(entity);
+		//F=(1/2)*(densityOfFluid)*(velocity^2)*(Area)*(DragCoefficient)
+		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		if (block == nullptr)
+			continue;
+		fdd drag = (vel.spd * vel.spd) * block->base->mass * (sqrt(bdy.volume)) * 0.25;
+		if ((drag.x > 0 && vel.spd.x < 0) || (drag.x < 0 && vel.spd.x>0))
+			drag.x *= -1;
+		if (drag.y > 0 && vel.spd.y < 0 || drag.y < 0 && vel.spd.y>0)
+			drag.y *= -1;
+		if (drag.z > 0 && vel.spd.z < 0 || drag.z < 0 && vel.spd.z>0)
+			drag.z *= -1;
+		/*if(drag.sameDirection(vel.spd))
+			drag*=-1;*/
+		drag *= -1;
+		if (((drag / bdy.mass) * _timeStep).magnitude() >= vel.spd.magnitude() / 2)
+			vel.spd /= 2;
+		else
+			vel.spd += (drag / bdy.mass) * _timeStep;
+	}
+}
+
+
+void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& registry, double dt)
+{
+	universeBase.updatePositions(_timeStep);
+	auto movableEntityView = registry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+		const velocity& vel = movableEntityView.get<velocity>(entity);
+		position& pos = movableEntityView.get<position>(entity);
+		pos.pos += (vel.spd * _timeStep);
+	}
+}
 
 void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 {

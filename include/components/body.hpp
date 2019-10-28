@@ -12,6 +12,7 @@ struct body
 	double elasticity = 0;
 	rp3d::Vector3 contactNormal;
 	double maxContactDepth = 0;
+	double volume;
 };
 
 void to_json(nlohmann::json& j, const body& n);
