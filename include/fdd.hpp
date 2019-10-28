@@ -13,6 +13,7 @@ struct fdd { // Four DoF descriptor
 	double magnitude()const;
 	double distance(const fdd& r)const;
 	double distance2D(const fdd& r)const;
+	bool sameDirection(const fdd& r)const;
 	bool operator==(const fdd& f)const;
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;

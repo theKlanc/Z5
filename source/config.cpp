@@ -2,6 +2,7 @@
 
 double config::zoom = 3;
 bool config::gravityEnabled = true;
+bool config::dragEnabled = true;
 int config::cameraDepth = 50;
 unsigned short config::minShadow = 120;
 double config::depthScale = 1.5;

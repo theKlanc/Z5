@@ -32,10 +32,14 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 		while (_remainingTime > _timeStep) {
 
 			if (config::gravityEnabled)
+			{
 				applyGravity(universeBase, registry, _timeStep);
-
-			applyBuoyancy(registry, _timeStep);
-			applyDrag(registry, _timeStep);
+				applyBuoyancy(registry, _timeStep);
+			}
+			if (config::dragEnabled)
+			{
+				applyDrag(registry, _timeStep);
+			}
 
 			applyVelocity(universeBase, registry, _timeStep);
 
@@ -117,12 +121,20 @@ void physicsEngine::applyDrag(entt::registry& registry, double dt)
 		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
 		if (block == nullptr)
 			continue;
-		fdd drag = (vel.spd * vel.spd) * 0.5 * block->base->mass * (bdy.volume / bdy.volume) * -0.6;
-		if (drag.magnitude() > vel.spd.magnitude())
-			drag.setMagnitude(vel.spd.magnitude());
+		fdd drag = (vel.spd * vel.spd) * block->base->mass * (sqrt(bdy.volume)) * 0.25;
+		if ((drag.x > 0 && vel.spd.x < 0) || (drag.x < 0 && vel.spd.x>0))
+			drag.x *= -1;
+		if (drag.y > 0 && vel.spd.y < 0 || drag.y < 0 && vel.spd.y>0)
+			drag.y *= -1;
+		if (drag.z > 0 && vel.spd.z < 0 || drag.z < 0 && vel.spd.z>0)
+			drag.z *= -1;
+		/*if(drag.sameDirection(vel.spd))
+			drag*=-1;*/
+		drag *= -1;
+		if (((drag / bdy.mass) * _timeStep).magnitude() >= vel.spd.magnitude() / 2)
+			vel.spd /= 2;
 		else
-			std::cout << "normal drag yay";
-		vel.spd += (drag / bdy.mass) * _timeStep;
+			vel.spd += (drag / bdy.mass) * _timeStep;
 	}
 }
 

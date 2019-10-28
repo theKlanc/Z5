@@ -151,6 +151,14 @@ void State::Playing::input(double dt)
 	if (down & HI2::BUTTON::KEY_G)
 	{
 		config::gravityEnabled = !config::gravityEnabled;
+		std::cout << "Gravity " << (config::gravityEnabled?"En":"Dis") << "abled" << std::endl;
+	}
+
+	//TOGGLE DRAG
+	if (down & HI2::BUTTON::KEY_C)
+	{
+		config::dragEnabled = !config::dragEnabled;
+		std::cout << "Drag " << (config::dragEnabled?"En":"Dis") << "abled" << std::endl;
 	}
 
 	//CAMERA ZOOM
@@ -552,7 +560,7 @@ void State::Playing::createEntities()
 		auto& playerBody = _enttRegistry.assign<body>(_player);
 		playerBody.height = 0.9;
 		playerBody.width = 0.8;
-		playerBody.mass = 65;
+		playerBody.mass = 95;
 		playerBody.volume = 0.07;		
 		playerBody.elasticity = 0.3;
 
