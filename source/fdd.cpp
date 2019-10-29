@@ -144,17 +144,17 @@ fdd& fdd::operator/=(const double& f)
 	return *this;
 }
 
-const point3Di fdd::getPoint3Di()const
+point3Di fdd::getPoint3Di()const
 {
 	return { (int)x,(int)y,(int)z };
 }
 
-const point3Dd fdd::getPoint3Dd()const
+point3Dd fdd::getPoint3Dd()const
 {
 	return { x,y,z };
 }
 
-const point3Dl fdd::getPoint3Dl()const
+point3Dl fdd::getPoint3Dl()const
 {
 	return { (long)x,(long)y,(long)z };
 }
