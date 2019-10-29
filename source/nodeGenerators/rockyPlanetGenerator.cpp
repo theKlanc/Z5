@@ -51,6 +51,7 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 	fillWater(chunk, p, 240);
 	populateTrees(chunk, p, 240 );
 	chunk.setLoaded();
+	chunk.clearDirtyFlag();
 	return chunk;
 }
 

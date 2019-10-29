@@ -131,9 +131,9 @@ void physicsEngine::applyDrag(entt::registry& registry, double dt)
 		/*if(drag.sameDirection(vel.spd))
 			drag*=-1;*/
 		drag *= -1;
-		if (((drag / bdy.mass) * _timeStep).magnitude() >= vel.spd.magnitude() / 2)
-			vel.spd /= 2;
-		else
+		/*if (((drag / bdy.mass) * _timeStep).magnitude() >= vel.spd.magnitude() / 100)
+			vel.spd /= 100;
+		else*/
 			vel.spd += (drag / bdy.mass) * _timeStep;
 	}
 }
@@ -220,6 +220,9 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 		//Calculate new velocity
 		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
 		auto result = (d - (2 * (bdy.contactNormal.dot(d)) * bdy.contactNormal));
+
+
+		
 		vel.spd.x = result.x;
 		vel.spd.y = result.y;
 		vel.spd.z = result.z;
