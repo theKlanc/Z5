@@ -335,10 +335,11 @@ void State::Playing::draw(double dt) {
 	}
 	position playerPos= _enttRegistry.get<position>(_player);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
-	HI2::drawText(_standardFont, "ID: "+std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
-	HI2::drawText(_standardFont, "X: "+std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
-	HI2::drawText(_standardFont, "Y: "+std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
-	HI2::drawText(_standardFont, "Z: "+std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
+	HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+	HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
+	HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
+	HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
+	HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
 
 	HI2::endFrame();
 
@@ -611,7 +612,7 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
-		return;
+		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_camera);
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
@@ -685,7 +686,7 @@ void State::Playing::createEntities()
 			auto& ballBody = _enttRegistry.assign<body>(ball);
 			ballBody.height = 7.0f / 8.0f;
 			ballBody.width = 7.0f / 8.0f;
-			ballBody.mass = 0.3;
+			ballBody.mass = 1;
 			ballBody.elasticity = 0.98;
 			ballBody.volume = 0.2;
 

@@ -128,13 +128,11 @@ void physicsEngine::applyDrag(entt::registry& registry, double dt)
 			drag.y *= -1;
 		if (drag.z > 0 && vel.spd.z < 0 || drag.z < 0 && vel.spd.z>0)
 			drag.z *= -1;
-		/*if(drag.sameDirection(vel.spd))
-			drag*=-1;*/
+		if (drag.r > 0 && vel.spd.r < 0 || drag.r < 0 && vel.spd.r>0)
+			drag.r *= -1;
+		drag.r /= 2;
 		drag *= -1;
-		/*if (((drag / bdy.mass) * _timeStep).magnitude() >= vel.spd.magnitude() / 100)
-			vel.spd /= 100;
-		else*/
-			vel.spd += (drag / bdy.mass) * _timeStep;
+		vel.spd += (drag / bdy.mass) * _timeStep;
 	}
 }
 
@@ -147,6 +145,9 @@ void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& re
 		const velocity& vel = movableEntityView.get<velocity>(entity);
 		position& pos = movableEntityView.get<position>(entity);
 		pos.pos += (vel.spd * _timeStep);
+		pos.pos.r -= floor(pos.pos.r / (2 * M_PI)) * 2 * M_PI;
+		if (std::isnan(pos.pos.r))
+			pos.pos.r = 0;
 	}
 }
 
