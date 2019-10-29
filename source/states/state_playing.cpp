@@ -487,66 +487,31 @@ std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
 {
 	std::vector<bool> newVis(visibility);
 	int rowSize = HI2::getScreenHeight() / config::spriteSize;
-	if constexpr (true) {
-		std::vector<int> rows;
-		for (int i = 0; i < HI2::getScreenWidth() / config::spriteSize; ++i)
-			rows.push_back(i);
 
-		auto testFunc = [rowSize, visibility, &newVis](const int& n)
+	for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+	{
+		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 		{
-			for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+			int index = x * HI2::getScreenHeight() / config::spriteSize + y;
+			if (visibility[index])
 			{
-				int index = n * HI2::getScreenHeight() / config::spriteSize + y;
-				if (visibility[index])
-				{
-					if (n > 0)
-						newVis[index - rowSize] = true;
-					if (n < HI2::getScreenWidth() / config::spriteSize - 1)
-						newVis[index + rowSize] = true;
-					if (y > 0)
-						newVis[index - 1] = true;
-					if (y < HI2::getScreenHeight() / config::spriteSize - 1)
-						newVis[index + 1] = true;
+				if (x > 0)
+					newVis[index - rowSize] = true;
+				if (x < HI2::getScreenWidth() / config::spriteSize - 1)
+					newVis[index + rowSize] = true;
+				if (y > 0)
+					newVis[index - 1] = true;
+				if (y < HI2::getScreenHeight() / config::spriteSize - 1)
+					newVis[index + 1] = true;
 
-					if (n > 0 && y > 0)
-						newVis[index - rowSize - 1] = true;
-					if (n < HI2::getScreenWidth() / config::spriteSize - 1 && y < HI2::getScreenHeight() / config::spriteSize - 1)
-						newVis[index + rowSize + 1] = true;
-					if (y > 0 && n < HI2::getScreenWidth() / config::spriteSize - 1)
-						newVis[index - 1 + rowSize] = true;
-					if (y < HI2::getScreenHeight() / config::spriteSize - 1 && n > 0)
-						newVis[index + 1 - rowSize] = true;
-				}
-			}
-		};
-		std::for_each(rows.begin(), rows.end(), testFunc);
-	}
-	else {
-		for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
-		{
-			for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
-			{
-				int index = x * HI2::getScreenHeight() / config::spriteSize + y;
-				if (visibility[index])
-				{
-					if (x > 0)
-						newVis[index - rowSize] = true;
-					if (x < HI2::getScreenWidth() / config::spriteSize - 1)
-						newVis[index + rowSize] = true;
-					if (y > 0)
-						newVis[index - 1] = true;
-					if (y < HI2::getScreenHeight() / config::spriteSize - 1)
-						newVis[index + 1] = true;
-
-					if (x > 0 && y > 0)
-						newVis[index - rowSize - 1] = true;
-					if (x < HI2::getScreenWidth() / config::spriteSize - 1 && y < HI2::getScreenHeight() / config::spriteSize - 1)
-						newVis[index + rowSize + 1] = true;
-					if (y > 0 && x < HI2::getScreenWidth() / config::spriteSize - 1)
-						newVis[index - 1 + rowSize] = true;
-					if (y < HI2::getScreenHeight() / config::spriteSize - 1 && x > 0)
-						newVis[index + 1 - rowSize] = true;
-				}
+				if (x > 0 && y > 0)
+					newVis[index - rowSize - 1] = true;
+				if (x < HI2::getScreenWidth() / config::spriteSize - 1 && y < HI2::getScreenHeight() / config::spriteSize - 1)
+					newVis[index + rowSize + 1] = true;
+				if (y > 0 && x < HI2::getScreenWidth() / config::spriteSize - 1)
+					newVis[index - 1 + rowSize] = true;
+				if (y < HI2::getScreenHeight() / config::spriteSize - 1 && x > 0)
+					newVis[index + 1 - rowSize] = true;
 			}
 		}
 	}
