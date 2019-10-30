@@ -635,7 +635,7 @@ void State::Playing::createEntities()
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
 		playerSprite.sprite = _core->getGraphics().loadTexture("player2");
-		playerSprite.name = "player";
+		playerSprite.name = "player2";
 
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
@@ -671,7 +671,7 @@ void State::Playing::createEntities()
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.collider->setUserData((void*)playerResponse);
-		initPosition.z += playerBody.width / 2;
+		initPosition = rp3d::Vector3(0,0,playerBody.width / 2);
 		transform.setPosition(initPosition);
 		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
@@ -810,7 +810,9 @@ void State::Playing::fixEntities()
 		bodyResponse->body.entity = entity;
 		b.collider->setUserData((void*)bodyResponse);
 
-		b._collisionShape = new rp3d::CapsuleShape(b.width / 2, b.height);
+		b._collisionShape = new rp3d::SphereShape(b.width / 2);
+		initPosition = rp3d::Vector3(0,0,b.width / 2);
+		transform.setPosition(initPosition);
 		b.collider->addCollisionShape(b._collisionShape, transform);
 	}
 }
