@@ -325,14 +325,14 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 		{
 			if (entityBody.maxContactDepth < contactPoint->getPenetrationDepth())
 			{
-				if (pos.parent == node)
+				if (pos.parent != node)
 				{//convert to local
 				//TODO avoid this if possible
-
+				
 					oldParent = pos.parent;
 					pos.pos = node->getLocalPos(pos.pos, oldParent);
 					pos.parent = node;
-
+				
 					velocity& vel = Services::enttRegistry->get<velocity>(entity);
 					vel.spd = node->getLocalVel(vel.spd, oldParent);
 				}

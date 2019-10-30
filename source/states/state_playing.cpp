@@ -315,7 +315,7 @@ void State::Playing::draw(double dt) {
 				depth -= _enttRegistry.get<body>(entity).height;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
+				renderOrders.push_back(renderLayer{ depth+0.05,	std::variant<entt::entity,nodeLayer>(entity) });
 		}
 
 	}
@@ -333,13 +333,18 @@ void State::Playing::draw(double dt) {
 		HI2::setTextureColorMod(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
 		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
-	position playerPos= _enttRegistry.get<position>(_player);
+	position playerPos = _enttRegistry.get<position>(_player);
+	velocity playerVel = _enttRegistry.get<velocity>(_player);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 	HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
 	HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
 	HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
 	HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
 	HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
+	HI2::drawText(_standardFont, "vx: " + std::to_string(playerVel.spd.x), { 0,180 }, 30, HI2::Color::Red);
+	HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
+	HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
+	HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
 
 	HI2::endFrame();
 
@@ -586,7 +591,7 @@ void State::Playing::createEntities()
 		playerName.nameString = "Captain Lewis";
 
 		auto& playerBody = _enttRegistry.assign<body>(_player);
-		playerBody.height = 0.9;
+		playerBody.height = 0.8;
 		playerBody.width = 0.8;
 		playerBody.mass = 65;
 		playerBody.volume = 0.07;
@@ -612,6 +617,7 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
+		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
