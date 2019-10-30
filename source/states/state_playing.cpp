@@ -290,7 +290,7 @@ void State::Playing::draw(double dt) {
 		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
 		for (universeNode*& node : sortedDrawingNodes) {
-			std::vector<bool> visibility((HI2::getScreenWidth() / config::spriteSize) * HI2::getScreenHeight() / config::spriteSize, true);
+			std::vector<bool> visibility(((int)(HI2::getScreenWidth() / config::spriteSize)) * ((int)(HI2::getScreenHeight() / config::spriteSize)), true);
 			for (int i = 0; i <= config::cameraDepth; ++i) {//for depth afegim cada capa dels DrawingNodes
 				position currentCameraPos = cameraPos;
 				currentCameraPos.pos.z -= i;
@@ -401,13 +401,16 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 			fdd localPos = firstBlock - cameraPos.pos;
 
-			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
-			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
+			int rowSize = (HI2::getScreenWidth() / config::spriteSize);
+			int colSize = (HI2::getScreenHeight() / config::spriteSize);
+
+			firstBlock.x -= rowSize / 2;
+			firstBlock.y -= colSize / 2; // bloc del TL
 
 
 			const point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
 
-			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+			for (int x = 0; x < rowSize; ++x)
 			{
 				const int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
 				if (finalXdrawPos + config::spriteSize * zoom < 0)
@@ -415,14 +418,14 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				else if (finalXdrawPos > HI2::getScreenWidth())
 					break;
 
-				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+				for (int y = 0; y < colSize; ++y)
 				{
 					const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
 					if (finalYdrawPos + config::spriteSize * zoom < 0)
 						continue;
 					else if (finalYdrawPos > HI2::getScreenHeight())
 						break;
-					const int index = x * HI2::getScreenHeight() / config::spriteSize + y;
+					const int index = (y * rowSize) + x;
 
 					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (node.visibility[index] && b != nullptr) {
@@ -469,9 +472,9 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 	result.layerHeight = layerHeight;
 	result.visibility = visibility;
 	int i = 0;
-	for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+	for (int y = 0; y < floor(HI2::getScreenHeight() / config::spriteSize); ++y)
 	{
-		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+		for (int x = 0; x < floor(HI2::getScreenWidth() / config::spriteSize); ++x)
 		{
 			metaBlock* b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
 			result.blocks.push_back(b);
@@ -486,32 +489,33 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
 {
 	std::vector<bool> newVis(visibility);
-	int rowSize = HI2::getScreenHeight() / config::spriteSize;
+	int rowSize = HI2::getScreenWidth() / config::spriteSize;
+	int colSize = HI2::getScreenHeight() / config::spriteSize;
 
-	for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+	for (int y = 0; y < colSize; ++y)
 	{
-		for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+		for (int x = 0; x < rowSize; ++x)
 		{
-			int index = x * HI2::getScreenHeight() / config::spriteSize + y;
+			int index = x + (y * rowSize);
+			//visibility[index] = true;
 			if (visibility[index])
 			{
-				if (x > 0)
-					newVis[index - rowSize] = true;
-				if (x < HI2::getScreenWidth() / config::spriteSize - 1)
-					newVis[index + rowSize] = true;
-				if (y > 0)
-					newVis[index - 1] = true;
-				if (y < HI2::getScreenHeight() / config::spriteSize - 1)
-					newVis[index + 1] = true;
-
-				if (x > 0 && y > 0)
+				if (x > 0 && y > 0)//UL
 					newVis[index - rowSize - 1] = true;
-				if (x < HI2::getScreenWidth() / config::spriteSize - 1 && y < HI2::getScreenHeight() / config::spriteSize - 1)
-					newVis[index + rowSize + 1] = true;
-				if (y > 0 && x < HI2::getScreenWidth() / config::spriteSize - 1)
+				if (y > 0) //UP
+					newVis[index - rowSize] = true;
+				if (y > 0 && x < rowSize - 1)//UR
+					newVis[index - rowSize + 1] = true;
+				if (x > 0) //LEFT
+					newVis[index - 1] = true;
+				if (x < rowSize - 1) //RIGHT
+					newVis[index + 1] = true;
+				if (y < colSize - 1 && x > 0)//DL
 					newVis[index - 1 + rowSize] = true;
-				if (y < HI2::getScreenHeight() / config::spriteSize - 1 && x > 0)
-					newVis[index + 1 - rowSize] = true;
+				if (y < colSize - 1) //DOWN
+					newVis[index + rowSize] = true;
+				if (x < rowSize - 1 && y < colSize - 1) //DR
+					newVis[index + rowSize + 1] = true;
 			}
 		}
 	}
