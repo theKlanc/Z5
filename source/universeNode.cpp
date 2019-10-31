@@ -34,6 +34,11 @@ void universeNode::clean()
 	}
 }
 
+baseBlock& universeNode::getTopBlock(const point2D& pos)
+{
+	return _generator->getTopBlock(pos);
+}
+
 metaBlock* universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
 	auto debug = chunkFromPos(pos);

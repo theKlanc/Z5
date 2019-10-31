@@ -283,9 +283,23 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
+	if constexpr(false)
+	{
+		int height = HI2::getScreenHeight();
+		int width = HI2::getScreenWidth();
+		universeNode* test;
+		_universeBase.findNodeByID(4,test);
+		for(int  i =0;i<height ;++i)
+		{
+			for(int j =0;j<width;++j)
+			{
+				test->getTopBlock({ j,i });
+			}
+		}
+	}
 	_core->getGraphics().stepAnimations(dt * 1000);
 	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(HI2::Color(20, 5, 100, 255));
+	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 	{
 		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);

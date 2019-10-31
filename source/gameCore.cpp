@@ -26,7 +26,7 @@ void gameCore::startGameLoop() {
 
 		
 		//std::cout<<"FPS: "<<1/((double)microSeconds/1000000)<<std::endl;
-		lastTick = currentTick;
+  		lastTick = currentTick;
 	}
 }
 
