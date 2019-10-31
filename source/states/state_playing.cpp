@@ -18,7 +18,6 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
-std::mutex State::Playing::endChunkLoader;
 bool lungsFull = true;
 
 
@@ -26,12 +25,9 @@ State::Playing::~Playing() {
 
 
 	//delete _chunkLoaderPlayerPosition;
-	endChunkLoader.lock();
-	{
-		_chunkLoaderPlayerPosition = nullptr;
-		_chunkLoaderThread->join();
-	}
-	endChunkLoader.unlock();
+	_chunkLoaderPlayerPosition = nullptr;
+	_chunkLoaderThread->join();
+
 	saveGame();
 	_universeBase.clean();
 }
@@ -283,15 +279,15 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
-	if constexpr(false)
+	if constexpr (false)
 	{
 		int height = HI2::getScreenHeight();
 		int width = HI2::getScreenWidth();
 		universeNode* test;
-		_universeBase.findNodeByID(4,test);
-		for(int  i =0;i<height ;++i)
+		_universeBase.findNodeByID(4, test);
+		for (int i = 0; i < height; ++i)
 		{
-			for(int j =0;j<width;++j)
+			for (int j = 0; j < width; ++j)
 			{
 				test->getTopBlock({ j,i });
 			}
@@ -329,7 +325,7 @@ void State::Playing::draw(double dt) {
 				depth -= _enttRegistry.get<body>(entity).height;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth+0.05,	std::variant<entt::entity,nodeLayer>(entity) });
+				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeLayer>(entity) });
 		}
 
 	}
@@ -621,7 +617,7 @@ void State::Playing::createEntities()
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.collider->setUserData((void*)playerResponse);
-		initPosition = rp3d::Vector3(0,0,playerBody.width / 2);
+		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
 		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
@@ -762,7 +758,7 @@ void State::Playing::fixEntities()
 		b.collider->setUserData((void*)bodyResponse);
 
 		b._collisionShape = new rp3d::SphereShape(b.width / 2);
-		initPosition = rp3d::Vector3(0,0,b.width / 2);
+		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
 		b.collider->addCollisionShape(b._collisionShape, transform);
 	}
@@ -770,12 +766,14 @@ void State::Playing::fixEntities()
 
 void State::Playing::_chunkLoaderFunc()
 {
-	while (_chunkLoaderPlayerPosition != nullptr) {
-		endChunkLoader.lock();
-		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
-		if (_chunkLoaderPlayerPosition != nullptr)
+	position* positionCopy=_chunkLoaderPlayerPosition;
+	while (positionCopy != nullptr) {
+		position p(*positionCopy);
+		if (positionCopy != nullptr)
+		{
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
-		endChunkLoader.unlock();
+		}
+		positionCopy=_chunkLoaderPlayerPosition;
 	}
 }
 
