@@ -639,8 +639,8 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-		playerSprite.sprite = _core->getGraphics().loadTexture("player2");
-		playerSprite.name = "player2";
+		playerSprite.sprite = _core->getGraphics().loadTexture("player3");
+		playerSprite.name = "player3";
 
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
