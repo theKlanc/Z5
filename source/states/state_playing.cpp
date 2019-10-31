@@ -15,6 +15,7 @@
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include <cmath>
 #include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -404,16 +405,16 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 			double tmp = fmod(firstBlock.x, 1);
 			if (tmp < 0)
-				tmp = 1 - abs(tmp);
+				tmp = 1.0f - (tmp>0?tmp:-tmp);
 			double fraccionalX = 0.5 - tmp;
+
 			if (fraccionalX < 0)fraccionalX += 1;
 
 			tmp = fmod(firstBlock.y, 1);
 			if (tmp < 0)
-				tmp = 1 - abs(tmp);
+				tmp = 1.0f - (tmp>0?tmp:-tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
-
 			fdd localPos = firstBlock - cameraPos.pos;
 
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
@@ -421,7 +422,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 
 			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
-
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
 				int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
