@@ -146,3 +146,8 @@ void terrainPainter::setEmptyBlock(baseBlock* emptyBlock)
 {
 	_emptyBlock = emptyBlock;
 }
+
+baseBlock& nodeGenerator::getTopBlock(const point2D& p)
+{
+	return _terrainPainter.getBlock(_terrainPainter.getHeight(getNoise(p)));
+}

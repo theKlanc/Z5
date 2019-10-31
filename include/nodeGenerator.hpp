@@ -40,6 +40,7 @@ public:
 	nodeGenerator(unsigned int s);
 	virtual ~nodeGenerator() = 0;
 	virtual terrainChunk getChunk(const point3Di& p) = 0;
+	virtual baseBlock& getTopBlock(const point2D& p);
 protected:
 	double getNoise(point2D p);
 	terrainPainter _terrainPainter;
