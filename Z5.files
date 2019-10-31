@@ -255,7 +255,7 @@ deps/entt/signal/emitter.hpp
 deps/entt/signal/emitter.hpp
 deps/entt/signal/sigh.hpp
 deps/entt/signal/sigh.hpp
-deps/json.hpp
+deps/json/single_include/nlohmann/json.hpp
 icon.jpg
 include/4dd.hpp
 include/4dd.hpp
