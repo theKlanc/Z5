@@ -17,7 +17,7 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 
 ifeq ($(DEBUG), 1)
-FLAGS := $(FLAGS) -Og -g -fstack-protector-all
+FLAGS := $(FLAGS) -DDEBUG -Og -g -fstack-protector-all
 else
 FLAGS := $(FLAGS) -O3 -ffast-math
 endif
