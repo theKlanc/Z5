@@ -154,9 +154,6 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 	}
 }
 
-
-
-
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	int x = (int(floor((double)pos.x / config::chunkSize)) % config::chunkLoadDiameter);
 	if (x < 0)

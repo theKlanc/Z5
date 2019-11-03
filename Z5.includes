@@ -27,3 +27,7 @@ include/nodeGenerators
 source/nodeGenerators
 source/components
 deps/json/single_include/nlohmann
+source/UI/gadgets
+source/UI
+include/UI
+include/UI/gadgets

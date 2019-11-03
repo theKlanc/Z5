@@ -2,6 +2,7 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "states/state_playing.hpp"
 #include "states/state_demo.hpp"
+#include "states/state_main_menu.hpp"
 #include <memory>
 #include <iostream>
 
@@ -49,7 +50,8 @@ gameCore::gameCore() {
 	_exit = false;
 	_pop = 0;
 	// HI2::consoleInit();
-	pushState(std::make_unique<State::Playing>(*this,"default",0));
+	//pushState(std::make_unique<State::Playing>(*this,"default",0));
+	pushState(std::make_unique<State::MainMenu>(*this));
 	//pushState(std::make_unique<State::Demo>(*this));
 	
 }
