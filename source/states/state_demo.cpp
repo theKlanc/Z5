@@ -90,6 +90,7 @@ void State::Demo::draw(double dt) {
 		HI2::drawTexture(*texture,0,0,1);
 	
 	HI2::drawText(font,"OOF",point2D{0,0},40,HI2::Color(255,0,0,255));
+	HI2::drawRectangle(pixelPos,40,40,HI2::Color(255,255,255,255));
 	
 	
 	
