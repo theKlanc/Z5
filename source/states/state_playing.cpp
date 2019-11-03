@@ -255,6 +255,10 @@ void State::Playing::input(double dt)
 			}
 		}
 	}
+
+	// Exit
+	if(down & HI2::BUTTON::KEY_ESCAPE)
+		_core->popState();
 }
 
 void State::Playing::update(double dt) {

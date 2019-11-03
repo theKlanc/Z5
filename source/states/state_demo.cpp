@@ -31,7 +31,7 @@ State::Demo::~Demo(){
 
 void State::Demo::input(double dt) {
 
-	int held = HI2::getKeysHeld();
+	unsigned long long held = HI2::getKeysHeld();
 	if(held & HI2::BUTTON::BUTTON_MINUS){
 		pixelSpd.x=0;
 		pixelSpd.y=0;
@@ -58,6 +58,9 @@ void State::Demo::input(double dt) {
 	if(held & HI2::BUTTON::KEY_B){
 		HI2::playSound(effect);
 		std::cout<<"Played Sound"<<std::endl;
+	}
+	if(held & HI2::BUTTON::KEY_ESCAPE){
+		_core->popState();
 	}
 }
 

@@ -57,23 +57,30 @@ char utils::getChar(HI2::BUTTON b)
 		return 'm';
 	case HI2::KEY_ACCEPT:
 		return '\n';
+	case HI2::KEY_SPACE:
+		return '\ ';
 	default:
-		return '_';
+		return '\0';
 	}
 }
 
 std::string utils::getString(unsigned long long buttons, std::string str)
 {
-	for(unsigned long long i = 0; i <= BIT(63ULL); i*=2){
-		if(buttons & i){
-			if((HI2::BUTTON)i == HI2::BUTTON::KEY_BACKSPACE)
+	for(unsigned long long i = 0; i <64; i++){
+		unsigned long long bitfield = BIT(i);
+		if(buttons & bitfield){
+			if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_BACKSPACE)
 			{
-				str.erase(str.size()-1,1);
+				if(str.size()>0)
+					str.erase(str.size()-1,1);
 			}
-			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ACCEPT){}
-			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ESCAPE){}
-			else
-				str+=getChar((HI2::BUTTON)i);
+			else if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_ACCEPT){}
+			else if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_ESCAPE){}
+			else{
+				char c = getChar((HI2::BUTTON)bitfield);
+				if(c!='\0')
+					str+=c;
+			}
 		}
 	}
 	return str;

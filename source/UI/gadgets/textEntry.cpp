@@ -17,8 +17,11 @@ textEntry::textEntry(point2D pos, point2D size, HI2::Font font, int textSize, st
 
 }
 
-void textEntry::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, double dt)
+void textEntry::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, const double& dt)
 {
+	if(down & HI2::BUTTON::TOUCH && touched(mouse)){
+		_writing = true;
+	}
 	if(down & HI2::BUTTON::KEY_ACCEPT){
 		_writing = !_writing;
 	}

@@ -4,8 +4,10 @@
 #include "UI/gadgets/imageView.hpp"
 #include "UI/gadgets/basicPanel.hpp"
 #include "UI/gadgets/textView.hpp"
+#include "UI/gadgets/textEntry.hpp"
 #include "gameCore.hpp"
 #include "states/state_demo.hpp"
+
 
 State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts/test.ttf")
 {
@@ -22,21 +24,27 @@ State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts
 	_continueButton = std::make_shared<button>(point2D{30,30},point2D{30,30},"");
 	panel->addGadget(_continueButton);
 	last = _continueButton;
+	panel->addGadget(std::make_shared<textView>(point2D{80,30},point2D{100,30},"Continue",_standardFont,30,HI2::Color::Black));
 	
 	_newGameButton = std::make_shared<button>(point2D{30,90},point2D{30,30},"");
 	panel->addGadget(_newGameButton);
 	last->setDown(_newGameButton.get());
 	_newGameButton->setUp(last.get());
 	last=_newGameButton;
+	panel->addGadget(std::make_shared<textView>(point2D{80,90},point2D{100,30},"New Game",_standardFont,30,HI2::Color::Black));
 
 	_demoButton = std::make_shared<button>(point2D{30,150},point2D{30,30},"");
 	panel->addGadget(_demoButton);
 	last->setDown(_demoButton.get());
 	_demoButton->setUp(last.get());
 	last=_demoButton;
+	panel->addGadget(std::make_shared<textView>(point2D{80,150},point2D{100,30},"Demo",_standardFont,30,HI2::Color::Black));
 	
-
-
+	std::shared_ptr<textEntry> txt = std::make_shared<textEntry>(point2D{30,210},point2D{90,30},_standardFont,30,"","savename");
+	panel->addGadget(txt);
+	last->setDown(txt.get());
+	txt->setUp(last.get());
+	last=txt;
 
 
 	_uiScene.addGadget(panel);
@@ -45,7 +53,8 @@ State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts
 }
 
 void State::MainMenu::input(double dt) {
-
+	if(HI2::getKeysDown() & HI2::BUTTON::KEY_ESCAPE)
+		_core->popState();
 }
 
 void State::MainMenu::update(double dt) {
