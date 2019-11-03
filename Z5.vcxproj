@@ -239,7 +239,16 @@
     <ClCompile Include="source\states\state_main_menu.cpp" />
     <ClCompile Include="source\states\state_playing.cpp" />
     <ClCompile Include="source\terrainChunk.cpp" />
+    <ClCompile Include="source\UI\gadget.cpp" />
+    <ClCompile Include="source\UI\gadgets\basicPanel.cpp" />
+    <ClCompile Include="source\UI\gadgets\button.cpp" />
+    <ClCompile Include="source\UI\gadgets\imageView.cpp" />
+    <ClCompile Include="source\UI\gadgets\panel.cpp" />
+    <ClCompile Include="source\UI\gadgets\textEntry.cpp" />
+    <ClCompile Include="source\UI\gadgets\textView.cpp" />
+    <ClCompile Include="source\UI\scene.cpp" />
     <ClCompile Include="source\universeNode.cpp" />
+    <ClCompile Include="source\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\entt\config\config.h" />
@@ -396,7 +405,16 @@
     <ClInclude Include="include\states\state_main_menu.hpp" />
     <ClInclude Include="include\states\state_playing.hpp" />
     <ClInclude Include="include\terrainChunk.hpp" />
+    <ClInclude Include="include\UI\gadget.hpp" />
+    <ClInclude Include="include\UI\gadgets\basicPanel.hpp" />
+    <ClInclude Include="include\UI\gadgets\button.hpp" />
+    <ClInclude Include="include\UI\gadgets\imageView.hpp" />
+    <ClInclude Include="include\UI\gadgets\panel.hpp" />
+    <ClInclude Include="include\UI\gadgets\textEntry.hpp" />
+    <ClInclude Include="include\UI\gadgets\textView.hpp" />
+    <ClInclude Include="include\UI\scene.hpp" />
     <ClInclude Include="include\universeNode.hpp" />
+    <ClInclude Include="include\utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

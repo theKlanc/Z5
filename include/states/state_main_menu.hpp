@@ -14,7 +14,9 @@ namespace State {
 
 	  private:
 		scene _uiScene;
-		std::shared_ptr<button> _playButton;
+		std::shared_ptr<button> _continueButton;
+		std::shared_ptr<button> _newGameButton;
+		std::shared_ptr<button> _demoButton;
 		HI2::Font _standardFont;
 	};
 } // namespace State

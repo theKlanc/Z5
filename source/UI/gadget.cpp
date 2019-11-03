@@ -56,10 +56,11 @@ bool gadget::isActive()
 	return _active;
 }
 
-bool gadget::isRenderable()
+bool gadget::isRenderable(point2D offset)
 {
-	return (_position.x>=0 && _position.x < HI2::getScreenWidth()) || (_position.y>=0 && _position.y < HI2::getScreenHeight())
-			|| (_position.x+_size.x>=0 && _position.x+_size.x < HI2::getScreenWidth()) || (_position.y+_size.y>=0 && _position.y+_size.y < HI2::getScreenHeight());
+	point2D finalPos = _position + offset;
+	return (finalPos.x>=0 && finalPos.x < HI2::getScreenWidth()) || (finalPos.y>=0 && finalPos.y < HI2::getScreenHeight())
+			|| (finalPos.x+_size.x>=0 && finalPos.x+_size.x < HI2::getScreenWidth()) || (finalPos.y+_size.y>=0 && finalPos.y+_size.y < HI2::getScreenHeight());
 }
 
 bool gadget::isSelectable()

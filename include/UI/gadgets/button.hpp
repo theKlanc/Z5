@@ -17,4 +17,5 @@ class button : public gadget{
 		bool _pressed = false;
 		bool _oldPressed = false;
 		bool _rising = false;
+		bool _byMouse = false;
 };

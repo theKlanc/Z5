@@ -11,13 +11,13 @@ panel::panel(point2D pos, point2D size, std::string s)
 void panel::draw(point2D offset)
 {
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(g->isVisible() && g->isRenderable())
+		if(g->isVisible() && g->isRenderable(offset+_position))
 		{
 			g->draw(offset + _position);
 		}
 	}
-	if(_selected != nullptr && _selected->isVisible() && _selected->isRenderable()){
-		HI2::drawEmptyRectangle(_selected->getPosition(),_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
+	if(_selected != nullptr && _selected->isVisible() && _selected->isRenderable(offset+_position)){
+		HI2::drawEmptyRectangle(_selected->getPosition()+_position,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
 	}
 }
 
@@ -32,57 +32,61 @@ void panel::update(const double &dt)
 gadget *panel::getRight()
 {
 	if(_selected != nullptr){
-		if(_selected->getRight() != nullptr && _selected->getRight()->isSelectable()){
-			_selected = _selected->getRight();
+		gadget* temp = _selected->getRight();
+		if(temp != nullptr && temp->isSelectable()){
+			_selected = temp;
 			return this;
 		}
 		else{
 			return gadget::getRight();
 		}
 	}
-	return getRight();
+	return gadget::getRight();
 }
 
 gadget *panel::getUp()
 {
 	if(_selected != nullptr){
-		if(_selected->getUp() != nullptr && _selected->getUp()->isSelectable()){
-			_selected = _selected->getUp();
+		gadget* temp = _selected->getUp();
+		if(temp != nullptr && temp->isSelectable()){
+			_selected = temp;
 			return this;
 		}
 		else{
 			return gadget::getUp();
 		}
 	}
-	return getUp();
+	return gadget::getUp();
 }
 
 gadget *panel::getLeft()
 {
 	if(_selected != nullptr){
-		if(_selected->getLeft() != nullptr && _selected->getLeft()->isSelectable()){
-			_selected = _selected->getLeft();
+		gadget* temp = _selected->getLeft();
+		if(temp != nullptr && temp->isSelectable()){
+			_selected = temp;
 			return this;
 		}
 		else{
 			return gadget::getLeft();
 		}
 	}
-	return getLeft();
+	return gadget::getLeft();
 }
 
 gadget *panel::getDown()
 {
 	if(_selected != nullptr){
-		if(_selected->getDown() != nullptr && _selected->getDown()->isSelectable()){
-			_selected = _selected->getDown();
+		gadget* temp = _selected->getDown();
+		if(temp != nullptr && temp->isSelectable()){
+			_selected = temp;
 			return this;
 		}
 		else{
 			return gadget::getDown();
 		}
 	}
-	return getDown();
+	return gadget::getDown();
 }
 
 void panel::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, const double& dt)
@@ -90,10 +94,10 @@ void panel::update(const unsigned long long &down, const unsigned long long &up,
 	point2D relativeMouse;
 	relativeMouse = mouse-_position;
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(down & HI2::BUTTON::TOUCH && g->touched(mouse) && g->isSelectable())
+		if(down & HI2::BUTTON::TOUCH && g->touched(relativeMouse) && g->isSelectable())
 			_selected=g.get();
 	}
-	if(_selected != nullptr && _selected->isRenderable()){
+	if(_selected != nullptr){
 		_selected->update(down,up,held,relativeMouse,dt);
 	}
 }

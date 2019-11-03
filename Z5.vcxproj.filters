@@ -48,6 +48,18 @@
     <Filter Include="source\components">
       <UniqueIdentifier>{18319022-5a2e-40b4-9a74-5b5da918447f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\UI">
+      <UniqueIdentifier>{8e4d2dcd-9ce2-483a-a130-9a46154b9389}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\UI\gadgets">
+      <UniqueIdentifier>{68c16110-fbc8-4544-bdfe-436f78cdf859}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\UI">
+      <UniqueIdentifier>{016b1bf7-7757-4676-8463-f9776652c2d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\UI\gadgets">
+      <UniqueIdentifier>{d3ee89f9-1bc1-4bad-b670-36f8c6650d6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp">
@@ -354,6 +366,33 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\config.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\basicPanel.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\button.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadget.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\imageView.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\textEntry.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\textView.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\scene.cpp">
+      <Filter>source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\panel.cpp">
+      <Filter>source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="source\utils.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -822,6 +861,33 @@
     </ClInclude>
     <ClInclude Include="deps\json\single_include\nlohmann\json.hpp">
       <Filter>deps</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadget.hpp">
+      <Filter>include\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\scene.hpp">
+      <Filter>include\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\basicPanel.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\button.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\imageView.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\panel.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\textEntry.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\textView.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utils.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
