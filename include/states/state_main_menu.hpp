@@ -7,7 +7,6 @@
 namespace State {
 	class MainMenu : public State_Base {
 	  public:
-		MainMenu();
 		MainMenu(gameCore &gc);
 		void input(double dt) override;
 		void update(double dt) override;
@@ -16,5 +15,6 @@ namespace State {
 	  private:
 		scene _uiScene;
 		std::shared_ptr<button> _playButton;
+		HI2::Font _standardFont;
 	};
 } // namespace State

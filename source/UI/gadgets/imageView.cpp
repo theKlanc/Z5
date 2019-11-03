@@ -5,7 +5,7 @@ imageView::imageView(point2D pos, point2D size, HI2::Texture image, std::string 
 {
 	_position = pos;
 	_size = size;
-
+	_selectable = false;
 	_texture = image;
 	_name = s;
 }

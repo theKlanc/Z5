@@ -13,6 +13,7 @@ textEntry::textEntry(point2D pos, point2D size, HI2::Font font, int textSize, st
 	_hintColor=hintColor;
 	_name = name;
 	_writing = false;
+	_selectable = true;
 
 }
 

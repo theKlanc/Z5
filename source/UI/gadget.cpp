@@ -41,6 +41,11 @@ void gadget::setVisible(bool b)
 	_visible=b;
 }
 
+void gadget::setSelectable(bool b)
+{
+	_selectable=b;
+}
+
 bool gadget::isVisible()
 {
 	return _visible;
@@ -49,6 +54,17 @@ bool gadget::isVisible()
 bool gadget::isActive()
 {
 	return _active;
+}
+
+bool gadget::isRenderable()
+{
+	return (_position.x>=0 && _position.x < HI2::getScreenWidth()) || (_position.y>=0 && _position.y < HI2::getScreenHeight())
+			|| (_position.x+_size.x>=0 && _position.x+_size.x < HI2::getScreenWidth()) || (_position.y+_size.y>=0 && _position.y+_size.y < HI2::getScreenHeight());
+}
+
+bool gadget::isSelectable()
+{
+	return _selectable;
 }
 
 void gadget::setRight(gadget *g)

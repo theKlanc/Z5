@@ -11,8 +11,10 @@ class button : public gadget{
 
 		bool isPressed();
 		bool isPressing();
-		bool isRising();
+		bool isRising(); // is button rising (even if by dragging mouse out of the button)
+		bool isRisingInside(); // is button rising with cursor still inside
 	private:
 		bool _pressed = false;
 		bool _oldPressed = false;
+		bool _rising = false;
 };

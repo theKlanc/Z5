@@ -14,8 +14,11 @@ class gadget{
 		std::string_view getName();
 		void setActive(bool b = true);
 		void setVisible(bool b = true);
-		bool isVisible();
-		bool isActive();
+		void setSelectable(bool b = true);
+		bool isVisible(); // is the _visible flag set?
+		bool isActive(); // is the _active flag set?
+		bool isRenderable(); // will it be drawn inside the screen?
+		bool isSelectable();
 
 		void setRight(gadget* g);
 		void setUp(gadget* g);
@@ -40,4 +43,6 @@ class gadget{
 
 		bool _active = true;
 		bool _visible = true;
+
+		bool _selectable = false;
 };

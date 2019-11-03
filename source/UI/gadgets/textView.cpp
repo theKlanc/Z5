@@ -9,6 +9,7 @@ textView::textView(point2D pos, point2D size, std::string text, HI2::Font font, 
 	_text=text;
 	_color = color;
 	_name = name;
+	_selectable = false;
 
 }
 
