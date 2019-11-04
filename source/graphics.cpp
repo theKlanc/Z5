@@ -35,7 +35,7 @@ HI2::Texture* graphics::loadTexture(string spriteName) { // load a texture from 
 				pathList.push_back(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png");
 				frameCounter++;
 			}
-			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,200)));
+			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,0.2)));
 		}
 		else {
 			std::cout << "Texture at \"" << completeFileName << "\" not found"
@@ -64,11 +64,11 @@ HI2::Texture* graphics::getTexture(string spriteName) {
 		return &it->second;
 }
 
-void graphics::stepAnimations(double ms)
+void graphics::stepAnimations(double s)
 {
 	for(auto& tex : texAtlas)
 	{
-		tex.second.step(ms);
+		tex.second.step(s);
 	}
 }
 
