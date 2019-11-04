@@ -2,7 +2,7 @@
 #include "states/state_base.hpp"
 #include <string>
 #include "UI/scene.hpp"
-#include "UI/gadgets/button.hpp"
+#include "UI/gadgets/pushButton.hpp"
 
 namespace State {
 	class MainMenu : public State_Base {
@@ -14,9 +14,9 @@ namespace State {
 
 	  private:
 		scene _uiScene;
-		std::shared_ptr<button> _continueButton;
-		std::shared_ptr<button> _newGameButton;
-		std::shared_ptr<button> _demoButton;
+		std::shared_ptr<pushButton> _continueButton;
+		std::shared_ptr<pushButton> _newGameButton;
+		std::shared_ptr<pushButton> _demoButton;
 		HI2::Font _standardFont;
 	};
 } // namespace State

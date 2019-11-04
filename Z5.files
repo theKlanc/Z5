@@ -261,11 +261,12 @@ include/4dd.hpp
 include/4dd.hpp
 include/UI/gadget.hpp
 include/UI/gadgets/basicPanel.hpp
-include/UI/gadgets/button.hpp
 include/UI/gadgets/imageView.hpp
 include/UI/gadgets/panel.hpp
+include/UI/gadgets/pushButton.hpp
 include/UI/gadgets/textEntry.hpp
 include/UI/gadgets/textView.hpp
+include/UI/gadgets/toggleButton.hpp
 include/UI/scene.hpp
 include/block.hpp
 include/block.hpp
@@ -363,11 +364,12 @@ linux.mk
 main.cpp
 source/UI/gadget.cpp
 source/UI/gadgets/basicPanel.cpp
-source/UI/gadgets/button.cpp
 source/UI/gadgets/imageView.cpp
 source/UI/gadgets/panel.cpp
+source/UI/gadgets/pushButton.cpp
 source/UI/gadgets/textEntry.cpp
 source/UI/gadgets/textView.cpp
+source/UI/gadgets/toggleButton.cpp
 source/UI/scene.cpp
 source/block.cpp
 source/block.cpp

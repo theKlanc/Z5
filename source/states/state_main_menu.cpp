@@ -5,6 +5,7 @@
 #include "UI/gadgets/basicPanel.hpp"
 #include "UI/gadgets/textView.hpp"
 #include "UI/gadgets/textEntry.hpp"
+#include "UI/gadgets/toggleButton.hpp"
 #include "gameCore.hpp"
 #include "states/state_demo.hpp"
 
@@ -21,19 +22,19 @@ State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts
 
 	std::shared_ptr<basicPanel> panel = std::make_shared<basicPanel>(point2D{500,300},point2D{500,300},HI2::Color::Grey);
 	
-	_continueButton = std::make_shared<button>(point2D{30,30},point2D{30,30},"");
+	_continueButton = std::make_shared<pushButton>(point2D{30,30},point2D{30,30},"");
 	panel->addGadget(_continueButton);
 	last = _continueButton;
 	panel->addGadget(std::make_shared<textView>(point2D{80,30},point2D{100,30},"Continue",_standardFont,30,HI2::Color::Black));
 	
-	_newGameButton = std::make_shared<button>(point2D{30,90},point2D{30,30},"");
+	_newGameButton = std::make_shared<toggleButton>(point2D{30,90},point2D{30,30},"");
 	panel->addGadget(_newGameButton);
 	last->setDown(_newGameButton.get());
 	_newGameButton->setUp(last.get());
 	last=_newGameButton;
 	panel->addGadget(std::make_shared<textView>(point2D{80,90},point2D{100,30},"New Game",_standardFont,30,HI2::Color::Black));
 
-	_demoButton = std::make_shared<button>(point2D{30,150},point2D{30,30},"");
+	_demoButton = std::make_shared<pushButton>(point2D{30,150},point2D{30,30},"");
 	panel->addGadget(_demoButton);
 	last->setDown(_demoButton.get());
 	_demoButton->setUp(last.get());

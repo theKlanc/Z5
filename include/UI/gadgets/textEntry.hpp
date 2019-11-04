@@ -18,6 +18,5 @@ class textEntry : public gadget{
 		std::string _hint;
 		HI2::Color _textColor;
 		HI2::Color _hintColor;
-		bool _writing = false;
 
 };

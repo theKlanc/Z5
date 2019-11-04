@@ -1,6 +1,6 @@
-#include "UI/gadgets/button.hpp"
+#include "UI/gadgets/pushButton.hpp"
 
-button::button(point2D pos, point2D size, std::string s)
+pushButton::pushButton(point2D pos, point2D size, std::string s)
 {
 	_selectable = true;
 	_position = pos;
@@ -8,12 +8,12 @@ button::button(point2D pos, point2D size, std::string s)
 	_name = s;
 }
 
-void button::draw(point2D offset)
+void pushButton::draw(point2D offset)
 {
 	HI2::drawRectangle(_position + offset, _size.x, _size.y, (_pressed ? HI2::Color::Green : HI2::Color::Red));
 }
 
-void button::update(const unsigned long long& down, const unsigned long long& up, const unsigned long long& held, const point2D& mouse, const double& dt)
+void pushButton::update(const unsigned long long& down, const unsigned long long& up, const unsigned long long& held, const point2D& mouse, const double& dt)
 {
 	_pressed = (held & HI2::BUTTON::KEY_ACCEPT) || (touched(mouse) && (held & HI2::BUTTON::TOUCH));
 
@@ -33,29 +33,29 @@ void button::update(const unsigned long long& down, const unsigned long long& up
 	}
 }
 
-void button::update(const double& dt)
+void pushButton::update(const double& dt)
 {
 	_oldPressed = _pressed;
 	_pressed = false;
 	_rising = false;
 }
 
-bool button::isPressed()
+bool pushButton::isPressed()
 {
 	return _pressed;
 }
 
-bool button::isPressing()
+bool pushButton::isPressing()
 {
 	return !_oldPressed && _pressed;
 }
 
-bool button::isRising()
+bool pushButton::isRising()
 {
 	return _oldPressed && !_pressed;
 }
 
-bool button::isRisingInside()
+bool pushButton::isRisingInside()
 {
 	return _rising;
 }
