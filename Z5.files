@@ -264,6 +264,7 @@ include/UI/gadgets/basicPanel.hpp
 include/UI/gadgets/imageView.hpp
 include/UI/gadgets/panel.hpp
 include/UI/gadgets/pushButton.hpp
+include/UI/gadgets/scrollablePanel.hpp
 include/UI/gadgets/textEntry.hpp
 include/UI/gadgets/textView.hpp
 include/UI/gadgets/toggleButton.hpp
@@ -367,6 +368,7 @@ source/UI/gadgets/basicPanel.cpp
 source/UI/gadgets/imageView.cpp
 source/UI/gadgets/panel.cpp
 source/UI/gadgets/pushButton.cpp
+source/UI/gadgets/scrollablePanel.cpp
 source/UI/gadgets/textEntry.cpp
 source/UI/gadgets/textView.cpp
 source/UI/gadgets/toggleButton.cpp

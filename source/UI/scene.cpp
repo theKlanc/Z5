@@ -18,10 +18,10 @@ void scene::setName(std::string s)
 void scene::draw()
 {
 	for (std::shared_ptr<gadget> g : _gadgets) {
-		if (g->isVisible() && g->isRenderable({ 0,0 }))
+		if (g->isVisible() && g->isRenderable({ 0,0 },{HI2::getScreenWidth(),HI2::getScreenHeight()}))
 			g->draw({ 0,0 });
 	}
-	if (_selected != nullptr && _selected->isVisible() && _selected->isRenderable({ 0,0 })) {
+	if (_selected != nullptr && _selected->isVisible() && _selected->isRenderable({ 0,0 },{HI2::getScreenWidth(),HI2::getScreenHeight()})) {
 		HI2::drawEmptyRectangle(_selected->getPosition(), _selected->getSize().x, _selected->getSize().y, HI2::Color::Blue);
 	}
 }

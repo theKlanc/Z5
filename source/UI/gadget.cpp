@@ -1,4 +1,5 @@
 #include "UI/gadget.hpp"
+#include <cmath>
 
 void gadget::draw(point2D offset){}
 
@@ -56,11 +57,19 @@ bool gadget::isActive()
 	return _active;
 }
 
-bool gadget::isRenderable(point2D offset)
+bool gadget::isRenderable(point2D offset, point2D parentSize)
 {
 	point2D finalPos = _position + offset;
-	return (finalPos.x>=0 && finalPos.x < HI2::getScreenWidth()) || (finalPos.y>=0 && finalPos.y < HI2::getScreenHeight())
-			|| (finalPos.x+_size.x>=0 && finalPos.x+_size.x < HI2::getScreenWidth()) || (finalPos.y+_size.y>=0 && finalPos.y+_size.y < HI2::getScreenHeight());
+
+	return std::abs(finalPos.x+_size.x + finalPos.x - parentSize.x) <= (finalPos.x+_size.x - finalPos.x + parentSize.x) && std::abs(finalPos.y+_size.y + finalPos.y - parentSize.y) <= (finalPos.y+_size.y - finalPos.y + parentSize.y);
+
+}
+
+bool gadget::isCompletelyRenderable(point2D offset, point2D parentSize)
+{
+	point2D finalPos = _position + offset;
+	point2D corner = finalPos+_size;
+	return finalPos.x>0&&finalPos.y>0&&corner.x<parentSize.x&&corner.y<parentSize.y;
 }
 
 bool gadget::isSelectable()

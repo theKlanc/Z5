@@ -11,13 +11,13 @@ panel::panel(point2D pos, point2D size, std::string s)
 void panel::draw(point2D offset)
 {
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(g->isVisible() && g->isRenderable(offset+_position))
+		if(g->isVisible() && g->isRenderable(offset,_size))
 		{
 			g->draw(offset + _position);
 		}
 	}
-	if(_selected != nullptr && _selected->isVisible() && _selected->isRenderable(offset+_position)){
-		HI2::drawEmptyRectangle(_selected->getPosition()+_position,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
+	if(_selected != nullptr && _selected->isVisible() && _selected->isRenderable(offset,_size)){
+		HI2::drawEmptyRectangle(_selected->getPosition()+_position+offset,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
 	}
 }
 

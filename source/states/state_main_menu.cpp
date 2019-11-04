@@ -6,6 +6,7 @@
 #include "UI/gadgets/textView.hpp"
 #include "UI/gadgets/textEntry.hpp"
 #include "UI/gadgets/toggleButton.hpp"
+#include "UI/gadgets/scrollablePanel.hpp"
 #include "gameCore.hpp"
 #include "states/state_demo.hpp"
 
@@ -20,7 +21,7 @@ State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts
 	_uiScene.addGadget(std::make_shared<textView>(point2D{0,0},point2D{100,50},"Z5",_standardFont,200,HI2::Color::White));
 	
 
-	std::shared_ptr<basicPanel> panel = std::make_shared<basicPanel>(point2D{500,300},point2D{500,300},HI2::Color::Grey);
+	std::shared_ptr<scrollablePanel> panel = std::make_shared<scrollablePanel>(point2D{500,300},point2D{500,300},400);
 	
 	_continueButton = std::make_shared<pushButton>(point2D{30,30},point2D{30,30},"");
 	panel->addGadget(_continueButton);

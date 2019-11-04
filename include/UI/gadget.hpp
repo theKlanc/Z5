@@ -17,7 +17,8 @@ class gadget{
 		void setSelectable(bool b = true);
 		bool isVisible(); // is the _visible flag set?
 		bool isActive(); // is the _active flag set?
-		bool isRenderable(point2D offset); // will it be drawn inside the screen?
+		bool isRenderable(point2D offset, point2D parentSize); // will it be drawn inside the screen?
+		bool isCompletelyRenderable(point2D offset, point2D parentSize); // will it be drawn completely inside the screen?
 		bool isSelectable();
 
 		void setRight(gadget* g);

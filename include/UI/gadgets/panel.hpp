@@ -16,7 +16,7 @@ class panel : public gadget{
 		void addGadget(std::shared_ptr<gadget> g);
 
 
-	private:
+	protected:
 		std::vector<std::shared_ptr<gadget>> _gadgets;
 		gadget* _selected = nullptr;
 };
