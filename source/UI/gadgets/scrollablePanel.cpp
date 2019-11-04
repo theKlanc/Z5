@@ -18,11 +18,6 @@ void scrollablePanel::draw(point2D offset)
 	}
 }
 
-void scrollablePanel::update(const double &dt)
-{
-	panel::update(dt);
-}
-
 void scrollablePanel::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, const double &dt)
 {
 	point2D relativeMouse;
@@ -58,5 +53,42 @@ void scrollablePanel::update(const unsigned long long &down, const unsigned long
 		_offset=0;
 	if(_offset < -1*(_totalHeight-_size.y))
 		_offset= -1*(_totalHeight-_size.y);
-	std::cout << _offset << std::endl;
+
+
+}
+
+gadget *scrollablePanel::getDown()
+{
+	if(_selected != nullptr){
+		gadget* temp = _selected->getDown();
+		if(temp != nullptr && temp->isSelectable()){
+			_selected = temp;
+			if(temp->getPosition().y+temp->getSize().y+_offset>=_size.y){
+				_offset=-1*(temp->getPosition().y+temp->getSize().y-_size.y)-1;
+			}
+			return this;
+		}
+		else{
+			return gadget::getDown();
+		}
+	}
+	return gadget::getDown();
+}
+
+gadget *scrollablePanel::getUp()
+{
+	if(_selected != nullptr){
+		gadget* temp = _selected->getUp();
+		if(temp != nullptr && temp->isSelectable()){
+			_selected = temp;
+			if(temp->getPosition().y+_offset<0){
+				_offset=-temp->getPosition().y+1;
+			}
+			return this;
+		}
+		else{
+			return gadget::getUp();
+		}
+	}
+	return gadget::getUp();
 }
