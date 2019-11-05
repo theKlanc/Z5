@@ -1,7 +1,7 @@
 #include "UI/gadgets/basicScrollablePanel.hpp"
 
 
-basicScrollablePanel::basicScrollablePanel(point2D pos, point2D size, int maxHeight, HI2::Color c, std::string s) : scrollablePanel::scrollablePanel(pos,size,maxHeight,s)
+basicScrollablePanel::basicScrollablePanel(point2D pos, point2D size, point2D maxDimensions, HI2::Color c, std::string s) : scrollablePanel::scrollablePanel(pos,size,maxDimensions,s)
 {
 	_color = c;
 }

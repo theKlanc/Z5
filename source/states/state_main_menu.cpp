@@ -21,7 +21,7 @@ State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts
 	_uiScene.addGadget(std::make_shared<textView>(point2D{0,0},point2D{100,50},"Z5",_standardFont,200,HI2::Color::White));
 	
 
-	std::shared_ptr<basicScrollablePanel> panel = std::make_shared<basicScrollablePanel>(point2D{500,300},point2D{500,180},500,HI2::Color::Grey);
+	std::shared_ptr<basicScrollablePanel> panel = std::make_shared<basicScrollablePanel>(point2D{500,300},point2D{500,180},point2D{600,500},HI2::Color::Grey);
 	
 	_continueButton = std::make_shared<pushButton>(point2D{30,30},point2D{30,30},"");
 	panel->addGadget(_continueButton);
