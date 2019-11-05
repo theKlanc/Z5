@@ -5,6 +5,7 @@
 #include "UI/gadgets/pushButton.hpp"
 #include "UI/gadgets/panel.hpp"
 #include "UI/gadgets/textEntry.hpp"
+#include "UI/gadgets/scrollablePanel.hpp"
 #include "UI/gadgets/toggleButton.hpp"
 
 namespace State {
@@ -16,6 +17,8 @@ namespace State {
 		void draw(double dt) override;
 
 	  private:
+		void regenerateSavesVector();
+
 		void createMainPanel();
 		void createNewGamePanel();
 		void createContinuePanel();
@@ -38,8 +41,15 @@ namespace State {
 			std::shared_ptr<pushButton> start;
 		}_newGamePanel;
 
-		struct{
+		struct save {
+			std::filesystem::path path;
 			std::shared_ptr<panel> p;
+			std::shared_ptr<pushButton> startButton;
+			std::shared_ptr<pushButton> deleteButton;
+		};
+		struct anonStruct{
+			std::shared_ptr<scrollablePanel> p;
+			std::vector<save> saves;
 		}_continuePanel;
 
 		HI2::Font _standardFont;

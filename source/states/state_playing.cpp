@@ -33,7 +33,7 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc), _standardFont("data/fonts/test.ttf") {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont("data/fonts/test.ttf") {
 
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();

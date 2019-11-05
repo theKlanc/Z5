@@ -10,6 +10,7 @@
 #include "UI/gadgets/basicTextEntry.hpp"
 #include "gameCore.hpp"
 #include "states/state_demo.hpp"
+#include <iostream>
 
 
 State::MainMenu::MainMenu(gameCore &gc):State_Base(gc),_standardFont("data/fonts/test.ttf")
@@ -80,8 +81,8 @@ void State::MainMenu::update(double dt) {
 	if(_newGamePanel.start->isRisingInside())
 	{
 		if(!_newGamePanel.seed->isEmpty() && !_newGamePanel.saveName->isEmpty()){
-			_newGamePanel.seed->setHintColor(HI2::Color::Grey);
-			_newGamePanel.saveName->setHintColor(HI2::Color::Grey);
+			_newGamePanel.seed->setHintColor(HI2::Color::LightGrey);
+			_newGamePanel.saveName->setHintColor(HI2::Color::LightGrey);
 
 			_newGamePanel.start->update(dt);
 			_newGamePanel.p->setActive(false);
@@ -103,6 +104,24 @@ void State::MainMenu::update(double dt) {
 				_newGamePanel.saveName->setHintColor(HI2::Color::Red);
 		}
 	}
+	for(save& s : _continuePanel.saves){
+		if(s.startButton->isRisingInside()){
+			s.p->update(dt);
+			_continuePanel.p->setActive(false);
+			_continuePanel.p->setVisible(false);
+			_mainPanel.p->setActive(true);
+			_mainPanel.p->setVisible(true);
+
+			_uiScene.select(_mainPanel.p);
+
+			_core->pushState(std::make_unique<State::Playing>(*_core,s.path.filename()));
+		}
+		if(s.deleteButton->isRisingInside()){
+			std::filesystem::remove_all(s.path);
+			regenerateSavesVector();
+			break;
+		}
+	}
 }
 
 void State::MainMenu::draw(double dt) {
@@ -111,9 +130,37 @@ void State::MainMenu::draw(double dt) {
 	HI2::endFrame();
 }
 
+void State::MainMenu::regenerateSavesVector()
+{
+	std::shared_ptr<gadget> last;
+	int i = 0;
+	for(auto& s : std::filesystem::directory_iterator(HI2::getSavesPath())){
+		save savePanel;
+		savePanel.p = std::make_shared<basicPanel>(point2D{30,30+180*i++},point2D{940,150},HI2::Color::LightestGrey);
+		savePanel.path = s.path();
+		savePanel.p->addGadget(std::make_shared<textView>(point2D{30,30},point2D{880,30},savePanel.path.filename(),_standardFont,30,HI2::Color::Black));
+		savePanel.startButton = std::make_shared<pushButton>(point2D{30,90},point2D{30,30});
+		savePanel.deleteButton = std::make_shared<pushButton>(point2D{880,30},point2D{30,30});
+		savePanel.p->addGadget(savePanel.startButton);
+		savePanel.p->addGadget(savePanel.deleteButton);
+
+		savePanel.startButton->setRight(savePanel.deleteButton.get());
+		savePanel.deleteButton->setLeft(savePanel.startButton.get());
+
+		if(last != nullptr){
+			last->setDown(savePanel.p.get());
+			savePanel.p->setUp(last.get());
+		}
+		last = savePanel.p;
+		_continuePanel.saves.push_back(savePanel);
+		_continuePanel.p->addGadget(savePanel.p);
+	}
+	_continuePanel.p->setMaxDimensions({1000,30+180*i});
+}
+
 void State::MainMenu::createMainPanel()
 {
-	_mainPanel.p = std::make_shared<basicPanel>(point2D{HI2::getScreenWidth()/2-300/2,300},point2D{300,270},HI2::Color::Grey);
+	_mainPanel.p = std::make_shared<basicPanel>(point2D{HI2::getScreenWidth()/2-300/2,300},point2D{300,270},HI2::Color::LightGrey);
 
 	std::shared_ptr<gadget> last;
 
@@ -148,17 +195,17 @@ void State::MainMenu::createMainPanel()
 
 void State::MainMenu::createNewGamePanel()
 {
-	_newGamePanel.p = std::make_shared<basicPanel>(point2D{HI2::getScreenWidth()/2-500/2,250},point2D{500,270},HI2::Color::Grey);
+	_newGamePanel.p = std::make_shared<basicPanel>(point2D{HI2::getScreenWidth()/2-500/2,250},point2D{500,270},HI2::Color::LightGrey);
 	_newGamePanel.p->setActive(false);
 	_newGamePanel.p->setVisible(false);
 	std::shared_ptr<gadget> last;
 	_uiScene.addGadget(_newGamePanel.p);
 
-	_newGamePanel.saveName = std::make_shared<basicTextEntry>(point2D{30,30},point2D{_newGamePanel.p->getSize().x-60,30},_standardFont,30,"","Save Name",HI2::Color::White,HI2::Color::Black,HI2::Color::Grey);
+	_newGamePanel.saveName = std::make_shared<basicTextEntry>(point2D{30,30},point2D{_newGamePanel.p->getSize().x-60,30},_standardFont,30,"New Universe","Save Name",HI2::Color::White,HI2::Color::Black,HI2::Color::LightGrey);
 	_newGamePanel.p->addGadget(_newGamePanel.saveName);
 	last = _newGamePanel.saveName;
 
-	_newGamePanel.seed = std::make_shared<basicTextEntry>(point2D{30,90},point2D{120,30},_standardFont,30,std::to_string(rand()%100000),"",HI2::Color::White,HI2::Color::Black,HI2::Color::Grey);
+	_newGamePanel.seed = std::make_shared<basicTextEntry>(point2D{30,90},point2D{120,30},_standardFont,30,std::to_string(rand()%100000),"",HI2::Color::White,HI2::Color::Black,HI2::Color::LightGrey);
 	_newGamePanel.p->addGadget(_newGamePanel.seed);
 	last->setDown(_newGamePanel.seed.get());
 	_newGamePanel.seed->setUp(last.get());
@@ -181,21 +228,11 @@ void State::MainMenu::createNewGamePanel()
 
 void State::MainMenu::createContinuePanel()
 {
-	_continuePanel.p = std::make_shared<basicScrollablePanel>(point2D{HI2::getScreenWidth()/2-300/2,300},point2D{300,270},point2D{300,270},HI2::Color::Grey);
+	_continuePanel.p = std::make_shared<basicScrollablePanel>(point2D{HI2::getScreenWidth()/2-1000/2,250},point2D{1000,400},point2D{1000,400},HI2::Color::LightGrey);
 	_continuePanel.p->setActive(false);
 	_continuePanel.p->setVisible(false);
-	std::shared_ptr<gadget> last;
 
-	//_continueButton = std::make_shared<pushButton>(point2D{30,30},point2D{30,30},"");
-	//mainPanel->addGadget(_continueButton);
-	//last = _continueButton;
-	//mainPanel->addGadget(std::make_shared<textView>(point2D{80,30},point2D{100,30},"Continue",_standardFont,30,HI2::Color::Black));
-	//
-	//_newGameButton = std::make_shared<pushButton>(point2D{30,90},point2D{30,30},"");
-	//mainPanel->addGadget(_newGameButton);
-	//
-	//last=_newGameButton;
-	//mainPanel->addGadget(std::make_shared<textView>(point2D{80,90},point2D{100,30},"New Game",_standardFont,30,HI2::Color::Black));
+	regenerateSavesVector();
 
 	_uiScene.addGadget(_continuePanel.p);
 }

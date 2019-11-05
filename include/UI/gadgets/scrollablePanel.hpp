@@ -10,6 +10,7 @@ public:
 	gadget* getUp() override;
 	gadget* getLeft() override;
 	gadget* getDown() override;
+	void setMaxDimensions(point2D d);
 private:
 	void correctOffsetBounds();
 	void fitOffsetToGadget(gadget* g);

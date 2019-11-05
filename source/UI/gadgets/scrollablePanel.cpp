@@ -8,7 +8,7 @@ scrollablePanel::scrollablePanel(point2D pos, point2D size, point2D maxDimension
 void scrollablePanel::draw(point2D offset)
 {
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(g->isVisible() && g->isCompletelyRenderable(offset+_offset,_size))
+		if(g->isVisible() && g->isCompletelyRenderable(_offset,_size))
 		{
 			g->draw(offset + _position+_offset);
 		}
@@ -115,6 +115,11 @@ gadget *scrollablePanel::getDown()
 		}
 	}
 	return gadget::getDown();
+}
+
+void scrollablePanel::setMaxDimensions(point2D d)
+{
+	_maxDimensions=d;
 }
 
 void scrollablePanel::correctOffsetBounds()
