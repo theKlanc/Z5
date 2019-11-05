@@ -53,6 +53,7 @@ void gameCore::processStates() {
 
 gameCore::gameCore() {
 	HI2::systemInit();
+	srand(time(NULL));
 	_exit = false;
 	_pop = 0;
 	// HI2::consoleInit();

@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-double config::zoom = 3;
+double config::zoom = 3.4;
 bool config::gravityEnabled = true;
 bool config::dragEnabled = true;
 int config::cameraDepth = 50;

@@ -18,7 +18,7 @@ textEntry::textEntry(point2D pos, point2D size, HI2::Font font, int textSize, st
 
 void textEntry::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, const double& dt)
 {
-	_text = utils::getString(down,_text);
+	_text = utils::getString(down,held&HI2::BUTTON::KEY_SHIFT,_text);
 }
 
 void textEntry::draw(point2D offset)
@@ -39,7 +39,22 @@ void textEntry::setText(std::string text)
 	_text = text;
 }
 
+void textEntry::setHintColor(HI2::Color c)
+{
+	_hintColor=c;
+}
+
+void textEntry::setTextColor(HI2::Color c)
+{
+	_textColor=c;
+}
+
 std::string textEntry::getText()
 {
 	return _text;
+}
+
+bool textEntry::isEmpty()
+{
+	return _text.empty();
 }

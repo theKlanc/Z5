@@ -114,9 +114,9 @@ bool universeNode::operator==(const universeNode& right) const {
 }
 
 point3Di universeNode::chunkFromPos(const fdd& pos) {
-	return point3Di{ (int)floor((double)pos.x / config::chunkSize),
-					(int)floor((double)pos.y / config::chunkSize),
-					(int)floor((double)pos.z / config::chunkSize) };
+	return point3Di{ (int)round((double)pos.x / config::chunkSize),
+					(int)round((double)pos.y / config::chunkSize),
+					(int)round((double)pos.z / config::chunkSize) };
 }
 
 point3Di universeNode::chunkFromPos(const point3Di& pos)

@@ -64,7 +64,7 @@ char utils::getChar(HI2::BUTTON b)
 	}
 }
 
-std::string utils::getString(unsigned long long buttons, std::string str)
+std::string utils::getString(unsigned long long buttons,bool caps, std::string str)
 {
 	for(unsigned long long i = 0; i <64; i++){
 		unsigned long long bitfield = BIT(i);
@@ -79,7 +79,7 @@ std::string utils::getString(unsigned long long buttons, std::string str)
 			else{
 				char c = getChar((HI2::BUTTON)bitfield);
 				if(c!='\0')
-					str+=c;
+					str+=caps?toupper(c):c;
 			}
 		}
 	}

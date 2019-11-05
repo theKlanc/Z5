@@ -262,6 +262,7 @@ include/4dd.hpp
 include/UI/gadget.hpp
 include/UI/gadgets/basicPanel.hpp
 include/UI/gadgets/basicScrollablePanel.hpp
+include/UI/gadgets/basicTextEntry.hpp
 include/UI/gadgets/imageView.hpp
 include/UI/gadgets/panel.hpp
 include/UI/gadgets/pushButton.hpp
@@ -367,6 +368,7 @@ main.cpp
 source/UI/gadget.cpp
 source/UI/gadgets/basicPanel.cpp
 source/UI/gadgets/basicScrollablePanel.cpp
+source/UI/gadgets/basicTextEntry.cpp
 source/UI/gadgets/imageView.cpp
 source/UI/gadgets/panel.cpp
 source/UI/gadgets/pushButton.cpp

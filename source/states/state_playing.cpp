@@ -229,12 +229,6 @@ void State::Playing::input(double dt)
 		std::cout << "minShadow: " << config::minShadow << std::endl;
 	}
 
-	// Fullscreen
-	if (down & HI2::BUTTON::KEY_F11)
-	{
-		HI2::toggleFullscreen();
-	}
-
 	// Breathe
 	if (down & HI2::BUTTON::KEY_X)
 	{

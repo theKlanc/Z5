@@ -29,12 +29,15 @@ void scene::draw()
 void scene::update(const unsigned long long& down, const unsigned long long& up, const unsigned long long& held, const point2D& mouse, double dt)
 {
 	for (std::shared_ptr<gadget> g : _gadgets) {
-		if (g->isActive())
+		if (g->isActive()){
 			g->update(dt);
-		if (down & HI2::BUTTON::TOUCH && g->touched(mouse) && g->isSelectable())
-			_selected = g.get();
+			if (down & HI2::BUTTON::TOUCH && g->touched(mouse) && g->isSelectable())
+			{
+				_selected = g.get();
+			}
+		}
 	}
-	if (_selected != nullptr)
+	if (_selected != nullptr && _selected->isActive())
 	{
 		if (down & HI2::BUTTON::BUTTON_RIGHT) {
 			gadget* temp = _selected->getRight();
