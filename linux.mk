@@ -1,8 +1,8 @@
 APPNAME := Z5
 BINDIR	:= bin
 PLATFORM := linux
-SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src
-INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src deps/reactPhysics3D/src
+SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets
+INCLUDE := include deps deps/HardwareInterface/Simple-SDL2-Audio/src deps/reactPhysics3D/src deps/json/single_include/nlohmann
 
 BUILDDIR := build
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/broadphase deps/reactPhysics3D/src/collision/narrowphase
@@ -17,7 +17,7 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 
 ifeq ($(DEBUG), 1)
-FLAGS := $(FLAGS) -Og -g -fstack-protector-all
+FLAGS := $(FLAGS) -DDEBUG -Og -ggdb3 -fstack-protector-all
 else
 FLAGS := $(FLAGS) -O3 -ffast-math
 endif

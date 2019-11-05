@@ -123,7 +123,7 @@
               "diameter": 64,
               "position": {
 			    "//comment": "test",
-                "x": 0,
+                "x": 20000,
                 "y": 0,
                 "z": 255.2,
                 "r": 0

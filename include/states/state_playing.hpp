@@ -24,9 +24,6 @@ namespace State {
 		static std::filesystem::path savePath();
 
 
-
-
-
 	private:
 
 

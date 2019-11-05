@@ -15,6 +15,7 @@
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include <cmath>
 #include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -77,21 +78,21 @@ void State::Playing::input(double dt)
 	unsigned long long down = HI2::getKeysDown();
 
 	//STOP
-	if (held & HI2::BUTTON::KEY_MINUS) {
+	if (held & HI2::BUTTON::BUTTON_MINUS) {
 		playerSpd.spd = fdd();
 	}
 
 	//MOVE
-	if (held & (HI2::BUTTON::KEY_LSTICK_UP | HI2::BUTTON::KEY_W)) {
+	if (held & (HI2::BUTTON::BUTTON_LSTICK_UP | HI2::BUTTON::KEY_W)) {
 		playerSpd.spd.y -= 10 * dt;
 	}
-	if (held & (HI2::BUTTON::KEY_LSTICK_DOWN | HI2::BUTTON::KEY_S)) {
+	if (held & (HI2::BUTTON::BUTTON_LSTICK_DOWN | HI2::BUTTON::KEY_S)) {
 		playerSpd.spd.y += 10 * dt;
 	}
-	if (held & (HI2::BUTTON::KEY_LSTICK_LEFT | HI2::BUTTON::KEY_A)) {
+	if (held & (HI2::BUTTON::BUTTON_LSTICK_LEFT | HI2::BUTTON::KEY_A)) {
 		playerSpd.spd.x -= 10 * dt;
 	}
-	if (held & (HI2::BUTTON::KEY_LSTICK_RIGHT | HI2::BUTTON::KEY_D)) {
+	if (held & (HI2::BUTTON::BUTTON_LSTICK_RIGHT | HI2::BUTTON::KEY_D)) {
 		playerSpd.spd.x += 10 * dt;
 	}
 
@@ -104,7 +105,7 @@ void State::Playing::input(double dt)
 	}
 
 	//TELEPORT UPWARDS
-	if (down & HI2::BUTTON::KEY_PLUS) {
+	if (down & HI2::BUTTON::BUTTON_PLUS) {
 		playerPos.pos.z += 5;
 		playerSpd.spd.z = 0;
 	}
@@ -127,20 +128,20 @@ void State::Playing::input(double dt)
 	}
 
 	//SELECT BLOCK
-	if (down & HI2::BUTTON::KEY_DLEFT) {
+	if (down & HI2::BUTTON::BUTTON_DLEFT) {
 		selectedBlock--;
 		if (selectedBlock < 0)
 			selectedBlock = baseBlock::terrainTable.size() - 1;
 	}
-	if (down & HI2::BUTTON::KEY_DRIGHT) {
+	if (down & HI2::BUTTON::BUTTON_DRIGHT) {
 		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
 	}
 
 	//BLOCK ROTATE
-	if (down & HI2::BUTTON::KEY_DUP) {
+	if (down & HI2::BUTTON::BUTTON_DUP) {
 		selectedRotation++;
 	}
-	if (down & HI2::BUTTON::KEY_DDOWN) {
+	if (down & HI2::BUTTON::BUTTON_DDOWN) {
 		selectedRotation--;
 	}
 
@@ -159,11 +160,11 @@ void State::Playing::input(double dt)
 	}
 
 	//CAMERA ZOOM
-	if (held & HI2::BUTTON::KEY_ZR) {
+	if (held & HI2::BUTTON::BUTTON_ZR) {
 		config::zoom += dt;
 		std::cout << "Zoom: " << config::zoom << std::endl;
 	}
-	if (held & HI2::BUTTON::KEY_ZL) {
+	if (held & HI2::BUTTON::BUTTON_ZL) {
 		config::zoom /= 1.01;
 		std::cout << "Zoom: " << config::zoom << std::endl;
 	}
@@ -254,6 +255,10 @@ void State::Playing::input(double dt)
 			}
 		}
 	}
+
+	// Exit
+	if(down & HI2::BUTTON::KEY_ESCAPE)
+		_core->popState();
 }
 
 void State::Playing::update(double dt) {
@@ -293,7 +298,7 @@ void State::Playing::draw(double dt) {
 			}
 		}
 	}
-	_core->getGraphics().stepAnimations(dt * 1000);
+	_core->getGraphics().stepAnimations(dt);
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 	{
@@ -404,16 +409,16 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 			double tmp = fmod(firstBlock.x, 1);
 			if (tmp < 0)
-				tmp = 1 - abs(tmp);
+				tmp = 1.0f - std::abs(tmp);
 			double fraccionalX = 0.5 - tmp;
+
 			if (fraccionalX < 0)fraccionalX += 1;
 
 			tmp = fmod(firstBlock.y, 1);
 			if (tmp < 0)
-				tmp = 1 - abs(tmp);
+				tmp = 1.0f - std::abs(tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
-
 			fdd localPos = firstBlock - cameraPos.pos;
 
 			int rowSize = (HI2::getScreenWidth() / config::spriteSize);
@@ -422,10 +427,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			firstBlock.x -= rowSize / 2;
 			firstBlock.y -= colSize / 2; // bloc del TL
 
-
-			const point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
-
-			for (int x = 0; x < rowSize; ++x)
+			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
+			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
 				const int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
 				if (finalXdrawPos + config::spriteSize * zoom < 0)

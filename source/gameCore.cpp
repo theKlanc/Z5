@@ -2,6 +2,7 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "states/state_playing.hpp"
 #include "states/state_demo.hpp"
+#include "states/state_main_menu.hpp"
 #include <memory>
 #include <iostream>
 
@@ -27,6 +28,7 @@ void gameCore::startGameLoop() {
 		
 		//std::cout<<"FPS: "<<1/((double)microSeconds/1000000)<<std::endl;
   		lastTick = currentTick;
+		processStates();
 	}
 }
 
@@ -37,10 +39,15 @@ graphics &gameCore::getGraphics()
 	return _graphicsObj;
 }
 
-void gameCore::clean() {
+void gameCore::processStates() {
 	while (_pop > 0) {
 		states.pop();
 		_pop--;
+	}
+	while(!pushStates.empty())
+	{
+		states.push(std::move(pushStates.top()));
+		pushStates.pop();
 	}
 }
 
@@ -49,8 +56,10 @@ gameCore::gameCore() {
 	_exit = false;
 	_pop = 0;
 	// HI2::consoleInit();
-	pushState(std::make_unique<State::Playing>(*this,"default",0));
+	//pushState(std::make_unique<State::Playing>(*this,"default",0));
+	pushState(std::make_unique<State::MainMenu>(*this));
 	//pushState(std::make_unique<State::Demo>(*this));
+	processStates();
 	
 }
 
@@ -61,7 +70,7 @@ gameCore::~gameCore() {
 }
 
 void gameCore::pushState(std::unique_ptr<State::State_Base> state) {
-	states.push(std::move(state));
+	pushStates.push(std::move(state));
 }
 
 void gameCore::popState(int n) { _pop += n; }
