@@ -1,4 +1,5 @@
 #include "UI/scene.hpp"
+#include <algorithm>
 
 scene::scene(std::string name)
 {

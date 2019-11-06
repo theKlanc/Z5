@@ -1,4 +1,5 @@
 #include "UI/gadgets/panel.hpp"
+#include <algorithm>
 
 panel::panel(point2D pos, point2D size, std::string s)
 {
@@ -118,6 +119,6 @@ void panel::removeGadget(std::shared_ptr<gadget> g)
 	{
 		_selected = nullptr;
 	}
-	auto& it = std::find(_gadgets.begin(),_gadgets.end(),g);
+	auto it = std::find(_gadgets.begin(),_gadgets.end(),g);
 	_gadgets.erase(it);
 }
