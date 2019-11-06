@@ -64,20 +64,19 @@ char utils::getChar(HI2::BUTTON b)
 	}
 }
 
-std::string utils::getString(unsigned long long buttons,bool caps, std::string str)
+std::string utils::getString(const std::bitset<HI2::BUTTON_SIZE>& buttons,bool caps, std::string str)
 {
-	for(unsigned long long i = 0; i <64; i++){
-		unsigned long long bitfield = BIT(i);
-		if(buttons & bitfield){
-			if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_BACKSPACE)
+	for(unsigned long long i = 0; i < HI2::BUTTON_SIZE; i++){
+		if(buttons[i]){
+			if((HI2::BUTTON)i == HI2::BUTTON::KEY_BACKSPACE)
 			{
 				if(str.size()>0)
 					str.erase(str.size()-1,1);
 			}
-			else if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_ACCEPT){}
-			else if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_ESCAPE){}
+			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ACCEPT){}
+			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ESCAPE){}
 			else{
-				char c = getChar((HI2::BUTTON)bitfield);
+				char c = getChar((HI2::BUTTON)i);
 				if(c!='\0')
 					str+=caps?toupper(c):c;
 			}

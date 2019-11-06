@@ -8,7 +8,7 @@ void gadget::drawOverlay(point2D offset)
 	HI2::drawEmptyRectangle(_position+offset,_size.x,_size.y,HI2::Color::Blue);
 }
 
-void gadget::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, const double &dt){}
+void gadget::update(const std::bitset<HI2::BUTTON_SIZE>&down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held, const point2D &mouse, const double &dt){}
 
 void gadget::update(const double &dt){}
 

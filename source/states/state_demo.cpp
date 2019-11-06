@@ -30,35 +30,35 @@ State::Demo::~Demo() {
 
 void State::Demo::input(double dt) {
 
-	unsigned long long held = HI2::getKeysHeld();
-	if (held & HI2::BUTTON::BUTTON_MINUS) {
+	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
+	if (held[HI2::BUTTON::BUTTON_MINUS]) {
 		pixelSpd.x = 0;
 		pixelSpd.y = 0;
 	}
 
-	if (held & HI2::BUTTON::BUTTON_UP) {
+	if (held[HI2::BUTTON::BUTTON_UP]) {
 		pixelSpd.y -= 1;
 	}
-	if (held & HI2::BUTTON::BUTTON_DOWN) {
+	if (held[HI2::BUTTON::BUTTON_DOWN]) {
 		pixelSpd.y += 1;
 	}
-	if (held & HI2::BUTTON::BUTTON_LEFT) {
+	if (held[HI2::BUTTON::BUTTON_LEFT]) {
 		pixelSpd.x -= 1;
 	}
-	if (held & HI2::BUTTON::BUTTON_RIGHT) {
+	if (held[HI2::BUTTON::BUTTON_RIGHT]) {
 		pixelSpd.x += 1;
 	}
-	if (held & HI2::BUTTON::BUTTON_PLUS) {
+	if (held[HI2::BUTTON::BUTTON_PLUS]) {
 		_core->quit();
 	}
-	if (held & HI2::BUTTON::KEY_A) {
+	if (held[HI2::BUTTON::KEY_A]) {
 		done = true;
 	}
-	if (held & HI2::BUTTON::KEY_B) {
+	if (held[HI2::BUTTON::KEY_B]) {
 		HI2::playSound(effect);
 		std::cout << "Played Sound" << std::endl;
 	}
-	if (held & HI2::BUTTON::KEY_ESCAPE) {
+	if (held[HI2::BUTTON::KEY_ESCAPE]) {
 		_core->popState();
 	}
 }

@@ -27,12 +27,12 @@ void scene::draw()
 	}
 }
 
-void scene::update(const unsigned long long& down, const unsigned long long& up, const unsigned long long& held, const point2D& mouse, double dt)
+void scene::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<HI2::BUTTON_SIZE>& up, const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, double dt)
 {
 	for (std::shared_ptr<gadget> g : _gadgets) {
 		if (g->isActive()) {
 			g->update(dt);
-			if (down & HI2::BUTTON::TOUCH && g->touched(mouse) && g->isSelectable())
+			if (down[HI2::BUTTON::TOUCH] && g->touched(mouse) && g->isSelectable())
 			{
 				_selected = g.get();
 			}
@@ -40,28 +40,28 @@ void scene::update(const unsigned long long& down, const unsigned long long& up,
 	}
 	if (_selected != nullptr && _selected->isActive())
 	{
-		if (down & HI2::BUTTON::BUTTON_RIGHT) {
+		if (down[HI2::BUTTON::BUTTON_RIGHT]) {
 			gadget* temp = _selected->getRight();
 			if (temp != nullptr && temp->isSelectable())
 			{
 				_selected = temp;
 			}
 		}
-		else if (down & HI2::BUTTON::BUTTON_UP) {
+		else if (down[HI2::BUTTON::BUTTON_UP]) {
 			gadget* temp = _selected->getUp();
 			if (temp != nullptr && temp->isSelectable())
 			{
 				_selected = temp;
 			}
 		}
-		else if (down & HI2::BUTTON::BUTTON_LEFT) {
+		else if (down[HI2::BUTTON::BUTTON_LEFT]) {
 			gadget* temp = _selected->getLeft();
 			if (temp != nullptr && temp->isSelectable())
 			{
 				_selected = temp;
 			}
 		}
-		else if (down & HI2::BUTTON::BUTTON_DOWN) {
+		else if (down[HI2::BUTTON::BUTTON_DOWN]) {
 			gadget* temp = _selected->getDown();
 			if (temp != nullptr && temp->isSelectable())
 			{

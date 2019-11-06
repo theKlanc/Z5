@@ -35,7 +35,7 @@ State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services
 }
 
 void State::MainMenu::input(double dt) {
-	if (HI2::getKeysDown() & HI2::BUTTON::KEY_ESCAPE) {
+	if (HI2::getKeysDown()[HI2::BUTTON::KEY_ESCAPE]) {
 		if (_mainPanel.p->isActive())
 		{
 			_core->popState();

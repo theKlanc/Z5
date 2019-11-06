@@ -73,163 +73,163 @@ void State::Playing::input(double dt)
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
 	auto& playerBdy = _enttRegistry.get<body>(_player);
-	unsigned long long held = HI2::getKeysHeld();
-	unsigned long long down = HI2::getKeysDown();
+	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
+	const std::bitset<HI2::BUTTON_SIZE>& down = HI2::getKeysDown();
 
 	//STOP
-	if (held & HI2::BUTTON::BUTTON_MINUS) {
+	if (held[HI2::BUTTON::BUTTON_MINUS]) {
 		playerSpd.spd = fdd();
 	}
 
 	//MOVE
-	if (held & (HI2::BUTTON::BUTTON_LSTICK_UP | HI2::BUTTON::KEY_W)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
 		playerSpd.spd.y -= 10 * dt;
 	}
-	if (held & (HI2::BUTTON::BUTTON_LSTICK_DOWN | HI2::BUTTON::KEY_S)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
 		playerSpd.spd.y += 10 * dt;
 	}
-	if (held & (HI2::BUTTON::BUTTON_LSTICK_LEFT | HI2::BUTTON::KEY_A)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
 		playerSpd.spd.x -= 10 * dt;
 	}
-	if (held & (HI2::BUTTON::BUTTON_LSTICK_RIGHT | HI2::BUTTON::KEY_D)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
 		playerSpd.spd.x += 10 * dt;
 	}
 
 	//MOVE VERTICALLY
-	if (held & HI2::BUTTON::KEY_R) {
+	if (held[HI2::BUTTON::KEY_R]) {
 		playerSpd.spd.z += 60 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_F) {
+	if (held[HI2::BUTTON::KEY_F]) {
 		playerSpd.spd.z -= 40 * dt;
 	}
 
 	//TELEPORT UPWARDS
-	if (down & HI2::BUTTON::BUTTON_PLUS) {
+	if (down[HI2::BUTTON::BUTTON_PLUS]) {
 		playerPos.pos.z += 5;
 		playerSpd.spd.z = 0;
 	}
 
 
 	//ROTATE PLAYER
-	if (held & HI2::BUTTON::KEY_E) {
+	if (held[HI2::BUTTON::KEY_E]) {
 		playerSpd.spd.r += 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_Q) {
+	if (held[HI2::BUTTON::KEY_Q]) {
 		playerSpd.spd.r -= 10 * dt;
 	}
 
 	//PLACE BLOCK
-	if (down & HI2::BUTTON::KEY_P) {
+	if (down[HI2::BUTTON::KEY_P]) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
-	if (down & HI2::BUTTON::KEY_O) {
+	if (down[HI2::BUTTON::KEY_O]) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 
 	//SELECT BLOCK
-	if (down & HI2::BUTTON::BUTTON_DLEFT) {
+	if (down[HI2::BUTTON::BUTTON_DLEFT]) {
 		selectedBlock--;
 		if (selectedBlock < 0)
 			selectedBlock = baseBlock::terrainTable.size() - 1;
 	}
-	if (down & HI2::BUTTON::BUTTON_DRIGHT) {
+	if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
 		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
 	}
 
 	//BLOCK ROTATE
-	if (down & HI2::BUTTON::BUTTON_DUP) {
+	if (down[HI2::BUTTON::BUTTON_DUP]) {
 		selectedRotation++;
 	}
-	if (down & HI2::BUTTON::BUTTON_DDOWN) {
+	if (down[HI2::BUTTON::BUTTON_DDOWN]) {
 		selectedRotation--;
 	}
 
 	//TOGGLE GRAVITY
-	if (down & HI2::BUTTON::KEY_G)
+	if (down[HI2::BUTTON::KEY_G])
 	{
 		config::gravityEnabled = !config::gravityEnabled;
 		std::cout << "Gravity " << (config::gravityEnabled ? "En" : "Dis") << "abled" << std::endl;
 	}
 
 	//TOGGLE DRAG
-	if (down & HI2::BUTTON::KEY_C)
+	if (down[HI2::BUTTON::KEY_C])
 	{
 		config::dragEnabled = !config::dragEnabled;
 		std::cout << "Drag " << (config::dragEnabled ? "En" : "Dis") << "abled" << std::endl;
 	}
 
 	//CAMERA ZOOM
-	if (held & HI2::BUTTON::BUTTON_ZR) {
+	if (held[HI2::BUTTON::BUTTON_ZR]) {
 		config::zoom += dt;
 		std::cout << "Zoom: " << config::zoom << std::endl;
 	}
-	if (held & HI2::BUTTON::BUTTON_ZL) {
+	if (held[HI2::BUTTON::BUTTON_ZL]) {
 		config::zoom /= 1.01;
 		std::cout << "Zoom: " << config::zoom << std::endl;
 	}
 
 	//CAMERA DEPTH
-	if (down & HI2::BUTTON::KEY_H)
+	if (down[HI2::BUTTON::KEY_H])
 	{
 		config::cameraDepth++;
 		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_B)
+	if (down[HI2::BUTTON::KEY_B])
 	{
 		config::cameraDepth--;
 		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
 	}
 
 	// CAMERA HEIGHT
-	if (down & HI2::BUTTON::KEY_U)
+	if (down[HI2::BUTTON::KEY_U])
 	{
 		config::cameraHeight--;
 		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_I)
+	if (down[HI2::BUTTON::KEY_I])
 	{
 		config::cameraHeight++;
 		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
 	}
 
 	// minScale
-	if (down & HI2::BUTTON::KEY_J)
+	if (down[HI2::BUTTON::KEY_J])
 	{
 		config::minScale += 0.05;
 		std::cout << "MinScale: " << config::minScale << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_N)
+	if (down[HI2::BUTTON::KEY_N])
 	{
 		config::minScale -= 0.05;
 		std::cout << "MinScale: " << config::minScale << std::endl;
 	}
 
 	// Scale
-	if (down & HI2::BUTTON::KEY_K)
+	if (down[HI2::BUTTON::KEY_K])
 	{
 		config::depthScale += 0.05;
 		std::cout << "DepthScale: " << config::depthScale << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_M)
+	if (down[HI2::BUTTON::KEY_M])
 	{
 		config::depthScale -= 0.05;
 		std::cout << "DepthScale: " << config::depthScale << std::endl;
 	}
 
 	// Shadow
-	if (held & HI2::BUTTON::KEY_T)
+	if (held[HI2::BUTTON::KEY_T])
 	{
 		config::minShadow--;
 		std::cout << "minShadow: " << config::minShadow << std::endl;
 	}
-	if (held & HI2::BUTTON::KEY_Y)
+	if (held[HI2::BUTTON::KEY_Y])
 	{
 		config::minShadow++;
 		std::cout << "minShadow: " << config::minShadow << std::endl;
 	}
 
 	// Breathe
-	if (down & HI2::BUTTON::KEY_X)
+	if (down[HI2::BUTTON::KEY_X])
 	{
 		if (lungsFull)
 		{
@@ -250,7 +250,7 @@ void State::Playing::input(double dt)
 	}
 
 	// Exit
-	if(down & HI2::BUTTON::KEY_ESCAPE)
+	if(down[HI2::BUTTON::KEY_ESCAPE])
 		_core->popState();
 }
 
