@@ -291,7 +291,6 @@ void State::Playing::draw(double dt) {
 			}
 		}
 	}
-	Services::graphics.stepAnimations(dt);
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 	{

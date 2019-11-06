@@ -25,7 +25,8 @@ physicsEngine::~physicsEngine()
 
 void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	_remainingTime += dt;
+	if(_remainingTime < 2.0f)
+		_remainingTime += dt;
 
 	Services::physicsMutex.lock();
 	{
