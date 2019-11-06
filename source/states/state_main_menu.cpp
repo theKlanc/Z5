@@ -176,7 +176,7 @@ void State::MainMenu::regenerateSavesVector()
 
 void State::MainMenu::createMainPanel()
 {
-	_mainPanel.p = std::make_shared<basicPanel>(point2D{ HI2::getScreenWidth() / 2 - 400 / 2,320 }, point2D{ 400,288 }, HI2::Color::LightestGrey);
+	_mainPanel.p = std::make_shared<basicPanel>(point2D{ HI2::getScreenWidth() / 2 - 400 / 2,320 }, point2D{ 400,288 }, HI2::Color::LightGrey);
 
 	std::shared_ptr<gadget> last;
 	HI2::Texture on = *Services::graphics.loadTexture("UI/buttons/blue_button_on");
@@ -213,7 +213,7 @@ void State::MainMenu::createMainPanel()
 
 void State::MainMenu::createNewGamePanel()
 {
-	_newGamePanel.p = std::make_shared<basicPanel>(point2D{ HI2::getScreenWidth() / 2 - 500 / 2,250 }, point2D{ 500,270 }, HI2::Color::LightestGrey);
+	_newGamePanel.p = std::make_shared<basicPanel>(point2D{ HI2::getScreenWidth() / 2 - 500 / 2,250 }, point2D{ 500,270 }, HI2::Color::LightGrey);
 	_newGamePanel.p->setActive(false);
 	_newGamePanel.p->setVisible(false);
 	std::shared_ptr<gadget> last;
@@ -246,7 +246,7 @@ void State::MainMenu::createNewGamePanel()
 
 void State::MainMenu::createContinuePanel()
 {
-	_continuePanel.p = std::make_shared<basicScrollablePanel>(point2D{ HI2::getScreenWidth() / 2 - 1000 / 2,250 }, point2D{ 1000,400 }, point2D{ 1000,400 }, HI2::Color::LightestGrey);
+	_continuePanel.p = std::make_shared<basicScrollablePanel>(point2D{ HI2::getScreenWidth() / 2 - 1000 / 2,250 }, point2D{ 1000,400 }, point2D{ 1000,400 }, HI2::Color::LightGrey);
 	_continuePanel.p->setActive(false);
 	_continuePanel.p->setVisible(false);
 
