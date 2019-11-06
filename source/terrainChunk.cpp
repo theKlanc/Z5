@@ -42,7 +42,13 @@ metaBlock& terrainChunk::getBlock(const point3Di& p) {
 	return _blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z];
 }
 
+void terrainChunk::clearDirtyFlag()
+{
+	_dirty = false;
+}
+
 void terrainChunk::setBlock(metaBlock b, const point3Di& p) {
+	_dirty = true;
 	int x = p.x % config::chunkSize;
 	if (x < 0)
 		x += config::chunkSize;
@@ -100,6 +106,7 @@ const point3Di& terrainChunk::getPosition() const {
 
 void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& chunkPos) {
 	if (std::filesystem::exists(fileName)) {
+		_dirty = true;
 		_position = chunkPos;
 		if (_loaded)
 		{
@@ -123,14 +130,15 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 			savedMeta = std::stoi(input);
 			if (savedMeta) {
 				file >> input;
+
 				rotation = (blockRotation)std::stoi(input);
-			}
-			else {
-				rotation = (blockRotation)(rand() % 4);
 			}
 			file >> input;
 			length = std::stoi(input);
-			_blocks.insert(_blocks.end(), length, { &baseBlock::terrainTable[blockID],rotation, savedMeta });
+			for (int i = 0; i < length; ++i)
+			{
+				_blocks.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), savedMeta });
+			}
 		}
 		updateAllColliders();
 		setLoaded();
@@ -141,45 +149,48 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 void terrainChunk::unload(std::filesystem::path file) {
 	if (_loaded) {
 		_loaded = false;
-		file.append(std::to_string(_position.x)).append(std::to_string(_position.y)).append(std::to_string(_position.z)).concat(".z5c");
-		if (!std::filesystem::exists(file.parent_path())) {
-			std::filesystem::create_directories(file.parent_path());
-		}
-		std::ofstream outputFile(file);
-		//.z5c file format:
-		//RLE file which contains the IDs of the blocks on the chunk
-		//no header
-		//5 continuous blocks of dirt(3) followed by 3 blocks of air(1) would be:
-		//3 5
-		//1 3
-		// STORE TO file
-		metaBlock lastBlock = _blocks[0];
-		unsigned accumulatedLength = 0;
-		for (metaBlock& b : _blocks)
+		if(_dirty)
 		{
-			if (b != lastBlock)
+			file.append(std::to_string(_position.x)).append(std::to_string(_position.y)).append(std::to_string(_position.z)).concat(".z5c");
+			if (!std::filesystem::exists(file.parent_path())) {
+				std::filesystem::create_directories(file.parent_path());
+			}
+			std::ofstream outputFile(file);
+			//.z5c file format:
+			//RLE file which contains the IDs of the blocks on the chunk
+			//no header
+			//5 continuous blocks of dirt(3) followed by 3 blocks of air(1) would be:
+			//3 5
+			//1 3
+			// STORE TO file
+			metaBlock lastBlock = _blocks[0];
+			unsigned accumulatedLength = 0;
+			for (metaBlock& b : _blocks)
 			{
-				if (lastBlock.saveMeta) {
-					outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
+				if (b != lastBlock)
+				{
+					if (lastBlock.saveMeta) {
+						outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
+					}
+					else
+					{
+						outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
+					}
+					lastBlock = b;
+					accumulatedLength = 1;
 				}
 				else
 				{
-					outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
+					accumulatedLength++;
 				}
-				lastBlock = b;
-				accumulatedLength = 1;
+			}
+			if (lastBlock.saveMeta) {
+				outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
 			}
 			else
 			{
-				accumulatedLength++;
+				outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
 			}
-		}
-		if (lastBlock.saveMeta) {
-			outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
-		}
-		else
-		{
-			outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
 		}
 
 		if (_collisionBody != nullptr) {

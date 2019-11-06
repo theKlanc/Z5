@@ -1,4 +1,5 @@
 #pragma once
+#include "HardwareInterface/HardwareInterface.hpp"
 #include "json.hpp"
 using nlohmann::json;
 
@@ -12,6 +13,7 @@ struct fdd { // Four DoF descriptor
 	double magnitude()const;
 	double distance(const fdd& r)const;
 	double distance2D(const fdd& r)const;
+	bool sameDirection(const fdd& r)const;
 	bool operator==(const fdd& f)const;
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;
@@ -26,6 +28,9 @@ struct fdd { // Four DoF descriptor
 	fdd& operator/=(const fdd& f);
 	fdd& operator*=(const double& f);
 	fdd& operator/=(const double& f);
+	point3Di getPoint3Di()const;
+	point3Dd getPoint3Dd()const;
+	point3Dl getPoint3Dl()const;
 };
 
 void to_json(json& j, const fdd& f);

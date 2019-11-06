@@ -12,6 +12,7 @@ public:
 	~terrainChunk();
 	terrainChunk(const point3Di& p); // THIS TRASH ALLOCATES, avoid destroying without unloading
 	metaBlock& getBlock(const point3Di& p);
+	void clearDirtyFlag(); // CAREFUL, YOU SHOULD KNOW WHAT YOU'RE DOING
 	void setBlock(metaBlock b, const point3Di& p);
 	void setLoaded();
 	bool loaded()const;
@@ -30,6 +31,7 @@ public:
 
 private:
 
+	bool _dirty = false;
 	point3Di _position;
 	bool _loaded = false;
 	rp3d::CollisionBody* _collisionBody = nullptr;

@@ -15,16 +15,13 @@ namespace State {
 	class Playing : public virtual State_Base {
 	public:
 		~Playing();
-		Playing(gameCore& gc, std::string saveName, int seed);
+		Playing(gameCore& gc, std::string saveName = "default", int seed = -1);
 
 		void input(double dt) override;
 		void update(double dt) override;
 		void draw(double dt) override;
 
 		static std::filesystem::path savePath();
-
-
-
 
 
 	private:

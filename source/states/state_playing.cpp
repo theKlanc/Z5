@@ -15,28 +15,25 @@
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include <cmath>
 #include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
-std::mutex State::Playing::endChunkLoader;
-
+bool lungsFull = true;
 
 
 State::Playing::~Playing() {
 
 
 	//delete _chunkLoaderPlayerPosition;
-	endChunkLoader.lock();
-	{
-		_chunkLoaderPlayerPosition = nullptr;
-		_chunkLoaderThread->join();
-	}
-	endChunkLoader.unlock();
+	_chunkLoaderPlayerPosition = nullptr;
+	_chunkLoaderThread->join();
+
 	saveGame();
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed = -1) :State_Base(gc), _standardFont("data/fonts/test.ttf") {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
 
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
@@ -54,7 +51,6 @@ State::Playing::Playing(gameCore& gc, std::string saveName = "default", int seed
 	{
 		loadGame();
 	}
-	//_universeBase.populateColliders(_physicsEngine.getWorld());
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
 	for (auto entity : playerView) {															   //
@@ -76,159 +72,186 @@ void State::Playing::input(double dt)
 {
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
-	unsigned long long held = HI2::getKeysHeld();
-	unsigned long long down = HI2::getKeysDown();
+	auto& playerBdy = _enttRegistry.get<body>(_player);
+	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
+	const std::bitset<HI2::BUTTON_SIZE>& down = HI2::getKeysDown();
 
 	//STOP
-	if (held & HI2::BUTTON::KEY_MINUS) {
+	if (held[HI2::BUTTON::BUTTON_MINUS]) {
 		playerSpd.spd = fdd();
 	}
 
 	//MOVE
-	if (held & (HI2::BUTTON::KEY_LSTICK_UP | HI2::BUTTON::KEY_W)) { 
+	if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
 		playerSpd.spd.y -= 10 * dt;
 	}
-	if (held & (HI2::BUTTON::KEY_LSTICK_DOWN | HI2::BUTTON::KEY_S)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
 		playerSpd.spd.y += 10 * dt;
 	}
-	if (held & (HI2::BUTTON::KEY_LSTICK_LEFT | HI2::BUTTON::KEY_A)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
 		playerSpd.spd.x -= 10 * dt;
 	}
-	if (held & (HI2::BUTTON::KEY_LSTICK_RIGHT | HI2::BUTTON::KEY_D)) {
+	if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
 		playerSpd.spd.x += 10 * dt;
 	}
 
 	//MOVE VERTICALLY
-	if (held & HI2::BUTTON::KEY_R) {
+	if (held[HI2::BUTTON::KEY_R]) {
 		playerSpd.spd.z += 60 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_F) {
+	if (held[HI2::BUTTON::KEY_F]) {
 		playerSpd.spd.z -= 40 * dt;
 	}
 
 	//TELEPORT UPWARDS
-	if (down & HI2::BUTTON::KEY_PLUS) {
+	if (down[HI2::BUTTON::BUTTON_PLUS]) {
 		playerPos.pos.z += 5;
 		playerSpd.spd.z = 0;
 	}
 
 
 	//ROTATE PLAYER
-	if (held & HI2::BUTTON::KEY_E) {
+	if (held[HI2::BUTTON::KEY_E]) {
 		playerSpd.spd.r += 10 * dt;
 	}
-	if (held & HI2::BUTTON::KEY_Q) {
+	if (held[HI2::BUTTON::KEY_Q]) {
 		playerSpd.spd.r -= 10 * dt;
 	}
 
 	//PLACE BLOCK
-	if (down & HI2::BUTTON::KEY_P) {
+	if (down[HI2::BUTTON::KEY_P]) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
-	if (down & HI2::BUTTON::KEY_O) {
+	if (down[HI2::BUTTON::KEY_O]) {
 		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 	}
 
 	//SELECT BLOCK
-	if (down & HI2::BUTTON::KEY_DLEFT) {
+	if (down[HI2::BUTTON::BUTTON_DLEFT]) {
 		selectedBlock--;
 		if (selectedBlock < 0)
 			selectedBlock = baseBlock::terrainTable.size() - 1;
 	}
-	if (down & HI2::BUTTON::KEY_DRIGHT) {
+	if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
 		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
 	}
 
 	//BLOCK ROTATE
-	if (down & HI2::BUTTON::KEY_DUP) {
+	if (down[HI2::BUTTON::BUTTON_DUP]) {
 		selectedRotation++;
 	}
-	if (down & HI2::BUTTON::KEY_DDOWN) {
+	if (down[HI2::BUTTON::BUTTON_DDOWN]) {
 		selectedRotation--;
 	}
 
 	//TOGGLE GRAVITY
-	if (down & HI2::BUTTON::KEY_G)
+	if (down[HI2::BUTTON::KEY_G])
 	{
 		config::gravityEnabled = !config::gravityEnabled;
+		std::cout << "Gravity " << (config::gravityEnabled ? "En" : "Dis") << "abled" << std::endl;
+	}
+
+	//TOGGLE DRAG
+	if (down[HI2::BUTTON::KEY_C])
+	{
+		config::dragEnabled = !config::dragEnabled;
+		std::cout << "Drag " << (config::dragEnabled ? "En" : "Dis") << "abled" << std::endl;
 	}
 
 	//CAMERA ZOOM
-	if (held & HI2::BUTTON::KEY_ZR) {
+	if (held[HI2::BUTTON::BUTTON_ZR]) {
 		config::zoom += dt;
 		std::cout << "Zoom: " << config::zoom << std::endl;
 	}
-	if (held & HI2::BUTTON::KEY_ZL) {
+	if (held[HI2::BUTTON::BUTTON_ZL]) {
 		config::zoom /= 1.01;
 		std::cout << "Zoom: " << config::zoom << std::endl;
 	}
 
 	//CAMERA DEPTH
-	if (down & HI2::BUTTON::KEY_H)
+	if (down[HI2::BUTTON::KEY_H])
 	{
 		config::cameraDepth++;
 		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_B)
+	if (down[HI2::BUTTON::KEY_B])
 	{
 		config::cameraDepth--;
 		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
 	}
 
 	// CAMERA HEIGHT
-	if (down & HI2::BUTTON::KEY_U)
+	if (down[HI2::BUTTON::KEY_U])
 	{
 		config::cameraHeight--;
 		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_I)
+	if (down[HI2::BUTTON::KEY_I])
 	{
 		config::cameraHeight++;
 		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
 	}
 
 	// minScale
-	if (down & HI2::BUTTON::KEY_J)
+	if (down[HI2::BUTTON::KEY_J])
 	{
 		config::minScale += 0.05;
 		std::cout << "MinScale: " << config::minScale << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_N)
+	if (down[HI2::BUTTON::KEY_N])
 	{
 		config::minScale -= 0.05;
 		std::cout << "MinScale: " << config::minScale << std::endl;
 	}
 
 	// Scale
-	if (down & HI2::BUTTON::KEY_K)
+	if (down[HI2::BUTTON::KEY_K])
 	{
 		config::depthScale += 0.05;
 		std::cout << "DepthScale: " << config::depthScale << std::endl;
 	}
-	if (down & HI2::BUTTON::KEY_M)
+	if (down[HI2::BUTTON::KEY_M])
 	{
 		config::depthScale -= 0.05;
 		std::cout << "DepthScale: " << config::depthScale << std::endl;
 	}
-	
+
 	// Shadow
-	if (held & HI2::BUTTON::KEY_T)
+	if (held[HI2::BUTTON::KEY_T])
 	{
 		config::minShadow--;
 		std::cout << "minShadow: " << config::minShadow << std::endl;
 	}
-	if (held & HI2::BUTTON::KEY_Y)
+	if (held[HI2::BUTTON::KEY_Y])
 	{
 		config::minShadow++;
 		std::cout << "minShadow: " << config::minShadow << std::endl;
 	}
 
-	// Fullscreen
-	if(down & HI2::BUTTON::KEY_F11)
+	// Breathe
+	if (down[HI2::BUTTON::KEY_X])
 	{
-		HI2::toggleFullscreen();
+		if (lungsFull)
+		{
+			lungsFull = !lungsFull;
+			playerBdy.volume -= 0.01;
+			std::cout << "Exhale" << std::endl;
+		}
+		else
+		{
+			metaBlock* block = playerPos.parent->getBlock({ (int)playerPos.pos.x,(int)playerPos.pos.y,(int)(playerPos.pos.z + playerBdy.height) });
+			if (block != nullptr && block->base->name == "air")
+			{
+				lungsFull = !lungsFull;
+				playerBdy.volume += 0.01;
+				std::cout << "Inhale" << std::endl;
+			}
+		}
 	}
 
+	// Exit
+	if(down[HI2::BUTTON::KEY_ESCAPE])
+		_core->popState();
 }
 
 void State::Playing::update(double dt) {
@@ -254,9 +277,23 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
-	_core->getGraphics().stepAnimations(dt * 1000);
+	if constexpr (false)
+	{
+		int height = HI2::getScreenHeight();
+		int width = HI2::getScreenWidth();
+		universeNode* test;
+		_universeBase.findNodeByID(4, test);
+		for (int i = 0; i < height; ++i)
+		{
+			for (int j = 0; j < width; ++j)
+			{
+				test->getTopBlock({ j,i });
+			}
+		}
+	}
+	Services::graphics.stepAnimations(dt);
 	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(HI2::Color(20, 5, 100, 255));
+	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 	{
 		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
@@ -286,7 +323,7 @@ void State::Playing::draw(double dt) {
 				depth -= _enttRegistry.get<body>(entity).height;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth,	std::variant<entt::entity,nodeLayer>(entity) });
+				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeLayer>(entity) });
 		}
 
 	}
@@ -301,10 +338,22 @@ void State::Playing::draw(double dt) {
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
 	{
-		HI2::setTextureColorMod(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
+		HI2::setTextureColorMod(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
+		HI2::drawTexture(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
+	position playerPos = _enttRegistry.get<position>(_player);
+	velocity playerVel = _enttRegistry.get<velocity>(_player);
 	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
+	HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+	HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
+	HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
+	HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
+	HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
+	HI2::drawText(_standardFont, "vx: " + std::to_string(playerVel.spd.x), { 0,180 }, 30, HI2::Color::Red);
+	HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
+	HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
+	HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+
 	HI2::endFrame();
 
 }
@@ -353,16 +402,16 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 			double tmp = fmod(firstBlock.x, 1);
 			if (tmp < 0)
-				tmp = 1 - abs(tmp);
+				tmp = 1.0f - std::abs(tmp);
 			double fraccionalX = 0.5 - tmp;
+
 			if (fraccionalX < 0)fraccionalX += 1;
 
 			tmp = fmod(firstBlock.y, 1);
 			if (tmp < 0)
-				tmp = 1 - abs(tmp);
+				tmp = 1.0f - std::abs(tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
-
 			fdd localPos = firstBlock - cameraPos.pos;
 
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
@@ -370,7 +419,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 
 			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
-
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
 				int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
@@ -397,7 +445,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 								HI2::setTextureColorMod(*bCopy.base->texture, HI2::Color(mask, mask, mask, 0));
 								HI2::drawTexture(*bCopy.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation) * (M_PI / 2));
 							}
-							else{
+							else {
 								HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
 							}
 						}
@@ -425,7 +473,7 @@ void State::Playing::loadTerrainTable()
 	j.get_to(_terrainTable);
 	for (baseBlock& b : _terrainTable) {
 		if (b.visible) {
-			b.texture = _core->getGraphics().loadTexture(b.name);
+			b.texture = Services::graphics.loadTexture(b.name);
 		}
 	}
 	baseBlock::terrainTable = _terrainTable;
@@ -529,8 +577,8 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-		playerSprite.sprite = _core->getGraphics().loadTexture("player2");
-		playerSprite.name = "player";
+		playerSprite.sprite = Services::graphics.loadTexture("player3");
+		playerSprite.name = "player3";
 
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
@@ -550,9 +598,10 @@ void State::Playing::createEntities()
 		playerName.nameString = "Captain Lewis";
 
 		auto& playerBody = _enttRegistry.assign<body>(_player);
-		playerBody.height = 0.9;
+		playerBody.height = 0.8;
 		playerBody.width = 0.8;
-		playerBody.mass = 50;
+		playerBody.mass = 65;
+		playerBody.volume = 0.07;
 		playerBody.elasticity = 0.3;
 
 		// Initial position and orientation of the collision body 
@@ -565,7 +614,7 @@ void State::Playing::createEntities()
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.collider->setUserData((void*)playerResponse);
-		initPosition.z += playerBody.width / 2;
+		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
 		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
 		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
@@ -575,12 +624,13 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
+		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
 
 		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-		dogSprite.sprite = _core->getGraphics().loadTexture("dog");
+		dogSprite.sprite = Services::graphics.loadTexture("dog");
 		dogSprite.name = "dog";
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
@@ -605,6 +655,7 @@ void State::Playing::createEntities()
 		dogBody.width = 0.3;
 		dogBody.mass = 10;
 		dogBody.elasticity = 0.3;
+		dogBody.volume = 0.02;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -627,7 +678,7 @@ void State::Playing::createEntities()
 			entt::entity ball = _enttRegistry.create();
 
 			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
-			ballSprite.sprite = _core->getGraphics().loadTexture("ball");
+			ballSprite.sprite = Services::graphics.loadTexture("ball");
 			ballSprite.name = "ball";
 
 			auto& ballPos = _enttRegistry.assign<position>(ball);
@@ -647,8 +698,9 @@ void State::Playing::createEntities()
 			auto& ballBody = _enttRegistry.assign<body>(ball);
 			ballBody.height = 7.0f / 8.0f;
 			ballBody.width = 7.0f / 8.0f;
-			ballBody.mass = 0.1;
+			ballBody.mass = 1;
 			ballBody.elasticity = 0.98;
+			ballBody.volume = 0.2;
 
 			// Initial position and orientation of the collision body 
 			rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -683,7 +735,7 @@ void State::Playing::fixEntities()
 	auto drawableEntities = _enttRegistry.view<drawable>();
 	for (const entt::entity& entity : drawableEntities) {
 		drawable& d = _enttRegistry.get<drawable>(entity);
-		d.sprite = _core->getGraphics().loadTexture(d.name);
+		d.sprite = Services::graphics.loadTexture(d.name);
 	}
 	//body
 	auto bodyEntities = _enttRegistry.view<body>();
@@ -702,19 +754,23 @@ void State::Playing::fixEntities()
 		bodyResponse->body.entity = entity;
 		b.collider->setUserData((void*)bodyResponse);
 
-		b._collisionShape = new rp3d::CapsuleShape(b.width / 2, b.height);
+		b._collisionShape = new rp3d::SphereShape(b.width / 2);
+		initPosition = rp3d::Vector3(0, 0, b.width / 2);
+		transform.setPosition(initPosition);
 		b.collider->addCollisionShape(b._collisionShape, transform);
 	}
 }
 
 void State::Playing::_chunkLoaderFunc()
 {
-	while (_chunkLoaderPlayerPosition != nullptr) {
-		endChunkLoader.lock();
-		position p(*_chunkLoaderPlayerPosition); // aixo pot petar, hauria d usar algun lock o algo
-		if (_chunkLoaderPlayerPosition != nullptr)
+	position* positionCopy=_chunkLoaderPlayerPosition;
+	while (positionCopy != nullptr) {
+		position p(*positionCopy);
+		if (positionCopy != nullptr)
+		{
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
-		endChunkLoader.unlock();
+		}
+		positionCopy=_chunkLoaderPlayerPosition;
 	}
 }
 

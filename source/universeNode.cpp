@@ -34,6 +34,11 @@ void universeNode::clean()
 	}
 }
 
+baseBlock& universeNode::getTopBlock(const point2D& pos)
+{
+	return _generator->getTopBlock(pos);
+}
+
 metaBlock* universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
 	auto debug = chunkFromPos(pos);
@@ -109,9 +114,9 @@ bool universeNode::operator==(const universeNode& right) const {
 }
 
 point3Di universeNode::chunkFromPos(const fdd& pos) {
-	return point3Di{ (int)floor((double)pos.x / config::chunkSize),
-					(int)floor((double)pos.y / config::chunkSize),
-					(int)floor((double)pos.z / config::chunkSize) };
+	return point3Di{ (int)round((double)pos.x / config::chunkSize),
+					(int)round((double)pos.y / config::chunkSize),
+					(int)round((double)pos.z / config::chunkSize) };
 }
 
 point3Di universeNode::chunkFromPos(const point3Di& pos)
@@ -148,9 +153,6 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 		}
 	}
 }
-
-
-
 
 terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	int x = (int(floor((double)pos.x / config::chunkSize)) % config::chunkLoadDiameter);

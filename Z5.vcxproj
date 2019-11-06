@@ -71,10 +71,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(IncludePath)</IncludePath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
     <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)deps\json\single_include\nlohmann;$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
@@ -210,6 +210,7 @@
     <ClCompile Include="deps\reactPhysics3D\src\memory\MemoryManager.cpp" />
     <ClCompile Include="deps\reactPhysics3D\src\utils\Logger.cpp" />
     <ClCompile Include="deps\reactPhysics3D\src\utils\Profiler.cpp" />
+    <ClCompile Include="source\audioManager.cpp" />
     <ClCompile Include="source\block.cpp" />
     <ClCompile Include="source\components\body_.cpp" />
     <ClCompile Include="source\components\drawable.cpp" />
@@ -218,8 +219,9 @@
     <ClCompile Include="source\components\velocity.cpp" />
     <ClCompile Include="source\config.cpp" />
     <ClCompile Include="source\fdd.cpp" />
+    <ClCompile Include="source\fontManager.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
-    <ClCompile Include="source\graphics.cpp" />
+    <ClCompile Include="source\graphicsManager.cpp" />
     <ClCompile Include="source\jsonTools.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\nodeGenerator.cpp" />
@@ -239,7 +241,22 @@
     <ClCompile Include="source\states\state_main_menu.cpp" />
     <ClCompile Include="source\states\state_playing.cpp" />
     <ClCompile Include="source\terrainChunk.cpp" />
+    <ClCompile Include="source\UI\gadget.cpp" />
+    <ClCompile Include="source\UI\gadgets\basicPanel.cpp" />
+    <ClCompile Include="source\UI\gadgets\basicScrollablePanel.cpp" />
+    <ClCompile Include="source\UI\gadgets\basicTextEntry.cpp" />
+    <ClCompile Include="source\UI\gadgets\imagePushButton.cpp" />
+    <ClCompile Include="source\UI\gadgets\imageToggleButton.cpp" />
+    <ClCompile Include="source\UI\gadgets\imageView.cpp" />
+    <ClCompile Include="source\UI\gadgets\panel.cpp" />
+    <ClCompile Include="source\UI\gadgets\pushButton.cpp" />
+    <ClCompile Include="source\UI\gadgets\scrollablePanel.cpp" />
+    <ClCompile Include="source\UI\gadgets\textEntry.cpp" />
+    <ClCompile Include="source\UI\gadgets\textView.cpp" />
+    <ClCompile Include="source\UI\gadgets\toggleButton.cpp" />
+    <ClCompile Include="source\UI\scene.cpp" />
     <ClCompile Include="source\universeNode.cpp" />
+    <ClCompile Include="source\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="deps\entt\config\config.h" />
@@ -376,8 +393,9 @@
     <ClInclude Include="include\components\velocity.hpp" />
     <ClInclude Include="include\config.hpp" />
     <ClInclude Include="include\fdd.hpp" />
+    <ClInclude Include="include\fontManager.hpp" />
     <ClInclude Include="include\gameCore.hpp" />
-    <ClInclude Include="include\graphics.hpp" />
+    <ClInclude Include="include\graphicsManager.hpp" />
     <ClInclude Include="include\jsonTools.hpp" />
     <ClInclude Include="include\nodeGenerator.hpp" />
     <ClInclude Include="include\nodegenerators\artificialSatelliteGenerator.hpp" />
@@ -391,12 +409,28 @@
     <ClInclude Include="include\nodegenerators\starGenerator.hpp" />
     <ClInclude Include="include\physicsEngine.hpp" />
     <ClInclude Include="include\services.hpp" />
+    <ClInclude Include="include\audioManager.hpp" />
     <ClInclude Include="include\states\state_base.hpp" />
     <ClInclude Include="include\states\state_demo.hpp" />
     <ClInclude Include="include\states\state_main_menu.hpp" />
     <ClInclude Include="include\states\state_playing.hpp" />
     <ClInclude Include="include\terrainChunk.hpp" />
+    <ClInclude Include="include\UI\gadget.hpp" />
+    <ClInclude Include="include\UI\gadgets\basicPanel.hpp" />
+    <ClInclude Include="include\UI\gadgets\basicScrollablePanel.hpp" />
+    <ClInclude Include="include\UI\gadgets\basicTextEntry.hpp" />
+    <ClInclude Include="include\UI\gadgets\imagePushButton.hpp" />
+    <ClInclude Include="include\UI\gadgets\imageToggleButton.hpp" />
+    <ClInclude Include="include\UI\gadgets\imageView.hpp" />
+    <ClInclude Include="include\UI\gadgets\panel.hpp" />
+    <ClInclude Include="include\UI\gadgets\pushButton.hpp" />
+    <ClInclude Include="include\UI\gadgets\scrollablePanel.hpp" />
+    <ClInclude Include="include\UI\gadgets\textEntry.hpp" />
+    <ClInclude Include="include\UI\gadgets\textView.hpp" />
+    <ClInclude Include="include\UI\gadgets\toggleButton.hpp" />
+    <ClInclude Include="include\UI\scene.hpp" />
     <ClInclude Include="include\universeNode.hpp" />
+    <ClInclude Include="include\utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
