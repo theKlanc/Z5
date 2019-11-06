@@ -398,6 +398,21 @@
     <ClCompile Include="source\UI\gadgets\toggleButton.cpp">
       <Filter>source\UI\gadgets</Filter>
     </ClCompile>
+    <ClCompile Include="source\UI\gadgets\basicScrollablePanel.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\basicTextEntry.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\scrollablePanel.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\imagePushButton.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\imageToggleButton.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -893,6 +908,21 @@
       <Filter>include\UI\gadgets</Filter>
     </ClInclude>
     <ClInclude Include="include\UI\gadgets\toggleButton.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\basicScrollablePanel.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\basicTextEntry.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\scrollablePanel.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\imagePushButton.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\imageToggleButton.hpp">
       <Filter>include\UI\gadgets</Filter>
     </ClInclude>
   </ItemGroup>
