@@ -14,9 +14,7 @@ class gameCore {
 	void startGameLoop();
 	void quit();
 
-	graphics& getGraphics();
   private:
-	graphics _graphicsObj;
 	void processStates();
 	int _pop;
 	std::stack<std::unique_ptr<State::State_Base>> states;

@@ -34,11 +34,6 @@ void gameCore::startGameLoop() {
 
 void gameCore::quit() { _exit = true; }
 
-graphics &gameCore::getGraphics()
-{
-	return _graphicsObj;
-}
-
 void gameCore::processStates() {
 	while (_pop > 0) {
 		states.pop();

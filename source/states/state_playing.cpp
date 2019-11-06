@@ -33,7 +33,7 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont("data/fonts/test.ttf") {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont(Services::fonts.loadFont("test")) {
 
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
@@ -51,7 +51,6 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Bas
 	{
 		loadGame();
 	}
-	//_universeBase.populateColliders(_physicsEngine.getWorld());
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
 	for (auto entity : playerView) {															   //
@@ -292,7 +291,7 @@ void State::Playing::draw(double dt) {
 			}
 		}
 	}
-	_core->getGraphics().stepAnimations(dt);
+	Services::graphics.stepAnimations(dt);
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 	{
@@ -339,8 +338,8 @@ void State::Playing::draw(double dt) {
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
 	{
-		HI2::setTextureColorMod(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*_core->getGraphics().getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
+		HI2::setTextureColorMod(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
+		HI2::drawTexture(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
@@ -474,7 +473,7 @@ void State::Playing::loadTerrainTable()
 	j.get_to(_terrainTable);
 	for (baseBlock& b : _terrainTable) {
 		if (b.visible) {
-			b.texture = _core->getGraphics().loadTexture(b.name);
+			b.texture = Services::graphics.loadTexture(b.name);
 		}
 	}
 	baseBlock::terrainTable = _terrainTable;
@@ -578,7 +577,7 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-		playerSprite.sprite = _core->getGraphics().loadTexture("player3");
+		playerSprite.sprite = Services::graphics.loadTexture("player3");
 		playerSprite.name = "player3";
 
 		auto& playerPos = _enttRegistry.assign<position>(_player);
@@ -631,7 +630,7 @@ void State::Playing::createEntities()
 		entt::entity dog = _enttRegistry.create();
 
 		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-		dogSprite.sprite = _core->getGraphics().loadTexture("dog");
+		dogSprite.sprite = Services::graphics.loadTexture("dog");
 		dogSprite.name = "dog";
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
@@ -679,7 +678,7 @@ void State::Playing::createEntities()
 			entt::entity ball = _enttRegistry.create();
 
 			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
-			ballSprite.sprite = _core->getGraphics().loadTexture("ball");
+			ballSprite.sprite = Services::graphics.loadTexture("ball");
 			ballSprite.name = "ball";
 
 			auto& ballPos = _enttRegistry.assign<position>(ball);
@@ -736,7 +735,7 @@ void State::Playing::fixEntities()
 	auto drawableEntities = _enttRegistry.view<drawable>();
 	for (const entt::entity& entity : drawableEntities) {
 		drawable& d = _enttRegistry.get<drawable>(entity);
-		d.sprite = _core->getGraphics().loadTexture(d.name);
+		d.sprite = Services::graphics.loadTexture(d.name);
 	}
 	//body
 	auto bodyEntities = _enttRegistry.view<body>();
