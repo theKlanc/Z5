@@ -1,11 +1,12 @@
 #pragma once
+#include <random>
+#include <mutex>
+
 #include "entt/entity/registry.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
-#include <mutex>
 #include "graphicsManager.hpp"
 #include "fontManager.hpp"
 #include "audioManager.hpp"
-
 
 struct Services
 {
@@ -16,4 +17,5 @@ struct Services
 	static graphicsManager graphics;
 	static fontManager fonts;
 	static audioManager audio;
+	static std::mt19937 twister;
 };

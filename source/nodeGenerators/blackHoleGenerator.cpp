@@ -1,6 +1,6 @@
 #include "nodeGenerators/blackHoleGenerator.hpp"
 
-terrainChunk blackHoleGenerator::getChunk(const point3Di &p)
+terrainChunk blackHoleGenerator::getChunk(const point3Di &p)const
 {
 	return terrainChunk();
 }

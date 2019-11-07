@@ -16,7 +16,7 @@ nodeGenerator::nodeGenerator(unsigned int s)
 
 nodeGenerator::~nodeGenerator() {}
 
-double nodeGenerator::getNoise(point2D p)
+double nodeGenerator::getNoise(point2D p) const
 {
 	return (_noiseGenerator.GetNoise(p.x, p.y) + 1) / 2;
 }
@@ -29,27 +29,27 @@ terrainSection::terrainSection(double noise, int sectionWidth, baseBlock& b, bas
 	_surfaceBlock = surfaceBlock;
 }
 
-double terrainSection::getNoiseCeiling()
+double terrainSection::getNoiseCeiling() const
 {
 	return _noiseCeiling;
 }
 
-double terrainSection::getSectionWidth()
+double terrainSection::getSectionWidth() const
 {
 	return _sectionWidth;
 }
 
-baseBlock& terrainSection::getBlock()
+baseBlock& terrainSection::getBlock() const
 {
 	return _block;
 }
 
-baseBlock* terrainSection::getSurfaceBlock()
+baseBlock* terrainSection::getSurfaceBlock() const
 {
 	return _surfaceBlock;
 }
 
-baseBlock& terrainPainter::getBlock(int height, double noise)
+baseBlock& terrainPainter::getBlock(int height, double noise) const
 {
 	auto it = _terrainList.begin();
 	int accumulatedHeight = 0;
@@ -90,7 +90,7 @@ baseBlock& terrainPainter::getBlock(int height, double noise)
 	return *_emptyBlock;
 }
 
-baseBlock& terrainPainter::getBlock(int height)
+baseBlock& terrainPainter::getBlock(int height) const
 {
 	auto it = _terrainList.begin();
 	int accumulatedHeight = 0;
@@ -115,7 +115,7 @@ baseBlock& terrainPainter::getBlock(int height)
 	}
 }
 
-int terrainPainter::getHeight(const double& noise)
+int terrainPainter::getHeight(const double& noise) const
 {
 	auto it = _terrainList.begin();
 	auto oldSection = *it;
@@ -147,7 +147,12 @@ void terrainPainter::setEmptyBlock(baseBlock* emptyBlock)
 	_emptyBlock = emptyBlock;
 }
 
-baseBlock& nodeGenerator::getTopBlock(const point2D& p)
+baseBlock& nodeGenerator::getTopBlock(const point2D& p) const
 {
 	return _terrainPainter.getBlock(_terrainPainter.getHeight(getNoise(p)));
+}
+
+int nodeGenerator::getHeight(const point2D &p) const
+{
+	return _terrainPainter.getHeight(getNoise(p));
 }

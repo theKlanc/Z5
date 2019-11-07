@@ -333,7 +333,7 @@ double universeNode::getDiameter()
 
 unsigned int universeNode::getHeight(const point2D& pos)
 {
-	return 6;
+	return _generator->getHeight(pos);
 }
 
 rp3d::CollisionBody* universeNode::getNodeCollider()

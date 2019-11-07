@@ -35,6 +35,7 @@ State::Playing::~Playing() {
 
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
 
+	Services::twister.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
@@ -567,10 +568,14 @@ void State::Playing::createEntities()
 {
 	//Set up basic entities
 	universeNode* result;
-	int pID = 4;
-	bool temp = _universeBase.findNodeByID(pID, result);
+	{
+		int pID = 4;
+		bool temp = _universeBase.findNodeByID(pID, result);
+	}
 
-
+	double angle = Services::twister();
+	angle = angle/Services::twister.max()*(2*M_PI);
+	double distance = Services::twister()%((int)result->getDiameter()/2);
 	{
 		_player = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
@@ -579,12 +584,13 @@ void State::Playing::createEntities()
 		playerSprite.sprite = Services::graphics.loadTexture("player3");
 		playerSprite.name = "player3";
 
+
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
-		playerPos.parentID = pID;
-		playerPos.pos.x = 0;
-		playerPos.pos.y = 0;
-		playerPos.pos.z = 260;
+		playerPos.parentID = result->getID();
+		playerPos.pos.x = sin(angle)*distance;
+		playerPos.pos.y = cos(angle)*distance;
+		playerPos.pos.z = result->getHeight({(int)playerPos.pos.x,(int)playerPos.pos.y})+5;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -634,7 +640,7 @@ void State::Playing::createEntities()
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
-		dogPos.parentID = pID;
+		dogPos.parentID = result->getID();
 		dogPos.pos.x = 4 + 8;
 		dogPos.pos.y = 4 + 8;
 		dogPos.pos.z = 260;
@@ -682,7 +688,7 @@ void State::Playing::createEntities()
 
 			auto& ballPos = _enttRegistry.assign<position>(ball);
 			ballPos.parent = result;
-			ballPos.parentID = pID;
+			ballPos.parentID = result->getID();
 			ballPos.pos.x = 4 + i + 8;
 			ballPos.pos.y = 4 + j + 8;
 			ballPos.pos.z = 260 + i + j + 4 + 8;
