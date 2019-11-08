@@ -104,6 +104,10 @@ void State::Playing::input(double dt)
 		playerSpd.spd.z -= 40 * dt;
 	}
 
+	if (down[HI2::BUTTON::KEY_SPACE]){
+		playerSpd.spd.z = 20;
+	}
+
 	//TELEPORT UPWARDS
 	if (down[HI2::BUTTON::BUTTON_PLUS]) {
 		playerPos.pos.z += 5;
@@ -607,7 +611,7 @@ void State::Playing::createEntities()
 		playerBody.width = 0.8;
 		playerBody.mass = 65;
 		playerBody.volume = 0.07;
-		playerBody.elasticity = 0.3;
+		playerBody.elasticity = 0.1;
 
 		// Initial position and orientation of the collision body 
 		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -659,7 +663,7 @@ void State::Playing::createEntities()
 		dogBody.height = 0.4;
 		dogBody.width = 0.3;
 		dogBody.mass = 10;
-		dogBody.elasticity = 0.3;
+		dogBody.elasticity = 0.1;
 		dogBody.volume = 0.02;
 
 		// Initial position and orientation of the collision body 

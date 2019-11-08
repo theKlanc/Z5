@@ -218,13 +218,23 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 		velocity& vel = bodyView.get<velocity>(entity);
 		fdd oldSpeed = vel.spd;
 		//backtrack position along the old velocity until we're "just" colliding with the node (tangentially)
-		pos.pos -= vel.spd * dt * (bdy.maxContactDepth / ((oldSpeed * dt).magnitude()));
+		pos.pos -= vel.spd * dt * ((bdy.maxContactDepth+0.01) / ((oldSpeed * dt).magnitude()));
 		//Calculate new velocity
 		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
 		auto result = (d - (2 * (bdy.contactNormal.dot(d)) * bdy.contactNormal));
 
+		fdd normal;
+		normal.x=bdy.contactNormal.x;
+		normal.y=bdy.contactNormal.y;
+		normal.z=bdy.contactNormal.z;
 
-		
+		fdd projectedFriction = normal.project(vel.spd);
+		projectedFriction*=(1-bdy.elasticity);
+
+		result.x+=projectedFriction.x;
+		result.y+=projectedFriction.y;
+		result.z+=projectedFriction.z;
+
 		vel.spd.x = result.x;
 		vel.spd.y = result.y;
 		vel.spd.z = result.z;

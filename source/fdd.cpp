@@ -16,10 +16,24 @@ void from_json(const nlohmann::json& j, fdd& f)
 	j.at("r").get_to(f.r);
 }
 
+//fdd::fdd(reactphysics3d::Vector3 v)
+//{
+//	x=v.x;
+//	y=v.y;
+//	z=v.z;
+//	r=0;
+//}
+
 fdd fdd::setMagnitude(double mag)
 {
 	*this *= (mag / magnitude());
 	return *this;
+}
+
+fdd fdd::normalized() const
+{
+	fdd copy = *this;
+	return copy/copy.magnitude();
 }
 
 double fdd::magnitude() const
@@ -142,6 +156,17 @@ fdd& fdd::operator/=(const double& f)
 	z /= f;
 	r /= f;
 	return *this;
+}
+
+fdd fdd::project(const fdd &right) const
+{
+	fdd n = normalized();
+	return n*(right.dot(n));
+}
+
+double fdd::dot(const fdd &right) const
+{
+	return x*right.x + y*right.y + z*right.z;
 }
 
 point3Di fdd::getPoint3Di()const
