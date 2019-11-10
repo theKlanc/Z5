@@ -354,27 +354,27 @@ std::vector<rp3d::CollisionBody*> universeNode::getTerrainColliders(fdd p, unive
 	posYlist.push_back(p.y);
 	std::vector<int> posZlist;
 	posZlist.push_back(p.z);
-	if (chunkFromPos({ p.x,0,0, 0 }).x > chunkFromPos({ p.x - 1,0,0, 0 }).x)
+	if (chunkFromPos(point3Di{(int)p.x,0,0}).x > chunkFromPos(point3Di{(int) p.x - 1,0,0}).x)
 	{
 		posXlist.push_back(p.x - 1);
 	}
-	if (chunkFromPos({ p.x,0,0, 0 }).x < chunkFromPos({ p.x + 1,0,0, 0 }).x)
+	if (chunkFromPos(point3Di{(int) p.x,0,0 }).x < chunkFromPos(point3Di{(int) p.x + 1,0,0 }).x)
 	{
 		posXlist.push_back(p.x + 1);
 	}
-	if (chunkFromPos({ 0,p.y,0, 0 }).y > chunkFromPos({ 0,p.y - 1,0, 0 }).y)
+	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0}).y)
 	{
 		posYlist.push_back(p.y - 1);
 	}
-	if (chunkFromPos({ 0,p.y,0, 0 }).y < chunkFromPos({ 0,p.y + 1,0, 0 }).y)
+	if (chunkFromPos(point3Di{ 0,(int)p.y,0}).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
 	{
 		posYlist.push_back(p.y + 1);
 	}
-	if (chunkFromPos({ 0,0,p.z, 0 }).z > chunkFromPos({ 0,0,p.z - 1, 0 }).z)
+	if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z > chunkFromPos(point3Di{ 0,0,(int)p.z - 1 }).z)
 	{
 		posZlist.push_back(p.z - 1);
 	}
-	if (chunkFromPos({ 0,0,p.z,0 }).z < chunkFromPos({ 0,0,p.z + 1, 0 }).z)
+	if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)p.z + 1 }).z)
 	{
 		posZlist.push_back(p.z + 1);
 	}
