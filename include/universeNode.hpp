@@ -47,7 +47,7 @@ public:
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
 	rp3d::CollisionBody* getNodeCollider();
-	std::vector<rp3d::CollisionBody*> getTerrainColliders(fdd p, universeNode* parent);
+	std::vector<terrainChunk*> getCollidableChunks(fdd p, universeNode* parent);
 
 	void populateColliders();
 	void linkChildren();

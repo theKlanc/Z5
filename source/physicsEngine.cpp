@@ -181,27 +181,30 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 		{
 			position pos = registry.get<position>(left);
 
-			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+			fdd posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent);
 			collidedResponse cResponse;
 			cResponse.type = NODE;
 			collidedBody cBody;
 			cBody.node = node;
 			cResponse.body = cBody;
 
-			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
-			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-			rp3d::Transform entityTransform(entityPosition, initOrientation);
+			rp3d::Vector3 entityPosition(posRelativeToChunk.x, posRelativeToChunk.y, posRelativeToChunk.z);
+			rp3d::Transform entityTransform(entityPosition, rp3d::Quaternion::identity());
 
 
 			entityBody.collider->setTransform(entityTransform);
 
 			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
 			{
-				auto chunksToCheck = node->getTerrainColliders(posRelativeToNode, node);
-				for (auto& chunk : chunksToCheck)
+				auto chunksToCheck = node->getCollidableChunks(posRelativeToChunk, node);
+				for (terrainChunk*& chunk : chunksToCheck)
 				{
-					chunk->setUserData((void*)&cResponse);
-					_zaWarudo->testCollision(entityBody.collider, chunk, this);
+					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - (fdd(chunk->getPosition())*config::chunkSize);
+					entityTransform.setPosition(posRelativeToChunk.getVector3());
+					entityBody.collider->setTransform(entityTransform);
+
+					chunk->getCollider()->setUserData((void*)&cResponse);
+					_zaWarudo->testCollision(entityBody.collider, chunk->getCollider(), this);
 				}
 			}
 		}
