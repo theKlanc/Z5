@@ -27,7 +27,7 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 
 }
 
-terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
+terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)const
 {
 	if (p.z < 0 || fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x) * config::chunkSize,(double)(p.y) * config::chunkSize,0,0 }) > _diameter / 2)
 	{
@@ -55,7 +55,7 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)
 	return chunk;
 }
 
-void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int waterLevel)
+void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int waterLevel)const
 {
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {
@@ -72,7 +72,7 @@ void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int wate
 	}
 }
 
-void rockyPlanetGenerator::populateTrees(terrainChunk& c, const point3Di p, int waterLevel)
+void rockyPlanetGenerator::populateTrees(terrainChunk& c, const point3Di p, int waterLevel)const
 {
 	for (int x = -2; x <= config::chunkSize + 2; ++x) {
 		for (int y = -2; y <= config::chunkSize + 2; ++y) {
@@ -93,7 +93,7 @@ void rockyPlanetGenerator::populateTrees(terrainChunk& c, const point3Di p, int 
 	}
 }
 
-void rockyPlanetGenerator::placeTree(terrainChunk& c, const point3Di p)
+void rockyPlanetGenerator::placeTree(terrainChunk& c, const point3Di p)const
 {
 	for (int x = p.x - 2; x <= p.x + 2; x++) // crear copa
 	{

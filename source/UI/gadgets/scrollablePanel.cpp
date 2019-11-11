@@ -8,7 +8,7 @@ scrollablePanel::scrollablePanel(point2D pos, point2D size, point2D maxDimension
 void scrollablePanel::draw(point2D offset)
 {
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(g->isVisible() && g->isCompletelyRenderable(offset+_offset,_size))
+		if(g->isVisible() && g->isCompletelyRenderable(_offset,_size))
 		{
 			g->draw(offset + _position+_offset);
 		}
@@ -18,13 +18,13 @@ void scrollablePanel::draw(point2D offset)
 	}
 }
 
-void scrollablePanel::update(const unsigned long long &down, const unsigned long long &up, const unsigned long long &held, const point2D &mouse, const double &dt)
+void scrollablePanel::update(const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held, const point2D &mouse, const double &dt)
 {
 	point2D relativeMouse;
 	relativeMouse = mouse-_position;
 	bool emptyTouch = false;
 
-	if(down & HI2::BUTTON::TOUCH)
+	if(down[HI2::BUTTON::TOUCH])
 	{
 		emptyTouch = true;
 		for(std::shared_ptr<gadget> g : _gadgets){
@@ -43,7 +43,7 @@ void scrollablePanel::update(const unsigned long long &down, const unsigned long
 		_offset = _offset + relativeMouse - _lastTouch;
 		_lastTouch = relativeMouse;
 	}
-	if(_wasDragging && ! (held & HI2::BUTTON::TOUCH && touched(mouse))){
+	if(_wasDragging && ! (held[HI2::BUTTON::TOUCH] && touched(mouse))){
 		_wasDragging=false;
 	}
 	if(_selected != nullptr){
@@ -115,6 +115,11 @@ gadget *scrollablePanel::getDown()
 		}
 	}
 	return gadget::getDown();
+}
+
+void scrollablePanel::setMaxDimensions(point2D d)
+{
+	_maxDimensions=d;
 }
 
 void scrollablePanel::correctOffsetBounds()

@@ -8,7 +8,7 @@
 
 int main() {
 	#ifdef _DEBUG
-	std::filesystem::remove_all("saves/");
+	//std::filesystem::remove_all("saves/");
 	#endif
 	gameCore core;
 	core.startGameLoop();

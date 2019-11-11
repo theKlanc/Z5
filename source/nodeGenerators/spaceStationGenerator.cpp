@@ -4,7 +4,7 @@ spaceStationGenerator::spaceStationGenerator(unsigned seed)
 {
 }
 
-terrainChunk spaceStationGenerator::getChunk(const point3Di &p)
+terrainChunk spaceStationGenerator::getChunk(const point3Di &p)const
 {
 	return terrainChunk();
 }

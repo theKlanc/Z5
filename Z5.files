@@ -261,15 +261,29 @@ include/4dd.hpp
 include/4dd.hpp
 include/UI/gadget.hpp
 include/UI/gadgets/basicPanel.hpp
+include/UI/gadgets/basicPanel.hpp
 include/UI/gadgets/basicScrollablePanel.hpp
+include/UI/gadgets/basicScrollablePanel.hpp
+include/UI/gadgets/basicTextEntry.hpp
+include/UI/gadgets/basicTextEntry.hpp
+include/UI/gadgets/imagePushButton.hpp
+include/UI/gadgets/imageToggleButton.hpp
+include/UI/gadgets/imageView.hpp
 include/UI/gadgets/imageView.hpp
 include/UI/gadgets/panel.hpp
+include/UI/gadgets/panel.hpp
+include/UI/gadgets/pushButton.hpp
 include/UI/gadgets/pushButton.hpp
 include/UI/gadgets/scrollablePanel.hpp
+include/UI/gadgets/scrollablePanel.hpp
+include/UI/gadgets/textEntry.hpp
 include/UI/gadgets/textEntry.hpp
 include/UI/gadgets/textView.hpp
+include/UI/gadgets/textView.hpp
+include/UI/gadgets/toggleButton.hpp
 include/UI/gadgets/toggleButton.hpp
 include/UI/scene.hpp
+include/audioManager.hpp
 include/block.hpp
 include/block.hpp
 include/block.hpp
@@ -290,6 +304,7 @@ include/config.hpp
 include/config.hpp
 include/fdd.hpp
 include/fdd.hpp
+include/fontManager.hpp
 include/gameCore.h
 include/gameCore.h
 include/gameCore.h
@@ -302,6 +317,7 @@ include/graphics.hpp
 include/graphics.hpp
 include/graphics.hpp
 include/graphics.hpp
+include/graphicsManager.hpp
 include/jsonFactory.hpp
 include/jsonFactory.hpp
 include/nodeGenerator.hpp
@@ -367,6 +383,7 @@ main.cpp
 source/UI/gadget.cpp
 source/UI/gadgets/basicPanel.cpp
 source/UI/gadgets/basicScrollablePanel.cpp
+source/UI/gadgets/basicTextEntry.cpp
 source/UI/gadgets/imageView.cpp
 source/UI/gadgets/panel.cpp
 source/UI/gadgets/pushButton.cpp
@@ -375,6 +392,7 @@ source/UI/gadgets/textEntry.cpp
 source/UI/gadgets/textView.cpp
 source/UI/gadgets/toggleButton.cpp
 source/UI/scene.cpp
+source/audioManager.cpp
 source/block.cpp
 source/block.cpp
 source/block.cpp
@@ -390,6 +408,7 @@ source/config.cpp
 source/fdd.cpp
 source/fdd.cpp
 source/fdd.cpp
+source/fontManager.cpp
 source/gameCore.cpp
 source/gameCore.cpp
 source/gameCore.cpp
@@ -406,6 +425,7 @@ source/graphics.cpp
 source/graphics.cpp
 source/graphics.cpp
 source/graphics.cpp
+source/graphicsManager.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp

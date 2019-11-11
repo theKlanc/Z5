@@ -6,6 +6,6 @@ class spaceStationGenerator : public nodeGenerator{
 	spaceStationGenerator(){}
 	spaceStationGenerator(unsigned int seed);
 	virtual ~spaceStationGenerator(){}
-	terrainChunk getChunk(const point3Di& p);
+	terrainChunk getChunk(const point3Di& p)const;
 	private:
 };

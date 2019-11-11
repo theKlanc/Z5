@@ -323,9 +323,6 @@
     <ClCompile Include="source\gameCore.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\graphics.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -397,6 +394,30 @@
     </ClCompile>
     <ClCompile Include="source\UI\gadgets\toggleButton.cpp">
       <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\basicScrollablePanel.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\basicTextEntry.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\scrollablePanel.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\imagePushButton.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\gadgets\imageToggleButton.cpp">
+      <Filter>source\UI\gadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\graphicsManager.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\audioManager.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\fontManager.cpp">
+      <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -832,9 +853,6 @@
     <ClInclude Include="include\gameCore.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\graphics.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\nodeGenerator.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -894,6 +912,30 @@
     </ClInclude>
     <ClInclude Include="include\UI\gadgets\toggleButton.hpp">
       <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\basicScrollablePanel.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\basicTextEntry.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\scrollablePanel.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\imagePushButton.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\gadgets\imageToggleButton.hpp">
+      <Filter>include\UI\gadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphicsManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audioManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fontManager.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

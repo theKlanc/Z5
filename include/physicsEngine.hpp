@@ -31,7 +31,8 @@ class physicsEngine : public rp3d::CollisionCallback
 	rp3d::CollisionWorld* getWorld() const;
 	
 private:
-	double _timeStep = 1.0f/config::physicsHz;
+	static constexpr double _timeStep = 1.0f/config::physicsHz;
+	static constexpr double _solverStep = _timeStep / config::physicsSolverIterations;
 	double _remainingTime = 0;
 
 	void applyGravity(universeNode& universeBase, entt::registry& registry, double dt);

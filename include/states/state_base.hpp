@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics.hpp"
+#include "graphicsManager.hpp"
 
 class gameCore;
 

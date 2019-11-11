@@ -6,5 +6,5 @@ class spaceshipGenerator : public nodeGenerator{
 	spaceshipGenerator(): nodeGenerator(){}
 	spaceshipGenerator(unsigned int s): nodeGenerator(s){}
 	virtual ~spaceshipGenerator(){}
-	terrainChunk getChunk(const point3Di& p) override;
+	terrainChunk getChunk(const point3Di& p)const override;
 };

@@ -59,27 +59,48 @@ char utils::getChar(HI2::BUTTON b)
 		return '\n';
 	case HI2::KEY_SPACE:
 		return '\ ';
+	case HI2::KEY_0:
+		return '0';
+	case HI2::KEY_1:
+		return '1';
+	case HI2::KEY_2:
+		return '2';
+	case HI2::KEY_3:
+		return '3';
+	case HI2::KEY_4:
+		return '4';
+	case HI2::KEY_5:
+		return '5';
+	case HI2::KEY_6:
+		return '6';
+	case HI2::KEY_7:
+		return '7';
+	case HI2::KEY_8:
+		return '8';
+	case HI2::KEY_9:
+		return '9';
+	case HI2::KEY_DASH:
+		return '-';
 	default:
 		return '\0';
 	}
 }
 
-std::string utils::getString(unsigned long long buttons, std::string str)
+std::string utils::getString(const std::bitset<HI2::BUTTON_SIZE>& buttons,bool caps, std::string str)
 {
-	for(unsigned long long i = 0; i <64; i++){
-		unsigned long long bitfield = BIT(i);
-		if(buttons & bitfield){
-			if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_BACKSPACE)
+	for(unsigned long long i = 0; i < HI2::BUTTON_SIZE; i++){
+		if(buttons[i]){
+			if((HI2::BUTTON)i == HI2::BUTTON::KEY_BACKSPACE)
 			{
 				if(str.size()>0)
 					str.erase(str.size()-1,1);
 			}
-			else if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_ACCEPT){}
-			else if((HI2::BUTTON)bitfield == HI2::BUTTON::KEY_ESCAPE){}
+			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ACCEPT){}
+			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ESCAPE){}
 			else{
-				char c = getChar((HI2::BUTTON)bitfield);
+				char c = getChar((HI2::BUTTON)i);
 				if(c!='\0')
-					str+=c;
+					str+=caps?toupper(c):c;
 			}
 		}
 	}
