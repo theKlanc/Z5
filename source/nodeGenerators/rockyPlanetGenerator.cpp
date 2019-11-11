@@ -29,7 +29,7 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 
 terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)const
 {
-	if (p.z < 0 || fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x) * config::chunkSize,(double)(p.y) * config::chunkSize,0,0 }) > _diameter / 2)
+	if (p.z < 0 || fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x) * config::chunkSize,(double)(p.y) * config::chunkSize,0,0 }) > (_diameter / 2)*config::chunkSize)
 	{
 		return terrainChunk();
 	}
@@ -38,7 +38,7 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)const
 
 	for (int x = 0; x < config::chunkSize; ++x) {
 		for (int y = 0; y < config::chunkSize; ++y) {
-			if (fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x * config::chunkSize) + x,(double)(p.y * config::chunkSize) + y,0,0 }) <= (_diameter / 2)-config::chunkSize*2)
+			if (fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x * config::chunkSize) + x,(double)(p.y * config::chunkSize) + y,0,0 }) <= _diameter / 2)
 			{
 				double noise = getNoise({ (p.x * config::chunkSize) + x, (p.y * config::chunkSize) + y });
 				for (int z = 0; z < config::chunkSize; ++z) {
