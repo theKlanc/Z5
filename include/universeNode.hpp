@@ -28,7 +28,7 @@ class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
 	baseBlock& getTopBlock(const point2D& pos);
-	metaBlock* getBlock(const point3Di &pos);
+	metaBlock getBlock(const point3Di &pos);
 	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);

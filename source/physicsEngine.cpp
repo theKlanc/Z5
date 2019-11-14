@@ -104,10 +104,10 @@ void physicsEngine::applyBuoyancy(entt::registry& registry, double dt)
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
 
-		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
-		if (block == nullptr || block->base->solid)
+		metaBlock block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		if (block.base->ID == 0 || block.base->solid)
 			continue;
-		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * block->base->mass;
+		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * block.base->mass;
 		//Bforce = p_fluidDensity * V * g_gravityAcceleration
 		vel.spd += (buoyancy / bdy.mass) * dt;
 	}
@@ -121,10 +121,10 @@ void physicsEngine::applyDrag(entt::registry& registry, double dt)
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
 		//F=(1/2)*(densityOfFluid)*(velocity^2)*(Area)*(DragCoefficient)
-		metaBlock* block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
-		if (block == nullptr)
+		metaBlock block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		if (block.base->ID==0)
 			continue;
-		fdd drag = (vel.spd * vel.spd) * block->base->mass * (sqrt(bdy.volume)) * 0.25;
+		fdd drag = (vel.spd * vel.spd) * block.base->mass * (sqrt(bdy.volume)) * 0.25;
 		if ((drag.x > 0 && vel.spd.x < 0) || (drag.x < 0 && vel.spd.x>0))
 			drag.x *= -1;
 		if ((drag.y > 0 && vel.spd.y < 0) || (drag.y < 0 && vel.spd.y>0))

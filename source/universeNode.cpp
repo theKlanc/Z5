@@ -39,12 +39,25 @@ baseBlock& universeNode::getTopBlock(const point2D& pos)
 	return _generator->getTopBlock(pos);
 }
 
-metaBlock* universeNode::getBlock(const point3Di& pos) {
+metaBlock universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
 	auto debug = chunkFromPos(pos);
-	if (!tChunk.loaded() || tChunk.getPosition() != debug)
-		return nullptr;
-	return &tChunk.getBlock(pos);
+	if (tChunk.loaded() && tChunk.getPosition() == chunkFromPos(pos))
+	{
+		return tChunk.getBlock(pos);
+	}
+	else{
+		metaBlock m;
+		m.base=&baseBlock::terrainTable[0];
+		return m;
+		//if(shouldBeLoaded())
+		//{
+		//	return _generator.getBlock();
+		//}
+		//else{
+		//	return asd;
+		//}
+	}
 }
 
 void universeNode::setBlock(metaBlock b, const point3Di& pos) {

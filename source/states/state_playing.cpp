@@ -244,8 +244,8 @@ void State::Playing::input(double dt)
 		}
 		else
 		{
-			metaBlock* block = playerPos.parent->getBlock({ (int)playerPos.pos.x,(int)playerPos.pos.y,(int)(playerPos.pos.z + playerBdy.height) });
-			if (block != nullptr && block->base->name == "air")
+			metaBlock block = playerPos.parent->getBlock({ (int)playerPos.pos.x,(int)playerPos.pos.y,(int)(playerPos.pos.z + playerBdy.height) });
+			if (block.base->ID!=0 && block.base->name == "air")
 			{
 				lungsFull = !lungsFull;
 				playerBdy.volume += 0.01;
@@ -439,18 +439,17 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					else if (finalYdrawPos > HI2::getScreenHeight())
 						break;
 
-					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (b != nullptr) {
-						metaBlock bCopy = *b;
-						if (bCopy.base->visible)
+					metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+					if (b.base->ID!=0) {
+						if (b.base->visible)
 						{
 							if constexpr (config::drawDepthShadows) {
 								//mask anira de 255 a 150
-								HI2::setTextureColorMod(*bCopy.base->texture, HI2::Color(mask, mask, mask, 0));
-								HI2::drawTexture(*bCopy.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation) * (M_PI / 2));
+								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 							}
 							else {
-								HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation);
 							}
 						}
 					}
