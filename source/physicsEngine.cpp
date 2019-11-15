@@ -45,15 +45,15 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 			{
 				applyVelocity(universeBase, registry, _solverStep);
 
-				detectNodeNode(universeBase, _solverStep);
-				solveNodeNode(universeBase, _solverStep);
-
 				detectNodeEntity(universeBase, registry, _solverStep);
 				solveNodeEntity(universeBase, registry, _solverStep);
-
-				detectEntityEntity(registry, _solverStep);
-				solveEntityEntity(registry, _solverStep);
 			}
+			detectNodeNode(universeBase, _timeStep);
+			solveNodeNode(universeBase, _timeStep);
+
+			detectEntityEntity(registry, _timeStep);
+			solveEntityEntity(registry, _timeStep);
+
 			_remainingTime -= _timeStep;
 		}
 	}
@@ -87,6 +87,9 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 
 void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
 {
+	for(auto& node : universeBase){
+		node.setPosition(node.getPosition() + (node.getVelocity()*dt));
+	}
 	auto movableEntityView = registry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) {
 		velocity& vel = movableEntityView.get<velocity>(entity);

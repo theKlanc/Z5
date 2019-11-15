@@ -114,27 +114,6 @@
                 "r": 0
               },
               "children": []
-            },
-            {
-              "id": 11,
-              "name": "Starship",
-              "type": "SPACESHIP",
-              "mass": 100000,
-              "diameter": 64,
-              "position": {
-			    "//comment": "test",
-                "x": 20000,
-                "y": 0,
-                "z": 255.2,
-                "r": 0
-              },
-              "velocity": {
-                "x": 1,
-                "y": 0,
-                "z": 0,
-                "r": 0
-              },
-              "children": []
             }
           ]
         },

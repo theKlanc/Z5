@@ -579,6 +579,10 @@ void State::Playing::createEntities()
 	double angle = Services::twister();
 	angle = angle/Services::twister.max()*(2*M_PI);
 	double distance = Services::twister()%((int)result->getDiameter()/2);
+
+	//result->addChild(universeNode("test_plat",100000,64,{sin(angle)*distance,cos(angle)*distance,(int)result->getHeight({(int)sin(angle)*distance,(int)cos(angle)*distance})+5}
+	//,{2,2,0},{0,0,0},nodeType::SPACESHIP,result,200));
+	//result = result->getChildren()[0];
 	{
 		_player = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
@@ -591,9 +595,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = result->getID();
-		playerPos.pos.x = sin(angle)*distance;
-		playerPos.pos.y = cos(angle)*distance;
-		playerPos.pos.z = result->getHeight({(int)playerPos.pos.x,(int)playerPos.pos.y})+5;
+		playerPos.pos.x = 2;
+		playerPos.pos.y = 2;
+		playerPos.pos.z = 1;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);

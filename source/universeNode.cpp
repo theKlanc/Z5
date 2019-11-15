@@ -34,6 +34,27 @@ void universeNode::clean()
 	}
 }
 
+//universeNode::universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type, universeNode *parent, unsigned int id)
+//{
+//	_name = name;
+//	_mass = mass;
+//	_diameter=diameter;
+//	_position=pos;
+//	_centerOfMass=com;
+//	_velocity=vel;
+//	_type=type;
+//	_parent=parent;
+//	_ID=id;
+//	if(_parent==nullptr){
+//		_depth=0;
+//	}
+//	else{
+//		_depth=_parent->_depth+1;
+//	}
+//	connectGenerator();
+//	populateColliders();
+//}
+
 baseBlock& universeNode::getTopBlock(const point2D& pos)
 {
 	return _generator->getTopBlock(pos);
@@ -126,6 +147,18 @@ bool universeNode::operator==(const universeNode& right) const {
 	return _ID == right._ID;
 }
 
+universeNode::universeNodeIterator universeNode::begin()
+{
+	universeNodeIterator u;
+	u.p = this;
+	return u;
+}
+
+universeNode::universeNodeIterator universeNode::end()
+{
+	return universeNodeIterator();
+}
+
 point3Di universeNode::chunkFromPos(const fdd& pos) {
 	return point3Di{ (int)round((double)pos.x / config::chunkSize),
 					(int)round((double)pos.y / config::chunkSize),
@@ -136,7 +169,40 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 {
 	return point3Di{ (int)floor((double)pos.x / config::chunkSize),
 					(int)floor((double)pos.y / config::chunkSize),
-					(int)floor((double)pos.z / config::chunkSize) };
+				(int)floor((double)pos.z / config::chunkSize) };
+}
+
+void universeNode::connectGenerator()
+{
+	switch (_type) {
+	case STAR:
+		_generator = std::make_unique<starGenerator>();
+		break;
+	case BLACK_HOLE:
+		_generator = std::make_unique<blackHoleGenerator>();
+		break;
+	case PLANET_GAS:
+		_generator = std::make_unique<gasPlanetGenerator>();
+		break;
+	case PLANET_ROCK:
+		_generator = std::make_unique<rockyPlanetGenerator>(_ID, _diameter);
+		break;
+	case ASTEROID:
+		_generator = std::make_unique<asteroidGenerator>();
+		break;
+	case SATELLITE_NATURAL:
+		_generator = std::make_unique<naturalSatelliteGenerator>();
+		break;
+	case SATELLITE_ARTIFICIAL:
+		_generator = std::make_unique<artificialSatelliteGenerator>();
+		break;
+	case SPACE_STATION:
+		_generator = std::make_unique<spaceStationGenerator>();
+		break;
+	case SPACESHIP:
+		_generator = std::make_unique<spaceshipGenerator>();
+		break;
+	}
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -287,6 +353,11 @@ void universeNode::setVelocity(fdd v)
 	_velocity = v;
 }
 
+void universeNode::setPosition(fdd p)
+{
+	_position = p;
+}
+
 unsigned universeNode::getID()
 {
 	return _ID;
@@ -300,6 +371,11 @@ std::vector<universeNode*> universeNode::getChildren()
 		result.push_back(&u);
 	}
 	return result;
+}
+
+void universeNode::addChild(universeNode u)
+{
+	_children.push_back(u);
 }
 
 void universeNode::updatePositions(double dt)
@@ -367,27 +443,27 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode
 	posYlist.push_back(p.y);
 	std::vector<int> posZlist;
 	posZlist.push_back(p.z);
-	//if (chunkFromPos(point3Di{(int)p.x,0,0}).x > chunkFromPos(point3Di{(int) p.x - 1,0,0}).x)
+	if (chunkFromPos(point3Di{(int)p.x,0,0}).x > chunkFromPos(point3Di{(int) p.x - 1,0,0}).x)
 	{
 		posXlist.push_back(p.x - 1);
 	}
-	//if (chunkFromPos(point3Di{(int) p.x,0,0 }).x < chunkFromPos(point3Di{(int) p.x + 1,0,0 }).x)
+	if (chunkFromPos(point3Di{(int) p.x,0,0 }).x < chunkFromPos(point3Di{(int) p.x + 1,0,0 }).x)
 	{
 		posXlist.push_back(p.x + 1);
 	}
-	//if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0}).y)
+	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0}).y)
 	{
 		posYlist.push_back(p.y - 1);
 	}
-	//if (chunkFromPos(point3Di{ 0,(int)p.y,0}).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
+	if (chunkFromPos(point3Di{ 0,(int)p.y,0}).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
 	{
 		posYlist.push_back(p.y + 1);
 	}
-	//if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z > chunkFromPos(point3Di{ 0,0,(int)p.z - 1 }).z)
+	if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z > chunkFromPos(point3Di{ 0,0,(int)p.z - 1 }).z)
 	{
 		posZlist.push_back(p.z - 1);
 	}
-	//if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)p.z + 1 }).z)
+	if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)p.z + 1 }).z)
 	{
 		posZlist.push_back(p.z + 1);
 	}
@@ -428,7 +504,7 @@ void universeNode::populateColliders()
 void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
-			 {"position", f._position}, {"velocity", f._velocity},
+			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
 			 {"children", f._children},{"id",f._ID} };
 }
 
@@ -441,9 +517,9 @@ void from_json(const json& j, universeNode& f) {
 	f._mass = j.at("mass").get<double>();
 	f._diameter = j.at("diameter").get<double>();
 	f._position = j.at("position").get<fdd>();
-	if (j.contains("com"))
+	if (j.contains("CoM"))
 	{
-		f._centerOfMass = j.at("com").get<fdd>();
+		f._centerOfMass = j.at("CoM").get<fdd>();
 	}
 	else
 	{
@@ -454,34 +530,62 @@ void from_json(const json& j, universeNode& f) {
 	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
-	switch (f._type) {
-	case STAR:
-		f._generator = std::make_unique<starGenerator>();
-		break;
-	case BLACK_HOLE:
-		f._generator = std::make_unique<blackHoleGenerator>();
-		break;
-	case PLANET_GAS:
-		f._generator = std::make_unique<gasPlanetGenerator>();
-		break;
-	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID, f._diameter);
-		break;
-	case ASTEROID:
-		f._generator = std::make_unique<asteroidGenerator>();
-		break;
-	case SATELLITE_NATURAL:
-		f._generator = std::make_unique<naturalSatelliteGenerator>();
-		break;
-	case SATELLITE_ARTIFICIAL:
-		f._generator = std::make_unique<artificialSatelliteGenerator>();
-		break;
-	case SPACE_STATION:
-		f._generator = std::make_unique<spaceStationGenerator>();
-		break;
-	case SPACESHIP:
-		f._generator = std::make_unique<spaceshipGenerator>();
-		break;
-	}
+
+	f.connectGenerator();
 	f.populateColliders();
+}
+
+universeNode::universeNodeIterator::universeNodeIterator(const universeNode::universeNodeIterator &r)
+{
+	p=r.p;
+	q=r.q;
+}
+
+universeNode::universeNodeIterator &universeNode::universeNodeIterator::operator=(const universeNode::universeNodeIterator &r)
+{
+	p=r.p;
+	q=r.q;
+	return *this;
+}
+
+bool universeNode::universeNodeIterator::operator==(const universeNode::universeNodeIterator &r)
+{
+	return p == r.p && q == r.q;
+}
+
+bool universeNode::universeNodeIterator::operator!=(const universeNode::universeNodeIterator &r)
+{
+	return p != r.p || q != r.q;
+}
+
+universeNode &universeNode::universeNodeIterator::operator*()
+{
+	return *p;
+}
+
+universeNode &universeNode::universeNodeIterator::operator->()
+{
+	return *p;
+}
+
+universeNode::universeNodeIterator &universeNode::universeNodeIterator::operator++()
+{
+	for(auto* child : p->getChildren()){
+		q.push(child);
+	}
+	if(q.empty()){
+		p=nullptr;
+	}
+	else{
+		p=q.front();
+		q.pop();
+	}
+	return *this;
+}
+
+universeNode::universeNodeIterator universeNode::universeNodeIterator::operator++(int devnull)
+{
+	universeNodeIterator old(*this);
+	operator++();
+	return old;
 }
