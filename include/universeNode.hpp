@@ -28,7 +28,8 @@ enum nodeType{
 class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
-	//universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
+	universeNode(const universeNode& u);
+	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
 	metaBlock getBlock(const point3Di &pos);
 	void setBlock(metaBlock b, const point3Di &pos);
@@ -47,6 +48,7 @@ public:
 	void addChild(universeNode u);
 	void updatePositions(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
+	universeNode& operator=(const universeNode& n);
 
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);

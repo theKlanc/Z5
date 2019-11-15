@@ -25,7 +25,7 @@ physicsEngine::~physicsEngine()
 
 void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	if(_remainingTime < 2.0f)
+	if (_remainingTime < 2.0f)
 		_remainingTime += dt;
 
 	Services::physicsMutex.lock();
@@ -41,7 +41,7 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 			{
 				applyDrag(registry, _timeStep);
 			}
-			for(int i = 0; i < config::physicsSolverIterations; ++i)
+			for (int i = 0; i < config::physicsSolverIterations; ++i)
 			{
 				applyVelocity(universeBase, registry, _solverStep);
 
@@ -87,8 +87,9 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 
 void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	for(auto& node : universeBase){
-		node.setPosition(node.getPosition() + (node.getVelocity()*dt));
+	for (auto& node : universeBase) {
+		if (node.getParent() != nullptr)
+			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition()));
 	}
 	auto movableEntityView = registry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) {
@@ -125,7 +126,7 @@ void physicsEngine::applyDrag(entt::registry& registry, double dt)
 		const body& bdy = movableEntityView.get<body>(entity);
 		//F=(1/2)*(densityOfFluid)*(velocity^2)*(Area)*(DragCoefficient)
 		metaBlock block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
-		if (block.base->ID==0)
+		if (block.base->ID == 0)
 			continue;
 		fdd drag = (vel.spd * vel.spd) * block.base->mass * (sqrt(bdy.volume)) * 0.25;
 		if ((drag.x > 0 && vel.spd.x < 0) || (drag.x < 0 && vel.spd.x>0))
@@ -202,7 +203,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 				auto chunksToCheck = node->getCollidableChunks(posRelativeToChunk, node);
 				for (terrainChunk*& chunk : chunksToCheck)
 				{
-					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - (fdd(chunk->getPosition())*config::chunkSize);
+					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - (fdd(chunk->getPosition()) * config::chunkSize);
 					entityTransform.setPosition(posRelativeToChunk.getVector3());
 					entityBody.collider->setTransform(entityTransform);
 
@@ -226,22 +227,22 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 		velocity& vel = bodyView.get<velocity>(entity);
 		fdd oldSpeed = vel.spd;
 		//backtrack position along the old velocity until we're "just" colliding with the node (tangentially)
-		pos.pos -= vel.spd * dt * ((bdy.maxContactDepth+0.01) / ((oldSpeed * dt).magnitude()));
+		pos.pos -= vel.spd * dt * ((bdy.maxContactDepth + 0.01) / ((oldSpeed * dt).magnitude()));
 		//Calculate new velocity
 		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
 		auto result = (d - (2 * (bdy.contactNormal.dot(d)) * bdy.contactNormal));
 
 		fdd normal;
-		normal.x=bdy.contactNormal.x;
-		normal.y=bdy.contactNormal.y;
-		normal.z=bdy.contactNormal.z;
+		normal.x = bdy.contactNormal.x;
+		normal.y = bdy.contactNormal.y;
+		normal.z = bdy.contactNormal.z;
 
 		fdd projectedFriction = normal.project(vel.spd);
-		projectedFriction*=(1-bdy.elasticity);
+		projectedFriction *= (1 - bdy.elasticity);
 
-		result.x+=projectedFriction.x;
-		result.y+=projectedFriction.y;
-		result.z+=projectedFriction.z;
+		result.x += projectedFriction.x;
+		result.y += projectedFriction.y;
+		result.z += projectedFriction.z;
 
 		vel.spd.x = result.x;
 		vel.spd.y = result.y;
@@ -347,11 +348,11 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 				if (pos.parent != node)
 				{//convert to local
 				//TODO avoid this if possible
-				
+
 					oldParent = pos.parent;
 					pos.pos = node->getLocalPos(pos.pos, oldParent);
 					pos.parent = node;
-				
+
 					velocity& vel = Services::enttRegistry->get<velocity>(entity);
 					vel.spd = node->getLocalVel(vel.spd, oldParent);
 				}

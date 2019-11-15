@@ -34,26 +34,32 @@ void universeNode::clean()
 	}
 }
 
-//universeNode::universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type, universeNode *parent, unsigned int id)
-//{
-//	_name = name;
-//	_mass = mass;
-//	_diameter=diameter;
-//	_position=pos;
-//	_centerOfMass=com;
-//	_velocity=vel;
-//	_type=type;
-//	_parent=parent;
-//	_ID=id;
-//	if(_parent==nullptr){
-//		_depth=0;
-//	}
-//	else{
-//		_depth=_parent->_depth+1;
-//	}
-//	connectGenerator();
-//	populateColliders();
-//}
+universeNode::universeNode(const universeNode& u)
+{
+	*this = u;
+}
+
+universeNode::universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type, universeNode* parent, unsigned int id)
+{
+	_name = name;
+	_mass = mass;
+	_diameter = diameter;
+	_position = pos;
+	_centerOfMass = com;
+	_velocity = vel;
+	_type = type;
+	_parent = parent;
+	_ID = id;
+	if (_parent == nullptr) {
+		_depth = 0;
+	}
+	else {
+		_depth = _parent->_depth + 1;
+	}
+	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter);
+	connectGenerator();
+	populateColliders();
+}
 
 baseBlock& universeNode::getTopBlock(const point2D& pos)
 {
@@ -67,9 +73,9 @@ metaBlock universeNode::getBlock(const point3Di& pos) {
 	{
 		return tChunk.getBlock(pos);
 	}
-	else{
+	else {
 		metaBlock m;
-		m.base=&baseBlock::terrainTable[0];
+		m.base = &baseBlock::terrainTable[0];
 		return m;
 		//if(shouldBeLoaded())
 		//{
@@ -405,6 +411,25 @@ fdd universeNode::getGravityAcceleration(fdd localPosition)
 	return magicGravity * factorMagic + realGravity * (1 - factorMagic);
 }
 
+universeNode& universeNode::operator=(const universeNode& u)
+{
+	_position = u._position;
+	_ID = u._ID;
+	_centerOfMass = u._centerOfMass;
+	_children = u._children;
+	_chunks = u._chunks;
+	_collider = u._collider;
+	_collisionShape = u._collisionShape;
+	_depth = u._depth;
+	_diameter = u._diameter;
+	_type = u._type;
+	_velocity = u._velocity;
+	_parent = u._parent;
+	_mass = u._mass;
+	connectGenerator();
+	return *this;
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
@@ -434,28 +459,28 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-	p.x=floor(p.x);
-	p.y=floor(p.y);
-	p.z=floor(p.z);
+	p.x = floor(p.x);
+	p.y = floor(p.y);
+	p.z = floor(p.z);
 	std::vector<int> posXlist;
 	posXlist.push_back(p.x);
 	std::vector<int> posYlist;
 	posYlist.push_back(p.y);
 	std::vector<int> posZlist;
 	posZlist.push_back(p.z);
-	if (chunkFromPos(point3Di{(int)p.x,0,0}).x > chunkFromPos(point3Di{(int) p.x - 1,0,0}).x)
+	if (chunkFromPos(point3Di{ (int)p.x,0,0 }).x > chunkFromPos(point3Di{ (int)p.x - 1,0,0 }).x)
 	{
 		posXlist.push_back(p.x - 1);
 	}
-	if (chunkFromPos(point3Di{(int) p.x,0,0 }).x < chunkFromPos(point3Di{(int) p.x + 1,0,0 }).x)
+	if (chunkFromPos(point3Di{ (int)p.x,0,0 }).x < chunkFromPos(point3Di{ (int)p.x + 1,0,0 }).x)
 	{
 		posXlist.push_back(p.x + 1);
 	}
-	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0}).y)
+	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0 }).y)
 	{
 		posYlist.push_back(p.y - 1);
 	}
-	if (chunkFromPos(point3Di{ 0,(int)p.y,0}).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
+	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
 	{
 		posYlist.push_back(p.y + 1);
 	}
@@ -535,49 +560,49 @@ void from_json(const json& j, universeNode& f) {
 	f.populateColliders();
 }
 
-universeNode::universeNodeIterator::universeNodeIterator(const universeNode::universeNodeIterator &r)
+universeNode::universeNodeIterator::universeNodeIterator(const universeNode::universeNodeIterator& r)
 {
-	p=r.p;
-	q=r.q;
+	p = r.p;
+	q = r.q;
 }
 
-universeNode::universeNodeIterator &universeNode::universeNodeIterator::operator=(const universeNode::universeNodeIterator &r)
+universeNode::universeNodeIterator& universeNode::universeNodeIterator::operator=(const universeNode::universeNodeIterator& r)
 {
-	p=r.p;
-	q=r.q;
+	p = r.p;
+	q = r.q;
 	return *this;
 }
 
-bool universeNode::universeNodeIterator::operator==(const universeNode::universeNodeIterator &r)
+bool universeNode::universeNodeIterator::operator==(const universeNode::universeNodeIterator& r)
 {
 	return p == r.p && q == r.q;
 }
 
-bool universeNode::universeNodeIterator::operator!=(const universeNode::universeNodeIterator &r)
+bool universeNode::universeNodeIterator::operator!=(const universeNode::universeNodeIterator& r)
 {
 	return p != r.p || q != r.q;
 }
 
-universeNode &universeNode::universeNodeIterator::operator*()
+universeNode& universeNode::universeNodeIterator::operator*()
 {
 	return *p;
 }
 
-universeNode &universeNode::universeNodeIterator::operator->()
+universeNode& universeNode::universeNodeIterator::operator->()
 {
 	return *p;
 }
 
-universeNode::universeNodeIterator &universeNode::universeNodeIterator::operator++()
+universeNode::universeNodeIterator& universeNode::universeNodeIterator::operator++()
 {
-	for(auto* child : p->getChildren()){
+	for (auto* child : p->getChildren()) {
 		q.push(child);
 	}
-	if(q.empty()){
-		p=nullptr;
+	if (q.empty()) {
+		p = nullptr;
 	}
-	else{
-		p=q.front();
+	else {
+		p = q.front();
 		q.pop();
 	}
 	return *this;
