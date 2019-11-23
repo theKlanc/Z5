@@ -1,6 +1,6 @@
 #pragma once
+#include <functional>
 #include "HardwareInterface/HardwareInterface.hpp"
-
 class gadget{
 	public:
 		virtual ~gadget() = 0;

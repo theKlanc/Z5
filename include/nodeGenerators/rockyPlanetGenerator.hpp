@@ -7,8 +7,10 @@ public:
 	rockyPlanetGenerator(unsigned int s, unsigned diameter);
 	virtual ~rockyPlanetGenerator(){}
 	terrainChunk getChunk(const point3Di& p)const override;
+	int getHeight(const point2D &p)const override;
 private:
 	unsigned _diameter;
+	unsigned _waterLevel;
 	
 	void fillWater(terrainChunk& c, const point3Di p, int waterLevel) const; // fill chunk c with water on air blocks below waterLevel(nodeHeight), p is the chunk position in chunkSpace
 	void populateTrees(terrainChunk& c, const point3Di p, int waterLevel) const; // populate chunk c with trees on the surface, p is the chunk position in chunkSpace

@@ -31,3 +31,17 @@ source/UI/gadgets
 source/UI
 include/UI
 include/UI/gadgets
+deps/reactPhysics3D/src/body
+deps/reactPhysics3D/src/containers
+deps/reactPhysics3D/src/collision/narrowphase/GJK
+deps/reactPhysics3D/src/engine
+deps/reactPhysics3D/src/collision
+deps/reactPhysics3D/src/mathematics
+deps/reactPhysics3D/src
+deps/reactPhysics3D/src/constraint
+deps/reactPhysics3D/src/collision/narrowphase/SAT
+deps/reactPhysics3D/src/memory
+deps/reactPhysics3D/src/collision/shapes
+deps/reactPhysics3D/src/collision/broadphase
+deps/reactPhysics3D/src/collision/narrowphase
+deps/reactPhysics3D/src/utils

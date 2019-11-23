@@ -24,7 +24,7 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 	_terrainPainter.addSection(terrainSection(0.8, 40, baseBlock::terrainTable[13])); //snow
 	_terrainPainter.addSection(terrainSection(1, 10, baseBlock::terrainTable[13])); //snow
 
-
+	_waterLevel=240;
 }
 
 terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)const
@@ -48,11 +48,19 @@ terrainChunk rockyPlanetGenerator::getChunk(const point3Di& p)const
 			}
 		}
 	}
-	fillWater(chunk, p, 240);
-	populateTrees(chunk, p, 240 );
+	fillWater(chunk, p, _waterLevel);
+	populateTrees(chunk, p, _waterLevel );
 	chunk.setLoaded();
 	chunk.clearDirtyFlag();
 	return chunk;
+}
+
+int rockyPlanetGenerator::getHeight(const point2D &p) const
+{
+	int result = _terrainPainter.getHeight(getNoise(p));
+	if(result < _waterLevel)
+		result=_waterLevel;
+	return result;
 }
 
 void rockyPlanetGenerator::fillWater(terrainChunk& c, const point3Di p, int waterLevel)const

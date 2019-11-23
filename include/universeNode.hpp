@@ -39,6 +39,7 @@ public:
 	fdd getLocalVel(fdd f,universeNode* u) const;
 	fdd getPosition();
 	fdd getVelocity();
+	fdd getCenterOfMass();
 	void setVelocity(fdd v);
 	void setPosition(fdd p);
 	unsigned int getID();
@@ -50,10 +51,12 @@ public:
 	fdd getGravityAcceleration(fdd localPosition);
 	universeNode& operator=(const universeNode& n);
 
+	std::vector<terrainChunk>& getChunks();
+
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
 	rp3d::CollisionBody* getNodeCollider();
-	std::vector<terrainChunk*> getCollidableChunks(fdd p, universeNode* parent);
+	std::vector<terrainChunk*> getCollidableChunks(fdd p, const point3Dd& size, universeNode* parent);
 
 	void populateColliders();
 	void linkChildren();

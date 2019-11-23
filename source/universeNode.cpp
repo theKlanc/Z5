@@ -69,21 +69,18 @@ baseBlock& universeNode::getTopBlock(const point2D& pos)
 metaBlock universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
 	auto debug = chunkFromPos(pos);
-	if (tChunk.loaded() && tChunk.getPosition() == chunkFromPos(pos))
+	//if (tChunk.isValid(pos))
+	if(tChunk.loaded() && tChunk.getPosition() == debug)
 	{
 		return tChunk.getBlock(pos);
 	}
+	//else if(wouldBeValid){
+	//	return _generator.getBlock()
+	//}
 	else {
 		metaBlock m;
 		m.base = &baseBlock::terrainTable[0];
 		return m;
-		//if(shouldBeLoaded())
-		//{
-		//	return _generator.getBlock();
-		//}
-		//else{
-		//	return asd;
-		//}
 	}
 }
 
@@ -354,6 +351,11 @@ fdd universeNode::getVelocity()
 	return _velocity;
 }
 
+fdd universeNode::getCenterOfMass()
+{
+	return _centerOfMass;
+}
+
 void universeNode::setVelocity(fdd v)
 {
 	_velocity = v;
@@ -430,6 +432,11 @@ universeNode& universeNode::operator=(const universeNode& u)
 	return *this;
 }
 
+std::vector<terrainChunk> &universeNode::getChunks()
+{
+	return _chunks;
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
@@ -455,7 +462,7 @@ rp3d::CollisionBody* universeNode::getNodeCollider()
 	return _collider;
 }
 
-std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode* parent)
+std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3Dd& size, universeNode* parent)
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
@@ -468,29 +475,17 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode
 	posYlist.push_back(p.y);
 	std::vector<int> posZlist;
 	posZlist.push_back(p.z);
-	if (chunkFromPos(point3Di{ (int)p.x,0,0 }).x > chunkFromPos(point3Di{ (int)p.x - 1,0,0 }).x)
+	if (size.x!=0 && chunkFromPos(point3Di{ (int)p.x,0,0 }).x < chunkFromPos(point3Di{ (int)(p.x + size.x),0,0 }).x)
 	{
-		posXlist.push_back(p.x - 1);
+		posXlist.push_back(p.x + size.x);
 	}
-	if (chunkFromPos(point3Di{ (int)p.x,0,0 }).x < chunkFromPos(point3Di{ (int)p.x + 1,0,0 }).x)
+	if (size.y!=0 && chunkFromPos(point3Di{ 0,(int)p.y,0 }).y < chunkFromPos(point3Di{ 0,(int)(p.y + size.y),0 }).y)
 	{
-		posXlist.push_back(p.x + 1);
+		posYlist.push_back(p.y + size.y);
 	}
-	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0 }).y)
+	if (size.z!=0 && chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)(p.z + size.z)}).z)
 	{
-		posYlist.push_back(p.y - 1);
-	}
-	if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
-	{
-		posYlist.push_back(p.y + 1);
-	}
-	if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z > chunkFromPos(point3Di{ 0,0,(int)p.z - 1 }).z)
-	{
-		posZlist.push_back(p.z - 1);
-	}
-	if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)p.z + 1 }).z)
-	{
-		posZlist.push_back(p.z + 1);
+		posZlist.push_back(p.z + size.z);
 	}
 
 	for (int x : posXlist)
@@ -499,10 +494,10 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode
 		{
 			for (int z : posZlist)
 			{
-				auto chunk = chunkAt({ x,y,z });
+				auto& chunk = chunkAt({ x,y,z });
 				if (chunk.loaded())
 				{
-					candidateBodies.push_back(&chunkAt({ x,y,z }));
+					candidateBodies.push_back(&chunk);
 				}
 			}
 		}

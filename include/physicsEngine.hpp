@@ -25,7 +25,7 @@ class physicsEngine : public rp3d::CollisionCallback
 {
 	public:
 	physicsEngine();
-	~physicsEngine();
+	~physicsEngine() override;
 	void processCollisions(universeNode& universeBase, entt::registry& registry, double dt);
 	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
 	rp3d::CollisionWorld* getWorld() const;
@@ -36,8 +36,8 @@ private:
 	double _remainingTime = 0;
 
 	void applyGravity(universeNode& universeBase, entt::registry& registry, double dt);
-	void applyBuoyancy(entt::registry& registry, double dt);
-	void applyDrag(entt::registry& registry, double dt);
+	void applyBuoyancy(universeNode& universeBase, entt::registry& registry, double dt);
+	void applyDrag(universeNode& universeBase, entt::registry& registry, double dt);
 
 	void applyVelocity(universeNode& universeBase, entt::registry& registry, double dt);
 	

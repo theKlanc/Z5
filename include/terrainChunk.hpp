@@ -16,6 +16,7 @@ public:
 	void setBlock(metaBlock b, const point3Di& p);
 	void setLoaded();
 	bool loaded()const;
+	bool isValid(const point3Di& nodePos) const;
 	rp3d::CollisionBody* getCollider() const;
 	void updateAllColliders();
 
@@ -32,7 +33,7 @@ public:
 private:
 
 	bool _dirty = false;
-	point3Di _position;
+	point3Di _indexedPosition;
 	bool _loaded = false;
 	rp3d::CollisionBody* _collisionBody = nullptr;
 	std::vector<metaBlock> _blocks;
