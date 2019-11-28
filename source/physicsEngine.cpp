@@ -204,7 +204,7 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 		if (node.getParent() != nullptr)
 		{
 			for(terrainChunk& chunk : node.getChunks()){
-
+				//auto parentChunks = node.getParent()->getCollidableChunks(chunk.getPosition(),{config::chunkSize,config::chunkSize,config::chunkSize},node.getParent());
 			}
 		}
 	}
@@ -248,10 +248,10 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 
 			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
 			{
-				auto chunksToCheck = node->getCollidableChunks({posRelativeToChunk.x-entityBody.width/2,posRelativeToChunk.y-entityBody.width/2,posRelativeToChunk.z},{entityBody.width,entityBody.width,entityBody.height}, node);
+				auto chunksToCheck = node->getCollidableChunks({posRelativeToChunk.x-entityBody.width/2,posRelativeToChunk.y-entityBody.width/2,posRelativeToChunk.z},point3Dd{entityBody.width,entityBody.width,entityBody.height}, node);
 				for (terrainChunk*& chunk : chunksToCheck)
 				{
-					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - (fdd(chunk->getPosition()) * config::chunkSize);
+					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - chunk->getPosition();
 					entityTransform.setPosition(posRelativeToChunk.getVector3());
 					entityBody.collider->setTransform(entityTransform);
 

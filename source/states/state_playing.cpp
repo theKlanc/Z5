@@ -33,7 +33,8 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
+	_debug = debug;
 
 	Services::twister.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
@@ -51,6 +52,13 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Bas
 	else
 	{
 		loadGame();
+	}
+
+	if(_debug){
+		_console = std::make_shared<basicTextEntry>(point2D{0,0},point2D{HI2::getScreenWidth(),40},_standardFont,35,"","Enter a command here",HI2::Color(0,0,0,127),HI2::Color(255,255,255,255));
+		_console->toggle();
+		_console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
+		_scene.addGadget(_console);
 	}
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
@@ -75,192 +83,96 @@ void State::Playing::input(double dt)
 	auto& playerPos = _enttRegistry.get<position>(_player);
 	auto& playerBdy = _enttRegistry.get<body>(_player);
 	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
-	const std::bitset<HI2::BUTTON_SIZE>& down = HI2::getKeysDown();
+	std::bitset<HI2::BUTTON_SIZE> down = HI2::getKeysDown();
+	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
+	const point2D& mouse = HI2::getTouchPos();
 
-	//STOP
-	if (held[HI2::BUTTON::BUTTON_MINUS]) {
-		playerSpd.spd = fdd();
-	}
-
-	//MOVE
-	if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
-		playerSpd.spd.y -= 10 * dt;
-	}
-	if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
-		playerSpd.spd.y += 10 * dt;
-	}
-	if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
-		playerSpd.spd.x -= 10 * dt;
-	}
-	if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
-		playerSpd.spd.x += 10 * dt;
-	}
-
-	//MOVE VERTICALLY
-	if (held[HI2::BUTTON::KEY_R]) {
-		playerSpd.spd.z += 60 * dt;
-	}
-	if (held[HI2::BUTTON::KEY_F]) {
-		playerSpd.spd.z -= 40 * dt;
-	}
-
-	if (down[HI2::BUTTON::KEY_SPACE]){
-		playerSpd.spd.z = 20;
-	}
-
-	//TELEPORT UPWARDS
-	if (down[HI2::BUTTON::BUTTON_PLUS]) {
-		playerPos.pos.z += 5;
-		playerSpd.spd.z = 0;
-	}
-
-
-	//ROTATE PLAYER
-	if (held[HI2::BUTTON::KEY_E]) {
-		playerSpd.spd.r += 10 * dt;
-	}
-	if (held[HI2::BUTTON::KEY_Q]) {
-		playerSpd.spd.r -= 10 * dt;
-	}
-
-	//PLACE BLOCK
-	if (down[HI2::BUTTON::KEY_P]) {
-		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-	}
-	if (down[HI2::BUTTON::KEY_O]) {
-		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-	}
-
-	//SELECT BLOCK
-	if (down[HI2::BUTTON::BUTTON_DLEFT]) {
-		selectedBlock--;
-		if (selectedBlock < 0)
-			selectedBlock = baseBlock::terrainTable.size() - 1;
-	}
-	if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
-		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
-	}
-
-	//BLOCK ROTATE
-	if (down[HI2::BUTTON::BUTTON_DUP]) {
-		selectedRotation++;
-	}
-	if (down[HI2::BUTTON::BUTTON_DDOWN]) {
-		selectedRotation--;
-	}
-
-	//TOGGLE GRAVITY
-	if (down[HI2::BUTTON::KEY_G])
-	{
-		config::gravityEnabled = !config::gravityEnabled;
-		std::cout << "Gravity " << (config::gravityEnabled ? "En" : "Dis") << "abled" << std::endl;
-	}
-
-	//TOGGLE DRAG
-	if (down[HI2::BUTTON::KEY_C])
-	{
-		config::dragEnabled = !config::dragEnabled;
-		std::cout << "Drag " << (config::dragEnabled ? "En" : "Dis") << "abled" << std::endl;
-	}
-
-	//CAMERA ZOOM
-	if (held[HI2::BUTTON::BUTTON_ZR]) {
-		config::zoom += dt;
-		std::cout << "Zoom: " << config::zoom << std::endl;
-	}
-	if (held[HI2::BUTTON::BUTTON_ZL]) {
-		config::zoom /= 1.01;
-		std::cout << "Zoom: " << config::zoom << std::endl;
-	}
-
-	//CAMERA DEPTH
-	if (down[HI2::BUTTON::KEY_H])
-	{
-		config::cameraDepth++;
-		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_B])
-	{
-		config::cameraDepth--;
-		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
-	}
-
-	// CAMERA HEIGHT
-	if (down[HI2::BUTTON::KEY_U])
-	{
-		config::cameraHeight--;
-		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_I])
-	{
-		config::cameraHeight++;
-		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
-	}
-
-	// minScale
-	if (down[HI2::BUTTON::KEY_J])
-	{
-		config::minScale += 0.05;
-		std::cout << "MinScale: " << config::minScale << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_N])
-	{
-		config::minScale -= 0.05;
-		std::cout << "MinScale: " << config::minScale << std::endl;
-	}
-
-	// Scale
-	if (down[HI2::BUTTON::KEY_K])
-	{
-		config::depthScale += 0.05;
-		std::cout << "DepthScale: " << config::depthScale << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_M])
-	{
-		config::depthScale -= 0.05;
-		std::cout << "DepthScale: " << config::depthScale << std::endl;
-	}
-
-	// Shadow
-	if (held[HI2::BUTTON::KEY_T])
-	{
-		config::minShadow--;
-		std::cout << "minShadow: " << config::minShadow << std::endl;
-	}
-	if (held[HI2::BUTTON::KEY_Y])
-	{
-		config::minShadow++;
-		std::cout << "minShadow: " << config::minShadow << std::endl;
-	}
-
-	// Breathe
-	if (down[HI2::BUTTON::KEY_X])
-	{
-		if (lungsFull)
-		{
-			lungsFull = !lungsFull;
-			playerBdy.volume -= 0.01;
-			std::cout << "Exhale" << std::endl;
-		}
-		else
-		{
-			metaBlock block = playerPos.parent->getBlock({ (int)playerPos.pos.x,(int)playerPos.pos.y,(int)(playerPos.pos.z + playerBdy.height) });
-			if (block.base->ID!=0 && block.base->name == "air")
-			{
-				lungsFull = !lungsFull;
-				playerBdy.volume += 0.01;
-				std::cout << "Inhale" << std::endl;
-			}
+	if(_debug && _console->isActive()){
+		if(down[HI2::BUTTON::KEY_ESCAPE]){
+			_console->toggle();
 		}
 	}
+	else{
+		if(_debug && down[HI2::BUTTON::KEY_ACCEPT]){
+			_console->toggle();
+			down[HI2::BUTTON::KEY_ACCEPT]=false;
+		}
+		//STOP
+		if (held[HI2::BUTTON::BUTTON_MINUS]) {
+			playerSpd.spd = fdd();
+		}
 
-	// Exit
-	if(down[HI2::BUTTON::KEY_ESCAPE])
-		_core->popState();
+		//MOVE
+		if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
+			playerSpd.spd.y -= 10 * dt;
+		}
+		if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
+			playerSpd.spd.y += 10 * dt;
+		}
+		if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
+			playerSpd.spd.x -= 10 * dt;
+		}
+		if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
+			playerSpd.spd.x += 10 * dt;
+		}
+
+		//MOVE VERTICALLY
+		if (held[HI2::BUTTON::KEY_R]) {
+			playerSpd.spd.z += 60 * dt;
+		}
+		if (held[HI2::BUTTON::KEY_F]) {
+			playerSpd.spd.z -= 40 * dt;
+		}
+
+		if (down[HI2::BUTTON::KEY_SPACE]){
+			playerSpd.spd.z = 20;
+		}
+
+		//ROTATE PLAYER
+		if (held[HI2::BUTTON::KEY_E]) {
+			playerSpd.spd.r += 10 * dt;
+		}
+		if (held[HI2::BUTTON::KEY_Q]) {
+			playerSpd.spd.r -= 10 * dt;
+		}
+
+		//PLACE BLOCK
+		if (down[HI2::BUTTON::KEY_P]) {
+			playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		}
+		if (down[HI2::BUTTON::KEY_O]) {
+			playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		}
+
+		//SELECT BLOCK
+		if (down[HI2::BUTTON::BUTTON_DLEFT]) {
+			selectedBlock--;
+			if (selectedBlock < 0)
+				selectedBlock = baseBlock::terrainTable.size() - 1;
+		}
+		if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
+			selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
+		}
+
+		//BLOCK ROTATE
+		if (down[HI2::BUTTON::BUTTON_DUP]) {
+			selectedRotation++;
+		}
+		if (down[HI2::BUTTON::BUTTON_DDOWN]) {
+			selectedRotation--;
+		}
+
+		// Exit
+		if(down[HI2::BUTTON::KEY_ESCAPE])
+		{
+			_core->popState();
+		}
+	}
+	_scene.update(down,up,held,mouse,dt);
+
 }
 
 void State::Playing::update(double dt) {
-
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -358,6 +270,7 @@ void State::Playing::draw(double dt) {
 	HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
 	HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
 
+	_scene.draw();
 	HI2::endFrame();
 
 }
@@ -380,7 +293,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
-			if constexpr (config::drawDepthShadows) {
+			if (config::drawDepthShadows) {
 				HI2::setTextureColorMod(*sprite.sprite, HI2::Color(mask, mask, mask, 0));
 			}
 			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
@@ -443,13 +356,14 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					if (b.base->ID!=0) {
 						if (b.base->visible)
 						{
-							if constexpr (config::drawDepthShadows) {
+							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
 								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 							}
 							else {
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation);
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								//HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
 							}
 						}
 					}
@@ -534,6 +448,8 @@ void State::Playing::loadGame()
 
 
 	loadEntities();
+
+	_debug=true;
 }
 
 void State::Playing::saveGame()
@@ -790,4 +706,145 @@ std::filesystem::path State::Playing::_savePath;
 
 std::filesystem::path State::Playing::savePath() {
 	return _savePath;
+}
+
+void State::Playing::debugConsoleExec(std::string input)
+{
+	std::stringstream ss(input);
+	std::string command;
+	ss >> command;
+	if(command == "help"){ //fake switch
+		std::cout << "tp [x] [y] [z]" << std::endl;
+		std::cout << "listNodes" << std::endl;
+		std::cout << "nodeInfo ID" << std::endl;
+		std::cout << "stop" << std::endl;
+		std::cout << "setParent ID" << std::endl;
+		std::cout << "toggleGravity" << std::endl;
+		std::cout << "toggleDrag" << std::endl;
+		std::cout << "toggleDepthShadows" << std::endl;
+		std::cout << "setNodePos ID x y z" << std::endl;
+		std::cout << "setNodeVel ID x y z" << std::endl;
+	}
+	else if(command == "stop"){
+		velocity& vel = _enttRegistry.get<velocity>(_player);
+		vel.spd=fdd();
+	}
+	else if(command == "toggleGravity"){
+		config::gravityEnabled=!config::gravityEnabled;
+	}
+	else if(command == "toggleDrag"){
+		config::dragEnabled=!config::dragEnabled;
+	}
+	else if(command == "toggleDepthShadows"){
+		config::drawDepthShadows=!config::drawDepthShadows;
+	}
+	else if(command == "listNodes"){
+		for(universeNode& node : _universeBase){
+			std::string sep;
+			for(int i =0;i<node.getDepth();++i){
+				sep+="   ";
+			}
+			std::cout << sep << "ID: " << node.getID() << std::endl;
+			std::cout << sep << "name: " << node.getName() << std::endl;
+			std::cout << sep << "type: " << node.getType() << std::endl;
+			std::cout << sep << "pos: " << node.getPosition() << std::endl;
+
+		}
+	}
+	else if(command == "nodeInfo" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			std::string sep;
+			for(int i =0;i<node->getDepth();++i){
+				sep+="   ";
+			}
+			std::cout << sep << "ID: " << node->getID() << std::endl;
+			std::cout << sep << "name: " << node->getName() << std::endl;
+			std::cout << sep << "type: " << node->getType() << std::endl;
+			std::cout << sep << "pos: " << node->getPosition() << std::endl;
+		}
+	}
+	else if(command == "setNodePos" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			fdd pos;
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.x = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.y = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.z = std::strtol(argument.c_str(),nullptr,10);
+			}
+			node->setPosition(pos);
+		}
+	}
+	else if(command == "setNodeVel" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			fdd pos;
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.x = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.y = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.z = std::strtol(argument.c_str(),nullptr,10);
+			}
+			node->setVelocity(pos);
+		}
+	}
+	else if(command == "setParent" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			velocity& vel = _enttRegistry.get<velocity>(_player);
+			position& pos = _enttRegistry.get<position>(_player);
+			vel.spd=node->getLocalVel(vel.spd,pos.parent);
+			pos.pos=node->getLocalPos(pos.pos,pos.parent);
+			pos.parent=node;
+			pos.parentID=node->getID();
+		}
+	}
+	else if(command == "tp"){
+		velocity& vel = _enttRegistry.get<velocity>(_player);
+		vel.spd=fdd();
+		position& pos = _enttRegistry.get<position>(_player);
+		std::string argument;
+		if(ss.tellg() != -1){
+			ss >> argument;
+			pos.pos.x = std::strtol(argument.c_str(),nullptr,10);
+		}
+		if(ss.tellg() != -1){
+			ss >> argument;
+			pos.pos.y = std::strtol(argument.c_str(),nullptr,10);
+		}
+		if(ss.tellg() != -1){
+			ss >> argument;
+			pos.pos.z = std::strtol(argument.c_str(),nullptr,10);
+		}
+		else{
+			pos.pos.z = 1+pos.parent->getHeight({(int)pos.pos.x,(int)pos.pos.y});
+		}
+	}
+	std::cout << input << std::endl;
 }

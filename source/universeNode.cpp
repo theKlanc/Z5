@@ -68,9 +68,7 @@ baseBlock& universeNode::getTopBlock(const point2D& pos)
 
 metaBlock universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
-	auto debug = chunkFromPos(pos);
-	//if (tChunk.isValid(pos))
-	if(tChunk.loaded() && tChunk.getPosition() == debug)
+	if(tChunk.isValid(pos))
 	{
 		return tChunk.getBlock(pos);
 	}
@@ -452,6 +450,21 @@ double universeNode::getDiameter()
 	return _diameter;
 }
 
+unsigned universeNode::getDepth()
+{
+	return _depth;
+}
+
+std::string universeNode::getName()
+{
+	return _name;
+}
+
+nodeType universeNode::getType()
+{
+	return _type;
+}
+
 unsigned int universeNode::getHeight(const point2D& pos)
 {
 	return _generator->getHeight(pos);
@@ -521,39 +534,6 @@ void universeNode::populateColliders()
 	}
 }
 
-void to_json(nlohmann::json& j, const universeNode& f) {
-	j = json{ {"name", f._name},			{"mass", f._mass},
-			 {"diameter", f._diameter}, {"type", f._type},
-			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID} };
-}
-
-void from_json(const json& j, universeNode& f) {
-	f._depth = 0;
-	f._ID = j.at("id").get<unsigned int>();
-	f._parent = nullptr;
-	f._name = j.at("name").get<std::string>();
-	f._type = j.at("type").get<nodeType>();
-	f._mass = j.at("mass").get<double>();
-	f._diameter = j.at("diameter").get<double>();
-	f._position = j.at("position").get<fdd>();
-	if (j.contains("CoM"))
-	{
-		f._centerOfMass = j.at("CoM").get<fdd>();
-	}
-	else
-	{
-		f._centerOfMass = { 0,0,0,0 };
-	}
-	f._velocity = j.at("velocity").get<fdd>();
-	f._children = std::vector<universeNode>();
-	for (const nlohmann::json& element : j.at("children")) {
-		f._children.push_back(element.get<universeNode>());
-	}
-
-	f.connectGenerator();
-	f.populateColliders();
-}
 
 universeNode::universeNodeIterator::universeNodeIterator(const universeNode::universeNodeIterator& r)
 {
@@ -608,4 +588,39 @@ universeNode::universeNodeIterator universeNode::universeNodeIterator::operator+
 	universeNodeIterator old(*this);
 	operator++();
 	return old;
+}
+
+
+void to_json(nlohmann::json& j, const universeNode& f) {
+	j = json{ {"name", f._name},			{"mass", f._mass},
+			 {"diameter", f._diameter}, {"type", f._type},
+			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
+			 {"children", f._children},{"id",f._ID} };
+}
+
+void from_json(const json& j, universeNode& f) {
+	f._depth = 0;
+	f._ID = j.at("id").get<unsigned int>();
+	f._parent = nullptr;
+	f._name = j.at("name").get<std::string>();
+	f._type = j.at("type").get<nodeType>();
+	f._mass = j.at("mass").get<double>();
+	f._diameter = j.at("diameter").get<double>();
+	f._position = j.at("position").get<fdd>();
+	if (j.contains("CoM"))
+	{
+		f._centerOfMass = j.at("CoM").get<fdd>();
+	}
+	else
+	{
+		f._centerOfMass = { 0,0,0,0 };
+	}
+	f._velocity = j.at("velocity").get<fdd>();
+	f._children = std::vector<universeNode>();
+	for (const nlohmann::json& element : j.at("children")) {
+		f._children.push_back(element.get<universeNode>());
+	}
+
+	f.connectGenerator();
+	f.populateColliders();
 }

@@ -19,4 +19,6 @@ private:
 	point2D _maxDimensions;
 	bool _wasDragging = false;
 	point2D _lastTouch;
+
+	const int _scrollMultiplier = 40;
 };

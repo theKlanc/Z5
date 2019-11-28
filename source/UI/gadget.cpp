@@ -37,6 +37,12 @@ std::string_view gadget::getName()
 	return _name;
 }
 
+void gadget::toggle()
+{
+	_active=!_active;
+	_visible=!_visible;
+}
+
 void gadget::setActive(bool b)
 {
 	_active=b;

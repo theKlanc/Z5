@@ -58,7 +58,7 @@ char utils::getChar(HI2::BUTTON b)
 	case HI2::KEY_ACCEPT:
 		return '\n';
 	case HI2::KEY_SPACE:
-		return '\ ';
+		return ' ';
 	case HI2::KEY_0:
 		return '0';
 	case HI2::KEY_1:

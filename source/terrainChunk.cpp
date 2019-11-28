@@ -78,9 +78,14 @@ bool terrainChunk::loaded() const {
 	return _loaded;
 }
 
+bool terrainChunk::isInside(const point3Dd& point) const
+{
+	return (point3Di)(point / config::chunkSize) == _indexedPosition;
+}
+
 bool terrainChunk::isValid(const point3Di &nodePos) const
 {
-	return loaded() && point3Di{nodePos.x/config::chunkSize,nodePos.y/config::chunkSize,nodePos.z/config::chunkSize} == _indexedPosition;
+	return loaded() && isInside(nodePos);
 }
 
 rp3d::CollisionBody* terrainChunk::getCollider() const {
@@ -103,8 +108,11 @@ bool terrainChunk::operator!=(const point3Di& right) const {
 	return _indexedPosition != right;
 }
 
-const point3Di& terrainChunk::getPosition() const {
+const point3Di& terrainChunk::getIndexedPosition() const {
 	return _indexedPosition;
+}
+point3Di terrainChunk::getPosition() const {
+	return _indexedPosition * config::chunkSize;
 }
 
 void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& chunkPos) {

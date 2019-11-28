@@ -13,6 +13,7 @@ class gadget{
 		point2D getPosition();
 		point2D getSize();
 		std::string_view getName();
+		void toggle();
 		void setActive(bool b = true);
 		void setVisible(bool b = true);
 		void setSelectable(bool b = true);

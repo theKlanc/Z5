@@ -45,6 +45,9 @@ public:
 	unsigned int getID();
 	double getMass();
 	double getDiameter();
+	unsigned getDepth();
+	std::string getName();
+	nodeType getType();
 	std::vector<universeNode*> getChildren();
 	void addChild(universeNode u);
 	void updatePositions(double dt);

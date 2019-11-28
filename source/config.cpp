@@ -8,3 +8,4 @@ unsigned short config::minShadow = 100;
 double config::depthScale = 1.5;
 double config::minScale = 0.5;
 int config::cameraHeight = 25;
+bool config::drawDepthShadows = true;

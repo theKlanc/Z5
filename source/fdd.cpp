@@ -188,3 +188,8 @@ reactphysics3d::Vector3 fdd::getVector3() const
 {
 	return rp3d::Vector3{(rp3d::decimal)x,(rp3d::decimal)y,(rp3d::decimal)z};
 }
+
+std::ostream &operator<<(std::ostream &os, const fdd &f)
+{
+	return os << "x: "<<f.x<< " y: "<<f.y<< " z: "<<f.z<< " r: "<<f.r;
+}

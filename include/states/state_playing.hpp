@@ -1,4 +1,5 @@
 #pragma once
+#include "ui.hpp"
 #include "state_base.hpp"
 #include "universeNode.hpp"
 #include "entt/entity/registry.hpp"
@@ -15,7 +16,7 @@ namespace State {
 	class Playing : public virtual State_Base {
 	public:
 		~Playing();
-		Playing(gameCore& gc, std::string saveName = "default", int seed = -1);
+		Playing(gameCore& gc, std::string saveName = "default", int seed = -1, bool debug = false);
 
 		void input(double dt) override;
 		void update(double dt) override;
@@ -23,7 +24,7 @@ namespace State {
 
 		static std::filesystem::path savePath();
 
-
+		void debugConsoleExec(std::string command);
 	private:
 
 
@@ -71,6 +72,11 @@ namespace State {
 		static void _chunkLoaderFunc();
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
+
+		bool _debug = false;
+
+		scene _scene;
+		std::shared_ptr<basicTextEntry> _console;
 
 	};
 } // namespace State
