@@ -479,26 +479,26 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-	p.x = floor(p.x);
-	p.y = floor(p.y);
-	p.z = floor(p.z);
+
+
+
 	std::vector<int> posXlist;
-	posXlist.push_back(p.x);
+	posXlist.push_back(floor(p.x));
 	std::vector<int> posYlist;
-	posYlist.push_back(p.y);
+	posYlist.push_back(floor(p.y));
 	std::vector<int> posZlist;
-	posZlist.push_back(p.z);
-	if (size.x!=0 && chunkFromPos(point3Di{ (int)p.x,0,0 }).x < chunkFromPos(point3Di{ (int)(p.x + size.x),0,0 }).x)
+	posZlist.push_back(floor(p.z));
+	if (size.x!=0 && floor(p.x/config::chunkSize) != floor((p.x + size.x)/config::chunkSize))
 	{
-		posXlist.push_back(p.x + size.x);
+		posXlist.push_back(floor(p.x + size.x));
 	}
-	if (size.y!=0 && chunkFromPos(point3Di{ 0,(int)p.y,0 }).y < chunkFromPos(point3Di{ 0,(int)(p.y + size.y),0 }).y)
+	if (size.y!=0 && floor(p.y/config::chunkSize) != floor((p.y + size.y)/config::chunkSize))
 	{
-		posYlist.push_back(p.y + size.y);
+		posYlist.push_back(floor(p.y + size.y));
 	}
-	if (size.z!=0 && chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)(p.z + size.z)}).z)
+	if (size.z!=0 && floor(p.z/config::chunkSize) != floor((p.z + size.z)/config::chunkSize))
 	{
-		posZlist.push_back(p.z + size.z);
+		posZlist.push_back(floor(p.z + size.z));
 	}
 
 	for (int x : posXlist)

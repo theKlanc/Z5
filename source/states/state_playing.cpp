@@ -82,7 +82,6 @@ void State::Playing::input(double dt)
 
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
-	auto& playerBdy = _enttRegistry.get<body>(_player);
 	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
 	std::bitset<HI2::BUTTON_SIZE> down = HI2::getKeysDown();
 	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
@@ -206,6 +205,7 @@ void State::Playing::draw(double dt) {
 		dt = 0;
 	if(_step)
 		dt = 1.0f/config::physicsHz;
+
 	Services::graphics.stepAnimations(dt);
 	if constexpr (false)
 	{
@@ -272,16 +272,18 @@ void State::Playing::draw(double dt) {
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
-	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
-	HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
-	HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
-	HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
-	HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
-	HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
-	HI2::drawText(_standardFont, "vx: " + std::to_string(playerVel.spd.x), { 0,180 }, 30, HI2::Color::Red);
-	HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
-	HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
-	HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+	if(_debug){
+		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
+		HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
+		HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
+		HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
+		HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
+		HI2::drawText(_standardFont, "vx: " + std::to_string(playerVel.spd.x), { 0,180 }, 30, HI2::Color::Red);
+		HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
+		HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
+		HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+	}
 
 	_scene.draw();
 	HI2::endFrame();
@@ -373,6 +375,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
 								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								//HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
 							}
 							else {
 								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
@@ -565,7 +568,6 @@ void State::Playing::createEntities()
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
-		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
@@ -682,7 +684,6 @@ void State::Playing::fixEntities()
 	auto bodyEntities = _enttRegistry.view<body>();
 	for (const entt::entity& entity : bodyEntities) {
 		body& b = _enttRegistry.get<body>(entity);
-		position p = _enttRegistry.get<position>(entity);
 
 		rp3d::Vector3 initPosition(0, 0, 0);
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();

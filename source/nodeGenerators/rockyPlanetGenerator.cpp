@@ -18,6 +18,7 @@ rockyPlanetGenerator::rockyPlanetGenerator(unsigned s, unsigned diameter) : node
 	_terrainPainter.addSection(terrainSection(0.48, 60, baseBlock::terrainTable[10])); // underwater sand
 	_terrainPainter.addSection(terrainSection(0.5, 5, baseBlock::terrainTable[10])); // surface sand
 	_terrainPainter.addSection(terrainSection(0.6, 40, baseBlock::terrainTable[4], &baseBlock::terrainTable[5])); //grassdirt
+	_terrainPainter.addSection(terrainSection(0.601, 1, baseBlock::terrainTable[5])); //grassTop
 	_terrainPainter.addSection(terrainSection(0.65, 10, baseBlock::terrainTable[14])); //deep grass
 	_terrainPainter.addSection(terrainSection(0.7, 60, baseBlock::terrainTable[6])); //stone
 	_terrainPainter.addSection(terrainSection(0.75, 40, baseBlock::terrainTable[6], &baseBlock::terrainTable[13])); //snowstone
