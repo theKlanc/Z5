@@ -19,7 +19,6 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
-bool lungsFull = true;
 
 
 State::Playing::~Playing() {
@@ -79,6 +78,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 
 void State::Playing::input(double dt)
 {
+	_step = false;
+
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
 	auto& playerBdy = _enttRegistry.get<body>(_player);
@@ -96,6 +97,9 @@ void State::Playing::input(double dt)
 		if(_debug && down[HI2::BUTTON::KEY_ACCEPT]){
 			_console->toggle();
 			down[HI2::BUTTON::KEY_ACCEPT]=false;
+		}
+		if(_debug && down[HI2::BUTTON::KEY_Z]){
+			_step = true;
 		}
 		//STOP
 		if (held[HI2::BUTTON::BUTTON_MINUS]) {
@@ -173,6 +177,10 @@ void State::Playing::input(double dt)
 }
 
 void State::Playing::update(double dt) {
+	if(_paused)
+		dt = 0;
+	if(_step)
+		dt = 1.0f/config::physicsHz;
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -194,6 +202,11 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
+	if(_paused)
+		dt = 0;
+	if(_step)
+		dt = 1.0f/config::physicsHz;
+	Services::graphics.stepAnimations(dt);
 	if constexpr (false)
 	{
 		int height = HI2::getScreenHeight();
@@ -537,15 +550,15 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		playerBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
-		playerBody.collider->setUserData((void*)playerResponse);
+		playerBody.collisionInfo.collider->setUserData((void*)playerResponse);
 		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
-		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
-		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
+		playerBody.collisionInfo._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
+		playerBody.collisionInfo.collider->addCollisionShape(playerBody.collisionInfo._collisionShape, transform);
 	}
 
 	{
@@ -590,15 +603,15 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		dogBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* dogResponse = new collidedResponse();
 		dogResponse->type = ENTITY;
 		dogResponse->body.entity = dog;
-		dogBody.collider->setUserData((void*)dogResponse);
+		dogBody.collisionInfo.collider->setUserData((void*)dogResponse);
 		initPosition.z += dogBody.width / 2;
 		transform.setPosition(initPosition);
-		dogBody._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
+		dogBody.collisionInfo._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
+		dogBody.collisionInfo.collider->addCollisionShape(dogBody.collisionInfo._collisionShape, transform);
 	}
 	for (int i = 0; i < 5; i++)
 		for (int j = 0; j < 5; j++)
@@ -635,16 +648,16 @@ void State::Playing::createEntities()
 			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 			rp3d::Transform transform(initPosition, initOrientation);
 
-			ballBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+			ballBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 			collidedResponse* ballResponse = new collidedResponse();
 			ballResponse->type = ENTITY;
 			ballResponse->body.entity = ball;
-			ballBody.collider->setUserData((void*)ballResponse);
-			ballBody._collisionShape = new rp3d::SphereShape(0.4);
+			ballBody.collisionInfo.collider->setUserData((void*)ballResponse);
+			ballBody.collisionInfo._collisionShape = new rp3d::SphereShape(0.4);
 			initPosition.z += ballBody.width / 2;
 			transform.setPosition(initPosition);
-			ballBody.collider->addCollisionShape(ballBody._collisionShape, transform);
+			ballBody.collisionInfo.collider->addCollisionShape(ballBody.collisionInfo._collisionShape, transform);
 		}
 }
 
@@ -675,17 +688,17 @@ void State::Playing::fixEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		b.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		b.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
 		bodyResponse->body.entity = entity;
-		b.collider->setUserData((void*)bodyResponse);
+		b.collisionInfo.collider->setUserData((void*)bodyResponse);
 
-		b._collisionShape = new rp3d::SphereShape(b.width / 2);
+		b.collisionInfo._collisionShape = new rp3d::SphereShape(b.width / 2);
 		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
-		b.collider->addCollisionShape(b._collisionShape, transform);
+		b.collisionInfo.collider->addCollisionShape(b.collisionInfo._collisionShape, transform);
 	}
 }
 
@@ -724,6 +737,14 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "toggleDepthShadows" << std::endl;
 		std::cout << "setNodePos ID x y z" << std::endl;
 		std::cout << "setNodeVel ID x y z" << std::endl;
+		std::cout << "pause" << std::endl;
+		std::cout << "step" << std::endl;
+	}
+	else if(command == "pause"){
+		_paused=!_paused;
+	}
+	else if(command =="step"){
+		_step=true;
 	}
 	else if(command == "stop"){
 		velocity& vel = _enttRegistry.get<velocity>(_player);

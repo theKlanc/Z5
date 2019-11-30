@@ -78,5 +78,8 @@ namespace State {
 		scene _scene;
 		std::shared_ptr<basicTextEntry> _console;
 
+		bool _paused = false;
+		bool _step = false;
+
 	};
 } // namespace State

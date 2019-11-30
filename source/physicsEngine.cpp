@@ -204,7 +204,10 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 		if (node.getParent() != nullptr)
 		{
 			for(terrainChunk& chunk : node.getChunks()){
-				//auto parentChunks = node.getParent()->getCollidableChunks(chunk.getPosition(),{config::chunkSize,config::chunkSize,config::chunkSize},node.getParent());
+				if(chunk.loaded())
+				{
+					auto parentChunks = node.getParent()->getCollidableChunks(chunk.getPosition(),{config::chunkSize,config::chunkSize,config::chunkSize},node.getParent());
+				}
 			}
 		}
 	}
@@ -220,8 +223,10 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 		position entityPos = registry.get<position>(left);
 		body& entityBody = registry.get<body>(left);
-		entityBody.maxContactDepth = 0;
-		entityBody.contactNormal = rp3d::Vector3();
+
+		entityBody.collisionInfo.maxContactDepth = 0;
+		entityBody.collisionInfo.contactNormal = rp3d::Vector3();
+
 		std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
 		for (universeNode* ntemp : entityPos.parent->getChildren())
 		{
@@ -244,19 +249,24 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 			rp3d::Transform entityTransform(entityPosition, rp3d::Quaternion::identity());
 
 
-			entityBody.collider->setTransform(entityTransform);
+			entityBody.collisionInfo.collider->setTransform(entityTransform);
 
-			if (_zaWarudo->testAABBOverlap(entityBody.collider, node->getNodeCollider()))
+			if (_zaWarudo->testAABBOverlap(entityBody.collisionInfo.collider, node->getNodeCollider()))
 			{
-				auto chunksToCheck = node->getCollidableChunks({posRelativeToChunk.x-entityBody.width/2,posRelativeToChunk.y-entityBody.width/2,posRelativeToChunk.z},point3Dd{entityBody.width,entityBody.width,entityBody.height}, node);
+				auto chunksToCheck = node->getCollidableChunks({posRelativeToChunk.x-entityBody.width/2,
+																posRelativeToChunk.y-entityBody.width/2,
+																posRelativeToChunk.z},
+																point3Dd{entityBody.width,entityBody.width,entityBody.width},
+																node);
+
 				for (terrainChunk*& chunk : chunksToCheck)
 				{
 					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - chunk->getPosition();
 					entityTransform.setPosition(posRelativeToChunk.getVector3());
-					entityBody.collider->setTransform(entityTransform);
+					entityBody.collisionInfo.collider->setTransform(entityTransform);
 
 					chunk->getCollider()->setUserData((void*)&cResponse);
-					_zaWarudo->testCollision(entityBody.collider, chunk->getCollider(), this);
+					_zaWarudo->testCollision(entityBody.collisionInfo.collider, chunk->getCollider(), this);
 				}
 			}
 		}
@@ -269,21 +279,23 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 	for (const entt::entity& entity : bodyView)
 	{
 		body& bdy = bodyView.get<body>(entity);
-		if (bdy.maxContactDepth == 0)
+		if (bdy.collisionInfo.maxContactDepth == 0)
 			continue;
 		position& pos = bodyView.get<position>(entity);
 		velocity& vel = bodyView.get<velocity>(entity);
 		fdd oldSpeed = vel.spd;
-		//backtrack position along the old velocity until we're "just" colliding with the node (tangentially)
-		pos.pos -= vel.spd * dt * ((bdy.maxContactDepth + 0.01) / ((oldSpeed * dt).magnitude()));
+		//backtrack position along the old ~velocity~  until we're "just" colliding with the node (tangentially)
+		//pos.pos -= vel.spd * dt * ((bdy.collisionInfo.maxContactDepth) / ((oldSpeed * dt).magnitude()));
+		pos.pos -= bdy.collisionInfo.contactNormal * bdy.collisionInfo.maxContactDepth;
+		//assert(NO_COLLUSION);
 		//Calculate new velocity
 		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
-		auto result = (d - (2 * (bdy.contactNormal.dot(d)) * bdy.contactNormal));
+		auto result = (d - (2 * (bdy.collisionInfo.contactNormal.dot(d)) * bdy.collisionInfo.contactNormal));
 
 		fdd normal;
-		normal.x = bdy.contactNormal.x;
-		normal.y = bdy.contactNormal.y;
-		normal.z = bdy.contactNormal.z;
+		normal.x = bdy.collisionInfo.contactNormal.x;
+		normal.y = bdy.collisionInfo.contactNormal.y;
+		normal.z = bdy.collisionInfo.contactNormal.z;
 
 		fdd projectedFriction = normal.project(vel.spd);
 		projectedFriction *= (1 - bdy.elasticity);
@@ -297,7 +309,7 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 		vel.spd.z = result.z;
 
 		//apply new velocity from surface
-		pos.pos += vel.spd * dt * (bdy.maxContactDepth / ((oldSpeed * dt).magnitude()));
+		pos.pos += vel.spd * dt * (bdy.collisionInfo.maxContactDepth / ((oldSpeed * dt).magnitude()));
 	}
 }
 
@@ -320,11 +332,11 @@ void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 				rp3d::Transform rightTransform(rightPosition, initOrientation);
 
 				body& leftBody = registry.get<body>(left);
-				leftBody.collider->setTransform(leftTransform);
+				leftBody.collisionInfo.collider->setTransform(leftTransform);
 				body& rightBody = registry.get<body>(right);
-				rightBody.collider->setTransform(rightTransform);
+				rightBody.collisionInfo.collider->setTransform(rightTransform);
 
-				_zaWarudo->testCollision(leftBody.collider, rightBody.collider, this);
+				_zaWarudo->testCollision(leftBody.collisionInfo.collider, rightBody.collisionInfo.collider, this);
 			}
 		}
 	}
@@ -389,7 +401,7 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 		auto contactPoint = contactManifold->getContactPoints();
 		while (contactPoint != nullptr)
 		{
-			if (entityBody.maxContactDepth < contactPoint->getPenetrationDepth())
+			if (entityBody.collisionInfo.maxContactDepth < contactPoint->getPenetrationDepth())
 			{
 				if (pos.parent != node)
 				{//convert to local
@@ -403,8 +415,9 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 					vel.spd = node->getLocalVel(vel.spd, oldParent);
 				}
 
-				entityBody.maxContactDepth = contactPoint->getPenetrationDepth();
-				entityBody.contactNormal = contactPoint->getNormal();
+				entityBody.collisionInfo.maxContactDepth = contactPoint->getPenetrationDepth();
+				entityBody.collisionInfo.contactNormal = contactPoint->getNormal();
+				entityBody.collisionInfo.isRestingContact = contactPoint->getIsRestingContact();
 			}
 			contactPoint = contactPoint->getNext();
 		}

@@ -8,6 +8,6 @@
 
 int main() {
 	gameCore core;
-	core.startGameLoop();
+	core.gameLoop();
 	return 0;
 }

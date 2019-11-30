@@ -135,6 +135,7 @@ void State::MainMenu::update(double dt) {
 }
 
 void State::MainMenu::draw(double dt) {
+	Services::graphics.stepAnimations(dt);
 	HI2::startFrame();
 	_uiScene.draw();
 	HI2::endFrame();
