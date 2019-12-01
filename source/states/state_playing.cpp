@@ -283,6 +283,7 @@ void State::Playing::draw(double dt) {
 		HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
 		HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
 		HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
 	}
 
 	_scene.draw();
@@ -512,9 +513,9 @@ void State::Playing::createEntities()
 	angle = angle/Services::twister.max()*(2*M_PI);
 	double distance = Services::twister()%((int)result->getDiameter()/2);
 
-	result->addChild(universeNode("test_plat", 100000, 64, { sin(angle) * distance,cos(angle) * distance,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 5 }
+	result->addChild(universeNode("test_plat", 100000, 64, { sin(angle) * distance-10,cos(angle) * distance,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 5 }
 	,{2,2,0},{0,0,0},nodeType::SPACESHIP,result,200));
-	result = result->getChildren()[1];
+	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
@@ -527,9 +528,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = result->getID();
-		playerPos.pos.x = 2;
-		playerPos.pos.y = 2;
-		playerPos.pos.z = 1;
+		playerPos.pos.x = sin(angle) * distance;
+		playerPos.pos.y = cos(angle) * distance;
+		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D())+1;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -579,9 +580,9 @@ void State::Playing::createEntities()
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
 		dogPos.parentID = result->getID();
-		dogPos.pos.x = 4 + 8;
-		dogPos.pos.y = 4 + 8;
-		dogPos.pos.z = 260;
+		dogPos.pos.x = 2 + sin(angle) * distance;
+		dogPos.pos.y = 2 + cos(angle) * distance;
+		dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D())+1;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -627,9 +628,9 @@ void State::Playing::createEntities()
 			auto& ballPos = _enttRegistry.assign<position>(ball);
 			ballPos.parent = result;
 			ballPos.parentID = result->getID();
-			ballPos.pos.x = 4 + i + 8;
-			ballPos.pos.y = 4 + j + 8;
-			ballPos.pos.z = 260 + i + j + 4 + 8;
+			ballPos.pos.x = 4 + i + sin(angle) * distance;
+			ballPos.pos.y = 4 + j + cos(angle) * distance;
+			ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);

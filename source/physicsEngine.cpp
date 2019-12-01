@@ -112,7 +112,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 		if (node.getParent() != nullptr)
 		{
 			fdd pos = node.getCenterOfMass();
-			metaBlock block = node.getParent()->getBlock({ (int)pos.x,(int)pos.y,(int)pos.z});
+			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z)});
 			if (block.base->ID == 0 || block.base->solid)
 				continue;
 			fdd buoyancy = node.getParent()->getGravityAcceleration(pos) * -1 * ((node.getDiameter()/2)*(node.getDiameter()/2)*4*M_PI) * block.base->mass;
@@ -126,7 +126,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
 
-		metaBlock block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		metaBlock block = pos.parent->getBlock({ (int)floor(pos.pos.x),(int)floor(pos.pos.y),(int)floor(pos.pos.z + bdy.height / 2) });
 		if (block.base->ID == 0 || block.base->solid)
 			continue;
 		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * block.base->mass;
@@ -142,7 +142,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 		{
 			fdd pos = node.getCenterOfMass();
 			fdd vel = node.getVelocity();
-			metaBlock block = node.getParent()->getBlock({ (int)pos.x,(int)pos.y,(int)pos.z});
+			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z)});
 			if (block.base->ID == 0)
 				continue;
 			fdd drag = (vel * vel) * block.base->mass * (sqrt((node.getDiameter()/2)*(node.getDiameter()/2)*4*M_PI)) * 0.25;
@@ -165,7 +165,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
 		//F=(1/2)*(densityOfFluid)*(velocity^2)*(Area)*(DragCoefficient)
-		metaBlock block = pos.parent->getBlock({ (int)pos.pos.x,(int)pos.pos.y,(int)(pos.pos.z + bdy.height / 2) });
+		metaBlock block = pos.parent->getBlock({ (int)floor(pos.pos.x),(int)floor(pos.pos.y),(int)floor(pos.pos.z + bdy.height / 2) });
 		if (block.base->ID == 0)
 			continue;
 		fdd drag = (vel.spd * vel.spd) * block.base->mass * (sqrt(bdy.volume)) * 0.25;

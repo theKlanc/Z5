@@ -169,6 +169,14 @@ double fdd::dot(const fdd &right) const
 	return x*right.x + y*right.y + z*right.z;
 }
 
+point2D fdd::getPoint2D() const
+{
+	point2D p;
+	p.x = floor(x);
+	p.y = floor(y);
+	return p;
+}
+
 point3Di fdd::getPoint3Di()const
 {
 	return { (int)x,(int)y,(int)z };
