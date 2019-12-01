@@ -371,7 +371,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 						break;
 					const int index = (y * rowSize) + x;
 
-					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (node.visibility[index] && b.base->visible) {
                         if (config::drawDepthShadows) {
@@ -419,9 +418,9 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 	{
 		for (int x = 0; x < floor(HI2::getScreenWidth() / config::spriteSize); ++x)
 		{
-			metaBlock* b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
+			metaBlock b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
 			result.blocks.push_back(b);
-			visibility[i] = (b == nullptr ? true : !b->base->opaque);
+			visibility[i] = (b.base->ID==0 ? true : !b.base->opaque);
 			i++;
 		}
 	}
