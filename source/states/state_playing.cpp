@@ -375,11 +375,11 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								HI2::drawTextureOverlap(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 								//HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
 							}
 							else {
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								HI2::drawTextureOverlap(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 								//HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
 							}
 						}
