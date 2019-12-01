@@ -364,25 +364,26 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 				for (int y = 0; y < colSize; ++y)
 				{
-					const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
-					if (finalYdrawPos + config::spriteSize * zoom < 0)
-						continue;
-					else if (finalYdrawPos > HI2::getScreenHeight())
-						break;
-					const int index = (y * rowSize) + x;
+					if(node.visibility[(y * rowSize) + x]){
+						const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
+						if (finalYdrawPos + config::spriteSize * zoom < 0)
+							continue;
+						else if (finalYdrawPos > HI2::getScreenHeight())
+							break;
 
-					metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (node.visibility[index] && b.base->visible) {
-                        if (config::drawDepthShadows) {
-                            //mask anira de 255 a 150
-                            HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
-                            HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
-                            //HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
-                        }
-                        else {
-                            HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
-                            //HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
-                        }
+						metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+						if (b.base->visible) {
+							if (config::drawDepthShadows) {
+								//mask anira de 255 a 150
+								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								//HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
+							}
+							else {
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								//HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
+							}
+						}
 					}
 				}
 			}
