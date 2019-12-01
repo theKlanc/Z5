@@ -350,23 +350,25 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
 			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
 
+			HI2::Texture textureTarget(point2D{HI2::getScreenWidth(),HI2::getScreenHeight()});
+			HI2::setRenderTarget(&textureTarget,true);
 
-			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, zoom);
+			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, 1);
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
-				int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
-				if (finalXdrawPos + config::spriteSize * zoom < 0)
-					continue;
-				else if (finalXdrawPos > HI2::getScreenWidth())
-					break;
+				int finalXdrawPos = (int)(drawPos.x) + x*config::spriteSize;
+				//if (finalXdrawPos + config::spriteSize * zoom < 0)
+				//	continue;
+				//else if (finalXdrawPos > HI2::getScreenWidth())
+				//	break;
 
 				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
 				{
-					int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
-					if (finalYdrawPos + config::spriteSize * zoom < 0)
-						continue;
-					else if (finalYdrawPos > HI2::getScreenHeight())
-						break;
+					int finalYdrawPos = (int)(drawPos.y) + y*config::spriteSize;
+					//if (finalYdrawPos + config::spriteSize * zoom < 0)
+					//	continue;
+					//else if (finalYdrawPos > HI2::getScreenHeight())
+					//	break;
 
 					metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b.base->ID!=0) {
@@ -375,17 +377,20 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, 1, ((double)(int)b.rotation) * (M_PI / 2));
 								//HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
 							}
 							else {
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, 1, ((double)(int)b.rotation) * (M_PI / 2));
 								//HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
 							}
 						}
 					}
 				}
 			}
+			HI2::setRenderTarget(nullptr, false);
+			HI2::drawTexture(textureTarget,(HI2::getScreenWidth()/2.0f)-(HI2::getScreenWidth()*zoom/2.0f),(HI2::getScreenHeight()/2.0f)-(HI2::getScreenHeight()*zoom/2.0f),zoom,0);
+			textureTarget.clean();
 		}
 		entt::registry* registry;
 		position cameraPos;
