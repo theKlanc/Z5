@@ -34,12 +34,14 @@ struct fdd { // Four DoF descriptor
 	fdd& operator/=(const double& f);
 	fdd project(const fdd& right)const; //Project right onto this
 	double dot(const fdd& right) const;
+	point2D getPoint2D() const;
 	point3Di getPoint3Di()const;
 	point3Dd getPoint3Dd()const;
 	point3Dl getPoint3Dl()const;
 	rp3d::Vector3 getVector3() const;
-
 };
+
+std::ostream& operator<<(std::ostream &os, const fdd& f);
 
 void to_json(json& j, const fdd& f);
 void from_json(const json& j, fdd& f);

@@ -1,6 +1,6 @@
 [
   {
-    "name": "empty",
+    "name": "null",
 	"ID": 0,
     "visible": false,
     "solid": false,
@@ -8,8 +8,16 @@
     "mass": 0
   },
   {
-    "name": "air",
+    "name": "empty",
 	"ID": 1,
+    "visible": false,
+    "solid": false,
+    "opaque": false,
+    "mass": 0
+  },
+  {
+    "name": "air",
+	"ID": 2,
     "visible": false,
     "solid": false,
     "opaque": false,
@@ -17,7 +25,7 @@
   },
   {
     "name": "water",
-	"ID": 2,
+	"ID": 3,
     "visible": true,
     "solid": false,
     "opaque": false,
@@ -25,14 +33,6 @@
   },
   {
     "name": "dirt",
-	"ID": 3,
-    "visible": true,
-    "solid": true,
-    "opaque": true,
-    "mass": 1220
-  },
-  {
-    "name": "grass",
 	"ID": 4,
     "visible": true,
     "solid": true,
@@ -40,8 +40,16 @@
     "mass": 1220
   },
   {
-    "name": "andesite",
+    "name": "grass",
 	"ID": 5,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 1220
+  },
+  {
+    "name": "andesite",
+	"ID": 6,
     "visible": true,
     "solid": true,
     "opaque": true,
@@ -49,7 +57,7 @@
   },
   {
     "name": "moon_soil",
-	"ID": 6,
+	"ID": 7,
     "visible": true,
     "solid": true,
     "opaque": true,
@@ -57,7 +65,7 @@
   },
   {
     "name": "wood",
-	"ID": 7,
+	"ID": 8,
     "visible": true,
     "solid": true,
     "opaque": true,
@@ -65,7 +73,7 @@
   },
   {
     "name": "leaves",
-	"ID": 8,
+	"ID": 9,
     "visible": true,
     "solid": false,
     "opaque": false,
@@ -73,7 +81,7 @@
   },
   {
     "name": "sand",
-	"ID": 9,
+	"ID": 10,
     "visible": true,
     "solid": true,
     "opaque": true,
@@ -81,7 +89,7 @@
   },
   {
     "name": "glass",
-	"ID": 10,
+	"ID": 11,
     "visible": true,
     "solid": true,
     "opaque": false,
@@ -89,14 +97,6 @@
   },
   {
     "name": "steelplate",
-	"ID": 11,
-    "visible": true,
-    "solid": true,
-    "opaque": true,
-    "mass": 7850
-  },
-  {
-    "name": "snow",
 	"ID": 12,
     "visible": true,
     "solid": true,
@@ -104,7 +104,7 @@
     "mass": 7850
   },
   {
-    "name": "deepGrass",
+    "name": "snow",
 	"ID": 13,
     "visible": true,
     "solid": true,
@@ -112,7 +112,7 @@
     "mass": 7850
   },
   {
-    "name": "panelData",
+    "name": "deepGrass",
 	"ID": 14,
     "visible": true,
     "solid": true,
@@ -120,7 +120,7 @@
     "mass": 7850
   },
   {
-    "name": "panelMap",
+    "name": "panelData",
 	"ID": 15,
     "visible": true,
     "solid": true,
@@ -128,8 +128,16 @@
     "mass": 7850
   },
   {
-    "name": "redChair",
+    "name": "panelMap",
 	"ID": 16,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850
+  },
+  {
+    "name": "redChair",
+	"ID": 17,
     "visible": true,
     "solid": false,
     "opaque": true,
@@ -137,14 +145,6 @@
   },
   {
     "name": "table_center",
-	"ID": 17,
-    "visible": true,
-    "solid": true,
-    "opaque": true,
-    "mass": 12
-  },
-  {
-    "name": "table_side",
 	"ID": 18,
     "visible": true,
     "solid": true,
@@ -152,7 +152,7 @@
     "mass": 12
   },
   {
-    "name": "table_corner",
+    "name": "table_side",
 	"ID": 19,
     "visible": true,
     "solid": true,
@@ -160,8 +160,16 @@
     "mass": 12
   },
   {
-    "name": "turntable",
+    "name": "table_corner",
 	"ID": 20,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 12
+  },
+  {
+    "name": "turntable",
+	"ID": 21,
     "visible": true,
     "solid": true,
     "opaque": true,

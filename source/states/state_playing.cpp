@@ -19,7 +19,6 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
-bool lungsFull = true;
 
 
 State::Playing::~Playing() {
@@ -33,7 +32,8 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
+	_debug = debug;
 
 	Services::twister.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
@@ -51,6 +51,13 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Bas
 	else
 	{
 		loadGame();
+	}
+
+	if(_debug){
+		_console = std::make_shared<basicTextEntry>(point2D{0,0},point2D{HI2::getScreenWidth(),40},_standardFont,35,"","Enter a command here",HI2::Color(0,0,0,127),HI2::Color(255,255,255,255));
+		_console->toggle();
+		_console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
+		_scene.addGadget(_console);
 	}
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
@@ -71,196 +78,108 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed) :State_Bas
 
 void State::Playing::input(double dt)
 {
+	_step = false;
+
 	auto& playerSpd = _enttRegistry.get<velocity>(_player);
 	auto& playerPos = _enttRegistry.get<position>(_player);
-	auto& playerBdy = _enttRegistry.get<body>(_player);
 	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
-	const std::bitset<HI2::BUTTON_SIZE>& down = HI2::getKeysDown();
+	std::bitset<HI2::BUTTON_SIZE> down = HI2::getKeysDown();
+	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
+	const point2D& mouse = HI2::getTouchPos();
 
-	//STOP
-	if (held[HI2::BUTTON::BUTTON_MINUS]) {
-		playerSpd.spd = fdd();
-	}
-
-	//MOVE
-	if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
-		playerSpd.spd.y -= 10 * dt;
-	}
-	if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
-		playerSpd.spd.y += 10 * dt;
-	}
-	if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
-		playerSpd.spd.x -= 10 * dt;
-	}
-	if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
-		playerSpd.spd.x += 10 * dt;
-	}
-
-	//MOVE VERTICALLY
-	if (held[HI2::BUTTON::KEY_R]) {
-		playerSpd.spd.z += 60 * dt;
-	}
-	if (held[HI2::BUTTON::KEY_F]) {
-		playerSpd.spd.z -= 40 * dt;
-	}
-
-	if (down[HI2::BUTTON::KEY_SPACE]){
-		playerSpd.spd.z = 20;
-	}
-
-	//TELEPORT UPWARDS
-	if (down[HI2::BUTTON::BUTTON_PLUS]) {
-		playerPos.pos.z += 5;
-		playerSpd.spd.z = 0;
-	}
-
-
-	//ROTATE PLAYER
-	if (held[HI2::BUTTON::KEY_E]) {
-		playerSpd.spd.r += 10 * dt;
-	}
-	if (held[HI2::BUTTON::KEY_Q]) {
-		playerSpd.spd.r -= 10 * dt;
-	}
-
-	//PLACE BLOCK
-	if (down[HI2::BUTTON::KEY_P]) {
-		playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-	}
-	if (down[HI2::BUTTON::KEY_O]) {
-		playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-	}
-
-	//SELECT BLOCK
-	if (down[HI2::BUTTON::BUTTON_DLEFT]) {
-		selectedBlock--;
-		if (selectedBlock < 0)
-			selectedBlock = baseBlock::terrainTable.size() - 1;
-	}
-	if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
-		selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
-	}
-
-	//BLOCK ROTATE
-	if (down[HI2::BUTTON::BUTTON_DUP]) {
-		selectedRotation++;
-	}
-	if (down[HI2::BUTTON::BUTTON_DDOWN]) {
-		selectedRotation--;
-	}
-
-	//TOGGLE GRAVITY
-	if (down[HI2::BUTTON::KEY_G])
-	{
-		config::gravityEnabled = !config::gravityEnabled;
-		std::cout << "Gravity " << (config::gravityEnabled ? "En" : "Dis") << "abled" << std::endl;
-	}
-
-	//TOGGLE DRAG
-	if (down[HI2::BUTTON::KEY_C])
-	{
-		config::dragEnabled = !config::dragEnabled;
-		std::cout << "Drag " << (config::dragEnabled ? "En" : "Dis") << "abled" << std::endl;
-	}
-
-	//CAMERA ZOOM
-	if (held[HI2::BUTTON::BUTTON_ZR]) {
-		config::zoom += dt;
-		std::cout << "Zoom: " << config::zoom << std::endl;
-	}
-	if (held[HI2::BUTTON::BUTTON_ZL]) {
-		config::zoom /= 1.01;
-		std::cout << "Zoom: " << config::zoom << std::endl;
-	}
-
-	//CAMERA DEPTH
-	if (down[HI2::BUTTON::KEY_H])
-	{
-		config::cameraDepth++;
-		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_B])
-	{
-		config::cameraDepth--;
-		std::cout << "CameraDepth: " << config::cameraDepth << std::endl;
-	}
-
-	// CAMERA HEIGHT
-	if (down[HI2::BUTTON::KEY_U])
-	{
-		config::cameraHeight--;
-		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_I])
-	{
-		config::cameraHeight++;
-		std::cout << "CameraHeight: " << config::cameraHeight << std::endl;
-	}
-
-	// minScale
-	if (down[HI2::BUTTON::KEY_J])
-	{
-		config::minScale += 0.05;
-		std::cout << "MinScale: " << config::minScale << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_N])
-	{
-		config::minScale -= 0.05;
-		std::cout << "MinScale: " << config::minScale << std::endl;
-	}
-
-	// Scale
-	if (down[HI2::BUTTON::KEY_K])
-	{
-		config::depthScale += 0.05;
-		std::cout << "DepthScale: " << config::depthScale << std::endl;
-	}
-	if (down[HI2::BUTTON::KEY_M])
-	{
-		config::depthScale -= 0.05;
-		std::cout << "DepthScale: " << config::depthScale << std::endl;
-	}
-
-	// Shadow
-	if (held[HI2::BUTTON::KEY_T])
-	{
-		config::minShadow--;
-		std::cout << "minShadow: " << config::minShadow << std::endl;
-	}
-	if (held[HI2::BUTTON::KEY_Y])
-	{
-		config::minShadow++;
-		std::cout << "minShadow: " << config::minShadow << std::endl;
-	}
-
-	// Breathe
-	if (down[HI2::BUTTON::KEY_X])
-	{
-		if (lungsFull)
-		{
-			lungsFull = !lungsFull;
-			playerBdy.volume -= 0.01;
-			std::cout << "Exhale" << std::endl;
-		}
-		else
-		{
-			metaBlock* block = playerPos.parent->getBlock({ (int)playerPos.pos.x,(int)playerPos.pos.y,(int)(playerPos.pos.z + playerBdy.height) });
-			if (block != nullptr && block->base->name == "air")
-			{
-				lungsFull = !lungsFull;
-				playerBdy.volume += 0.01;
-				std::cout << "Inhale" << std::endl;
-			}
+	if(_debug && _console->isActive()){
+		if(down[HI2::BUTTON::KEY_ESCAPE]){
+			_console->toggle();
 		}
 	}
+	else{
+		if(_debug && down[HI2::BUTTON::KEY_ACCEPT]){
+			_console->toggle();
+			down[HI2::BUTTON::KEY_ACCEPT]=false;
+		}
+		if(_debug && down[HI2::BUTTON::KEY_Z]){
+			_step = true;
+		}
+		//STOP
+		if (held[HI2::BUTTON::BUTTON_MINUS]) {
+			playerSpd.spd = fdd();
+		}
 
-	// Exit
-	if(down[HI2::BUTTON::KEY_ESCAPE])
-		_core->popState();
+		//MOVE
+		if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
+			playerSpd.spd.y -= 10 * dt;
+		}
+		if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
+			playerSpd.spd.y += 10 * dt;
+		}
+		if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
+			playerSpd.spd.x -= 10 * dt;
+		}
+		if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
+			playerSpd.spd.x += 10 * dt;
+		}
+
+		//MOVE VERTICALLY
+		if (held[HI2::BUTTON::KEY_R]) {
+			playerSpd.spd.z += 60 * dt;
+		}
+		if (held[HI2::BUTTON::KEY_F]) {
+			playerSpd.spd.z -= 40 * dt;
+		}
+
+		if (down[HI2::BUTTON::KEY_SPACE]){
+			playerSpd.spd.z = 20;
+		}
+
+		//ROTATE PLAYER
+		if (held[HI2::BUTTON::KEY_E]) {
+			playerSpd.spd.r += 10 * dt;
+		}
+		if (held[HI2::BUTTON::KEY_Q]) {
+			playerSpd.spd.r -= 10 * dt;
+		}
+
+		//PLACE BLOCK
+		if (down[HI2::BUTTON::KEY_P]) {
+			playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		}
+		if (down[HI2::BUTTON::KEY_O]) {
+			playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+		}
+
+		//SELECT BLOCK
+		if (down[HI2::BUTTON::BUTTON_DLEFT]) {
+			selectedBlock--;
+			if (selectedBlock < 0)
+				selectedBlock = baseBlock::terrainTable.size() - 1;
+		}
+		if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
+			selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
+		}
+
+		//BLOCK ROTATE
+		if (down[HI2::BUTTON::BUTTON_DUP]) {
+			selectedRotation++;
+		}
+		if (down[HI2::BUTTON::BUTTON_DDOWN]) {
+			selectedRotation--;
+		}
+
+		// Exit
+		if(down[HI2::BUTTON::KEY_ESCAPE])
+		{
+			_core->popState();
+		}
+	}
+	_scene.update(down,up,held,mouse,dt);
+
 }
 
 void State::Playing::update(double dt) {
-
+	if(_paused)
+		dt = 0;
+	if(_step)
+		dt = 1.0f/config::physicsHz;
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -282,6 +201,12 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
+	if(_paused)
+		dt = 0;
+	if(_step)
+		dt = 1.0f/config::physicsHz;
+
+	Services::graphics.stepAnimations(dt);
 	if constexpr (false)
 	{
 		int height = HI2::getScreenHeight();
@@ -349,17 +274,21 @@ void State::Playing::draw(double dt) {
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
-	HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
-	HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
-	HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
-	HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
-	HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
-	HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
-	HI2::drawText(_standardFont, "vx: " + std::to_string(playerVel.spd.x), { 0,180 }, 30, HI2::Color::Red);
-	HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
-	HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
-	HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+	if(_debug){
+		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
+		HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
+		HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
+		HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
+		HI2::drawText(_standardFont, "R: " + std::to_string(playerPos.pos.r), { 0,150 }, 30, HI2::Color::Orange);
+		HI2::drawText(_standardFont, "vx: " + std::to_string(playerVel.spd.x), { 0,180 }, 30, HI2::Color::Red);
+		HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
+		HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
+		HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
+	}
 
+	_scene.draw();
 	HI2::endFrame();
 
 }
@@ -380,7 +309,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
-			if constexpr (config::drawDepthShadows) {
+			if (config::drawDepthShadows) {
 				HI2::setTextureColorMod(*sprite.sprite, HI2::Color(mask, mask, mask, 0));
 			}
 			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
@@ -443,19 +372,18 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					const int index = (y * rowSize) + x;
 
 					metaBlock* b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (node.visibility[index] && b != nullptr) {
-						metaBlock bCopy = *b;
-						if (bCopy.base->visible)
-						{
-							if constexpr (config::drawDepthShadows) {
-								//mask anira de 255 a 150
-								HI2::setTextureColorMod(*bCopy.base->texture, HI2::Color(mask, mask, mask, 0));
-								HI2::drawTexture(*bCopy.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b->rotation) * (M_PI / 2));
-							}
-							else {
-								HI2::drawTexture(*b->base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b->rotation);
-							}
-						}
+					metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+					if (node.visibility[index] && b.base->visible) {
+                        if (config::drawDepthShadows) {
+                            //mask anira de 255 a 150
+                            HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
+                            HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+                            //HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
+                        }
+                        else {
+                            HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+                            //HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
+                        }
 					}
 				}
 			}
@@ -603,6 +531,8 @@ void State::Playing::loadGame()
 
 
 	loadEntities();
+
+	_debug=true;
 }
 
 void State::Playing::saveGame()
@@ -648,6 +578,10 @@ void State::Playing::createEntities()
 	double angle = Services::twister();
 	angle = angle/Services::twister.max()*(2*M_PI);
 	double distance = Services::twister()%((int)result->getDiameter()/2);
+
+	result->addChild(universeNode("test_plat", 100000, 64, { sin(angle) * distance-10,cos(angle) * distance,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 5 }
+	,{2,2,0},{0,0,0},nodeType::SPACESHIP,result,200));
+	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
@@ -660,9 +594,9 @@ void State::Playing::createEntities()
 		auto& playerPos = _enttRegistry.assign<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = result->getID();
-		playerPos.pos.x = sin(angle)*distance;
-		playerPos.pos.y = cos(angle)*distance;
-		playerPos.pos.z = result->getHeight({(int)playerPos.pos.x,(int)playerPos.pos.y})+5;
+		playerPos.pos.x = sin(angle) * distance;
+		playerPos.pos.y = cos(angle) * distance;
+		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D())+1;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -686,22 +620,21 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		playerBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		playerBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
-		playerBody.collider->setUserData((void*)playerResponse);
+		playerBody.collisionInfo.collider->setUserData((void*)playerResponse);
 		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
-		playerBody._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
-		playerBody.collider->addCollisionShape(playerBody._collisionShape, transform);
+		playerBody.collisionInfo._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
+		playerBody.collisionInfo.collider->addCollisionShape(playerBody.collisionInfo._collisionShape, transform);
 	}
 
 	{
 		_camera = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
-		return;
 	}
 	{
 		entt::entity dog = _enttRegistry.create();
@@ -713,9 +646,9 @@ void State::Playing::createEntities()
 		auto& dogPos = _enttRegistry.assign<position>(dog);
 		dogPos.parent = result;
 		dogPos.parentID = result->getID();
-		dogPos.pos.x = 4 + 8;
-		dogPos.pos.y = 4 + 8;
-		dogPos.pos.z = 260;
+		dogPos.pos.x = 2 + sin(angle) * distance;
+		dogPos.pos.y = 2 + cos(angle) * distance;
+		dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D())+1;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -739,15 +672,15 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		dogBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		dogBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* dogResponse = new collidedResponse();
 		dogResponse->type = ENTITY;
 		dogResponse->body.entity = dog;
-		dogBody.collider->setUserData((void*)dogResponse);
+		dogBody.collisionInfo.collider->setUserData((void*)dogResponse);
 		initPosition.z += dogBody.width / 2;
 		transform.setPosition(initPosition);
-		dogBody._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-		dogBody.collider->addCollisionShape(dogBody._collisionShape, transform);
+		dogBody.collisionInfo._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
+		dogBody.collisionInfo.collider->addCollisionShape(dogBody.collisionInfo._collisionShape, transform);
 	}
 	for (int i = 0; i < 5; i++)
 		for (int j = 0; j < 5; j++)
@@ -761,9 +694,9 @@ void State::Playing::createEntities()
 			auto& ballPos = _enttRegistry.assign<position>(ball);
 			ballPos.parent = result;
 			ballPos.parentID = result->getID();
-			ballPos.pos.x = 4 + i + 8;
-			ballPos.pos.y = 4 + j + 8;
-			ballPos.pos.z = 260 + i + j + 4 + 8;
+			ballPos.pos.x = 4 + i + sin(angle) * distance;
+			ballPos.pos.y = 4 + j + cos(angle) * distance;
+			ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
 			ballPos.pos.r = 0;
 
 			auto& ballSpd = _enttRegistry.assign<velocity>(ball);
@@ -784,16 +717,16 @@ void State::Playing::createEntities()
 			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 			rp3d::Transform transform(initPosition, initOrientation);
 
-			ballBody.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+			ballBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 			collidedResponse* ballResponse = new collidedResponse();
 			ballResponse->type = ENTITY;
 			ballResponse->body.entity = ball;
-			ballBody.collider->setUserData((void*)ballResponse);
-			ballBody._collisionShape = new rp3d::SphereShape(0.4);
+			ballBody.collisionInfo.collider->setUserData((void*)ballResponse);
+			ballBody.collisionInfo._collisionShape = new rp3d::SphereShape(0.4);
 			initPosition.z += ballBody.width / 2;
 			transform.setPosition(initPosition);
-			ballBody.collider->addCollisionShape(ballBody._collisionShape, transform);
+			ballBody.collisionInfo.collider->addCollisionShape(ballBody.collisionInfo._collisionShape, transform);
 		}
 }
 
@@ -818,23 +751,22 @@ void State::Playing::fixEntities()
 	auto bodyEntities = _enttRegistry.view<body>();
 	for (const entt::entity& entity : bodyEntities) {
 		body& b = _enttRegistry.get<body>(entity);
-		position p = _enttRegistry.get<position>(entity);
 
 		rp3d::Vector3 initPosition(0, 0, 0);
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		b.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		b.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
 		bodyResponse->body.entity = entity;
-		b.collider->setUserData((void*)bodyResponse);
+		b.collisionInfo.collider->setUserData((void*)bodyResponse);
 
-		b._collisionShape = new rp3d::SphereShape(b.width / 2);
+		b.collisionInfo._collisionShape = new rp3d::SphereShape(b.width / 2);
 		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
-		b.collider->addCollisionShape(b._collisionShape, transform);
+		b.collisionInfo.collider->addCollisionShape(b.collisionInfo._collisionShape, transform);
 	}
 }
 
@@ -855,4 +787,153 @@ std::filesystem::path State::Playing::_savePath;
 
 std::filesystem::path State::Playing::savePath() {
 	return _savePath;
+}
+
+void State::Playing::debugConsoleExec(std::string input)
+{
+	std::stringstream ss(input);
+	std::string command;
+	ss >> command;
+	if(command == "help"){ //fake switch
+		std::cout << "tp [x] [y] [z]" << std::endl;
+		std::cout << "listNodes" << std::endl;
+		std::cout << "nodeInfo ID" << std::endl;
+		std::cout << "stop" << std::endl;
+		std::cout << "setParent ID" << std::endl;
+		std::cout << "toggleGravity" << std::endl;
+		std::cout << "toggleDrag" << std::endl;
+		std::cout << "toggleDepthShadows" << std::endl;
+		std::cout << "setNodePos ID x y z" << std::endl;
+		std::cout << "setNodeVel ID x y z" << std::endl;
+		std::cout << "pause" << std::endl;
+		std::cout << "step" << std::endl;
+	}
+	else if(command == "pause"){
+		_paused=!_paused;
+	}
+	else if(command =="step"){
+		_step=true;
+	}
+	else if(command == "stop"){
+		velocity& vel = _enttRegistry.get<velocity>(_player);
+		vel.spd=fdd();
+	}
+	else if(command == "toggleGravity"){
+		config::gravityEnabled=!config::gravityEnabled;
+	}
+	else if(command == "toggleDrag"){
+		config::dragEnabled=!config::dragEnabled;
+	}
+	else if(command == "toggleDepthShadows"){
+		config::drawDepthShadows=!config::drawDepthShadows;
+	}
+	else if(command == "listNodes"){
+		for(universeNode& node : _universeBase){
+			std::string sep;
+			for(int i =0;i<node.getDepth();++i){
+				sep+="   ";
+			}
+			std::cout << sep << "ID: " << node.getID() << std::endl;
+			std::cout << sep << "name: " << node.getName() << std::endl;
+			std::cout << sep << "type: " << node.getType() << std::endl;
+			std::cout << sep << "pos: " << node.getPosition() << std::endl;
+
+		}
+	}
+	else if(command == "nodeInfo" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			std::string sep;
+			for(int i =0;i<node->getDepth();++i){
+				sep+="   ";
+			}
+			std::cout << sep << "ID: " << node->getID() << std::endl;
+			std::cout << sep << "name: " << node->getName() << std::endl;
+			std::cout << sep << "type: " << node->getType() << std::endl;
+			std::cout << sep << "pos: " << node->getPosition() << std::endl;
+		}
+	}
+	else if(command == "setNodePos" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			fdd pos;
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.x = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.y = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.z = std::strtol(argument.c_str(),nullptr,10);
+			}
+			node->setPosition(pos);
+		}
+	}
+	else if(command == "setNodeVel" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			fdd pos;
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.x = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.y = std::strtol(argument.c_str(),nullptr,10);
+			}
+			if(ss.tellg() != -1){
+				ss >> argument;
+				pos.z = std::strtol(argument.c_str(),nullptr,10);
+			}
+			node->setVelocity(pos);
+		}
+	}
+	else if(command == "setParent" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		universeNode* node;
+		if(_universeBase.findNodeByID(id,node)){
+			velocity& vel = _enttRegistry.get<velocity>(_player);
+			position& pos = _enttRegistry.get<position>(_player);
+			vel.spd=node->getLocalVel(vel.spd,pos.parent);
+			pos.pos=node->getLocalPos(pos.pos,pos.parent);
+			pos.parent=node;
+			pos.parentID=node->getID();
+		}
+	}
+	else if(command == "tp"){
+		velocity& vel = _enttRegistry.get<velocity>(_player);
+		vel.spd=fdd();
+		position& pos = _enttRegistry.get<position>(_player);
+		std::string argument;
+		if(ss.tellg() != -1){
+			ss >> argument;
+			pos.pos.x = std::strtol(argument.c_str(),nullptr,10);
+		}
+		if(ss.tellg() != -1){
+			ss >> argument;
+			pos.pos.y = std::strtol(argument.c_str(),nullptr,10);
+		}
+		if(ss.tellg() != -1){
+			ss >> argument;
+			pos.pos.z = std::strtol(argument.c_str(),nullptr,10);
+		}
+		else{
+			pos.pos.z = 1+pos.parent->getHeight({(int)pos.pos.x,(int)pos.pos.y});
+		}
+	}
+	std::cout << input << std::endl;
 }

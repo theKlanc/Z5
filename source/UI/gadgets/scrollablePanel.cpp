@@ -49,6 +49,12 @@ void scrollablePanel::update(const std::bitset<HI2::BUTTON_SIZE> &down, const st
 	if(_selected != nullptr){
 		_selected->update(down,up,held,relativeMouse-_offset,dt);
 	}
+	if(down[HI2::BUTTON::KEY_MOUSEWHEEL_UP])
+		_offset.y+=_scrollMultiplier;
+	if(down[HI2::BUTTON::KEY_MOUSEWHEEL_DOWN])
+		_offset.y-=_scrollMultiplier;
+
+
 
 	correctOffsetBounds();
 }

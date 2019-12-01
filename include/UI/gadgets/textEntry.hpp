@@ -14,7 +14,7 @@ class textEntry : public gadget{
 		std::string getText();
 		bool isEmpty();
 
-
+		void setCallback(std::function<void(std::string)> callback);
 	private:
 		int _textSize;
 		HI2::Font _font;
@@ -23,4 +23,6 @@ class textEntry : public gadget{
 		HI2::Color _textColor;
 		HI2::Color _hintColor;
 
+
+		std::optional<std::function<void(std::string)>> _callback;
 };

@@ -11,7 +11,7 @@ class gameCore {
 	~gameCore();
 	void pushState(std::unique_ptr<State::State_Base> state);
 	void popState(int n = 1);
-	void startGameLoop();
+	void gameLoop();
 	void quit();
 
   private:

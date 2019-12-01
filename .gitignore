@@ -29,3 +29,5 @@ documentation/
 *.pfs0
 
 suppressions.txt
+
+*.autosave

@@ -169,6 +169,14 @@ double fdd::dot(const fdd &right) const
 	return x*right.x + y*right.y + z*right.z;
 }
 
+point2D fdd::getPoint2D() const
+{
+	point2D p;
+	p.x = floor(x);
+	p.y = floor(y);
+	return p;
+}
+
 point3Di fdd::getPoint3Di()const
 {
 	return { (int)x,(int)y,(int)z };
@@ -187,4 +195,9 @@ point3Dl fdd::getPoint3Dl()const
 reactphysics3d::Vector3 fdd::getVector3() const
 {
 	return rp3d::Vector3{(rp3d::decimal)x,(rp3d::decimal)y,(rp3d::decimal)z};
+}
+
+std::ostream &operator<<(std::ostream &os, const fdd &f)
+{
+	return os << "x: "<<f.x<< " y: "<<f.y<< " z: "<<f.z<< " r: "<<f.r;
 }

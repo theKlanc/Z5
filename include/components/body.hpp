@@ -7,12 +7,17 @@ struct body
 	double height;
 	double width;
 	double mass;
-	rp3d::CollisionBody* collider;
-	rp3d::CollisionShape* _collisionShape = nullptr;
+
+	struct {
+		bool isRestingContact;
+		rp3d::CollisionBody* collider;
+		rp3d::CollisionShape* _collisionShape = nullptr;
+		rp3d::Vector3 contactNormal;
+		double maxContactDepth = 0;
+	} collisionInfo;
+
+	double volume = 1;
 	double elasticity = 0;
-	rp3d::Vector3 contactNormal;
-	double maxContactDepth = 0;
-	double volume;
 };
 
 void to_json(nlohmann::json& j, const body& n);

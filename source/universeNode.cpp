@@ -34,17 +34,52 @@ void universeNode::clean()
 	}
 }
 
+universeNode::universeNode(const universeNode& u)
+{
+	*this = u;
+}
+
+universeNode::universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type, universeNode* parent, unsigned int id)
+{
+	_name = name;
+	_mass = mass;
+	_diameter = diameter;
+	_position = pos;
+	_centerOfMass = com;
+	_velocity = vel;
+	_type = type;
+	_parent = parent;
+	_ID = id;
+	if (_parent == nullptr) {
+		_depth = 0;
+	}
+	else {
+		_depth = _parent->_depth + 1;
+	}
+	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter);
+	connectGenerator();
+	populateColliders();
+}
+
 baseBlock& universeNode::getTopBlock(const point2D& pos)
 {
 	return _generator->getTopBlock(pos);
 }
 
-metaBlock* universeNode::getBlock(const point3Di& pos) {
+metaBlock universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
-	auto debug = chunkFromPos(pos);
-	if (!tChunk.loaded() || tChunk.getPosition() != debug)
-		return nullptr;
-	return &tChunk.getBlock(pos);
+	if(tChunk.isValid(pos))
+	{
+		return tChunk.getBlock(pos);
+	}
+	//else if(wouldBeValid){
+	//	return _generator.getBlock()
+	//}
+	else {
+		metaBlock m;
+		m.base = &baseBlock::terrainTable[0];
+		return m;
+	}
 }
 
 void universeNode::setBlock(metaBlock b, const point3Di& pos) {
@@ -113,6 +148,18 @@ bool universeNode::operator==(const universeNode& right) const {
 	return _ID == right._ID;
 }
 
+universeNode::universeNodeIterator universeNode::begin()
+{
+	universeNodeIterator u;
+	u.p = this;
+	return u;
+}
+
+universeNode::universeNodeIterator universeNode::end()
+{
+	return universeNodeIterator();
+}
+
 point3Di universeNode::chunkFromPos(const fdd& pos) {
 	return point3Di{ (int)round((double)pos.x / config::chunkSize),
 					(int)round((double)pos.y / config::chunkSize),
@@ -123,7 +170,40 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 {
 	return point3Di{ (int)floor((double)pos.x / config::chunkSize),
 					(int)floor((double)pos.y / config::chunkSize),
-					(int)floor((double)pos.z / config::chunkSize) };
+				(int)floor((double)pos.z / config::chunkSize) };
+}
+
+void universeNode::connectGenerator()
+{
+	switch (_type) {
+	case STAR:
+		_generator = std::make_unique<starGenerator>();
+		break;
+	case BLACK_HOLE:
+		_generator = std::make_unique<blackHoleGenerator>();
+		break;
+	case PLANET_GAS:
+		_generator = std::make_unique<gasPlanetGenerator>();
+		break;
+	case PLANET_ROCK:
+		_generator = std::make_unique<rockyPlanetGenerator>(_ID, _diameter);
+		break;
+	case ASTEROID:
+		_generator = std::make_unique<asteroidGenerator>();
+		break;
+	case SATELLITE_NATURAL:
+		_generator = std::make_unique<naturalSatelliteGenerator>();
+		break;
+	case SATELLITE_ARTIFICIAL:
+		_generator = std::make_unique<artificialSatelliteGenerator>();
+		break;
+	case SPACE_STATION:
+		_generator = std::make_unique<spaceStationGenerator>();
+		break;
+	case SPACESHIP:
+		_generator = std::make_unique<spaceshipGenerator>();
+		break;
+	}
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -269,9 +349,19 @@ fdd universeNode::getVelocity()
 	return _velocity;
 }
 
+fdd universeNode::getCenterOfMass()
+{
+	return _centerOfMass;
+}
+
 void universeNode::setVelocity(fdd v)
 {
 	_velocity = v;
+}
+
+void universeNode::setPosition(fdd p)
+{
+	_position = p;
 }
 
 unsigned universeNode::getID()
@@ -287,6 +377,11 @@ std::vector<universeNode*> universeNode::getChildren()
 		result.push_back(&u);
 	}
 	return result;
+}
+
+void universeNode::addChild(universeNode u)
+{
+	_children.push_back(u);
 }
 
 void universeNode::updatePositions(double dt)
@@ -316,6 +411,30 @@ fdd universeNode::getGravityAcceleration(fdd localPosition)
 	return magicGravity * factorMagic + realGravity * (1 - factorMagic);
 }
 
+universeNode& universeNode::operator=(const universeNode& u)
+{
+	_position = u._position;
+	_ID = u._ID;
+	_centerOfMass = u._centerOfMass;
+	_children = u._children;
+	_chunks = u._chunks;
+	_collider = u._collider;
+	_collisionShape = u._collisionShape;
+	_depth = u._depth;
+	_diameter = u._diameter;
+	_type = u._type;
+	_velocity = u._velocity;
+	_parent = u._parent;
+	_mass = u._mass;
+	connectGenerator();
+	return *this;
+}
+
+std::vector<terrainChunk> &universeNode::getChunks()
+{
+	return _chunks;
+}
+
 universeNode* universeNode::getParent()
 {
 	return _parent;
@@ -331,6 +450,21 @@ double universeNode::getDiameter()
 	return _diameter;
 }
 
+unsigned universeNode::getDepth()
+{
+	return _depth;
+}
+
+std::string universeNode::getName()
+{
+	return _name;
+}
+
+nodeType universeNode::getType()
+{
+	return _type;
+}
+
 unsigned int universeNode::getHeight(const point2D& pos)
 {
 	return _generator->getHeight(pos);
@@ -341,42 +475,30 @@ rp3d::CollisionBody* universeNode::getNodeCollider()
 	return _collider;
 }
 
-std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode* parent)
+std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3Dd& size, universeNode* parent)
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-	p.x=floor(p.x);
-	p.y=floor(p.y);
-	p.z=floor(p.z);
+
+
+
 	std::vector<int> posXlist;
-	posXlist.push_back(p.x);
+	posXlist.push_back(floor(p.x));
 	std::vector<int> posYlist;
-	posYlist.push_back(p.y);
+	posYlist.push_back(floor(p.y));
 	std::vector<int> posZlist;
-	posZlist.push_back(p.z);
-	//if (chunkFromPos(point3Di{(int)p.x,0,0}).x > chunkFromPos(point3Di{(int) p.x - 1,0,0}).x)
+	posZlist.push_back(floor(p.z));
+	if (size.x!=0 && floor(p.x/config::chunkSize) != floor((p.x + size.x)/config::chunkSize))
 	{
-		posXlist.push_back(p.x - 1);
+		posXlist.push_back(floor(p.x + size.x));
 	}
-	//if (chunkFromPos(point3Di{(int) p.x,0,0 }).x < chunkFromPos(point3Di{(int) p.x + 1,0,0 }).x)
+	if (size.y!=0 && floor(p.y/config::chunkSize) != floor((p.y + size.y)/config::chunkSize))
 	{
-		posXlist.push_back(p.x + 1);
+		posYlist.push_back(floor(p.y + size.y));
 	}
-	//if (chunkFromPos(point3Di{ 0,(int)p.y,0 }).y > chunkFromPos(point3Di{ 0,(int)p.y - 1,0}).y)
+	if (size.z!=0 && floor(p.z/config::chunkSize) != floor((p.z + size.z)/config::chunkSize))
 	{
-		posYlist.push_back(p.y - 1);
-	}
-	//if (chunkFromPos(point3Di{ 0,(int)p.y,0}).y < chunkFromPos(point3Di{ 0,(int)p.y + 1,0 }).y)
-	{
-		posYlist.push_back(p.y + 1);
-	}
-	//if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z > chunkFromPos(point3Di{ 0,0,(int)p.z - 1 }).z)
-	{
-		posZlist.push_back(p.z - 1);
-	}
-	//if (chunkFromPos(point3Di{ 0,0,(int)p.z }).z < chunkFromPos(point3Di{ 0,0,(int)p.z + 1 }).z)
-	{
-		posZlist.push_back(p.z + 1);
+		posZlist.push_back(floor(p.z + size.z));
 	}
 
 	for (int x : posXlist)
@@ -385,10 +507,10 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, universeNode
 		{
 			for (int z : posZlist)
 			{
-				auto chunk = chunkAt({ x,y,z });
+				auto& chunk = chunkAt({ x,y,z });
 				if (chunk.loaded())
 				{
-					candidateBodies.push_back(&chunkAt({ x,y,z }));
+					candidateBodies.push_back(&chunk);
 				}
 			}
 		}
@@ -412,10 +534,67 @@ void universeNode::populateColliders()
 	}
 }
 
+
+universeNode::universeNodeIterator::universeNodeIterator(const universeNode::universeNodeIterator& r)
+{
+	p = r.p;
+	q = r.q;
+}
+
+universeNode::universeNodeIterator& universeNode::universeNodeIterator::operator=(const universeNode::universeNodeIterator& r)
+{
+	p = r.p;
+	q = r.q;
+	return *this;
+}
+
+bool universeNode::universeNodeIterator::operator==(const universeNode::universeNodeIterator& r)
+{
+	return p == r.p && q == r.q;
+}
+
+bool universeNode::universeNodeIterator::operator!=(const universeNode::universeNodeIterator& r)
+{
+	return p != r.p || q != r.q;
+}
+
+universeNode& universeNode::universeNodeIterator::operator*()
+{
+	return *p;
+}
+
+universeNode& universeNode::universeNodeIterator::operator->()
+{
+	return *p;
+}
+
+universeNode::universeNodeIterator& universeNode::universeNodeIterator::operator++()
+{
+	for (auto* child : p->getChildren()) {
+		q.push(child);
+	}
+	if (q.empty()) {
+		p = nullptr;
+	}
+	else {
+		p = q.front();
+		q.pop();
+	}
+	return *this;
+}
+
+universeNode::universeNodeIterator universeNode::universeNodeIterator::operator++(int devnull)
+{
+	universeNodeIterator old(*this);
+	operator++();
+	return old;
+}
+
+
 void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
-			 {"position", f._position}, {"velocity", f._velocity},
+			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
 			 {"children", f._children},{"id",f._ID} };
 }
 
@@ -428,9 +607,9 @@ void from_json(const json& j, universeNode& f) {
 	f._mass = j.at("mass").get<double>();
 	f._diameter = j.at("diameter").get<double>();
 	f._position = j.at("position").get<fdd>();
-	if (j.contains("com"))
+	if (j.contains("CoM"))
 	{
-		f._centerOfMass = j.at("com").get<fdd>();
+		f._centerOfMass = j.at("CoM").get<fdd>();
 	}
 	else
 	{
@@ -441,34 +620,7 @@ void from_json(const json& j, universeNode& f) {
 	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
-	switch (f._type) {
-	case STAR:
-		f._generator = std::make_unique<starGenerator>();
-		break;
-	case BLACK_HOLE:
-		f._generator = std::make_unique<blackHoleGenerator>();
-		break;
-	case PLANET_GAS:
-		f._generator = std::make_unique<gasPlanetGenerator>();
-		break;
-	case PLANET_ROCK:
-		f._generator = std::make_unique<rockyPlanetGenerator>(f._ID, f._diameter);
-		break;
-	case ASTEROID:
-		f._generator = std::make_unique<asteroidGenerator>();
-		break;
-	case SATELLITE_NATURAL:
-		f._generator = std::make_unique<naturalSatelliteGenerator>();
-		break;
-	case SATELLITE_ARTIFICIAL:
-		f._generator = std::make_unique<artificialSatelliteGenerator>();
-		break;
-	case SPACE_STATION:
-		f._generator = std::make_unique<spaceStationGenerator>();
-		break;
-	case SPACESHIP:
-		f._generator = std::make_unique<spaceshipGenerator>();
-		break;
-	}
+
+	f.connectGenerator();
 	f.populateColliders();
 }

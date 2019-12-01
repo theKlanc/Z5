@@ -16,7 +16,7 @@ terrainChunk::~terrainChunk()
 	//}
 }
 
-terrainChunk::terrainChunk(const point3Di& p) : _position(p), _loaded(false),
+terrainChunk::terrainChunk(const point3Di& p) : _indexedPosition(p), _loaded(false),
 _blocks(config::chunkSize* config::chunkSize* config::chunkSize, { &baseBlock::terrainTable[0],UP }),
 _colliders(config::chunkSize* config::chunkSize* config::chunkSize, nullptr)
 {
@@ -78,16 +78,26 @@ bool terrainChunk::loaded() const {
 	return _loaded;
 }
 
+bool terrainChunk::isInside(const point3Dd& point) const
+{
+	return (point3Di)(point / config::chunkSize) == _indexedPosition;
+}
+
+bool terrainChunk::isValid(const point3Di &nodePos) const
+{
+	return loaded() && isInside(nodePos);
+}
+
 rp3d::CollisionBody* terrainChunk::getCollider() const {
 	return _collisionBody;
 }
 
 bool terrainChunk::operator==(const terrainChunk& right) const {
-	return _position == right._position;
+	return _indexedPosition == right._indexedPosition;
 }
 
 bool terrainChunk::operator==(const point3Di& right) const {
-	return _position == right;
+	return _indexedPosition == right;
 }
 
 bool terrainChunk::operator!=(const terrainChunk& right) const {
@@ -95,17 +105,20 @@ bool terrainChunk::operator!=(const terrainChunk& right) const {
 }
 
 bool terrainChunk::operator!=(const point3Di& right) const {
-	return _position != right;
+	return _indexedPosition != right;
 }
 
-const point3Di& terrainChunk::getPosition() const {
-	return _position;
+const point3Di& terrainChunk::getIndexedPosition() const {
+	return _indexedPosition;
+}
+point3Di terrainChunk::getPosition() const {
+	return _indexedPosition * config::chunkSize;
 }
 
 void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& chunkPos) {
 	if (std::filesystem::exists(fileName)) {
 		_dirty = true;
-		_position = chunkPos;
+		_indexedPosition = chunkPos;
 		if (_loaded)
 		{
 			std::cout << "Loading a new chunk on top of another already loaded one";
@@ -149,7 +162,7 @@ void terrainChunk::unload(std::filesystem::path file) {
 		_loaded = false;
 		if(_dirty)
 		{
-			file.append(std::to_string(_position.x)).append(std::to_string(_position.y)).append(std::to_string(_position.z)).concat(".z5c");
+			file.append(std::to_string(_indexedPosition.x)).append(std::to_string(_indexedPosition.y)).append(std::to_string(_indexedPosition.z)).concat(".z5c");
 			if (!std::filesystem::exists(file.parent_path())) {
 				std::filesystem::create_directories(file.parent_path());
 			}

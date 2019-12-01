@@ -6,7 +6,7 @@
 #include <memory>
 #include <iostream>
 
-void gameCore::startGameLoop() {
+void gameCore::gameLoop() {
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastTick  = std::chrono::high_resolution_clock::now();
 	
 	while (HI2::aptMainLoop() && !states.empty() && !_exit) {
@@ -20,7 +20,6 @@ void gameCore::startGameLoop() {
 
 		states.top()->update((double)microSeconds/1000000);
 
-		Services::graphics.stepAnimations((double)microSeconds/1000000);
 		states.top()->draw((double)msOg/1000000);
 
 

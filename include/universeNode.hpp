@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <queue>
 #include "fdd.hpp"
 #include "json.hpp"
 #include "block.hpp"
@@ -27,8 +28,10 @@ enum nodeType{
 class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
+	universeNode(const universeNode& u);
+	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
-	metaBlock* getBlock(const point3Di &pos);
+	metaBlock getBlock(const point3Di &pos);
 	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
@@ -36,18 +39,27 @@ public:
 	fdd getLocalVel(fdd f,universeNode* u) const;
 	fdd getPosition();
 	fdd getVelocity();
+	fdd getCenterOfMass();
 	void setVelocity(fdd v);
+	void setPosition(fdd p);
 	unsigned int getID();
 	double getMass();
 	double getDiameter();
+	unsigned getDepth();
+	std::string getName();
+	nodeType getType();
 	std::vector<universeNode*> getChildren();
+	void addChild(universeNode u);
 	void updatePositions(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
+	universeNode& operator=(const universeNode& n);
+
+	std::vector<terrainChunk>& getChunks();
 
 	universeNode* getParent();
 	unsigned int getHeight(const point2D &pos);
 	rp3d::CollisionBody* getNodeCollider();
-	std::vector<terrainChunk*> getCollidableChunks(fdd p, universeNode* parent);
+	std::vector<terrainChunk*> getCollidableChunks(fdd p, const point3Dd& size, universeNode* parent);
 
 	void populateColliders();
 	void linkChildren();
@@ -60,12 +72,30 @@ public:
 	friend void to_json(nlohmann::json &j, const universeNode &f);
 	friend void from_json(const json& j, universeNode& f);
 
+	class universeNodeIterator : public std::iterator<std::forward_iterator_tag,universeNode>{
+	public:
+		universeNodeIterator(){}
+		universeNodeIterator(const universeNodeIterator& r);
+		universeNodeIterator& operator=(const universeNodeIterator& r);
+		bool operator==(const universeNodeIterator& r);
+		bool operator!=(const universeNodeIterator& r);
+		universeNode& operator*();
+		universeNode& operator->();
+		universeNodeIterator& operator++();
+		universeNodeIterator operator++(int devnull);
+	private:
+		universeNode* p=nullptr;
+		std::queue<universeNode*> q;
+		friend class universeNode;
+	};
+	universeNodeIterator begin();
+	universeNodeIterator end();
   private:
 
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
 	point3Di chunkFromPos(const point3Di& pos);
-
+	void connectGenerator();
 
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);

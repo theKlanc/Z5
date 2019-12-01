@@ -99,7 +99,7 @@ void State::MainMenu::update(double dt) {
 
 			_uiScene.select(_mainPanel.p);
 
-			_core->pushState(std::make_unique<State::Playing>(*_core, _newGamePanel.saveName->getText(), std::stoi(_newGamePanel.seed->getText(), nullptr)));
+			_core->pushState(std::make_unique<State::Playing>(*_core, _newGamePanel.saveName->getText(), std::stoi(_newGamePanel.seed->getText(), nullptr),_newGamePanel.debug->isPressed()));
 
 			_newGamePanel.saveName->setText("New Universe");
 			_newGamePanel.seed->setText(std::to_string(rand() % 100000));
@@ -135,6 +135,7 @@ void State::MainMenu::update(double dt) {
 }
 
 void State::MainMenu::draw(double dt) {
+	Services::graphics.stepAnimations(dt);
 	HI2::startFrame();
 	_uiScene.draw();
 	HI2::endFrame();

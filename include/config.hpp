@@ -8,9 +8,9 @@ namespace config {
 	extern double depthScale;
 	extern double minScale;
 	extern int cameraHeight;
-	constexpr double physicsHz = 240;
-	constexpr unsigned physicsSolverIterations = 10;
-	constexpr bool drawDepthShadows = true;
+	constexpr double physicsHz = 120;
+	constexpr unsigned physicsSolverIterations = 5;
+	extern bool drawDepthShadows;
 	extern unsigned short minShadow;
 	extern bool gravityEnabled;
 	extern bool dragEnabled;

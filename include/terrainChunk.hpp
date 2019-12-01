@@ -16,6 +16,8 @@ public:
 	void setBlock(metaBlock b, const point3Di& p);
 	void setLoaded();
 	bool loaded()const;
+	bool isInside(const point3Dd& point) const;
+	bool isValid(const point3Di& nodePos) const;
 	rp3d::CollisionBody* getCollider() const;
 	void updateAllColliders();
 
@@ -24,7 +26,8 @@ public:
 	bool operator!= (const terrainChunk& right)const;
 	bool operator!= (const point3Di& right)const;
 
-	const point3Di& getPosition() const;
+	const point3Di& getIndexedPosition() const;
+	point3Di getPosition() const;
 
 	void load(const std::filesystem::path& file, const point3Di& chunkPos);
 	void unload(std::filesystem::path file);
@@ -32,7 +35,7 @@ public:
 private:
 
 	bool _dirty = false;
-	point3Di _position;
+	point3Di _indexedPosition;
 	bool _loaded = false;
 	rp3d::CollisionBody* _collisionBody = nullptr;
 	std::vector<metaBlock> _blocks;
