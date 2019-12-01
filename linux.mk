@@ -16,8 +16,10 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng 
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 
+BUILDTYPE := Release
 ifeq ($(DEBUG), 1)
 FLAGS := $(FLAGS) -DDEBUG -Og -ggdb3 -fstack-protector-all
+BUILDTYPE := Debug
 else
 FLAGS := $(FLAGS) -O3 -ffast-math
 endif
@@ -37,7 +39,7 @@ CFILES	    := $(CFILES:$(SOURCES)/%=%)
 CPPFILES	:= $(CPPFILES:$(SOURCES)/%=%)
 
 OFILES 	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
-OFILES := $(addprefix $(BUILDDIR)/$(PLATFORM)/,$(OFILES))
+OFILES := $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(OFILES))
 
 $(info $(OFILES))
 
@@ -49,20 +51,20 @@ INCLUDE := $(addprefix -I,$(INCLUDE))
 
 .PHONY: pre
 pre:
-	mkdir -p $(BINDIR)/$(PLATFORM)
-	mkdir -p $(addprefix $(BUILDDIR)/$(PLATFORM)/,$(dir $(CFILES))) $(addprefix $(BUILDDIR)/$(PLATFORM)/,$(dir $(CPPFILES)))
+	mkdir -p $(BINDIR)/$(PLATFORM)/$(BUILDTYPE)/
+	mkdir -p $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(dir $(CFILES))) $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(dir $(CPPFILES)))
 
-$(BUILDDIR)/$(PLATFORM)/%.o: %.c
+$(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/%.o: %.c
 	$(CC) $(CCFLAGS) $(INCLUDE) $(LIBS) -c $< -o $@
 
-$(BUILDDIR)/$(PLATFORM)/%.o: %.cpp
+$(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $(LIBS) -c $< -o $@
 
 .PHONY: all
 all: pre $(OFILES)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $(OFILES) $(LIBS) -o $(BINDIR)/$(PLATFORM)/$(APPNAME)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $(OFILES) $(LIBS) -o $(BINDIR)/$(PLATFORM)/$(BUILDTYPE)/$(APPNAME)
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)/$(PLATFORM)/*
+	rm -rf $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/*
 	rm -f $(APPNAME)
