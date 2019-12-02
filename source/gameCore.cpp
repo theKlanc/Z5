@@ -43,22 +43,23 @@ void gameCore::processStates() {
 }
 
 gameCore::gameCore() {
+	HI2::consoleInit();
 	HI2::systemInit();
 	srand(time(NULL));
 	_exit = false;
 	_pop = 0;
-	// HI2::consoleInit();
-	//pushState(std::make_unique<State::Playing>(*this,"default",0));
 	pushState(std::make_unique<State::MainMenu>(*this));
 	//pushState(std::make_unique<State::Demo>(*this));
 	processStates();
-	
 }
 
 gameCore::~gameCore() {
 	while (!states.empty())
+	{
 		states.pop();
+	}
 	HI2::systemFini();
+	HI2::consoleFini();
 }
 
 void gameCore::pushState(std::unique_ptr<State::State_Base> state) {

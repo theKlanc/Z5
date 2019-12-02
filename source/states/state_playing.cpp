@@ -35,7 +35,7 @@ State::Playing::~Playing() {
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
 	_debug = debug;
 
-	Services::twister.seed(seed);
+	Services::lcg.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
@@ -127,8 +127,9 @@ void State::Playing::input(double dt)
 			playerSpd.spd.z -= 40 * dt;
 		}
 
+		//JUMP
 		if (down[HI2::BUTTON::KEY_SPACE]){
-			playerSpd.spd.z = 20;
+			playerSpd.spd.z = 8;
 		}
 
 		//ROTATE PLAYER
@@ -509,9 +510,9 @@ void State::Playing::createEntities()
 		bool temp = _universeBase.findNodeByID(pID, result);
 	}
 
-	double angle = Services::twister();
-	angle = angle/Services::twister.max()*(2*M_PI);
-	double distance = Services::twister()%((int)result->getDiameter()/2);
+	double angle = Services::lcg();
+	angle = angle/Services::lcg.max()*(2*M_PI);
+	double distance = Services::lcg()%((int)result->getDiameter()/2);
 
 	result->addChild(universeNode("test_plat", 100000, 64, { sin(angle) * distance-10,cos(angle) * distance,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 5 }
 	,{2,2,0},{0,0,0},nodeType::SPACESHIP,result,200));
