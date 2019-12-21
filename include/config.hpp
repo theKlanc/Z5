@@ -1,7 +1,14 @@
 #pragma once
 #include <string>
+
 namespace config {
-	constexpr int chunkLoadDiameter = 4;
+	constexpr int chunkLoadDiameter
+#ifdef __SWITCH__
+	= 2;
+#else
+	= 14;
+#endif
+
 	constexpr int chunkSize = 4;
 	extern int cameraDepth;
 	constexpr int spriteSize = 16;
@@ -9,7 +16,14 @@ namespace config {
 	extern double depthScale;
 	extern double minScale;
 	extern int cameraHeight;
-	constexpr double physicsHz = 60;
+
+	constexpr double physicsHz
+#ifdef __SWITCH__
+	= 30;
+#else
+	= 120;
+#endif
+
 	constexpr unsigned physicsSolverIterations = 5;
 	extern bool drawDepthShadows;
 	extern unsigned short minShadow;

@@ -17,7 +17,7 @@
 
 State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test"))
 {
-	//std::filesystem::create_directories(HI2::getSavesPath());
+	std::filesystem::create_directory(HI2::getSavesPath());
 
 	HI2::Texture& bg = *Services::graphics.loadTexture("bg");
 

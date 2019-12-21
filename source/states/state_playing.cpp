@@ -46,7 +46,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		{
 			seed = rand();
 		}
-		createNewGame(seed);
+		createNewGame(saveName, seed);
 	}
 	else
 	{
@@ -431,9 +431,9 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 	return pos;
 }
 
-void State::Playing::createNewGame(int seed)
+void State::Playing::createNewGame(std::string saveName, int seed)
 {
-	std::filesystem::create_directories(savePath());
+	std::filesystem::create_directory(HI2::getSavesPath().append(saveName));
 	std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
 
 	//load terrain table

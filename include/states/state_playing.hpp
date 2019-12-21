@@ -52,7 +52,7 @@ namespace State {
 
 		static std::filesystem::path _savePath;
 
-		void createNewGame(int seed);
+		void createNewGame(std::string saveName, int seed);
 
 		void loadGame();
 		void saveGame();

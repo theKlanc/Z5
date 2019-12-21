@@ -47,7 +47,7 @@ void State::Demo::input(double dt) {
 	if (held[HI2::BUTTON::KEY_A]) {
 		done = true;
 	}
-	if (held[HI2::BUTTON::KEY_B]) {
+	if (held[HI2::BUTTON::KEY_ACCEPT]) {
 		HI2::playSound(*effect);
 		std::cout << "Played Sound" << std::endl;
 	}
