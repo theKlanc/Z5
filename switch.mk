@@ -33,7 +33,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	bin/switch/Z5
 BUILD		:=	buildSwitch
-SOURCES		:=	deps source source/components source/states deps/HardwareInterface deps/FastNoise source/nodeGenerators
+SOURCES		:=	deps source source/components source/states deps/HardwareInterface deps/FastNoise source/nodeGenerators source/UI source/UI/gadgets
 
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/body
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision
@@ -50,7 +50,7 @@ SOURCES := $(SOURCES) deps/reactPhysics3D/src/memory
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/utils
 
 DATA		:= datadummy
-INCLUDES	:= include deps deps/entt deps/HardwareInterface deps/reactPhysics3D/src
+INCLUDES	:= include deps deps/entt deps/HardwareInterface deps/reactPhysics3D/src deps/FastNoise deps/json/single_include/nlohmann
 #ROMFS	:=	romfs
 
 

@@ -16,11 +16,11 @@ namespace State {
 
 	  private:
 		HI2::Texture* texture;
-		HI2::Font font;
-		HI2::Audio effect;
+		HI2::Font* font;
+		HI2::Audio* effect;
 		Mix_Music *audio;
-		point2D pixelPos;
-		point2D pixelSpd;
+		point2Dd pixelPos;
+		point2Dd pixelSpd;
 		bool done=false;
 	};
 } // namespace State

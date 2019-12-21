@@ -1,6 +1,7 @@
 #include "audioManager.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 #include <iostream>
+#include "config.hpp"
 
 using namespace std;
 
@@ -18,14 +19,14 @@ const { // tells if an audio with said name is present on the Atlas
 }
 
 HI2::Audio* audioManager::loadAudio(string audioName) { // load a texture from a file into the first free space inside texTable[]
-	std::filesystem::path fileNameWithoutExt = (HI2::getDataPath() /= "sounds") /= (audioName);
-	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".ogg";
+	std::filesystem::path fileNameWithoutExt = HI2::getDataPath().append("sounds").append(audioName);
+	std::filesystem::path completeFileName = fileNameWithoutExt.concat(config::audioExtension);
 	if (audioAtlas.find(audioName) == audioAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 			audioAtlas.insert(make_pair(audioName, HI2::Audio(completeFileName)));
 		}
 		else {
-			std::cout << "Audio at \"" << completeFileName << "\" not found"
+			std::cout << "Audio at " << completeFileName << " not found"
 				<< std::endl;
 			return nullptr;
 		}

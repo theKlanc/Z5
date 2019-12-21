@@ -36,7 +36,7 @@ HI2::Texture* graphicsManager::loadTexture(string spriteName) { // load a textur
 			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,0.2)));
 		}
 		else {
-			std::cout << "Texture at \"" << completeFileName << "\" not found"
+			std::cout << "Texture at " << completeFileName << " not found"
 				<< std::endl;
 			return nullptr;
 		}

@@ -1,14 +1,12 @@
-[submodule "deps/FastNoise"]
-	path = deps/FastNoise
-	url = https://github.com/Auburns/FastNoise
 [submodule "deps/HardwareInterface"]
 	path = deps/HardwareInterface
 	url = https://github.com/theKlanc/HardwareInterface/
 	branch = master
 	update = merge
-[submodule "deps/reactPhysics3D"]
-	path = deps/reactPhysics3D
-	url = https://github.com/DanielChappuis/reactphysics3d
 [submodule "deps/json"]
 	path = deps/json
 	url = https://github.com/nlohmann/json
+[submodule "deps/reactPhysics3D"]
+	url = https://github.com/theKlanc/reactphysics3d
+[submodule "deps/FastNoise"]
+	url = https://github.com/Auburns/FastNoise
