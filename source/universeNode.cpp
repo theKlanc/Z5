@@ -221,7 +221,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 					}
 					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
-					if (std::filesystem::exists(newChunkPath))//if file already exists, load
+					if (false && std::filesystem::exists(newChunkPath))//if file already exists, load
 					{
 						chunk.load(newChunkPath, { x,y,z });
 					}

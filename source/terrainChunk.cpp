@@ -116,7 +116,7 @@ point3Di terrainChunk::getPosition() const {
 }
 
 void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& chunkPos) {
-	if (std::filesystem::exists(fileName)) {
+	if (false && std::filesystem::exists(fileName)) {
 		_dirty = true;
 		_indexedPosition = chunkPos;
 		if (_loaded)
@@ -160,7 +160,7 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 void terrainChunk::unload(std::filesystem::path file) {
 	if (_loaded) {
 		_loaded = false;
-		if(_dirty)
+		if(false && _dirty)
 		{
 			file.append(std::to_string(_indexedPosition.x)).append(std::to_string(_indexedPosition.y)).append(std::to_string(_indexedPosition.z)).concat(".z5c");
 			if (!std::filesystem::exists(file.parent_path())) {

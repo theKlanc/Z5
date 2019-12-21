@@ -9,4 +9,4 @@ graphicsManager Services::graphics;
 fontManager Services::fonts;
 audioManager Services::audio;
 
-std::mt19937 Services::twister;
+std::minstd_rand Services::lcg;

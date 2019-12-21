@@ -1,6 +1,7 @@
 #include "fontManager.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 #include <iostream>
+#include "config.hpp"
 
 using namespace std;
 
@@ -18,14 +19,14 @@ const { // tells if an font with said name is present on the Atlas
 }
 
 HI2::Font* fontManager::loadFont(string fontName) { // load a texture from a file into the first free space inside texTable[]
-	std::filesystem::path fileNameWithoutExt = (HI2::getDataPath() /= "fonts") /= (fontName);
-	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".ttf";
+	std::filesystem::path fileNameWithoutExt = HI2::getDataPath().append("fonts").append(fontName);
+	std::filesystem::path completeFileName = fileNameWithoutExt.concat(config::fontExtension);
 	if (fontAtlas.find(fontName) == fontAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
 			fontAtlas.insert(make_pair(fontName, HI2::Font(completeFileName)));
 		}
 		else {
-			std::cout << "Font at \"" << completeFileName << "\" not found"
+			std::cout << "Font at " << completeFileName << " not found"
 				<< std::endl;
 			return nullptr;
 		}

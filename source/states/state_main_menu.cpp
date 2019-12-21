@@ -17,7 +17,7 @@
 
 State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test"))
 {
-	std::filesystem::create_directories(HI2::getSavesPath());
+	//std::filesystem::create_directories(HI2::getSavesPath());
 
 	HI2::Texture& bg = *Services::graphics.loadTexture("bg");
 
@@ -84,6 +84,9 @@ void State::MainMenu::update(double dt) {
 		_newGamePanel.seed->setText(std::to_string(rand() % 100000));
 
 		_uiScene.select(_newGamePanel.p);
+	}
+	if(_mainPanel.optionsButton->isRisingInside()){
+		_core->pushState(std::make_unique<State::Demo>(*_core));
 	}
 	if (_newGamePanel.start->isRisingInside())
 	{
