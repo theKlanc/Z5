@@ -86,9 +86,13 @@ void State::Demo::draw(double dt) {
 	auto& down = HI2::getKeysDown();
 	int pos = 0;
 	for(int i = 0; i < HI2::BUTTON_SIZE;++i){
-		HI2::drawRectangle({pos + 10,400},10,10,down[i]?HI2::Color::Red:HI2::Color::Blue);
-		pos+=10;
+		HI2::drawRectangle({pos + 8,400},8,8,down[i]?HI2::Color::Red:HI2::Color::Blue);
+		pos+=8;
 	}
+	point2D mousePos = HI2::getTouchPos();
+	HI2::drawRectangle({mousePos.x,mousePos.y-10},1,20,HI2::Color::Green);
+	HI2::drawRectangle({mousePos.x-10,mousePos.y},20,1,HI2::Color::Green);
+
 	HI2::setBackgroundColor(rand()%2==0?HI2::Color::Red:HI2::Color::Blue);
 	//HI2::drawTexture(*texture, 0, 0, 1);
 	HI2::drawText(*font, "OOF", point2D{ 0,0 }, 40, HI2::Color(255, 0, 0, 255));

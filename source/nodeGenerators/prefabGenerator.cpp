@@ -1,6 +1,6 @@
-#include "nodeGenerators/spaceshipGenerator.hpp"
+#include "nodeGenerators/prefabGenerator.hpp"
 
-terrainChunk spaceshipGenerator::getChunk(const point3Di& p)const
+terrainChunk prefabGenerator::getChunk(const point3Di& p)const
 {
 	if (p.x != 1 || p.y != 1 || p.z != 1)
 	{

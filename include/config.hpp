@@ -19,7 +19,8 @@ namespace config {
 
 	constexpr double physicsHz
 #ifdef __SWITCH__
-	= 30;
+	= 2;
+
 #else
 	= 120;
 #endif

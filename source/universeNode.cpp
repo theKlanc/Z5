@@ -2,15 +2,8 @@
 #include "config.hpp"
 #include "fdd.hpp"
 
-#include "nodeGenerators/artificialSatelliteGenerator.hpp"
-#include "nodeGenerators/asteroidGenerator.hpp"
-#include "nodeGenerators/blackHoleGenerator.hpp"
-#include "nodeGenerators/gasPlanetGenerator.hpp"
-#include "nodeGenerators/naturalSatelliteGenerator.hpp"
-#include "nodeGenerators/rockyPlanetGenerator.hpp"
-#include "nodeGenerators/spaceStationGenerator.hpp"
-#include "nodeGenerators/spaceshipGenerator.hpp"
-#include "nodeGenerators/starGenerator.hpp"
+#include "nodeGenerators/terrainPainterGenerator.hpp"
+#include "nodeGenerators/prefabGenerator.hpp"
 #include "states/state_playing.hpp"
 #include <iostream>
 
@@ -186,7 +179,7 @@ void universeNode::connectGenerator()
 		_generator = std::make_unique<gasPlanetGenerator>();
 		break;
 	case PLANET_ROCK:
-		_generator = std::make_unique<rockyPlanetGenerator>(_ID, _diameter);
+		_generator = std::make_unique<terrainPainterGenerator>(_ID, _diameter);
 		break;
 	case ASTEROID:
 		_generator = std::make_unique<asteroidGenerator>();
@@ -201,7 +194,7 @@ void universeNode::connectGenerator()
 		_generator = std::make_unique<spaceStationGenerator>();
 		break;
 	case SPACESHIP:
-		_generator = std::make_unique<spaceshipGenerator>();
+		_generator = std::make_unique<prefabGenerator>();
 		break;
 	}
 }
@@ -221,7 +214,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 					}
 					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(x)).append(std::to_string(y)).append(std::to_string(z)).concat(".z5c"));
-					if (false && std::filesystem::exists(newChunkPath))//if file already exists, load
+					if (std::filesystem::exists(newChunkPath))//if file already exists, load
 					{
 						chunk.load(newChunkPath, { x,y,z });
 					}

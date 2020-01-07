@@ -130,7 +130,7 @@ void State::MainMenu::update(double dt) {
 		if (s.deleteButton->isRisingInside()) {
 			s.p->update(dt);
 			_continuePanel.p->removeGadget(s.p);
-			std::filesystem::remove_all(s.path);
+			HI2::deleteDirectory(s.path);
 			regenerateSavesVector();
 			break;
 		}
@@ -160,11 +160,13 @@ void State::MainMenu::regenerateSavesVector()
 		savePanel.p->addGadget(std::make_shared<textView>(point2D{ 32,32 }, point2D{ 808,32 }, savePanel.path.filename().string(), _standardFont, 32, HI2::Color::Black, HI2::Color::White));
 		savePanel.startButton = std::make_shared<imagePushButton>(point2D{ 32,96 }, point2D{ 32,32 }, play_off, play_on);
 		savePanel.deleteButton = std::make_shared<imagePushButton>(point2D{ 872,32 }, point2D{ 32,32 }, delete_off, delete_on);
-		savePanel.p->addGadget(savePanel.startButton);
-		savePanel.p->addGadget(savePanel.deleteButton);
 
 		savePanel.startButton->setRight(savePanel.deleteButton.get());
 		savePanel.deleteButton->setLeft(savePanel.startButton.get());
+
+		savePanel.p->addGadget(savePanel.startButton);
+		savePanel.p->addGadget(savePanel.deleteButton);
+
 
 		if (last != nullptr) {
 			last->setDown(savePanel.p.get());

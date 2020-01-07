@@ -5,7 +5,7 @@
 #render
 #implementar colisions
 #arreglar memleak
-passar a dynamics world
+#passar a dynamics world
 //separar deteccio de colisions i agregacio+resolució
 //implementar elasticitat en colisions correctament
 //implementar gravetat correctament
@@ -15,16 +15,19 @@ passar a dynamics world
 
 #animacions locu, animacions
 #rotacions de block
-rotacions de layers
+~~rotacions de layers
+canviar el rockyplanetgenerator a terrainPainterGenerator
+afegir generator per a prefabs
+afegir creador de nodes
 maquina d estats per les entitats
 
-fog
-priority ChunkLoader
+~~fog
+~~priority ChunkLoader
 
 //arreglar angles de sortida de colisions
 
-fer una sola draw call per layer dibuixat
-millorar terrain generator i crear biomes
+#fer una sola draw call per layer dibuixat
+#millorar terrain generator i crear biomes
 crear observer
 crear soundObserver
 assignar bgm als nodes
@@ -35,7 +38,7 @@ crear inventari
 crear colisionadors d altres tipus per a bales i tal
 lighting
 biomes i diferents tipus de biomes per cada planeta, somehow
-PERFORMANCE
+//PERFORMANCE
 afegir llunes de jupiter saturn i neptu
 afegir planet 9
 //crear NPCs (mascotes animals i persones)
@@ -46,3 +49,4 @@ afegir planet 9
 # DONE
 // Half Done
 -- Kinda done?
+~~ Aparcao
