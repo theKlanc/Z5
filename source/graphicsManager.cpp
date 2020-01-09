@@ -2,8 +2,6 @@
 #include "HardwareInterface/HardwareInterface.hpp"
 #include <iostream>
 
-using namespace std;
-
 graphicsManager::~graphicsManager() {
 	freeAllTextures();
 	std::cout
@@ -11,29 +9,80 @@ graphicsManager::~graphicsManager() {
 		"check for unnecessary copies of the graphicsManager object"
 		<< std::endl;
 }
-
-bool graphicsManager::isTextureLoaded(string textureFile)
-const { // tells if a texture with said name is present on texTable
-	return texAtlas.find(textureFile) != texAtlas.end();
+sprite *graphicsManager::loadSprite(std::string name)
+{
+	if(_spriteAtlas.find(name) != _spriteAtlas.end()){
+		return &_spriteAtlas.find(name)->second;
+	}
+	else{
+		HI2::Texture* tex = loadTexture(name);
+		frame f;
+		f.size=HI2::getTextureSize(*tex);
+		f.startPos={0,0};
+		std::vector<frame> frameVector;
+		frameVector.push_back(f);
+		return &(_spriteAtlas[name] = sprite(tex,frameVector));
+	}
+}
+sprite *graphicsManager::loadSprite(std::string name, std::string textureName)
+{
+	if(_spriteAtlas.find(name) != _spriteAtlas.end()){
+		return &_spriteAtlas.find(name)->second;
+	}
+	else{
+		HI2::Texture* tex = loadTexture(textureName);
+		frame f;
+		f.size=HI2::getTextureSize(*tex);
+		f.startPos={0,0};
+		std::vector<frame> frameVector;
+		frameVector.push_back(f);
+		return &(_spriteAtlas[name] = sprite(tex,frameVector));
+	}
+}
+sprite *graphicsManager::loadSprite(std::string name, std::string textureName, std::vector<frame> frames)
+{
+	if(_spriteAtlas.find(name) != _spriteAtlas.end()){
+		return &_spriteAtlas.find(name)->second;
+	}
+	else{
+		return &(_spriteAtlas[name] = sprite(loadTexture(textureName),frames));
+	}
 }
 
-HI2::Texture* graphicsManager::loadTexture(string spriteName) { // load a texture from a file into the first free space inside texTable[]
+bool graphicsManager::isSpriteLoaded(std::string spriteFile) const
+{
+	return _spriteAtlas.find(spriteFile)!=_spriteAtlas.end();
+}
+
+void graphicsManager::freeSprite(std::string spriteName)
+{
+	_spriteAtlas.erase(spriteName);
+}
+
+sprite *graphicsManager::getSprite(std::string spriteName)
+{
+	auto it = _spriteAtlas.find(spriteName);
+	if(it==_spriteAtlas.end())
+		return nullptr;
+	return &it->second;
+}
+
+void graphicsManager::freeAllSprites()
+{
+	freeAllTextures();
+}
+
+bool graphicsManager::isTextureLoaded(std::string textureFile)
+const { // tells if a texture with said name is present on texTable
+	return _texAtlas.find(textureFile) != _texAtlas.end();
+}
+
+HI2::Texture* graphicsManager::loadTexture(std::string spriteName) { // load a texture from a file into the first free space inside texTable[]
 	std::filesystem::path fileNameWithoutExt = (HI2::getDataPath() /= "sprites") /= (spriteName);
 	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".png";
-	if (texAtlas.find(spriteName) == texAtlas.end()) {
+	if (_texAtlas.find(spriteName) == _texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
-			texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
-		}
-		else if(std::filesystem::exists(fileNameWithoutExt.string() + "_1.png"))
-		{
-			int frameCounter = 1;
-			std::vector<std::filesystem::path> pathList;
-			while(std::filesystem::exists(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png"))
-			{
-				pathList.push_back(fileNameWithoutExt.string() +"_" + std::to_string(frameCounter) + ".png");
-				frameCounter++;
-			}
-			texAtlas.insert(make_pair(spriteName, HI2::Texture(pathList,0.2)));
+			_texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
 		}
 		else {
 			std::cout << "Texture at " << completeFileName << " not found"
@@ -41,20 +90,20 @@ HI2::Texture* graphicsManager::loadTexture(string spriteName) { // load a textur
 			return nullptr;
 		}
 	}
-	return &(texAtlas.find(spriteName)->second);
+	return &(_texAtlas.find(spriteName)->second);
 }
 
-void graphicsManager::freeTexture(string spriteName) { // frees a texture from texTable[]
-	auto it = texAtlas.find(spriteName);
-	if (it != texAtlas.end()) {
+void graphicsManager::freeTexture(std::string spriteName) { // frees a texture from texTable[]
+	auto it = _texAtlas.find(spriteName);
+	if (it != _texAtlas.end()) {
 		it->second.clean();
-		texAtlas.erase(it);
+		_texAtlas.erase(it);
 	}
 }
 
-HI2::Texture* graphicsManager::getTexture(string spriteName) {
-	auto it = texAtlas.find(spriteName);
-	if (it == texAtlas.end()) {
+HI2::Texture* graphicsManager::getTexture(std::string spriteName) {
+	auto it = _texAtlas.find(spriteName);
+	if (it == _texAtlas.end()) {
 		std::cout << ("Texture " + spriteName + " not loaded \n") << std::endl;
 		return nullptr;
 	}
@@ -64,14 +113,35 @@ HI2::Texture* graphicsManager::getTexture(string spriteName) {
 
 void graphicsManager::stepAnimations(double s)
 {
-	for(auto& tex : texAtlas)
+	for(auto& sprite : _spriteAtlas)
 	{
-		tex.second.step(s);
+		sprite.second.step(s);
 	}
 }
 
 void graphicsManager::freeAllTextures() { // frees all textures
-	for (auto it : texAtlas) {
+	for (auto it : _texAtlas) {
 		it.second.clean();
 	}
+}
+
+HI2::Texture *sprite::getTexture()
+{
+	return _texture;
+}
+
+frame &sprite::getCurrentFrame()
+{
+	return *_currentFrame;
+}
+
+void sprite::step(double s)
+{
+	_timeAccumulator+=s;
+	while(_timeAccumulator>_timeStep){
+		_currentIndex++;
+		_timeAccumulator-=_timeStep;
+	}
+	_currentIndex%=_frames.size();
+	_currentFrame=&_frames[_currentIndex];
 }

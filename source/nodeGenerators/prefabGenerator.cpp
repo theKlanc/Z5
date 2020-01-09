@@ -26,3 +26,13 @@ terrainChunk prefabGenerator::getChunk(const point3Di& p)const
 	chunk.setLoaded();
 	return chunk;
 }
+
+baseBlock &prefabGenerator::getTopBlock(const point2D &p) const
+{
+	return baseBlock::terrainTable[0];
+}
+
+int prefabGenerator::getHeight(const point2D &p) const
+{
+	return 0;
+}

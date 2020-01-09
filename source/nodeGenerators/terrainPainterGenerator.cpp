@@ -2,7 +2,7 @@
 #include "terrainChunk.hpp"
 #include "fdd.hpp"
 
-terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diameter) : nodeGenerator(s), _diameter(diameter)
+terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diameter) : nodeGenerator(seed), _diameter(diameter)
 {
 	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
 	_noiseGenerator.SetFractalGain(0.4);//0.7
@@ -303,5 +303,10 @@ void from_json(const nlohmann::json &j, terrainPainterGenerator &tpg)
 	tpg._emptyBlockID = j.at("emptyBlockID").get<unsigned>();
 	tpg._seed = j.at("seed").get<unsigned>();
 	tpg._terrainPainter = j.at("terrainPainter").get<terrainPainter>();
+}
+
+baseBlock &terrainPainterGenerator::getTopBlock(const point2D &p) const
+{
+	return baseBlock::terrainTable[0];
 }
 

@@ -6,6 +6,7 @@
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "states/state_playing.hpp"
 #include <iostream>
+#include "nodeGenerators/nullGenerator.hpp"
 
 
 void universeNode::clean()
@@ -170,31 +171,31 @@ void universeNode::connectGenerator()
 {
 	switch (_type) {
 	case STAR:
-		_generator = std::make_unique<starGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case BLACK_HOLE:
-		_generator = std::make_unique<blackHoleGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case PLANET_GAS:
-		_generator = std::make_unique<gasPlanetGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case PLANET_ROCK:
 		_generator = std::make_unique<terrainPainterGenerator>(_ID, _diameter);
 		break;
 	case ASTEROID:
-		_generator = std::make_unique<asteroidGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case SATELLITE_NATURAL:
-		_generator = std::make_unique<naturalSatelliteGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case SATELLITE_ARTIFICIAL:
-		_generator = std::make_unique<artificialSatelliteGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case SPACE_STATION:
-		_generator = std::make_unique<spaceStationGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	case SPACESHIP:
-		_generator = std::make_unique<prefabGenerator>();
+		_generator = std::make_unique<nullGenerator>();
 		break;
 	}
 }

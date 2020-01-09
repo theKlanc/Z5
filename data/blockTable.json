@@ -1,7 +1,7 @@
 [
   {
     "name": "null",
-	"ID": 0,
+    "ID": 0,
     "visible": false,
     "solid": false,
     "opaque": false,
@@ -9,7 +9,7 @@
   },
   {
     "name": "empty",
-	"ID": 1,
+    "ID": 1,
     "visible": false,
     "solid": false,
     "opaque": false,
@@ -17,7 +17,7 @@
   },
   {
     "name": "air",
-	"ID": 2,
+    "ID": 2,
     "visible": false,
     "solid": false,
     "opaque": false,
@@ -25,154 +25,511 @@
   },
   {
     "name": "water",
-	"ID": 3,
+    "ID": 3,
     "visible": true,
     "solid": false,
     "opaque": false,
-    "mass": 997
+    "mass": 997,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 48
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 64
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 80
+        }
+      ]
+    }
   },
   {
     "name": "dirt",
-	"ID": 4,
+    "ID": 4,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 1220
+    "mass": 1220,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 0
+        }
+      ]
+    }
   },
   {
     "name": "grass",
-	"ID": 5,
+    "ID": 5,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 1220
+    "mass": 1220,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 0
+        }
+      ]
+    }
   },
   {
     "name": "andesite",
-	"ID": 6,
+    "ID": 6,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 2600
+    "mass": 2600,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 48
+        }
+      ]
+    }
   },
   {
     "name": "moon_soil",
-	"ID": 7,
+    "ID": 7,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 1500
+    "mass": 1500,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 48
+        }
+      ]
+    }
   },
   {
     "name": "wood",
-	"ID": 8,
+    "ID": 8,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 700
+    "mass": 700,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 128,
+          "startY": 0
+        }
+      ]
+    }
   },
   {
     "name": "leaves",
-	"ID": 9,
+    "ID": 9,
     "visible": true,
     "solid": false,
     "opaque": false,
-    "mass": 30
+    "mass": 30,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 0
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 16
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 0
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 32
+        }
+      ]
+    }
   },
   {
     "name": "sand",
-	"ID": 10,
+    "ID": 10,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 1500
+    "mass": 1500,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 48
+        }
+      ]
+    }
   },
   {
     "name": "glass",
-	"ID": 11,
+    "ID": 11,
     "visible": true,
     "solid": true,
     "opaque": false,
-    "mass": 105
+    "mass": 105,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "glassClean",
+    "ID": 12,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 105,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 16
+        }
+      ]
+    }
   },
   {
     "name": "steelplate",
-	"ID": 12,
+    "ID": 13,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "steelplateClean",
+    "ID": 14,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 16
+        }
+      ]
+    }
+  },
+  {
+    "name": "steelplateBroken",
+    "ID": 15,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 32
+        }
+      ]
+    }
   },
   {
     "name": "snow",
-	"ID": 13,
+    "ID": 16,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 48
+        }
+      ]
+    }
   },
   {
     "name": "deepGrass",
-	"ID": 14,
+    "ID": 17,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 112,
+          "startY": 0
+        }
+      ]
+    }
   },
   {
     "name": "panelData",
-	"ID": 15,
+    "ID": 18,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 0
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 16
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 32
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 48
+        }
+      ]
+    }
   },
   {
     "name": "panelMap",
-	"ID": 16,
+    "ID": 19,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 208,
+          "startY": 0
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 208,
+          "startY": 16
+        }
+      ]
+    }
   },
   {
     "name": "redChair",
-	"ID": 17,
+    "ID": 20,
     "visible": true,
     "solid": false,
     "opaque": true,
-    "mass": 8
+    "mass": 8,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 0
+        }
+      ]
+    }
   },
   {
     "name": "table_center",
-	"ID": 18,
+    "ID": 21,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 12
+    "mass": 12,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 32
+        }
+      ]
+    }
   },
   {
     "name": "table_side",
-	"ID": 19,
+    "ID": 22,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 12
+    "mass": 12,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 16
+        }
+      ]
+    }
   },
   {
     "name": "table_corner",
-	"ID": 20,
+    "ID": 23,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 12
+    "mass": 12,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 16
+        }
+      ]
+    }
+  },
+  {
+    "name": "table_small",
+    "ID": 24,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 12,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 32
+        }
+      ]
+    }
   },
   {
     "name": "turntable",
-	"ID": 21,
+    "ID": 25,
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 8
-  }  
+    "mass": 8,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 0
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 16
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 32
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 48
+        }
+      ]
+    }
+  }
 ]

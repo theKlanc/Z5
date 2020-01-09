@@ -268,8 +268,9 @@ void State::Playing::draw(double dt) {
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
 	{
-		HI2::setTextureColorMod(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
+		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
+		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
+		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4,s.getCurrentFrame().size,s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
@@ -306,14 +307,14 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
-			const drawable& sprite = registry->get<drawable>(entity);
+			const drawable& drw = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
 			if (config::drawDepthShadows) {
-				HI2::setTextureColorMod(*sprite.sprite, HI2::Color(mask, mask, mask, 0));
+				HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 			}
-			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
+			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y,drw.spr->getCurrentFrame().size,drw.spr->getCurrentFrame().startPos, zoom, localPos.r);
 			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
@@ -373,7 +374,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					if (b.base->ID!=0) {
 						if (b.base->visible)
 						{
-							HI2::drawTextureOverlap(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos,b.base->spr->getCurrentFrame().size,b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 						}
 					}
 				}
@@ -399,7 +400,7 @@ void State::Playing::loadTerrainTable()
 	j.get_to(_terrainTable);
 	for (baseBlock& b : _terrainTable) {
 		if (b.visible) {
-			b.texture = Services::graphics.loadTexture(b.name);
+			b.spr = Services::graphics.loadSprite(b.name,"spritesheet");
 		}
 	}
 	baseBlock::terrainTable = _terrainTable;
@@ -513,7 +514,7 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-		playerSprite.sprite = Services::graphics.loadTexture("player3");
+		playerSprite.spr = Services::graphics.loadSprite("player3");
 		playerSprite.name = "player3";
 
 
@@ -566,7 +567,7 @@ void State::Playing::createEntities()
 		entt::entity dog = _enttRegistry.create();
 
 		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-		dogSprite.sprite = Services::graphics.loadTexture("dog");
+		dogSprite.spr = Services::graphics.loadSprite("dog");
 		dogSprite.name = "dog";
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
@@ -614,7 +615,7 @@ void State::Playing::createEntities()
 			entt::entity ball = _enttRegistry.create();
 
 			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
-			ballSprite.sprite = Services::graphics.loadTexture("ball");
+			ballSprite.spr = Services::graphics.loadSprite("ball");
 			ballSprite.name = "ball";
 
 			auto& ballPos = _enttRegistry.assign<position>(ball);
@@ -671,7 +672,7 @@ void State::Playing::fixEntities()
 	auto drawableEntities = _enttRegistry.view<drawable>();
 	for (const entt::entity& entity : drawableEntities) {
 		drawable& d = _enttRegistry.get<drawable>(entity);
-		d.sprite = Services::graphics.loadTexture(d.name);
+		d.spr = Services::graphics.loadSprite(d.name);
 	}
 	//body
 	auto bodyEntities = _enttRegistry.view<body>();

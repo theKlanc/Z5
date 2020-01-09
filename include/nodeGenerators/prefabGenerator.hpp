@@ -5,6 +5,8 @@ class prefabGenerator : public nodeGenerator{
 	public:
 	prefabGenerator(): nodeGenerator(){}
 	prefabGenerator(unsigned int s): nodeGenerator(s){}
-	virtual ~prefabGenerator(){}
+	~prefabGenerator() override{}
 	terrainChunk getChunk(const point3Di& p)const override;
+	baseBlock& getTopBlock(const point2D& p) const override;
+	int getHeight(const point2D& p) const override;
 };

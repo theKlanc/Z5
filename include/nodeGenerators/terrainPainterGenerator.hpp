@@ -5,6 +5,7 @@
 class terrainSection
 {
 public:
+	terrainSection():_block(baseBlock::terrainTable[0]){}
 	terrainSection(double noise, int sectionWidth, baseBlock& b, baseBlock* surfaceBlock = nullptr);
 	double getNoiseCeiling() const;
 	double getSectionWidth() const;
@@ -44,9 +45,10 @@ class terrainPainterGenerator : public nodeGenerator{
 public:
 	terrainPainterGenerator(){}
 	terrainPainterGenerator(unsigned int s, unsigned diameter);
-	virtual ~terrainPainterGenerator(){}
+	virtual ~terrainPainterGenerator() override{}
 	terrainChunk getChunk(const point3Di& p)const override;
 	int getHeight(const point2D &p)const override;
+	baseBlock& getTopBlock(const point2D& p) const override;
 
 	friend void to_json(nlohmann::json &j, const terrainPainterGenerator &tpg);
 	friend void from_json(const json& j, terrainPainterGenerator &tpg);

@@ -12,7 +12,7 @@ State::Demo::Demo(gameCore& c) : State_Base(c) {
 	pixelSpd.y = 100;
 	pixelPos.x = 60;
 	pixelPos.y = 60;
-	texture = Services::graphics.loadTexture("test");
+	s = Services::graphics.loadSprite("test","test");
 	font = Services::fonts.loadFont("test");
 	effect = Services::audio.loadAudio("sfx/oof");
 }
@@ -81,8 +81,8 @@ void State::Demo::update(double dt) {
 
 void State::Demo::draw(double dt) {
 	HI2::startFrame();
-	if (texture != nullptr)
-		HI2::drawTexture(*texture, 0, 0, 1);
+	if (s != nullptr)
+		HI2::drawTexture(*s->getTexture(), 0, 0, 1);
 	auto& down = HI2::getKeysDown();
 	int pos = 0;
 	for(int i = 0; i < HI2::BUTTON_SIZE;++i){

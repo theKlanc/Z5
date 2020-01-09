@@ -4,9 +4,9 @@
 namespace config {
 	constexpr int chunkLoadDiameter
 #ifdef __SWITCH__
-	= 2;
+	                                = 2;
 #else
-	= 14;
+	                                = 14;
 #endif
 
 	constexpr int chunkSize = 4;
@@ -19,10 +19,9 @@ namespace config {
 
 	constexpr double physicsHz
 #ifdef __SWITCH__
-	= 2;
-
+	                           = 2;
 #else
-	= 120;
+	                           = 120;
 #endif
 
 	constexpr unsigned physicsSolverIterations = 5;
