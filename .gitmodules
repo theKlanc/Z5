@@ -5,7 +5,7 @@
 	update = merge
 [submodule "deps/json"]
 	path = deps/json
-	url = https://github.com/nlohmann/json
+	url = https://github.com/theKlanc/json
 [submodule "deps/reactPhysics3D"]
 	url = https://github.com/theKlanc/reactphysics3d
 [submodule "deps/FastNoise"]
