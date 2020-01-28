@@ -114,6 +114,7 @@ void State::MainMenu::update(double dt) {
 				_newGamePanel.saveName->setHintColor(HI2::Color::Red);
 		}
 	}
+	bool regen = false;
 	for (save& s : _continuePanel.saves) {
 		if (s.startButton->isRisingInside()) {
 			s.p->update(dt);
@@ -131,10 +132,12 @@ void State::MainMenu::update(double dt) {
 			s.p->update(dt);
 			_continuePanel.p->removeGadget(s.p);
 			HI2::deleteDirectory(s.path);
-			regenerateSavesVector();
+			regen=true;
 			break;
 		}
 	}
+	if(regen)
+		regenerateSavesVector();
 }
 
 void State::MainMenu::draw(double dt) {
@@ -152,6 +155,7 @@ void State::MainMenu::regenerateSavesVector()
 	sprite delete_on = *Services::graphics.loadSprite("UI/buttons/delete_button_on","UI/buttons/delete_button_on");
 	sprite play_off = *Services::graphics.loadSprite("UI/buttons/play_button_off","UI/buttons/play_button_off");
 	sprite delete_off = *Services::graphics.loadSprite("UI/buttons/delete_button_off","UI/buttons/delete_button_off");
+	_continuePanel.p->clear();
 	_continuePanel.saves.clear();
 	for (auto& s : std::filesystem::directory_iterator(HI2::getSavesPath())) {
 		save savePanel;

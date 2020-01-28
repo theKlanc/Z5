@@ -122,3 +122,9 @@ void panel::removeGadget(std::shared_ptr<gadget> g)
 	auto it = std::find(_gadgets.begin(),_gadgets.end(),g);
 	_gadgets.erase(it);
 }
+
+void panel::clear()
+{
+	_gadgets.clear();
+	_selected = nullptr;
+}

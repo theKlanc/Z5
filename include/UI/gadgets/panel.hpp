@@ -15,6 +15,7 @@ public:
 
 	void addGadget(std::shared_ptr<gadget> g);
 	void removeGadget(std::shared_ptr<gadget>g);
+	void clear();
 
 
 protected:
