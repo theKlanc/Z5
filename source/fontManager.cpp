@@ -56,4 +56,5 @@ void fontManager::freeAllFonts() { // frees all fonts
 	for (auto it : fontAtlas) {
 		it.second.clean();
 	}
+	fontAtlas.clear();
 }

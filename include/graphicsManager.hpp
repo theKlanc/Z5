@@ -44,13 +44,13 @@ class graphicsManager {
 	void freeAllSprites();
 
 	void stepAnimations(double s);
-
+	
+	void freeAllTextures();
   private:
 	bool isTextureLoaded(std::string textureFile) const;
 	HI2::Texture* loadTexture(std::string fileName);
 	void freeTexture(std::string textureName);
 	HI2::Texture* getTexture(std::string textureName);
-	void freeAllTextures();
 	std::unordered_map<std::string, HI2::Texture> _texAtlas;
 
 	std::unordered_map<std::string, sprite> _spriteAtlas;

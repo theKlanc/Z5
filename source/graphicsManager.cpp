@@ -69,7 +69,7 @@ sprite *graphicsManager::getSprite(std::string spriteName)
 
 void graphicsManager::freeAllSprites()
 {
-	freeAllTextures();
+	_spriteAtlas.clear();
 }
 
 bool graphicsManager::isTextureLoaded(std::string textureFile)
@@ -123,6 +123,7 @@ void graphicsManager::freeAllTextures() { // frees all textures
 	for (auto it : _texAtlas) {
 		it.second.clean();
 	}
+	_texAtlas.clear();
 }
 
 std::string_view sprite::getTextureName()

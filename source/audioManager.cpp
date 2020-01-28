@@ -56,4 +56,5 @@ void audioManager::freeAllAudio() { // frees all audio
 	for (auto it : audioAtlas) {
 		it.second.clean();
 	}
+	audioAtlas.clear();
 }
