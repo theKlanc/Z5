@@ -19,7 +19,7 @@ private:
 	double _noiseCeiling;
 	int _sectionWidth;
 	baseBlock& _block;
-	baseBlock* _surfaceBlock;
+	baseBlock* _surfaceBlock = nullptr;
 
 };
 
@@ -49,8 +49,8 @@ public:
 	terrainChunk getChunk(const point3Di& p)const override;
 	int getHeight(const point2D &p)const override;
 	baseBlock& getTopBlock(const point2D& p) const override;
+	nlohmann::json getJson() const override;
 
-	friend void to_json(nlohmann::json &j, const terrainPainterGenerator &tpg);
 	friend void from_json(const json& j, terrainPainterGenerator &tpg);
 private:
 	unsigned _diameter;
@@ -71,5 +71,4 @@ void to_json(nlohmann::json &j, const terrainSection &ts);
 void from_json(const json& j, terrainSection &ts);
 void to_json(nlohmann::json &j, const terrainPainter &tp);
 void from_json(const json& j, terrainPainter &tp);
-void to_json(nlohmann::json &j, const terrainPainterGenerator &tpg);
 void from_json(const json& j, terrainPainterGenerator &tpg);

@@ -51,7 +51,7 @@ universeNode::universeNode(std::string name, double mass, double diameter, fdd p
 		_depth = _parent->_depth + 1;
 	}
 	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter);
-	connectGenerator();
+	connectGenerator({{"type","null"}});
 	populateColliders();
 }
 
@@ -167,36 +167,22 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 				(int)floor((double)pos.z / config::chunkSize) };
 }
 
-void universeNode::connectGenerator()
+void universeNode::connectGenerator(const nlohmann::json& j)
 {
-	switch (_type) {
-	case STAR:
+	if(j.contains("type")){
+		std::string type = j.at("type");
+		if(type == "prefab"){
+			_generator = std::make_unique<prefabGenerator>(j.at("generator").get<prefabGenerator>());
+		}
+		else if(type == "terrainPainter"){
+			_generator = std::make_unique<terrainPainterGenerator>(j.at("generator").get<terrainPainterGenerator>());
+		}
+		else{
+			_generator = std::make_unique<nullGenerator>();
+		}
+	}
+	else{
 		_generator = std::make_unique<nullGenerator>();
-		break;
-	case BLACK_HOLE:
-		_generator = std::make_unique<nullGenerator>();
-		break;
-	case PLANET_GAS:
-		_generator = std::make_unique<nullGenerator>();
-		break;
-	case PLANET_ROCK:
-		_generator = std::make_unique<terrainPainterGenerator>(_ID, _diameter);
-		break;
-	case ASTEROID:
-		_generator = std::make_unique<nullGenerator>();
-		break;
-	case SATELLITE_NATURAL:
-		_generator = std::make_unique<nullGenerator>();
-		break;
-	case SATELLITE_ARTIFICIAL:
-		_generator = std::make_unique<nullGenerator>();
-		break;
-	case SPACE_STATION:
-		_generator = std::make_unique<nullGenerator>();
-		break;
-	case SPACESHIP:
-		_generator = std::make_unique<nullGenerator>();
-		break;
 	}
 }
 
@@ -420,7 +406,9 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_velocity = u._velocity;
 	_parent = u._parent;
 	_mass = u._mass;
-	connectGenerator();
+	nlohmann::json jTemp;
+	to_json(jTemp,*u._generator.get());
+	connectGenerator(jTemp);
 	return *this;
 }
 
@@ -589,7 +577,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID} };
+			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()} };
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -614,7 +602,11 @@ void from_json(const json& j, universeNode& f) {
 	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
-
-	f.connectGenerator();
+	nlohmann::json jt;
+	if(j.contains("generator")){
+		jt = j.at("generator");
+		std::cout << f._name << "has a generator"<<std::endl;
+	}
+	f.connectGenerator(jt);
 	f.populateColliders();
 }

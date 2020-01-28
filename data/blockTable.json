@@ -50,6 +50,12 @@
           "sizeY": 16,
           "startX": 0,
           "startY": 80
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 64
         }
       ]
     }
@@ -528,6 +534,63 @@
           "sizeY": 16,
           "startX": 224,
           "startY": 48
+        }
+      ]
+    }
+  },
+  {
+    "name": "plant_1",
+    "ID": 26,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 0.1,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "plant_2",
+    "ID": 27,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 0.1,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 16
+        }
+      ]
+    }
+  },
+  {
+    "name": "flower",
+    "ID": 28,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 0.1,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 176,
+          "startY": 0
         }
       ]
     }

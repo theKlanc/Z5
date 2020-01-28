@@ -1,6 +1,10 @@
 #pragma once
 #include "HardwareInterface/HardwareInterface.hpp"
 #include <unordered_map>
+#include "json.hpp"
+
+using nlohmann::json;
+
 struct frame{
 	point2D startPos;
 	point2D size;
@@ -8,19 +12,23 @@ struct frame{
 
 class sprite{
 public:
-	sprite(){};
-	sprite(HI2::Texture* tex, std::vector<frame> frames):_texture(tex),_frames(frames),_currentFrame(&_frames[_currentIndex]){}
+	sprite(){}
+	sprite(HI2::Texture* tex, std::vector<frame> frames, std::string textureName):_texture(tex),_frames(frames),_currentFrame(&_frames[_currentIndex]),_textureName(textureName){}
 
+	std::string_view getTextureName();
 	HI2::Texture* getTexture();
 	frame& getCurrentFrame();
 	void step(double s);
+	std::vector<frame>& getAllFrames();
+
 private:
 	HI2::Texture* _texture;
-	std::vector<frame> _frames;
-	frame* _currentFrame;
+	std::string _textureName;
 	unsigned _currentIndex = 0;
 	double _timeAccumulator = 0;
 	double _timeStep = 0.2;
+	std::vector<frame> _frames;
+	frame* _currentFrame;
 };
 
 class graphicsManager {
@@ -47,3 +55,6 @@ class graphicsManager {
 
 	std::unordered_map<std::string, sprite> _spriteAtlas;
 };
+
+void to_json(json& j, const frame& b);
+void from_json(const json& j, frame& b);

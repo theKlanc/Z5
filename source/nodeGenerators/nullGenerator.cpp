@@ -15,3 +15,13 @@ int nullGenerator::getHeight(const point2D &p) const
 {
 	return 0;
 }
+
+nlohmann::json nullGenerator::getJson() const
+{
+	return json{{"type","null"},{"generator",{ } } };
+}
+
+void from_json(const nlohmann::json &j, nullGenerator &ng)
+{
+	ng = nullGenerator();
+}

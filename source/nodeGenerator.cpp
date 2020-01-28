@@ -20,3 +20,7 @@ double nodeGenerator::getNoise(point2D p) const
 {
 	return (_noiseGenerator.GetNoise(p.x, p.y) + 1) / 2;
 }
+void to_json(nlohmann::json &j, const nodeGenerator &ng)
+{
+	j = ng.getJson();
+}

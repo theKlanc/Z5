@@ -21,7 +21,7 @@ sprite *graphicsManager::loadSprite(std::string name)
 		f.startPos={0,0};
 		std::vector<frame> frameVector;
 		frameVector.push_back(f);
-		return &(_spriteAtlas[name] = sprite(tex,frameVector));
+		return &(_spriteAtlas[name] = sprite(tex,frameVector,name));
 	}
 }
 sprite *graphicsManager::loadSprite(std::string name, std::string textureName)
@@ -36,7 +36,7 @@ sprite *graphicsManager::loadSprite(std::string name, std::string textureName)
 		f.startPos={0,0};
 		std::vector<frame> frameVector;
 		frameVector.push_back(f);
-		return &(_spriteAtlas[name] = sprite(tex,frameVector));
+		return &(_spriteAtlas[name] = sprite(tex,frameVector,textureName));
 	}
 }
 sprite *graphicsManager::loadSprite(std::string name, std::string textureName, std::vector<frame> frames)
@@ -45,7 +45,7 @@ sprite *graphicsManager::loadSprite(std::string name, std::string textureName, s
 		return &_spriteAtlas.find(name)->second;
 	}
 	else{
-		return &(_spriteAtlas[name] = sprite(loadTexture(textureName),frames));
+		return &(_spriteAtlas[name] = sprite(loadTexture(textureName),frames,textureName));
 	}
 }
 
@@ -125,6 +125,11 @@ void graphicsManager::freeAllTextures() { // frees all textures
 	}
 }
 
+std::string_view sprite::getTextureName()
+{
+	return _textureName;
+}
+
 HI2::Texture *sprite::getTexture()
 {
 	return _texture;
@@ -142,6 +147,25 @@ void sprite::step(double s)
 		_currentIndex++;
 		_timeAccumulator-=_timeStep;
 	}
-	_currentIndex%=_frames.size();
+	_currentIndex = _currentIndex % _frames.size();
 	_currentFrame=&_frames[_currentIndex];
+}
+
+std::vector<frame> &sprite::getAllFrames()
+{
+	return _frames;
+}
+
+void to_json(nlohmann::json &j, const frame &b)
+{
+	j = json{ {"sizeX", b.size.x},{"sizeY", b.size.y},
+	{"startX", b.startPos.x},{"startY", b.startPos.y}};
+}
+
+void from_json(const nlohmann::json &j, frame &b)
+{
+	b.size.x = j.at("sizeX").get<int>();
+	b.size.y = j.at("sizeY").get<int>();
+	b.startPos.x = j.at("startX").get<int>();
+	b.startPos.y = j.at("startY").get<int>();
 }

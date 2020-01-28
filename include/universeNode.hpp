@@ -95,7 +95,7 @@ public:
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
 	point3Di chunkFromPos(const point3Di& pos);
-	void connectGenerator();
+	void connectGenerator(const nlohmann::json& j);
 
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);

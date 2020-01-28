@@ -255,6 +255,7 @@ deps/entt/signal/emitter.hpp
 deps/entt/signal/emitter.hpp
 deps/entt/signal/sigh.hpp
 deps/entt/signal/sigh.hpp
+deps/json/single_include/nlohmann/json.hpp
 deps/reactPhysics3D/src/body/Body.cpp
 deps/reactPhysics3D/src/body/Body.h
 deps/reactPhysics3D/src/body/CollisionBody.cpp

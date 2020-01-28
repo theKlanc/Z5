@@ -1,6 +1,7 @@
 #include "nodeGenerators/terrainPainterGenerator.hpp"
 #include "terrainChunk.hpp"
 #include "fdd.hpp"
+#include <iostream>
 
 terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diameter) : nodeGenerator(seed), _diameter(diameter)
 {
@@ -21,11 +22,11 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 	_terrainPainter.addSection(terrainSection(0.5, 5, baseBlock::terrainTable[10])); // surface sand
 	_terrainPainter.addSection(terrainSection(0.6, 40, baseBlock::terrainTable[4], &baseBlock::terrainTable[5])); //grassdirt
 	_terrainPainter.addSection(terrainSection(0.601, 1, baseBlock::terrainTable[5])); //grassTop
-	_terrainPainter.addSection(terrainSection(0.65, 10, baseBlock::terrainTable[14])); //deep grass
+	_terrainPainter.addSection(terrainSection(0.65, 10, baseBlock::terrainTable[17])); //deep grass
 	_terrainPainter.addSection(terrainSection(0.7, 60, baseBlock::terrainTable[6])); //stone
-	_terrainPainter.addSection(terrainSection(0.75, 40, baseBlock::terrainTable[6], &baseBlock::terrainTable[13])); //snowstone
-	_terrainPainter.addSection(terrainSection(0.8, 40, baseBlock::terrainTable[13])); //snow
-	_terrainPainter.addSection(terrainSection(1, 10, baseBlock::terrainTable[13])); //snow
+	_terrainPainter.addSection(terrainSection(0.75, 40, baseBlock::terrainTable[6], &baseBlock::terrainTable[16])); //snowstone
+	_terrainPainter.addSection(terrainSection(0.8, 40, baseBlock::terrainTable[16])); //snow
+	_terrainPainter.addSection(terrainSection(1, 10, baseBlock::terrainTable[16])); //snow
 
 	_liquidLevel=240;
 	_liquidID = 3;
@@ -258,13 +259,6 @@ void terrainPainter::setEmptyBlock(baseBlock* emptyBlock)
 	_emptyBlock = emptyBlock;
 }
 
-void to_json(nlohmann::json &j, const terrainPainterGenerator &tpg)
-{
-	j = json{ {"diameter", tpg._diameter},			{"liquidLevel", tpg._liquidLevel},
-			 {"liquidID", tpg._liquidID}, {"emptyBlockID", tpg._emptyBlockID},
-			 {"seed", tpg._seed},{"terrainPainter", tpg._terrainPainter} };
-}
-
 void to_json(nlohmann::json &j, const terrainPainter &tp)
 {
 	j = json{ {"emptyBlockID", tp._emptyBlock->ID},{"sections", tp._terrainList}};
@@ -285,6 +279,7 @@ void from_json(const nlohmann::json &j, terrainSection &ts)
 	ts._block = baseBlock::terrainTable[j.at("baseBlockID").get<unsigned>()];
 	if (j.contains("surfaceBlock"))
 	{
+		std::cout << "Section of nc" << ts._noiseCeiling << " contains surfaceBlock" << std::endl;
 		ts._surfaceBlock = &baseBlock::terrainTable[j.at("surfaceBlock").get<unsigned>()];
 	}
 }
@@ -308,5 +303,12 @@ void from_json(const nlohmann::json &j, terrainPainterGenerator &tpg)
 baseBlock &terrainPainterGenerator::getTopBlock(const point2D &p) const
 {
 	return baseBlock::terrainTable[0];
+}
+
+nlohmann::json terrainPainterGenerator::getJson() const
+{
+	return json{{"type","terrainPainter"},{"generator",{ {"diameter", _diameter},			{"liquidLevel", _liquidLevel},
+			 {"liquidID", _liquidID}, {"emptyBlockID", _emptyBlockID},
+			 {"seed", _seed},{"terrainPainter", _terrainPainter} }}};
 }
 

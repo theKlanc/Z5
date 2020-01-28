@@ -36,3 +36,13 @@ int prefabGenerator::getHeight(const point2D &p) const
 {
 	return 0;
 }
+
+nlohmann::json prefabGenerator::getJson() const
+{
+	return json{{"type","prefab"},{"generator",{ {"stub", "stub"} }}};
+}
+
+void from_json(const nlohmann::json &j, prefabGenerator &pg)
+{
+	pg = prefabGenerator();
+}

@@ -15,7 +15,6 @@ CXXFLAGS := -std=c++17
 LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs -lSDL2_mixer
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
-
 BUILDTYPE := Release
 ifeq ($(DEBUG), 1)
 FLAGS := $(FLAGS) -DDEBUG -Og -ggdb3 -fstack-protector-all
