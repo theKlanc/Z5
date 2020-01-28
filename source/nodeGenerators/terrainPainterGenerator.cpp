@@ -3,6 +3,15 @@
 #include "fdd.hpp"
 #include <iostream>
 
+terrainPainterGenerator::terrainPainterGenerator()
+{
+	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
+	_noiseGenerator.SetFractalGain(0.4);//0.7
+	_noiseGenerator.SetFrequency(0.0004f);//0.002
+	_noiseGenerator.SetFractalLacunarity(3);//2
+	_noiseGenerator.SetFractalOctaves(5);//5?
+}
+
 terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diameter) : nodeGenerator(seed), _diameter(diameter)
 {
 	_noiseGenerator.SetNoiseType(FastNoise::SimplexFractal); // Set the desired noise type
@@ -134,7 +143,7 @@ void terrainPainterGenerator::placeTree(terrainChunk& c, const point3Di p)const
 
 
 
-terrainSection::terrainSection(double noise, int sectionWidth, baseBlock& b, baseBlock* surfaceBlock) : _block(b)
+terrainSection::terrainSection(double noise, int sectionWidth, baseBlock& b, baseBlock* surfaceBlock) : _block(&b)
 {
 	_noiseCeiling = noise;
 	_sectionWidth = sectionWidth;
@@ -153,7 +162,7 @@ double terrainSection::getSectionWidth() const
 
 baseBlock& terrainSection::getBlock() const
 {
-	return _block;
+	return *_block;
 }
 
 baseBlock* terrainSection::getSurfaceBlock() const
@@ -266,7 +275,7 @@ void to_json(nlohmann::json &j, const terrainPainter &tp)
 
 void to_json(nlohmann::json &j, const terrainSection &ts)
 {
-	j = json{ {"noiseCeiling", ts._noiseCeiling},{"sectionWidth", ts._sectionWidth},{"baseBlockID",ts._block.ID}};
+	j = json{ {"noiseCeiling", ts._noiseCeiling},{"sectionWidth", ts._sectionWidth},{"baseBlockID",ts._block->ID}};
 	if(ts._surfaceBlock!=nullptr){
 		j.push_back({"surfaceBlock",ts._surfaceBlock->ID});
 	}
@@ -276,7 +285,7 @@ void from_json(const nlohmann::json &j, terrainSection &ts)
 {
 	ts._noiseCeiling = j.at("noiseCeiling").get<double>();
 	ts._sectionWidth = j.at("sectionWidth").get<int>();
-	ts._block = baseBlock::terrainTable[j.at("baseBlockID").get<unsigned>()];
+	ts._block = &baseBlock::terrainTable[j.at("baseBlockID").get<unsigned>()];
 	if (j.contains("surfaceBlock"))
 	{
 		std::cout << "Section of nc" << ts._noiseCeiling << " contains surfaceBlock" << std::endl;

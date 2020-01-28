@@ -5,7 +5,7 @@
 class terrainSection
 {
 public:
-	terrainSection():_block(baseBlock::terrainTable[0]){}
+	terrainSection():_block(&baseBlock::terrainTable[0]){}
 	terrainSection(double noise, int sectionWidth, baseBlock& b, baseBlock* surfaceBlock = nullptr);
 	double getNoiseCeiling() const;
 	double getSectionWidth() const;
@@ -18,7 +18,7 @@ public:
 private:
 	double _noiseCeiling;
 	int _sectionWidth;
-	baseBlock& _block;
+	baseBlock* _block;
 	baseBlock* _surfaceBlock = nullptr;
 
 };
@@ -43,7 +43,7 @@ private:
 
 class terrainPainterGenerator : public nodeGenerator{
 public:
-	terrainPainterGenerator(){}
+	terrainPainterGenerator();
 	terrainPainterGenerator(unsigned int s, unsigned diameter);
 	virtual ~terrainPainterGenerator() override{}
 	terrainChunk getChunk(const point3Di& p)const override;
