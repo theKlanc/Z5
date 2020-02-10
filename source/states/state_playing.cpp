@@ -17,6 +17,7 @@
 #include "physicsEngine.hpp"
 #include <cmath>
 #include "HardwareInterface/HardwareInterface.hpp"
+#include "nodeGenerators/terrainPainterGenerator.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 
@@ -35,10 +36,18 @@ State::Playing::~Playing() {
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
 	_debug = debug;
 
+	//load terrain table
+	loadTerrainTable();
+
 	Services::lcg.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
+
+	////DEBUG SECTION
+	//terrainPainterGenerator tpg(4,12742000);
+	//std::cout << "JSON\n" << tpg.getJson() << "ENDJSON\n" << std::flush;
+	////ENDEBUG
 
 	//create saveGame if it doesn't exist, otherwise load
 	if (!std::filesystem::exists(savePath())) {
@@ -46,7 +55,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		{
 			seed = rand();
 		}
-		createNewGame(seed);
+		createNewGame(saveName, seed);
 	}
 	else
 	{
@@ -270,8 +279,9 @@ void State::Playing::draw(double dt) {
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
 	{
-		HI2::setTextureColorMod(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
+		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
+		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
+		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4,s.getCurrentFrame().size,s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
@@ -306,14 +316,14 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
-			const drawable& sprite = registry->get<drawable>(entity);
+			const drawable& drw = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
 			if (config::drawDepthShadows) {
-				HI2::setTextureColorMod(*sprite.sprite, HI2::Color(mask, mask, mask, 0));
+				HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 			}
-			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
+			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y,drw.spr->getCurrentFrame().size,drw.spr->getCurrentFrame().startPos, zoom, localPos.r);
 			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
@@ -373,17 +383,12 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 							break;
 
 						metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-						if (b.base->visible) {
+						if (b.base->ID!=0 && b.base->visible) {
 							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
-								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
-								HI2::drawTextureOverlap(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
-								//HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
+								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 							}
-							else {
-								HI2::drawTextureOverlap(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
-								//HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
-							}
+							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos,b.base->spr->getCurrentFrame().size,b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 						}
 					}
 				}
@@ -472,11 +477,6 @@ void State::Playing::loadTerrainTable()
 	json j;
 	terrainTableFile >> j;
 	j.get_to(_terrainTable);
-	for (baseBlock& b : _terrainTable) {
-		if (b.visible) {
-			b.texture = Services::graphics.loadTexture(b.name);
-		}
-	}
 	baseBlock::terrainTable = _terrainTable;
 }
 
@@ -497,13 +497,10 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 	return pos;
 }
 
-void State::Playing::createNewGame(int seed)
+void State::Playing::createNewGame(std::string saveName, int seed)
 {
-	std::filesystem::create_directories(savePath());
+	std::filesystem::create_directory(HI2::getSavesPath().append(saveName));
 	std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
-
-	//load terrain table
-	loadTerrainTable();
 
 	//load universe.json
 	std::ifstream universeFile(savePath().append("universe.json"));
@@ -519,17 +516,12 @@ void State::Playing::createNewGame(int seed)
 
 void State::Playing::loadGame()
 {
-	//load terrain table
-	loadTerrainTable();
-
 	//load universe.json
 	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
 	universeFile >> j;
 	j.get_to(_universeBase);
 	_universeBase.linkChildren();
-
-
 
 	loadEntities();
 
@@ -588,7 +580,20 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-		playerSprite.sprite = Services::graphics.loadTexture("player3");
+		std::vector<frame> playerFrames;
+		playerFrames.push_back({{256,0},{16,16}});
+		playerFrames.push_back({{256,16},{16,16}});
+		playerFrames.push_back({{256,32},{16,16}});
+		playerFrames.push_back({{256,48},{16,16}});
+		playerFrames.push_back({{256,64},{16,16}});
+		playerFrames.push_back({{256,80},{16,16}});
+		playerFrames.push_back({{272,0},{16,16}});
+		playerFrames.push_back({{272,16},{16,16}});
+		playerFrames.push_back({{272,32},{16,16}});
+		playerFrames.push_back({{272,48},{16,16}});
+		playerFrames.push_back({{272,64},{16,16}});
+		playerFrames.push_back({{272,80},{16,16}});
+		playerSprite.spr = Services::graphics.loadSprite("player3","spritesheet",playerFrames);
 		playerSprite.name = "player3";
 
 
@@ -641,7 +646,9 @@ void State::Playing::createEntities()
 		entt::entity dog = _enttRegistry.create();
 
 		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-		dogSprite.sprite = Services::graphics.loadTexture("dog");
+		std::vector<frame> dogFrames;
+		dogFrames.push_back({{0,32},{16,16}});
+		dogSprite.spr = Services::graphics.loadSprite("dog","spritesheet",dogFrames);
 		dogSprite.name = "dog";
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
@@ -689,7 +696,17 @@ void State::Playing::createEntities()
 			entt::entity ball = _enttRegistry.create();
 
 			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
-			ballSprite.sprite = Services::graphics.loadTexture("ball");
+			std::vector<frame> dogFrames;
+			if(Services::graphics.isSpriteLoaded("ball")){
+				ballSprite.spr = Services::graphics.getSprite("ball");
+			}
+			else{
+				std::vector<frame> ballFrames;
+				ballFrames.push_back({{240,0},{16,16}});
+				ballSprite.spr = Services::graphics.loadSprite("ball","spritesheet",ballFrames);
+				ballSprite.spr = Services::graphics.loadSprite("ball");
+			}
+
 			ballSprite.name = "ball";
 
 			auto& ballPos = _enttRegistry.assign<position>(ball);
@@ -743,11 +760,11 @@ void State::Playing::fixEntities()
 		}
 	}
 	//drawable
-	auto drawableEntities = _enttRegistry.view<drawable>();
-	for (const entt::entity& entity : drawableEntities) {
-		drawable& d = _enttRegistry.get<drawable>(entity);
-		d.sprite = Services::graphics.loadTexture(d.name);
-	}
+	//auto drawableEntities = _enttRegistry.view<drawable>();
+	//for (const entt::entity& entity : drawableEntities) {
+	//	drawable& d = _enttRegistry.get<drawable>(entity);
+	//	d.spr = Services::graphics.loadSprite(d.name);
+	//}
 	//body
 	auto bodyEntities = _enttRegistry.view<body>();
 	for (const entt::entity& entity : bodyEntities) {

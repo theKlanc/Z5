@@ -62,30 +62,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\nodegenerators\artificialSatelliteGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\asteroidGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\blackHoleGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\gasPlanetGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\naturalSatelliteGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\rockyPlanetGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\spaceshipGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\spaceStationGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
-    </ClCompile>
     <ClCompile Include="source\states\state_base.cpp">
       <Filter>source\states</Filter>
     </ClCompile>
@@ -97,9 +73,6 @@
     </ClCompile>
     <ClCompile Include="source\states\state_playing.cpp">
       <Filter>source\states</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodegenerators\starGenerator.cpp">
-      <Filter>source\nodeGenerators</Filter>
     </ClCompile>
     <ClCompile Include="deps\HardwareInterface\HardwareInterface3DS.cpp">
       <Filter>deps\HardwareInterface</Filter>
@@ -419,6 +392,15 @@
     <ClCompile Include="source\fontManager.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\nodeGenerators\nullGenerator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerators\prefabGenerator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerators\terrainPainterGenerator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -438,33 +420,6 @@
     </ClInclude>
     <ClInclude Include="include\states\state_playing.hpp">
       <Filter>include\states</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\artificialSatelliteGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\asteroidGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\blackHoleGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\gasPlanetGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\naturalSatelliteGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\rockyPlanetGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\spaceshipGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\spaceStationGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodegenerators\starGenerator.hpp">
-      <Filter>include\nodeGenerators</Filter>
     </ClInclude>
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp">
       <Filter>deps\HardwareInterface</Filter>
@@ -935,6 +890,18 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\fontManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerators\nullGenerator.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerators\prefabGenerator.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerators\terrainPainterGenerator.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ui.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

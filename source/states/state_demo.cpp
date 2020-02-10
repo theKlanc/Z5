@@ -12,7 +12,7 @@ State::Demo::Demo(gameCore& c) : State_Base(c) {
 	pixelSpd.y = 100;
 	pixelPos.x = 60;
 	pixelPos.y = 60;
-	texture = Services::graphics.loadTexture("test");
+	s = Services::graphics.loadSprite("test","test");
 	font = Services::fonts.loadFont("test");
 	effect = Services::audio.loadAudio("sfx/oof");
 }
@@ -47,7 +47,7 @@ void State::Demo::input(double dt) {
 	if (held[HI2::BUTTON::KEY_A]) {
 		done = true;
 	}
-	if (held[HI2::BUTTON::KEY_B]) {
+	if (held[HI2::BUTTON::KEY_ACCEPT]) {
 		HI2::playSound(*effect);
 		std::cout << "Played Sound" << std::endl;
 	}
@@ -81,14 +81,18 @@ void State::Demo::update(double dt) {
 
 void State::Demo::draw(double dt) {
 	HI2::startFrame();
-	if (texture != nullptr)
-		HI2::drawTexture(*texture, 0, 0, 1);
+	if (s != nullptr)
+		HI2::drawTexture(*s->getTexture(), 0, 0, 1);
 	auto& down = HI2::getKeysDown();
 	int pos = 0;
 	for(int i = 0; i < HI2::BUTTON_SIZE;++i){
-		HI2::drawRectangle({pos + 10,400},10,10,down[i]?HI2::Color::Red:HI2::Color::Blue);
-		pos+=10;
+		HI2::drawRectangle({pos + 8,400},8,8,down[i]?HI2::Color::Red:HI2::Color::Blue);
+		pos+=8;
 	}
+	point2D mousePos = HI2::getTouchPos();
+	HI2::drawRectangle({mousePos.x,mousePos.y-10},1,20,HI2::Color::Green);
+	HI2::drawRectangle({mousePos.x-10,mousePos.y},20,1,HI2::Color::Green);
+
 	HI2::setBackgroundColor(rand()%2==0?HI2::Color::Red:HI2::Color::Blue);
 	//HI2::drawTexture(*texture, 0, 0, 1);
 	HI2::drawText(*font, "OOF", point2D{ 0,0 }, 40, HI2::Color(255, 0, 0, 255));

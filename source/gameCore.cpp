@@ -58,6 +58,10 @@ gameCore::~gameCore() {
 	{
 		states.pop();
 	}
+	Services::fonts.freeAllFonts();
+	Services::audio.freeAllAudio();
+	Services::graphics.freeAllSprites();
+	Services::graphics.freeAllTextures();
 	HI2::systemFini();
 	HI2::consoleFini();
 }

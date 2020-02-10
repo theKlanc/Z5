@@ -1,5 +1,6 @@
 #pragma once
 #include "UI/gadget.hpp"
+#include <optional>
 
 class textEntry : public gadget{
 	public:

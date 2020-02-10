@@ -99,3 +99,9 @@ void scene::select(std::shared_ptr<gadget> g)
 {
 	_selected = g.get();
 }
+
+void scene::clear()
+{
+	_selected=nullptr;
+	_gadgets.clear();
+}

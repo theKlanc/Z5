@@ -17,9 +17,9 @@
 
 State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test"))
 {
-	//std::filesystem::create_directories(HI2::getSavesPath());
+	std::filesystem::create_directory(HI2::getSavesPath());
 
-	HI2::Texture& bg = *Services::graphics.loadTexture("bg");
+	sprite& bg = *Services::graphics.loadSprite("bg","bg");
 
 
 	_uiScene.addGadget(std::make_shared<imageView>(point2D{ 0,0 }, point2D{ 1280,720 }, bg));
@@ -114,6 +114,7 @@ void State::MainMenu::update(double dt) {
 				_newGamePanel.saveName->setHintColor(HI2::Color::Red);
 		}
 	}
+	bool regen = false;
 	for (save& s : _continuePanel.saves) {
 		if (s.startButton->isRisingInside()) {
 			s.p->update(dt);
@@ -130,11 +131,13 @@ void State::MainMenu::update(double dt) {
 		if (s.deleteButton->isRisingInside()) {
 			s.p->update(dt);
 			_continuePanel.p->removeGadget(s.p);
-			std::filesystem::remove_all(s.path);
-			regenerateSavesVector();
+			HI2::deleteDirectory(s.path);
+			regen=true;
 			break;
 		}
 	}
+	if(regen)
+		regenerateSavesVector();
 }
 
 void State::MainMenu::draw(double dt) {
@@ -148,10 +151,11 @@ void State::MainMenu::regenerateSavesVector()
 {
 	std::shared_ptr<gadget> last;
 	int i = 0;
-	HI2::Texture play_on = *Services::graphics.loadTexture("UI/buttons/play_button_on");
-	HI2::Texture play_off = *Services::graphics.loadTexture("UI/buttons/play_button_off");
-	HI2::Texture delete_on = *Services::graphics.loadTexture("UI/buttons/delete_button_on");
-	HI2::Texture delete_off = *Services::graphics.loadTexture("UI/buttons/delete_button_off");
+	sprite play_on = *Services::graphics.loadSprite("UI/buttons/play_button_on","UI/buttons/play_button_on");
+	sprite delete_on = *Services::graphics.loadSprite("UI/buttons/delete_button_on","UI/buttons/delete_button_on");
+	sprite play_off = *Services::graphics.loadSprite("UI/buttons/play_button_off","UI/buttons/play_button_off");
+	sprite delete_off = *Services::graphics.loadSprite("UI/buttons/delete_button_off","UI/buttons/delete_button_off");
+	_continuePanel.p->clear();
 	_continuePanel.saves.clear();
 	for (auto& s : std::filesystem::directory_iterator(HI2::getSavesPath())) {
 		save savePanel;
@@ -160,11 +164,13 @@ void State::MainMenu::regenerateSavesVector()
 		savePanel.p->addGadget(std::make_shared<textView>(point2D{ 32,32 }, point2D{ 808,32 }, savePanel.path.filename().string(), _standardFont, 32, HI2::Color::Black, HI2::Color::White));
 		savePanel.startButton = std::make_shared<imagePushButton>(point2D{ 32,96 }, point2D{ 32,32 }, play_off, play_on);
 		savePanel.deleteButton = std::make_shared<imagePushButton>(point2D{ 872,32 }, point2D{ 32,32 }, delete_off, delete_on);
-		savePanel.p->addGadget(savePanel.startButton);
-		savePanel.p->addGadget(savePanel.deleteButton);
 
 		savePanel.startButton->setRight(savePanel.deleteButton.get());
 		savePanel.deleteButton->setLeft(savePanel.startButton.get());
+
+		savePanel.p->addGadget(savePanel.startButton);
+		savePanel.p->addGadget(savePanel.deleteButton);
+
 
 		if (last != nullptr) {
 			last->setDown(savePanel.p.get());
@@ -183,8 +189,8 @@ void State::MainMenu::createMainPanel()
 	_mainPanel.p = std::make_shared<basicPanel>(point2D{ HI2::getScreenWidth() / 2 - 400 / 2,320 }, point2D{ 400,288 }, HI2::Color::LightGrey);
 
 	std::shared_ptr<gadget> last;
-	HI2::Texture on = *Services::graphics.loadTexture("UI/buttons/blue_button_on");
-	HI2::Texture off = *Services::graphics.loadTexture("UI/buttons/blue_button_off");
+	sprite on = *Services::graphics.loadSprite("UI/buttons/blue_button_on","UI/buttons/blue_button_on");
+	sprite off = *Services::graphics.loadSprite("UI/buttons/blue_button_off","UI/buttons/blue_button_off");
 
 	_mainPanel.continueButton = std::make_shared<imagePushButton>(point2D{ 32,32 }, point2D{ 32,32 }, off, on, "");
 	_mainPanel.p->addGadget(_mainPanel.continueButton);
@@ -234,14 +240,14 @@ void State::MainMenu::createNewGamePanel()
 	last = _newGamePanel.seed;
 	_newGamePanel.p->addGadget(std::make_shared<textView>(point2D{ 165,96 }, point2D{ 120,32 }, "Seed", _standardFont, 32, HI2::Color::Black));
 
-	_newGamePanel.debug = std::make_shared<imageToggleButton>(point2D{ 30,160 }, point2D{ 32,32 },*Services::graphics.loadTexture("UI/buttons/toggle_off"),*Services::graphics.loadTexture("UI/buttons/toggle_on"));
+	_newGamePanel.debug = std::make_shared<imageToggleButton>(point2D{ 30,160 }, point2D{ 32,32 },*Services::graphics.loadSprite("UI/buttons/toggle_off","UI/buttons/toggle_off"),*Services::graphics.loadSprite("UI/buttons/toggle_on","UI/buttons/toggle_on"));
 	_newGamePanel.p->addGadget(_newGamePanel.debug);
 	last->setDown(_newGamePanel.debug.get());
 	_newGamePanel.debug->setUp(last.get());
 	last = _newGamePanel.debug;
 	_newGamePanel.p->addGadget(std::make_shared<textView>(point2D{ 75,160 }, point2D{ 120,32 }, "DEBUG", _standardFont, 32, HI2::Color::Black));
 
-	_newGamePanel.start = std::make_shared<imagePushButton>(point2D{ _newGamePanel.p->getSize().x / 2 - 16,210 }, point2D{ 32,32 },*Services::graphics.loadTexture("UI/buttons/play_button_off"),*Services::graphics.loadTexture("UI/buttons/play_button_on"));
+	_newGamePanel.start = std::make_shared<imagePushButton>(point2D{ _newGamePanel.p->getSize().x / 2 - 16,210 }, point2D{ 32,32 },*Services::graphics.loadSprite("UI/buttons/play_button_off","UI/buttons/play_button_off"),*Services::graphics.loadSprite("UI/buttons/play_button_on","UI/buttons/play_button_on"));
 	_newGamePanel.p->addGadget(_newGamePanel.start);
 	last->setDown(_newGamePanel.start.get());
 	_newGamePanel.start->setUp(last.get());
