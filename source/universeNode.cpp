@@ -605,7 +605,6 @@ void from_json(const json& j, universeNode& f) {
 	nlohmann::json jt;
 	if(j.contains("generator")){
 		jt = j.at("generator");
-		std::cout << f._name << "has a generator"<<std::endl;
 	}
 	f.connectGenerator(jt);
 	f.populateColliders();

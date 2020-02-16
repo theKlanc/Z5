@@ -67,6 +67,17 @@ public:
 	bool drawBefore(universeNode& r)const;
 	void clean();
 
+	//Physics private obj
+	struct
+	{
+	private:
+		bool sleeping = false;
+		rp3d::Vector3 contactNormal;
+		double maxContactDepth = 0;
+		
+		friend class physicsEngine;
+	}physicsData;
+
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;
 	friend void to_json(nlohmann::json &j, const universeNode &f);
@@ -137,3 +148,4 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 
 void to_json(json& j, const universeNode& f);
 void from_json(const json& j, universeNode& f);
+

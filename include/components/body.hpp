@@ -7,14 +7,14 @@ struct body
 	double height;
 	double width;
 	double mass;
+	bool sleeping = false;
 
 	struct {
-		bool isRestingContact;
 		rp3d::CollisionBody* collider;
 		rp3d::CollisionShape* _collisionShape = nullptr;
 		rp3d::Vector3 contactNormal;
 		double maxContactDepth = 0;
-	} collisionInfo;
+	} physicsData;
 
 	double volume = 1;
 	double elasticity = 0;

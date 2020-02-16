@@ -288,7 +288,6 @@ void from_json(const nlohmann::json &j, terrainSection &ts)
 	ts._block = &baseBlock::terrainTable[j.at("baseBlockID").get<unsigned>()];
 	if (j.contains("surfaceBlock"))
 	{
-		std::cout << "Section of nc" << ts._noiseCeiling << " contains surfaceBlock" << std::endl;
 		ts._surfaceBlock = &baseBlock::terrainTable[j.at("surfaceBlock").get<unsigned>()];
 	}
 }

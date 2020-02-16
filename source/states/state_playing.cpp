@@ -558,15 +558,15 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		playerBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		playerBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
-		playerBody.collisionInfo.collider->setUserData((void*)playerResponse);
+		playerBody.physicsData.collider->setUserData((void*)playerResponse);
 		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
-		playerBody.collisionInfo._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
-		playerBody.collisionInfo.collider->addCollisionShape(playerBody.collisionInfo._collisionShape, transform);
+		playerBody.physicsData._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
+		playerBody.physicsData.collider->addCollisionShape(playerBody.physicsData._collisionShape, transform);
 	}
 
 	{
@@ -612,15 +612,15 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		dogBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		dogBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* dogResponse = new collidedResponse();
 		dogResponse->type = ENTITY;
 		dogResponse->body.entity = dog;
-		dogBody.collisionInfo.collider->setUserData((void*)dogResponse);
+		dogBody.physicsData.collider->setUserData((void*)dogResponse);
 		initPosition.z += dogBody.width / 2;
 		transform.setPosition(initPosition);
-		dogBody.collisionInfo._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-		dogBody.collisionInfo.collider->addCollisionShape(dogBody.collisionInfo._collisionShape, transform);
+		dogBody.physicsData._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
+		dogBody.physicsData.collider->addCollisionShape(dogBody.physicsData._collisionShape, transform);
 	}
 	for (int i = 0; i < 5; i++)
 		for (int j = 0; j < 5; j++)
@@ -667,16 +667,16 @@ void State::Playing::createEntities()
 			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 			rp3d::Transform transform(initPosition, initOrientation);
 
-			ballBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+			ballBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 			collidedResponse* ballResponse = new collidedResponse();
 			ballResponse->type = ENTITY;
 			ballResponse->body.entity = ball;
-			ballBody.collisionInfo.collider->setUserData((void*)ballResponse);
-			ballBody.collisionInfo._collisionShape = new rp3d::SphereShape(0.4);
+			ballBody.physicsData.collider->setUserData((void*)ballResponse);
+			ballBody.physicsData._collisionShape = new rp3d::SphereShape(0.4);
 			initPosition.z += ballBody.width / 2;
 			transform.setPosition(initPosition);
-			ballBody.collisionInfo.collider->addCollisionShape(ballBody.collisionInfo._collisionShape, transform);
+			ballBody.physicsData.collider->addCollisionShape(ballBody.physicsData._collisionShape, transform);
 		}
 }
 
@@ -706,17 +706,17 @@ void State::Playing::fixEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		b.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		b.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
 		bodyResponse->body.entity = entity;
-		b.collisionInfo.collider->setUserData((void*)bodyResponse);
+		b.physicsData.collider->setUserData((void*)bodyResponse);
 
-		b.collisionInfo._collisionShape = new rp3d::SphereShape(b.width / 2);
+		b.physicsData._collisionShape = new rp3d::SphereShape(b.width / 2);
 		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
-		b.collisionInfo.collider->addCollisionShape(b.collisionInfo._collisionShape, transform);
+		b.physicsData.collider->addCollisionShape(b.physicsData._collisionShape, transform);
 	}
 }
 
