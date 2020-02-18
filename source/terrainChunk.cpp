@@ -180,13 +180,7 @@ void terrainChunk::unload(std::filesystem::path file) {
 			{
 				if (b != lastBlock)
 				{
-					if (lastBlock.saveMeta) {
-						outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
-					}
-					else
-					{
-						outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
-					}
+					outputFile << lastBlock << ' ' << accumulatedLength << std::endl;
 					lastBlock = b;
 					accumulatedLength = 1;
 				}

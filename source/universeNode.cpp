@@ -50,8 +50,8 @@ universeNode::universeNode(std::string name, double mass, double diameter, fdd p
 	else {
 		_depth = _parent->_depth + 1;
 	}
-	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter);
-	connectGenerator({{"type","null"}});
+	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter * config::chunkLoadDiameter * config::chunkLoadDiameter);
+	connectGenerator({ {"type","null"} });
 	populateColliders();
 }
 
@@ -60,9 +60,9 @@ baseBlock& universeNode::getTopBlock(const point2D& pos)
 	return _generator->getTopBlock(pos);
 }
 
-metaBlock universeNode::getBlock(const point3Di& pos) {
+metaBlock& universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
-	if(tChunk.isValid(pos))
+	if (tChunk.isValid(pos))
 	{
 		return tChunk.getBlock(pos);
 	}
@@ -70,9 +70,7 @@ metaBlock universeNode::getBlock(const point3Di& pos) {
 	//	return _generator.getBlock()
 	//}
 	else {
-		metaBlock m;
-		m.base = &baseBlock::terrainTable[0];
-		return m;
+		return metaBlock::nullBlock;
 	}
 }
 
@@ -169,21 +167,26 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 
 void universeNode::connectGenerator(const nlohmann::json& j)
 {
-	if(j.contains("type")){
+	if (j.contains("type")) {
 		std::string type = j.at("type");
-		if(type == "prefab"){
+		if (type == "prefab") {
 			_generator = std::make_unique<prefabGenerator>(j.at("generator").get<prefabGenerator>());
 		}
-		else if(type == "terrainPainter"){
+		else if (type == "terrainPainter") {
 			_generator = std::make_unique<terrainPainterGenerator>(j.at("generator").get<terrainPainterGenerator>());
 		}
-		else{
+		else {
 			_generator = std::make_unique<nullGenerator>();
 		}
 	}
-	else{
+	else {
 		_generator = std::make_unique<nullGenerator>();
 	}
+}
+
+void universeNode::connectGenerator(std::unique_ptr<nodeGenerator> ng)
+{
+	_generator = std::move(ng);
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -366,7 +369,8 @@ void universeNode::addChild(universeNode u)
 
 void universeNode::updatePositions(double dt)
 {
-	_position += _velocity * dt;
+	if (!physicsData.sleeping)
+		_position += _velocity * dt;
 	for (universeNode& child : _children)
 	{
 		child.updatePositions(dt);
@@ -377,18 +381,18 @@ fdd universeNode::getGravityAcceleration(fdd localPosition)
 {
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
 	fdd realGravity = (_centerOfMass - localPosition).setMagnitude(G * (_mass / ((_diameter / 2) * (_diameter / 2))));
-	double factorMagic = 1;
+	double magicFactor = 1;
 	double distance = _centerOfMass.distance(localPosition);
 	if (distance > _diameter / 2)
 	{
-		factorMagic = distance - _diameter / 2;
-		factorMagic /= 10;
-		if (factorMagic > 1)
-			factorMagic = 1;
-		factorMagic = 1 - factorMagic;
+		magicFactor = distance - _diameter / 2;
+		magicFactor /= 10;
+		if (magicFactor > 1)
+			magicFactor = 1;
+		magicFactor = 1 - magicFactor;
 	}
 
-	return magicGravity * factorMagic + realGravity * (1 - factorMagic);
+	return magicGravity * magicFactor + realGravity * (1 - magicFactor);
 }
 
 universeNode& universeNode::operator=(const universeNode& u)
@@ -407,12 +411,12 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_parent = u._parent;
 	_mass = u._mass;
 	nlohmann::json jTemp;
-	to_json(jTemp,*u._generator.get());
+	to_json(jTemp, *u._generator.get());
 	connectGenerator(jTemp);
 	return *this;
 }
 
-std::vector<terrainChunk> &universeNode::getChunks()
+std::vector<terrainChunk>& universeNode::getChunks()
 {
 	return _chunks;
 }
@@ -461,7 +465,7 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-
+	p = getLocalPos(p,parent);
 
 
 	std::vector<int> posXlist;
@@ -470,15 +474,15 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 	posYlist.push_back(floor(p.y));
 	std::vector<int> posZlist;
 	posZlist.push_back(floor(p.z));
-	if (size.x!=0 && floor(p.x/config::chunkSize) != floor((p.x + size.x)/config::chunkSize))
+	if (size.x != 0 && floor(p.x / config::chunkSize) != floor((p.x + size.x) / config::chunkSize))
 	{
 		posXlist.push_back(floor(p.x + size.x));
 	}
-	if (size.y!=0 && floor(p.y/config::chunkSize) != floor((p.y + size.y)/config::chunkSize))
+	if (size.y != 0 && floor(p.y / config::chunkSize) != floor((p.y + size.y) / config::chunkSize))
 	{
 		posYlist.push_back(floor(p.y + size.y));
 	}
-	if (size.z!=0 && floor(p.z/config::chunkSize) != floor((p.z + size.z)/config::chunkSize))
+	if (size.z != 0 && floor(p.z / config::chunkSize) != floor((p.z + size.z) / config::chunkSize))
 	{
 		posZlist.push_back(floor(p.z + size.z));
 	}
@@ -502,14 +506,11 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 
 void universeNode::populateColliders()
 {
-	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
-	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-	rp3d::Transform transform(initPosition, initOrientation);
 	Services::physicsMutex.lock();
-	_collider = Services::collisionWorld->createCollisionBody(transform);
+	_collider = Services::collisionWorld->createCollisionBody(rp3d::Transform::identity());
 
 	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
-	_collider->addCollisionShape(_collisionShape, transform);
+	_collider->addCollisionShape(_collisionShape, rp3d::Transform::identity());
 	Services::physicsMutex.unlock();
 	for (universeNode& u : _children) {
 		u.populateColliders();
@@ -603,7 +604,7 @@ void from_json(const json& j, universeNode& f) {
 		f._children.push_back(element.get<universeNode>());
 	}
 	nlohmann::json jt;
-	if(j.contains("generator")){
+	if (j.contains("generator")) {
 		jt = j.at("generator");
 	}
 	f.connectGenerator(jt);

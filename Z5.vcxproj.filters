@@ -284,9 +284,6 @@
     <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector2.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
-    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector3.cpp">
-      <Filter>deps\ReactPhysics3D</Filter>
-    </ClCompile>
     <ClCompile Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
@@ -400,6 +397,9 @@
     </ClCompile>
     <ClCompile Include="source\nodeGenerators\terrainPainterGenerator.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector3.cpp">
+      <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -796,9 +796,6 @@
     <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector2.h">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClInclude>
-    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector3.h">
-      <Filter>deps\ReactPhysics3D</Filter>
-    </ClInclude>
     <ClInclude Include="deps\reactPhysics3D\src\collision\narrowphase\GJK\VoronoiSimplex.h">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClInclude>
@@ -903,6 +900,9 @@
     </ClInclude>
     <ClInclude Include="include\ui.hpp">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector3.h">
+      <Filter>deps\ReactPhysics3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

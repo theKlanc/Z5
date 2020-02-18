@@ -25,27 +25,28 @@ physicsEngine::~physicsEngine()
 
 void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	if (_remainingTime < 2.0f)
-		_remainingTime += dt;
+	_remainingTime += dt;
+	if (_remainingTime > 2.0f)
+		_remainingTime = 2.0f;
 
 	Services::physicsMutex.lock();
 	{
 		while (_remainingTime > _timeStep) {
-
 			if (config::gravityEnabled)
 			{
 				applyGravity(universeBase, registry, _timeStep);
 				applyBuoyancy(universeBase, registry, _timeStep);
 			}
+
 			if (config::dragEnabled)
 			{
 				applyDrag(universeBase, registry, _timeStep);
 			}
 
-			{
-				detectNodeNode(universeBase, _timeStep);
-				solveNodeNode(universeBase, _timeStep);
+			detectNodeNode(universeBase, _timeStep);
+			solveNodeNode(universeBase, _timeStep);
 
+			{
 				for (int i = 0; i < config::physicsSolverIterations; ++i)
 				{
 					applyVelocity(universeBase, registry, _solverStep);
@@ -57,7 +58,6 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				detectEntityEntity(registry, _timeStep);
 				solveEntityEntity(registry, _timeStep);
 			}
-
 			_remainingTime -= _timeStep;
 		}
 	}
@@ -92,9 +92,9 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr)
+		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
-			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass()));
+			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass()) * dt);
 		}
 	}
 	auto movableEntityView = registry.view<velocity, position>();
@@ -109,7 +109,7 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr)
+		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
 			fdd pos = node.getCenterOfMass();
 			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z) });
@@ -198,56 +198,91 @@ void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& re
 	}
 }
 
+void physicsEngine::testCollisionBetweenNodes(universeNode& left, universeNode& right)
+{
+	fdd transformRightToLeft = right.getLocalPos(left.getPosition(), left.getParent());
+	for (terrainChunk& leftChunk : left.getChunks()) {
+		if (leftChunk.loaded())
+		{
+			auto rightChunks = right.getCollidableChunks(left.getPosition() + leftChunk.getPosition(), { config::chunkSize,config::chunkSize,config::chunkSize }, left.getParent());
+			{
+				fdd tmp = transformRightToLeft + leftChunk.getPosition();
+				rp3d::Vector3 leftChunkPosVector(tmp.x, tmp.y, tmp.z);
+				rp3d::Transform leftChunkTransform(leftChunkPosVector, rp3d::Quaternion::identity());
+
+				leftChunk.getCollider()->setTransform(leftChunkTransform);
+			}
+			for (terrainChunk* rightChunk : rightChunks)
+			{
+				if (rightChunk->loaded())
+				{
+					rp3d::Vector3 rightChunkPosVector(rightChunk->getPosition().x, rightChunk->getPosition().y, rightChunk->getPosition().z);
+					rp3d::Transform rightChunkTransform(rightChunkPosVector, rp3d::Quaternion::identity());
+
+					rightChunk->getCollider()->setTransform(rightChunkTransform);
+
+
+					if (_zaWarudo->testAABBOverlap(rightChunk->getCollider(), leftChunk.getCollider()))
+					{
+						collidedResponse cResponse;
+						cResponse.type = NODE;
+						cResponse.body.node = &left;
+
+						leftChunk.getCollider()->setUserData(&cResponse);
+
+						collidedResponse cResponse2;
+						cResponse2.type = NODE;
+						cResponse2.body.node = &right;
+
+						rightChunk->getCollider()->setUserData(&cResponse2);
+						_zaWarudo->testCollision(leftChunk.getCollider(), rightChunk->getCollider(), this);
+					}
+				}
+			}
+		}
+	}
+}
+
 void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 {
 	for (universeNode& node : universe) {
+		node.physicsData.maxContactDepth = 0;
+		node.physicsData.contactNormal = rp3d::Vector3();
+
 		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
-			node.getNodeCollider()->setTransform({node.getPosition().getVector3(),rp3d::Quaternion::identity()});
+			node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
+
+
+
 			if (node.getNodeCollider()->testAABBOverlap(node.getParent()->getNodeCollider()->getAABB()))
 			{
 				//parent
-				for (terrainChunk& chunk : node.getChunks()) {
-					if (chunk.loaded())
-					{
-						auto parentChunks = node.getParent()->getCollidableChunks(chunk.getPosition(), { config::chunkSize,config::chunkSize,config::chunkSize }, node.getParent());
-						{
-							rp3d::Vector3 entityPosition(chunk.getPosition().x + node.getPosition().x, chunk.getPosition().y + node.getPosition().y, chunk.getPosition().z + node.getPosition().z);
-							rp3d::Transform entityTransform(entityPosition, rp3d::Quaternion::identity());
-
-							chunk.getCollider()->setTransform(entityTransform);
-						}
-						for (terrainChunk* parentChunk : parentChunks)
-						{
-							if (parentChunk->loaded())
-							{
-								rp3d::Vector3 entityPosition(parentChunk->getPosition().x, parentChunk->getPosition().y, parentChunk->getPosition().z);
-								rp3d::Transform entityTransform(entityPosition, rp3d::Quaternion::identity());
-
-								parentChunk->getCollider()->setTransform(entityTransform);
-								if (_zaWarudo->testAABBOverlap(parentChunk->getCollider(), chunk.getCollider()))
-									_zaWarudo->testCollision(parentChunk->getCollider(), chunk.getCollider(), this);
-							}
-						}
-					}
-				}
+				testCollisionBetweenNodes(node, *node.getParent());
 			}
 
 
 			//brethren
 			for (universeNode* brotha : universe.getChildren())
 			{
-
+				if (*brotha != node)
+				{
+					if (brotha->physicsData.sleeping || brotha->getID() < node.getID())
+					{
+						brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
+						if (node.getNodeCollider()->testAABBOverlap(node.getParent()->getNodeCollider()->getAABB()))
+						{
+							//TODO
+						}
+					}
+				}
 			}
-			node.getNodeCollider()->setTransform({rp3d::Vector3::zero(),rp3d::Quaternion::identity()});
+			node.getNodeCollider()->setTransform({ rp3d::Vector3::zero(),rp3d::Quaternion::identity() });
 		}
 	}
 }
 
-void physicsEngine::solveNodeNode(universeNode& universe, double dt)
-{
 
-}
 
 void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
 {
@@ -255,6 +290,12 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 		position entityPos = registry.get<position>(left);
 		body& entityBody = registry.get<body>(left);
+
+		collidedResponse cResponse2;
+		cResponse2.type = ENTITY;
+		cResponse2.body.entity = left;
+
+		entityBody.physicsData.collider->setUserData(&cResponse2);
 
 		entityBody.physicsData.maxContactDepth = 0;
 		entityBody.physicsData.contactNormal = rp3d::Vector3();
@@ -270,14 +311,13 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 		{
 			position pos = registry.get<position>(left);
 
-			fdd posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent);
+			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+
 			collidedResponse cResponse;
 			cResponse.type = NODE;
-			collidedBody cBody;
-			cBody.node = node;
-			cResponse.body = cBody;
+			cResponse.body.node = node;
 
-			rp3d::Vector3 entityPosition(posRelativeToChunk.x, posRelativeToChunk.y, posRelativeToChunk.z);
+			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
 			rp3d::Transform entityTransform(entityPosition, rp3d::Quaternion::identity());
 
 
@@ -285,18 +325,19 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 
 			if (_zaWarudo->testAABBOverlap(entityBody.physicsData.collider, node->getNodeCollider()))
 			{
-				auto chunksToCheck = node->getCollidableChunks({ posRelativeToChunk.x - entityBody.width / 2,
-																posRelativeToChunk.y - entityBody.width / 2,
-																posRelativeToChunk.z },
+				auto chunksToCheck = node->getCollidableChunks({ posRelativeToNode.x - entityBody.width / 2,
+																posRelativeToNode.y - entityBody.width / 2,
+																posRelativeToNode.z },
 					point3Dd{ entityBody.width,entityBody.width,entityBody.width },
 					node);
 
 				for (terrainChunk*& chunk : chunksToCheck)
 				{
-					posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - chunk->getPosition();
+					fdd posRelativeToChunk = node->getLocalPos(pos.pos, pos.parent) - chunk->getPosition();
 					entityTransform.setPosition(posRelativeToChunk.getVector3());
 					entityBody.physicsData.collider->setTransform(entityTransform);
 
+					chunk->getCollider()->setTransform(rp3d::Transform::identity());
 					chunk->getCollider()->setUserData((void*)&cResponse);
 					_zaWarudo->testCollision(entityBody.physicsData.collider, chunk->getCollider(), this);
 				}
@@ -319,7 +360,6 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 		//backtrack position along the old ~velocity~  until we're "just" colliding with the node (tangentially)
 		//pos.pos -= vel.spd * dt * ((bdy.physicsData.maxContactDepth) / ((oldSpeed * dt).magnitude()));
 		pos.pos -= bdy.physicsData.contactNormal * bdy.physicsData.maxContactDepth;
-		//assert(NO_COLLUSION);
 		//Calculate new velocity
 		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
 		auto result = (d - (2 * (bdy.physicsData.contactNormal.dot(d)) * bdy.physicsData.contactNormal));
@@ -345,6 +385,49 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 	}
 }
 
+void physicsEngine::solveNodeNode(universeNode& universe, double dt)
+{
+	for (universeNode& node : universe)
+	{
+		if (node.physicsData.maxContactDepth == 0)
+			continue;
+		fdd oldSpeed = node.getVelocity();
+		fdd pos = node.getPosition();
+		fdd vel = node.getVelocity();
+		pos -= node.physicsData.contactNormal * node.physicsData.maxContactDepth;
+
+		rp3d::Vector3 d{ (rp3d::decimal)vel.x,(rp3d::decimal)vel.y,(rp3d::decimal)vel.z };
+		auto result = (d - (2 * (node.physicsData.contactNormal.dot(d)) * node.physicsData.contactNormal));
+
+		fdd normal;
+		normal.x = node.physicsData.contactNormal.x;
+		normal.y = node.physicsData.contactNormal.y;
+		normal.z = node.physicsData.contactNormal.z;
+
+		fdd projectedFriction = normal.project(vel);
+		projectedFriction *= 0.5;
+
+		result.x += projectedFriction.x;
+		result.y += projectedFriction.y;
+		result.z += projectedFriction.z;
+
+		vel.x = result.x;
+		vel.y = result.y;
+		vel.z = result.z;
+
+		//apply new velocity from surface
+		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude()));
+
+		node.setPosition(pos);
+		node.setVelocity(vel);
+		
+		if (vel.magnitude() < 0.3)
+		{
+			node.physicsData.sleeping = true;
+		}
+	}
+}
+
 void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 {
 	auto bodyEntitiesView = registry.view<body>();
@@ -365,8 +448,21 @@ void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 
 				body& leftBody = registry.get<body>(left);
 				leftBody.physicsData.collider->setTransform(leftTransform);
+
+				collidedResponse cResponse;
+				cResponse.type = ENTITY;
+				cResponse.body.entity = left;
+
+				leftBody.physicsData.collider->setUserData(&cResponse);
+
 				body& rightBody = registry.get<body>(right);
 				rightBody.physicsData.collider->setTransform(rightTransform);
+
+				collidedResponse cResponse2;
+				cResponse2.type = ENTITY;
+				cResponse2.body.entity = right;
+
+				rightBody.physicsData.collider->setUserData(&cResponse2);
 
 				_zaWarudo->testCollision(leftBody.physicsData.collider, rightBody.physicsData.collider, this);
 			}
@@ -457,6 +553,38 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 }
 
 void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
-{
-	std::cout << "LMFAO COLLISION GUOTEFOC" << std::endl;
+{//TODO correctly handle cases where mass difference is not immense
+	universeNode* fatNode;
+	universeNode* slimNode;
+	bool invertNormal = false;
+	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node->getMass() > ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node->getMass())
+	{
+		fatNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
+		slimNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
+
+		invertNormal = true;
+	}
+	else
+	{
+		fatNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
+		slimNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
+	}
+
+	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
+	while (contactManifold != nullptr)
+	{
+		auto contactPoint = contactManifold->getContactPoints();
+		while (contactPoint != nullptr)
+		{
+			if (slimNode->physicsData.maxContactDepth < contactPoint->getPenetrationDepth())
+			{
+				slimNode->physicsData.maxContactDepth = contactPoint->getPenetrationDepth();
+				slimNode->physicsData.contactNormal = contactPoint->getNormal();
+				if (invertNormal)
+					slimNode->physicsData.contactNormal *= -1;
+			}
+			contactPoint = contactPoint->getNext();
+		}
+		contactManifold = contactManifold->getNext();
+	}
 }

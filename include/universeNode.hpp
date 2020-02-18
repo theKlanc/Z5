@@ -31,7 +31,7 @@ public:
 	universeNode(const universeNode& u);
 	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
-	metaBlock getBlock(const point3Di &pos);
+	metaBlock& getBlock(const point3Di &pos);
 	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
@@ -76,6 +76,7 @@ public:
 		double maxContactDepth = 0;
 		
 		friend class physicsEngine;
+		friend class universeNode;
 	}physicsData;
 
 	bool operator!= (const universeNode& right)const;
@@ -101,6 +102,9 @@ public:
 	};
 	universeNodeIterator begin();
 	universeNodeIterator end();
+
+	
+	void connectGenerator(std::unique_ptr<nodeGenerator> ng);
   private:
 
 	bool shouldDraw(fdd f);

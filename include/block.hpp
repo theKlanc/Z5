@@ -40,7 +40,15 @@ struct metaBlock
 	{
 		return !(*this == right);
 	}
+	static metaBlock nullBlock;
+
+	friend std::ostream& operator<<(std::ostream& os, const metaBlock& m);
+	friend std::istream& operator>>(std::istream& is, const metaBlock& m);
+	
 };
+
+std::ostream& operator<<(std::ostream& os, const metaBlock& m);
+std::istream& operator>>(std::istream& is, const metaBlock& m);
 
 void to_json(json& j, const baseBlock& b);
 void from_json(const json& j, baseBlock& b);

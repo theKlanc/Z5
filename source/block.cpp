@@ -57,11 +57,22 @@ bool metaBlock::operator==(const metaBlock& right)
 	return base == right.base && rotation == right.rotation;
 }
 
+std::ostream& operator<<(std::ostream& os, const metaBlock& m)
+{
+	if (m.saveMeta)
+	{
+		return os << m.base->ID << ' ' << m.saveMeta << ' ' << m.rotation;
+	}
+	else {
+		return os << m.base->ID << ' ' << m.saveMeta;
+	}
+}
+
 void to_json(nlohmann::json& j, const baseBlock& b)
 {
-	j = json{ {"name",b.name},{"ID",b.ID},{"visible",b.visible},{"solid",b.solid},{"opaque",b.opaque},{"mass",b.mass}};
-	if(b.spr!=nullptr){
-		j.push_back({"frames",b.spr->getAllFrames()});
+	j = json{ {"name",b.name},{"ID",b.ID},{"visible",b.visible},{"solid",b.solid},{"opaque",b.opaque},{"mass",b.mass} };
+	if (b.spr != nullptr) {
+		j.push_back({ "frames",b.spr->getAllFrames() });
 	}
 }
 
@@ -74,12 +85,13 @@ void from_json(const nlohmann::json& j, baseBlock& b)
 	j.at("opaque").get_to(b.opaque);
 	j.at("mass").get_to(b.mass);
 	std::vector<frame> frames;
-	if(j.contains("sprite")){
+	if (j.contains("sprite")) {
 		for (const nlohmann::json& element : j.at("sprite").at("frames")) {
 			frames.push_back(element.get<frame>());
 		}
-		b.spr = Services::graphics.loadSprite(b.name,"spritesheet",frames);
+		b.spr = Services::graphics.loadSprite(b.name, "spritesheet", frames);
 	}
 }
 
 std::vector<baseBlock> baseBlock::terrainTable;
+metaBlock metaBlock::nullBlock;

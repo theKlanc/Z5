@@ -18,6 +18,7 @@
 #include <cmath>
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "nodeGenerators/terrainPainterGenerator.hpp"
+#include "nodeGenerators/prefabGenerator.hpp"
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 
@@ -62,8 +63,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		loadGame();
 	}
 
-	if(_debug){
-		_console = std::make_shared<basicTextEntry>(point2D{0,0},point2D{HI2::getScreenWidth(),40},_standardFont,35,"","Enter a command here",HI2::Color(0,0,0,127),HI2::Color(255,255,255,255));
+	if (_debug) {
+		_console = std::make_shared<basicTextEntry>(point2D{ 0,0 }, point2D{ HI2::getScreenWidth(),40 }, _standardFont, 35, "", "Enter a command here", HI2::Color(0, 0, 0, 127), HI2::Color(255, 255, 255, 255));
 		_console->toggle();
 		_console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
 		_scene.addGadget(_console);
@@ -96,17 +97,17 @@ void State::Playing::input(double dt)
 	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
 	const point2D& mouse = HI2::getTouchPos();
 
-	if(_debug && _console->isActive()){
-		if(down[HI2::BUTTON::KEY_ESCAPE]){
+	if (_debug && _console->isActive()) {
+		if (down[HI2::BUTTON::KEY_ESCAPE]) {
 			_console->toggle();
 		}
 	}
-	else{
-		if(_debug && down[HI2::BUTTON::KEY_ACCEPT]){
+	else {
+		if (_debug && down[HI2::BUTTON::KEY_ACCEPT]) {
 			_console->toggle();
-			down[HI2::BUTTON::KEY_ACCEPT]=false;
+			down[HI2::BUTTON::KEY_ACCEPT] = false;
 		}
-		if(_debug && down[HI2::BUTTON::KEY_Z]){
+		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
 		//STOP
@@ -115,7 +116,7 @@ void State::Playing::input(double dt)
 		}
 
 		//MOVE
-		if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
+		if (held[HI2::BUTTON::BUTTON_LSTICK_UP] || held[HI2::BUTTON::KEY_W]) {
 			playerSpd.spd.y -= 10 * dt;
 		}
 		if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
@@ -137,7 +138,7 @@ void State::Playing::input(double dt)
 		}
 
 		//JUMP
-		if (down[HI2::BUTTON::KEY_SPACE]){
+		if (down[HI2::BUTTON::KEY_SPACE]) {
 			playerSpd.spd.z = 8;
 		}
 
@@ -176,20 +177,20 @@ void State::Playing::input(double dt)
 		}
 
 		// Exit
-		if(down[HI2::BUTTON::KEY_ESCAPE])
+		if (down[HI2::BUTTON::KEY_ESCAPE])
 		{
 			_core->popState();
 		}
 	}
-	_scene.update(down,up,held,mouse,dt);
+	_scene.update(down, up, held, mouse, dt);
 
 }
 
 void State::Playing::update(double dt) {
-	if(_paused)
+	if (_paused)
 		dt = 0;
-	if(_step)
-		dt = 1.0f/config::physicsHz;
+	if (_step)
+		dt = 1.0f / config::physicsHz;
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -211,10 +212,10 @@ void State::Playing::update(double dt) {
 }
 
 void State::Playing::draw(double dt) {
-	if(_paused)
+	if (_paused)
 		dt = 0;
-	if(_step)
-		dt = 1.0f/config::physicsHz;
+	if (_step)
+		dt = 1.0f / config::physicsHz;
 
 	Services::graphics.stepAnimations(dt);
 	if constexpr (false)
@@ -281,11 +282,11 @@ void State::Playing::draw(double dt) {
 	{
 		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
 		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4,s.getCurrentFrame().size,s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2));
+		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2));
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
-	if(_debug){
+	if (_debug) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 		HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
 		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
@@ -323,7 +324,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			if (config::drawDepthShadows) {
 				HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 			}
-			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y,drw.spr->getCurrentFrame().size,drw.spr->getCurrentFrame().startPos, zoom, localPos.r);
+			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r);
 			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
@@ -375,20 +376,20 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 				for (int y = 0; y < colSize; ++y)
 				{
-					if(node.visibility[(y * rowSize) + x]){
+					if (node.visibility[(y * rowSize) + x]) {
 						const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
 						if (finalYdrawPos + config::spriteSize * zoom < 0)
 							continue;
 						else if (finalYdrawPos > HI2::getScreenHeight())
 							break;
 
-						metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-						if (b.base->ID!=0 && b.base->visible) {
+						metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+						if (b.base->ID != 0 && b.base->visible) {
 							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 							}
-							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos,b.base->spr->getCurrentFrame().size,b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
+							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2));
 						}
 					}
 				}
@@ -427,7 +428,7 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 		{
 			metaBlock b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
 			result.blocks.push_back(b);
-			visibility[i] = (b.base->ID==0 ? true : !b.base->opaque);
+			visibility[i] = (b.base->ID == 0 ? true : !b.base->opaque);
 			i++;
 		}
 	}
@@ -478,6 +479,7 @@ void State::Playing::loadTerrainTable()
 	terrainTableFile >> j;
 	j.get_to(_terrainTable);
 	baseBlock::terrainTable = _terrainTable;
+	metaBlock::nullBlock.base = &baseBlock::terrainTable[0];
 }
 
 point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)
@@ -525,7 +527,7 @@ void State::Playing::loadGame()
 
 	loadEntities();
 
-	_debug=true;
+	_debug = true;
 }
 
 void State::Playing::saveGame()
@@ -569,11 +571,18 @@ void State::Playing::createEntities()
 	}
 
 	double angle = Services::lcg();
-	angle = angle/Services::lcg.max()*(2*M_PI);
-	double distance = Services::lcg()%((int)result->getDiameter()/2);
+	angle = angle / Services::lcg.max() * (2 * M_PI);
+	double distance = Services::lcg() % ((int)result->getDiameter() / 2);
+	while((double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)})<250)
+	{
+		angle = Services::lcg();
+		angle = angle / Services::lcg.max() * (2 * M_PI);
+		distance = Services::lcg() % ((int)result->getDiameter() / 2);
+	}
 
-	result->addChild(universeNode("test_plat", 100000, 64, { sin(angle) * distance-10,cos(angle) * distance,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 5 }
-	,{2,2,0},{0,0,0},nodeType::SPACESHIP,result,200));
+	universeNode spaceShip("test_plat", 100000, 64, { sin(angle) * distance - 10.2,cos(angle) * distance +0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0}, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
+	spaceShip.connectGenerator(std::make_unique<prefabGenerator>());
+	result->addChild(spaceShip);
 	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
@@ -581,19 +590,19 @@ void State::Playing::createEntities()
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
 		std::vector<frame> playerFrames;
-		playerFrames.push_back({{256,0},{16,16}});
-		playerFrames.push_back({{256,16},{16,16}});
-		playerFrames.push_back({{256,32},{16,16}});
-		playerFrames.push_back({{256,48},{16,16}});
-		playerFrames.push_back({{256,64},{16,16}});
-		playerFrames.push_back({{256,80},{16,16}});
-		playerFrames.push_back({{272,0},{16,16}});
-		playerFrames.push_back({{272,16},{16,16}});
-		playerFrames.push_back({{272,32},{16,16}});
-		playerFrames.push_back({{272,48},{16,16}});
-		playerFrames.push_back({{272,64},{16,16}});
-		playerFrames.push_back({{272,80},{16,16}});
-		playerSprite.spr = Services::graphics.loadSprite("player3","spritesheet",playerFrames);
+		playerFrames.push_back({ {256,0},{16,16} });
+		playerFrames.push_back({ {256,16},{16,16} });
+		playerFrames.push_back({ {256,32},{16,16} });
+		playerFrames.push_back({ {256,48},{16,16} });
+		playerFrames.push_back({ {256,64},{16,16} });
+		playerFrames.push_back({ {256,80},{16,16} });
+		playerFrames.push_back({ {272,0},{16,16} });
+		playerFrames.push_back({ {272,16},{16,16} });
+		playerFrames.push_back({ {272,32},{16,16} });
+		playerFrames.push_back({ {272,48},{16,16} });
+		playerFrames.push_back({ {272,64},{16,16} });
+		playerFrames.push_back({ {272,80},{16,16} });
+		playerSprite.spr = Services::graphics.loadSprite("player3", "spritesheet", playerFrames);
 		playerSprite.name = "player3";
 
 
@@ -602,7 +611,7 @@ void State::Playing::createEntities()
 		playerPos.parentID = result->getID();
 		playerPos.pos.x = sin(angle) * distance;
 		playerPos.pos.y = cos(angle) * distance;
-		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D())+1;
+		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D()) + 1;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -647,8 +656,8 @@ void State::Playing::createEntities()
 
 		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
 		std::vector<frame> dogFrames;
-		dogFrames.push_back({{0,32},{16,16}});
-		dogSprite.spr = Services::graphics.loadSprite("dog","spritesheet",dogFrames);
+		dogFrames.push_back({ {0,32},{16,16} });
+		dogSprite.spr = Services::graphics.loadSprite("dog", "spritesheet", dogFrames);
 		dogSprite.name = "dog";
 
 		auto& dogPos = _enttRegistry.assign<position>(dog);
@@ -656,7 +665,7 @@ void State::Playing::createEntities()
 		dogPos.parentID = result->getID();
 		dogPos.pos.x = 2 + sin(angle) * distance;
 		dogPos.pos.y = 2 + cos(angle) * distance;
-		dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D())+1;
+		dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D()) + 1;
 		dogPos.pos.r = 0;
 
 		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
@@ -697,13 +706,13 @@ void State::Playing::createEntities()
 
 			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
 			std::vector<frame> dogFrames;
-			if(Services::graphics.isSpriteLoaded("ball")){
+			if (Services::graphics.isSpriteLoaded("ball")) {
 				ballSprite.spr = Services::graphics.getSprite("ball");
 			}
-			else{
+			else {
 				std::vector<frame> ballFrames;
-				ballFrames.push_back({{240,0},{16,16}});
-				ballSprite.spr = Services::graphics.loadSprite("ball","spritesheet",ballFrames);
+				ballFrames.push_back({ {240,0},{16,16} });
+				ballSprite.spr = Services::graphics.loadSprite("ball", "spritesheet", ballFrames);
 				ballSprite.spr = Services::graphics.loadSprite("ball");
 			}
 
@@ -790,14 +799,14 @@ void State::Playing::fixEntities()
 
 void State::Playing::_chunkLoaderFunc()
 {
-	position* positionCopy=_chunkLoaderPlayerPosition;
+	position* positionCopy = _chunkLoaderPlayerPosition;
 	while (positionCopy != nullptr) {
 		position p(*positionCopy);
 		if (positionCopy != nullptr)
 		{
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
 		}
-		positionCopy=_chunkLoaderPlayerPosition;
+		positionCopy = _chunkLoaderPlayerPosition;
 	}
 }
 
@@ -812,7 +821,7 @@ void State::Playing::debugConsoleExec(std::string input)
 	std::stringstream ss(input);
 	std::string command;
 	ss >> command;
-	if(command == "help"){ //fake switch
+	if (command == "help") { //fake switch
 		std::cout << "tp [x] [y] [z]" << std::endl;
 		std::cout << "listNodes" << std::endl;
 		std::cout << "nodeInfo ID" << std::endl;
@@ -825,31 +834,33 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "setNodeVel ID x y z" << std::endl;
 		std::cout << "pause" << std::endl;
 		std::cout << "step" << std::endl;
+		std::cout << "setNullBlock ID" << std::endl;
+		
 	}
-	else if(command == "pause"){
-		_paused=!_paused;
+	else if (command == "pause") {
+		_paused = !_paused;
 	}
-	else if(command =="step"){
-		_step=true;
+	else if (command == "step") {
+		_step = true;
 	}
-	else if(command == "stop"){
+	else if (command == "stop") {
 		velocity& vel = _enttRegistry.get<velocity>(_player);
-		vel.spd=fdd();
+		vel.spd = fdd();
 	}
-	else if(command == "toggleGravity"){
-		config::gravityEnabled=!config::gravityEnabled;
+	else if (command == "toggleGravity") {
+		config::gravityEnabled = !config::gravityEnabled;
 	}
-	else if(command == "toggleDrag"){
-		config::dragEnabled=!config::dragEnabled;
+	else if (command == "toggleDrag") {
+		config::dragEnabled = !config::dragEnabled;
 	}
-	else if(command == "toggleDepthShadows"){
-		config::drawDepthShadows=!config::drawDepthShadows;
+	else if (command == "toggleDepthShadows") {
+		config::drawDepthShadows = !config::drawDepthShadows;
 	}
-	else if(command == "listNodes"){
-		for(universeNode& node : _universeBase){
+	else if (command == "listNodes") {
+		for (universeNode& node : _universeBase) {
 			std::string sep;
-			for(int i =0;i<node.getDepth();++i){
-				sep+="   ";
+			for (int i = 0; i < node.getDepth(); ++i) {
+				sep += "   ";
 			}
 			std::cout << sep << "ID: " << node.getID() << std::endl;
 			std::cout << sep << "name: " << node.getName() << std::endl;
@@ -858,15 +869,15 @@ void State::Playing::debugConsoleExec(std::string input)
 
 		}
 	}
-	else if(command == "nodeInfo" && ss.tellg() != -1){
+	else if (command == "nodeInfo" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			std::string sep;
-			for(int i =0;i<node->getDepth();++i){
-				sep+="   ";
+			for (int i = 0; i < node->getDepth(); ++i) {
+				sep += "   ";
 			}
 			std::cout << sep << "ID: " << node->getID() << std::endl;
 			std::cout << sep << "name: " << node->getName() << std::endl;
@@ -874,83 +885,90 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "pos: " << node->getPosition() << std::endl;
 		}
 	}
-	else if(command == "setNodePos" && ss.tellg() != -1){
+	else if (command == "setNodePos" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			fdd pos;
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.x = std::strtol(argument.c_str(),nullptr,10);
+				pos.x = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.y = std::strtol(argument.c_str(),nullptr,10);
+				pos.y = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.z = std::strtol(argument.c_str(),nullptr,10);
+				pos.z = std::strtol(argument.c_str(), nullptr, 10);
 			}
 			node->setPosition(pos);
 		}
 	}
-	else if(command == "setNodeVel" && ss.tellg() != -1){
+	else if (command == "setNodeVel" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			fdd pos;
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.x = std::strtol(argument.c_str(),nullptr,10);
+				pos.x = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.y = std::strtol(argument.c_str(),nullptr,10);
+				pos.y = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.z = std::strtol(argument.c_str(),nullptr,10);
+				pos.z = std::strtol(argument.c_str(), nullptr, 10);
 			}
 			node->setVelocity(pos);
 		}
 	}
-	else if(command == "setParent" && ss.tellg() != -1){
+	else if (command == "setParent" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			velocity& vel = _enttRegistry.get<velocity>(_player);
 			position& pos = _enttRegistry.get<position>(_player);
-			vel.spd=node->getLocalVel(vel.spd,pos.parent);
-			pos.pos=node->getLocalPos(pos.pos,pos.parent);
-			pos.parent=node;
-			pos.parentID=node->getID();
+			vel.spd = node->getLocalVel(vel.spd, pos.parent);
+			pos.pos = node->getLocalPos(pos.pos, pos.parent);
+			pos.parent = node;
+			pos.parentID = node->getID();
 		}
 	}
-	else if(command == "tp"){
+	else if (command == "tp") {
 		velocity& vel = _enttRegistry.get<velocity>(_player);
-		vel.spd=fdd();
+		vel.spd = fdd();
 		position& pos = _enttRegistry.get<position>(_player);
 		std::string argument;
-		if(ss.tellg() != -1){
+		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.x = std::strtol(argument.c_str(),nullptr,10);
+			pos.pos.x = std::strtol(argument.c_str(), nullptr, 10);
 		}
-		if(ss.tellg() != -1){
+		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.y = std::strtol(argument.c_str(),nullptr,10);
+			pos.pos.y = std::strtol(argument.c_str(), nullptr, 10);
 		}
-		if(ss.tellg() != -1){
+		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.z = std::strtol(argument.c_str(),nullptr,10);
+			pos.pos.z = std::strtol(argument.c_str(), nullptr, 10);
 		}
-		else{
-			pos.pos.z = 1+pos.parent->getHeight({(int)pos.pos.x,(int)pos.pos.y});
+		else {
+			pos.pos.z = 1 + pos.parent->getHeight({ (int)pos.pos.x,(int)pos.pos.y });
+		}
+	}
+	else if (command == "setNullBlock") { // Y THO
+		std::string argument;
+		if (ss.tellg() != -1) {
+			ss >> argument;
+			metaBlock::nullBlock.base = &baseBlock::terrainTable[std::strtol(argument.c_str(),nullptr,10)];
 		}
 	}
 	std::cout << input << std::endl;
