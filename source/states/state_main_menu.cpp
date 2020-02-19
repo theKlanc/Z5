@@ -13,6 +13,7 @@
 #include "states/state_demo.hpp"
 #include <iostream>
 #include "UI/gadgets/imageToggleButton.hpp"
+#include "states/state_prefab_editor.hpp"
 
 
 State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test"))
@@ -147,6 +148,11 @@ void State::MainMenu::draw(double dt) {
 	HI2::endFrame();
 }
 
+void State::MainMenu::mapEditorCallback()
+{
+	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,"test",point3Di{32,16,16}));
+}
+
 void State::MainMenu::regenerateSavesVector()
 {
 	std::shared_ptr<gadget> last;
@@ -209,6 +215,7 @@ void State::MainMenu::createMainPanel()
 	last->setDown(_mainPanel.mapEditorButton.get());
 	_mainPanel.mapEditorButton->setUp(last.get());
 	last = _mainPanel.mapEditorButton;
+	_mainPanel.mapEditorButton->setClickCallback(std::bind(&State::MainMenu::mapEditorCallback, this));
 	_mainPanel.p->addGadget(std::make_shared<textView>(point2D{ 80,160 }, point2D{ 200,32 }, "Map editor", _standardFont, 32, HI2::Color::Black, HI2::Color::White));
 
 	_mainPanel.optionsButton = std::make_shared<imagePushButton>(point2D{ 32,224 }, point2D{ 32,32 }, off, on, "");

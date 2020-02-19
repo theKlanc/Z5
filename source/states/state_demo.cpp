@@ -2,9 +2,6 @@
 #include <iostream>
 #include "gameCore.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_audio.h"
-#include "SDL2/SDL_mixer.h"
 #include "services.hpp"
 
 State::Demo::Demo(gameCore& c) : State_Base(c) {

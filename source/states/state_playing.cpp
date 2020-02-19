@@ -38,7 +38,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	_debug = debug;
 
 	//load terrain table
-	loadTerrainTable();
+	baseBlock::loadTerrainTable();
 
 	Services::lcg.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
@@ -470,16 +470,6 @@ std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
 		}
 	}
 	return newVis;
-}
-
-void State::Playing::loadTerrainTable()
-{
-	std::ifstream terrainTableFile(HI2::getDataPath().append("blockTable.json"));
-	json j;
-	terrainTableFile >> j;
-	j.get_to(_terrainTable);
-	baseBlock::terrainTable = _terrainTable;
-	metaBlock::nullBlock.base = &baseBlock::terrainTable[0];
 }
 
 point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)

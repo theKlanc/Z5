@@ -30,6 +30,13 @@ void pushButton::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bi
 		{
 			_rising = (up[HI2::BUTTON::KEY_ACCEPT]);
 		}
+		if(_rising)
+		{
+			if(_clickCallback != nullptr)
+			{
+				_clickCallback();
+			}
+		}
 	}
 }
 
@@ -58,4 +65,9 @@ bool pushButton::isRising()
 bool pushButton::isRisingInside()
 {
 	return _rising;
+}
+
+void pushButton::setClickCallback(std::function<void()> f)
+{
+	_clickCallback = f;
 }

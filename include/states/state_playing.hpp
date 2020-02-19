@@ -44,14 +44,10 @@ namespace State {
 		void drawLayer(const renderLayer& rl);
 		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
-		void loadTerrainTable();
-
 		entt::entity _player;
 		entt::entity _camera;
 		int selectedBlock = 7;
 		blockRotation selectedRotation = UP;
-
-		std::vector<baseBlock> _terrainTable;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
 

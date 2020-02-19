@@ -2,8 +2,6 @@
 #include "state_base.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 
-#include "SDL2/SDL_mixer.h"
-
 namespace State {
 	class Demo : public State_Base {
 	  public:
@@ -18,7 +16,6 @@ namespace State {
 		sprite* s;
 		HI2::Font* font;
 		HI2::Audio* effect;
-		Mix_Music *audio;
 		point2Dd pixelPos;
 		point2Dd pixelSpd;
 		bool done=false;

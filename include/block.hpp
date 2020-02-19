@@ -27,6 +27,8 @@ struct baseBlock { // A baseBlock represents a 1m³ cube of material
 
 	bool operator==(const baseBlock& right);
 	static std::vector<baseBlock> terrainTable;
+
+	static void loadTerrainTable();
 };
 
 struct metaBlock

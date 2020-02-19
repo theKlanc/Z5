@@ -235,6 +235,7 @@
     <ClCompile Include="source\states\state_demo.cpp" />
     <ClCompile Include="source\states\state_main_menu.cpp" />
     <ClCompile Include="source\states\state_playing.cpp" />
+    <ClCompile Include="source\states\state_prefab_editor.cpp" />
     <ClCompile Include="source\terrainChunk.cpp" />
     <ClCompile Include="source\UI\gadget.cpp" />
     <ClCompile Include="source\UI\gadgets\basicPanel.cpp" />
@@ -403,6 +404,7 @@
     <ClInclude Include="include\states\state_demo.hpp" />
     <ClInclude Include="include\states\state_main_menu.hpp" />
     <ClInclude Include="include\states\state_playing.hpp" />
+    <ClInclude Include="include\states\state_prefab_editor.hpp" />
     <ClInclude Include="include\terrainChunk.hpp" />
     <ClInclude Include="include\ui.hpp" />
     <ClInclude Include="include\UI\gadget.hpp" />

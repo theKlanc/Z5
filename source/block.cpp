@@ -50,6 +50,16 @@ bool baseBlock::operator==(const baseBlock& right)
 	return ID == right.ID;
 }
 
+void baseBlock::loadTerrainTable()
+{
+	terrainTable.clear();
+	std::ifstream terrainTableFile(HI2::getDataPath().append("blockTable.json"));
+	json j;
+	terrainTableFile >> j;
+	j.get_to(baseBlock::terrainTable);
+	metaBlock::nullBlock.base = &baseBlock::terrainTable[0];
+}
+
 bool metaBlock::operator==(const metaBlock& right)
 {
 	if (saveMeta == right.saveMeta && saveMeta == false)

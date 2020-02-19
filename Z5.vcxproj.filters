@@ -401,6 +401,9 @@
     <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector3.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
+    <ClCompile Include="source\states\state_prefab_editor.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">
@@ -903,6 +906,9 @@
     </ClInclude>
     <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector3.h">
       <Filter>deps\ReactPhysics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="include\states\state_prefab_editor.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
