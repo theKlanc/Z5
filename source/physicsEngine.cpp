@@ -338,8 +338,12 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 					entityBody.physicsData.collider->setTransform(entityTransform);
 
 					chunk->getCollider()->setTransform(rp3d::Transform::identity());
-					chunk->getCollider()->setUserData((void*)&cResponse);
-					_zaWarudo->testCollision(entityBody.physicsData.collider, chunk->getCollider(), this);
+
+					if (chunk->getCollider()->testAABBOverlap(entityBody.physicsData.collider->getAABB()));
+					{
+						chunk->getCollider()->setUserData((void*)&cResponse);
+						_zaWarudo->testCollision(entityBody.physicsData.collider, chunk->getCollider(), this);
+					}
 				}
 			}
 		}
