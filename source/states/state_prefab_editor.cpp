@@ -111,6 +111,12 @@ void State::PrefabEditor::input(double dt)
 	{
 		_camera.z--;
 	}
+    if (keysDown[HI2::BUTTON::KEY_H]){
+        //print help
+    }
+    if (keysDown[HI2::BUTTON::KEY_I]){
+        _drawInvisible!=_drawInvisible;
+    }
 	if(keysHeld[HI2::BUTTON::KEY_LEFTCLICK])
 	{
 		auto mouse = HI2::getTouchPos();
@@ -138,32 +144,38 @@ void State::PrefabEditor::update(double dt)
 void State::PrefabEditor::draw(double dt)
 {
 	HI2::startFrame();
-	for (int j = 0; j < HI2::getScreenWidth() / (zoom * config::spriteSize); ++j)
-	{
-		for (int i = 0; i < HI2::getScreenHeight() / (zoom * config::spriteSize); ++i)
-		{
-			point3Di pos = _camera;
-			pos.x += j;
-			pos.y += i;
-			if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _size.x && pos.y < _size.y && pos.z < _size.z)
-			{
-				metaBlock& mb = _blocks[pos.x * _size.y * _size.z + pos.y * _size.z + pos.z];
-				if (mb.base->visible)
-				{
-					HI2::drawTexture(*mb.base->spr->getTexture(), j * (zoom * config::spriteSize), i * (zoom * config::spriteSize), mb.base->spr->getCurrentFrame().size, mb.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)mb.rotation) * (M_PI / 2));
-				}
-				else
-				{
-					//TODO
-					//DRAW INVISIBLE BLOCKS
-				}
-			}
-			else
-			{
-				HI2::drawRectangle({j * (zoom * config::spriteSize), i * (zoom * config::spriteSize)},zoom*config::spriteSize,zoom*config::spriteSize,HI2::Color{255,0,0,127});
-			}
-		}
-	}
+    for (int depth = 0; depth < cameraDepth; depth++){
+        for (int j = 0; j < HI2::getScreenWidth() / (zoom * config::spriteSize); ++j)
+        {
+            for (int i = 0; i < HI2::getScreenHeight() / (zoom * config::spriteSize); ++i)
+            {
+                point3Di pos = _camera;
+                pos.x += j;
+                pos.y += i;
+                pos.y -= depth;
+                if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _size.x && pos.y < _size.y && pos.z < _size.z)
+                {
+                    metaBlock& mb = _blocks[pos.x * _size.y * _size.z + pos.y * _size.z + pos.z];
+                    if (mb.base->visible)
+                    {
+                        HI2::drawTexture(*mb.base->spr->getTexture(), j * (zoom * config::spriteSize), i * (zoom * config::spriteSize), mb.base->spr->getCurrentFrame().size, mb.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)mb.rotation) * (M_PI / 2));
+                    }
+                    else
+                    {
+                        //TODO
+                        //DRAW INVISIBLE BLOCKS
+                        if(_drawInvisible){
+                            HI2::drawRectangle({j * (zoom * config::spriteSize), i * (zoom * config::spriteSize)},zoom*config::spriteSize,zoom*config::spriteSize,HI2::Color{(mb.base->ID==0?255:0),(mb.base->ID==1?255:0),(mb.base->ID==2?255:0),127});
+                        }
+                    }
+                }
+                else
+                {
+                    HI2::drawRectangle({j * (zoom * config::spriteSize), i * (zoom * config::spriteSize)},zoom*config::spriteSize,zoom*config::spriteSize,HI2::Color{255,0,0,127});
+                }
+            }
+        }
+    }
 
 	auto mousePos = HI2::getTouchPos();
 	//HI2::drawRectangle({((int)(mousePos.x/(config::spriteSize*zoom)))*config::spriteSize*zoom,((int)(mousePos.y/(config::spriteSize*zoom)))*config::spriteSize*zoom},zoom * config::spriteSize,zoom * config::spriteSize,{255,0,0,127});

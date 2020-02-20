@@ -25,6 +25,8 @@ namespace State {
 		blockRotation _rotation = UP;
 		int _selectedToolbarPos = 0;
 		std::array<baseBlock*,9> _toolbar;
-		int zoom = 1; 
+		int zoom = 1;
+        bool _drawInvisible = false;
+        unsigned _cameraDepth = 1;
 	};
 }
