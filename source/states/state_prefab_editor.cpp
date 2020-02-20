@@ -113,7 +113,7 @@ void State::PrefabEditor::input(double dt)
 	}
 	if(keysHeld[HI2::BUTTON::KEY_LEFTCLICK])
 	{
-		auto& mouse = HI2::getTouchPos();
+		auto mouse = HI2::getTouchPos();
 		point3Di blockPos = _camera;
 		blockPos.x += (int)(mouse.x/(config::spriteSize*zoom));
 		blockPos.y += (int)(mouse.y/(config::spriteSize*zoom));
@@ -122,7 +122,7 @@ void State::PrefabEditor::input(double dt)
 	}
 	if(keysHeld[HI2::BUTTON::KEY_RIGHTCLICK])
 	{
-		auto& mouse = HI2::getTouchPos();
+		auto mouse = HI2::getTouchPos();
 		point3Di blockPos = _camera;
 		blockPos.x += (int)(mouse.x/(config::spriteSize*zoom));
 		blockPos.y += (int)(mouse.y/(config::spriteSize*zoom));
@@ -165,7 +165,7 @@ void State::PrefabEditor::draw(double dt)
 		}
 	}
 
-	auto& mousePos = HI2::getTouchPos();
+	auto mousePos = HI2::getTouchPos();
 	//HI2::drawRectangle({((int)(mousePos.x/(config::spriteSize*zoom)))*config::spriteSize*zoom,((int)(mousePos.y/(config::spriteSize*zoom)))*config::spriteSize*zoom},zoom * config::spriteSize,zoom * config::spriteSize,{255,0,0,127});
 	HI2::drawTexture(*_toolbar[_selectedToolbarPos]->spr->getTexture(), ((int)(mousePos.x/(config::spriteSize*zoom)))*config::spriteSize*zoom,((int)(mousePos.y/(config::spriteSize*zoom)))*config::spriteSize*zoom, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().size, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().startPos, zoom, ((double)(int)_rotation) * (M_PI / 2));
 	
