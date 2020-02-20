@@ -230,6 +230,7 @@
     <ClCompile Include="source\nodeGenerators\prefabGenerator.cpp" />
     <ClCompile Include="source\nodeGenerators\terrainPainterGenerator.cpp" />
     <ClCompile Include="source\physicsEngine.cpp" />
+    <ClCompile Include="source\prefab.cpp" />
     <ClCompile Include="source\services.cpp" />
     <ClCompile Include="source\states\state_base.cpp" />
     <ClCompile Include="source\states\state_demo.cpp" />

@@ -404,6 +404,9 @@
     <ClCompile Include="source\states\state_prefab_editor.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="source\prefab.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\components\drawable.hpp">

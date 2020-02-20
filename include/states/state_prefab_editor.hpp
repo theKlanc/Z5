@@ -2,6 +2,7 @@
 #include "state_base.hpp"
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "block.hpp"
+#include "prefab.hpp"
 
 namespace State {
 	class PrefabEditor : public State_Base {
@@ -20,10 +21,7 @@ namespace State {
 
 		void initToolbar();
 		
-		std::string _prefabName;
-		std::filesystem::path _prefabFolder;
-		point3Di _size;
-		std::vector<metaBlock> _blocks;
+		prefab _prefab;
 		point3Di _camera;
 		blockRotation _rotation = UP;
 		int _selectedToolbarPos = 0;

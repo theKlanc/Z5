@@ -1,6 +1,5 @@
 #pragma once
 #include "FastNoise/FastNoise.h"
-#include <vector>
 #include "block.hpp"
 #include "terrainChunk.hpp"
 
@@ -9,9 +8,9 @@ public:
 	nodeGenerator();
 	nodeGenerator(unsigned int s);
 	virtual ~nodeGenerator() = 0;
-	virtual terrainChunk getChunk(const point3Di& p) const = 0;
-	virtual baseBlock& getTopBlock(const point2D& p) const = 0;
-	virtual int getHeight(const point2D& p) const = 0;
+	virtual terrainChunk getChunk(const point3Di& p) = 0;
+	virtual baseBlock& getTopBlock(const point2D& p) = 0;
+	virtual int getHeight(const point2D& p) = 0;
 
 	friend void to_json(nlohmann::json &j, const nodeGenerator &ng);
 protected:

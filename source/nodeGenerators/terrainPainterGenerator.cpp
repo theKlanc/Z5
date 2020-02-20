@@ -41,7 +41,7 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 	_liquidID = 3;
 }
 
-terrainChunk terrainPainterGenerator::getChunk(const point3Di& p)const
+terrainChunk terrainPainterGenerator::getChunk(const point3Di& p)
 {
 	if (p.z < 0 || fdd{ 0,0,0,0 }.distance2D(fdd{ (double)(p.x) * config::chunkSize,(double)(p.y) * config::chunkSize,0,0 }) > (_diameter / 2)*config::chunkSize)
 	{
@@ -70,7 +70,7 @@ terrainChunk terrainPainterGenerator::getChunk(const point3Di& p)const
 	return chunk;
 }
 
-int terrainPainterGenerator::getHeight(const point2D &p) const
+int terrainPainterGenerator::getHeight(const point2D &p)
 {
 	int result = _terrainPainter.getHeight(getNoise(p));
 	if(result < _liquidLevel)
@@ -308,7 +308,7 @@ void from_json(const nlohmann::json &j, terrainPainterGenerator &tpg)
 	tpg._terrainPainter = j.at("terrainPainter").get<terrainPainter>();
 }
 
-baseBlock &terrainPainterGenerator::getTopBlock(const point2D &p) const
+baseBlock &terrainPainterGenerator::getTopBlock(const point2D &p)
 {
 	return baseBlock::terrainTable[0];
 }

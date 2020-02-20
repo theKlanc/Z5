@@ -8,8 +8,7 @@ State::PrefabEditor::PrefabEditor(gameCore& c, std::string name)
 	_core = &c;
 	//load terrain table
 	baseBlock::loadTerrainTable();
-	_prefabName = name;
-	_prefabFolder = HI2::getDataPath().append("prefabs").append(name);
+	_prefab = prefab(name);
 	load();
 
 	initToolbar();
@@ -22,11 +21,8 @@ State::PrefabEditor::PrefabEditor(gameCore& c, std::string name, point3Di size)
 	_core = &c;
 	//load terrain table
 	baseBlock::loadTerrainTable();
-	_prefabName = name;
-	_prefabFolder = HI2::getDataPath().append("prefabs").append(name);
-	_size = size;
-	_blocks.resize(size.x * size.y * size.z, metaBlock{ &baseBlock::terrainTable[0],UP,true });
-
+	_prefab = prefab(name,size);
+	
 	initToolbar();
 }
 
@@ -119,8 +115,8 @@ void State::PrefabEditor::input(double dt)
 		point3Di blockPos = _camera;
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _size.x && blockPos.y < _size.y && blockPos.z < _size.z)
-			_blocks[blockPos.z * _size.y * _size.x + blockPos.y * _size.x + blockPos.x].base = _toolbar[_selectedToolbarPos];
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
 	}
 	if (keysHeld[HI2::BUTTON::KEY_RIGHTCLICK])
 	{
@@ -128,8 +124,8 @@ void State::PrefabEditor::input(double dt)
 		point3Di blockPos = _camera;
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _size.x && blockPos.y < _size.y && blockPos.z < _size.z)
-			_blocks[blockPos.z * _size.y * _size.x + blockPos.y * _size.x + blockPos.x].base = &baseBlock::terrainTable[0];
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
 	}
 }
 
@@ -149,9 +145,9 @@ void State::PrefabEditor::draw(double dt)
 				pos.x += j;
 				pos.y += i;
 				pos.z -= depth;
-				if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _size.x && pos.y < _size.y && pos.z < _size.z)
+				if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _prefab.getSize().x && pos.y < _prefab.getSize().y && pos.z < _prefab.getSize().z)
 				{
-					metaBlock& mb = _blocks[pos.z * _size.y * _size.x + pos.y * _size.x + pos.x];
+					metaBlock& mb = _prefab[pos.z * _prefab.getSize().y * _prefab.getSize().x + pos.y * _prefab.getSize().x + pos.x];
 					if (mb.base->visible)
 					{
 						HI2::setTextureColorMod(*mb.base->spr->getTexture(), { unsigned char(255 - depth * 50),unsigned char(255 - depth * 50),unsigned char(255 - depth * 50),255 });
@@ -194,10 +190,10 @@ void State::PrefabEditor::draw(double dt)
 		}
 	}
 
-	HI2::drawText(*Services::fonts.loadFont("test"), "name: " + _prefabName, { 0,0 }, 20, HI2::Color::White);
-	HI2::drawText(*Services::fonts.loadFont("test"), "size: x:" + std::to_string(_size.x), { 0,20 }, 20, HI2::Color::White);
-	HI2::drawText(*Services::fonts.loadFont("test"), "      y:" + std::to_string(_size.y), { 0,40 }, 20, HI2::Color::White);
-	HI2::drawText(*Services::fonts.loadFont("test"), "      z:" + std::to_string(_size.z), { 0,60 }, 20, HI2::Color::White);
+	HI2::drawText(*Services::fonts.loadFont("test"), "name: " + _prefab.getName(), { 0,0 }, 20, HI2::Color::White);
+	HI2::drawText(*Services::fonts.loadFont("test"), "size: x:" + std::to_string(_prefab.getSize().x), { 0,20 }, 20, HI2::Color::White);
+	HI2::drawText(*Services::fonts.loadFont("test"), "      y:" + std::to_string(_prefab.getSize().y), { 0,40 }, 20, HI2::Color::White);
+	HI2::drawText(*Services::fonts.loadFont("test"), "      z:" + std::to_string(_prefab.getSize().z), { 0,60 }, 20, HI2::Color::White);
 
 
 	HI2::endFrame();
@@ -205,27 +201,12 @@ void State::PrefabEditor::draw(double dt)
 
 void State::PrefabEditor::save()
 {
-	std::filesystem::create_directories(_prefabFolder);
-	std::filesystem::path outputFileName = _prefabFolder;
-	outputFileName.append(_prefabName + ".z5p");
-	std::ofstream output(outputFileName);
-	output << _size.x << ' ' << _size.y << ' ' << _size.z << std::endl;
-	output << _blocks;
+	_prefab.save();
 }
 
 void State::PrefabEditor::load()
 {
-	std::filesystem::path inputFilename = _prefabFolder;
-	inputFilename.append(_prefabName + ".z5p");
-	if (std::filesystem::exists(inputFilename))
-	{
-		std::ifstream input(inputFilename);
-		if (input.is_open())
-		{
-			input >> _size.x >> _size.y >> _size.z;
-			input >> _blocks;
-		}
-	}
+	_prefab.load();
 }
 
 void State::PrefabEditor::initToolbar()
