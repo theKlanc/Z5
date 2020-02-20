@@ -150,7 +150,8 @@ void State::MainMenu::draw(double dt) {
 
 void State::MainMenu::mapEditorCallback()
 {
-	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,"test",point3Di{32,16,16}));
+	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,"test"));
+	//_core->pushState(std::make_unique<State::PrefabEditor>(*_core,"test",point3Di{32,16,16}));
 }
 
 void State::MainMenu::regenerateSavesVector()

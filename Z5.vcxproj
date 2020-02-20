@@ -398,6 +398,7 @@
     <ClInclude Include="include\nodeGenerators\prefabGenerator.hpp" />
     <ClInclude Include="include\nodeGenerators\terrainPainterGenerator.hpp" />
     <ClInclude Include="include\physicsEngine.hpp" />
+    <ClInclude Include="include\prefab.hpp" />
     <ClInclude Include="include\services.hpp" />
     <ClInclude Include="include\audioManager.hpp" />
     <ClInclude Include="include\states\state_base.hpp" />

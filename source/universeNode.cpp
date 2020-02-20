@@ -227,7 +227,7 @@ terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	int z = (int(floor((double)pos.z / config::chunkSize)) % config::chunkLoadDiameter);
 	if (z < 0)
 		z += config::chunkLoadDiameter;
-	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
+	return _chunks[(z * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + x];
 }
 
 terrainChunk& universeNode::getChunk(const point3Di& pos)
@@ -242,7 +242,7 @@ terrainChunk& universeNode::getChunk(const point3Di& pos)
 	if (z < 0)
 		z += config::chunkLoadDiameter;
 
-	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
+	return _chunks[(z * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + x];
 }
 
 int universeNode::chunkIndex(const point3Di& pos) const
@@ -256,7 +256,7 @@ int universeNode::chunkIndex(const point3Di& pos) const
 	int z = (pos.z / config::chunkSize % config::chunkLoadDiameter);
 	if (z < 0)
 		z += config::chunkLoadDiameter;
-	return (x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z;
+	return (z * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + x;
 }
 
 void universeNode::linkChildren() {

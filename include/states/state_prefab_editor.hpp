@@ -16,6 +16,9 @@ namespace State {
 
 	  private:
 		void save();
+		void load();
+
+		void initToolbar();
 		
 		std::string _prefabName;
 		std::filesystem::path _prefabFolder;
@@ -27,6 +30,6 @@ namespace State {
 		std::array<baseBlock*,9> _toolbar;
 		int zoom = 1;
         bool _drawInvisible = false;
-        unsigned _cameraDepth = 1;
+        unsigned _cameraDepth = 3;
 	};
 }

@@ -910,6 +910,9 @@
     <ClInclude Include="include\states\state_prefab_editor.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\prefab.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\defData\universe.json">

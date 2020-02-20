@@ -60,7 +60,7 @@ void baseBlock::loadTerrainTable()
 	metaBlock::nullBlock.base = &baseBlock::terrainTable[0];
 }
 
-bool metaBlock::operator==(const metaBlock& right)
+bool metaBlock::operator==(const metaBlock& right) const
 {
 	if (saveMeta == right.saveMeta && saveMeta == false)
 		return base == right.base;
@@ -76,6 +76,57 @@ std::ostream& operator<<(std::ostream& os, const metaBlock& m)
 	else {
 		return os << m.base->ID << ' ' << m.saveMeta;
 	}
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<metaBlock>& m)
+{
+	metaBlock lastBlock = m[0];
+	unsigned accumulatedLength = 0;
+	for (const metaBlock& b : m)
+	{
+		if (b != lastBlock)
+		{
+			os << lastBlock << ' ' << accumulatedLength << std::endl;
+			lastBlock = b;
+			accumulatedLength = 1;
+		}
+		else
+		{
+			accumulatedLength++;
+		}
+	}
+	return os << lastBlock << ' ' << accumulatedLength << std::endl;
+}
+
+std::istream& operator>>(std::istream& is, std::vector<metaBlock>& m)
+{
+	m.clear();
+	m.resize(0);
+
+	unsigned blockID;
+	blockRotation rotation;
+	bool savedMeta;
+	unsigned length;
+
+	std::string input;
+	while (is >> input)
+	{
+		blockID = std::stoi(input);
+		is >> input;
+		savedMeta = std::stoi(input);
+		if (savedMeta) {
+			is >> input;
+
+			rotation = (blockRotation)std::stoi(input);
+		}
+		is >> input;
+		length = std::stoi(input);
+		for (int i = 0; i < length; ++i)
+		{
+			m.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), savedMeta });
+		}
+	}
+	return is;
 }
 
 void to_json(nlohmann::json& j, const baseBlock& b)

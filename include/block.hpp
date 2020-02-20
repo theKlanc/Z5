@@ -36,21 +36,23 @@ struct metaBlock
 	baseBlock* base;
 	blockRotation rotation = UP;
 	bool saveMeta = false;
-	bool operator==(const metaBlock& right);
+	bool operator==(const metaBlock& right) const;
 
-	bool operator!=(const metaBlock& right)
+	bool operator!=(const metaBlock& right) const
 	{
 		return !(*this == right);
 	}
 	static metaBlock nullBlock;
 
 	friend std::ostream& operator<<(std::ostream& os, const metaBlock& m);
-	friend std::istream& operator>>(std::istream& is, const metaBlock& m);
+	//friend std::istream& operator>>(std::istream& is, const metaBlock& m);
 	
 };
 
 std::ostream& operator<<(std::ostream& os, const metaBlock& m);
-std::istream& operator>>(std::istream& is, const metaBlock& m);
+//std::istream& operator>>(std::istream& is, metaBlock& m);
+std::ostream& operator<<(std::ostream& os, const std::vector<metaBlock>& m);
+std::istream& operator>>(std::istream& is, std::vector<metaBlock>& m);
 
 void to_json(json& j, const baseBlock& b);
 void from_json(const json& j, baseBlock& b);
