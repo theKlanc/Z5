@@ -150,7 +150,7 @@ void State::PrefabEditor::draw(double dt)
 					metaBlock& mb = _prefab[pos.z * _prefab.getSize().y * _prefab.getSize().x + pos.y * _prefab.getSize().x + pos.x];
 					if (mb.base->visible)
 					{
-						HI2::setTextureColorMod(*mb.base->spr->getTexture(), { unsigned char(255 - depth * 50),unsigned char(255 - depth * 50),unsigned char(255 - depth * 50),255 });
+						HI2::setTextureColorMod(*mb.base->spr->getTexture(), { (unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),255 });
 						HI2::drawTexture(*mb.base->spr->getTexture(), j * (zoom * config::spriteSize), i * (zoom * config::spriteSize), mb.base->spr->getCurrentFrame().size, mb.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)mb.rotation) * (M_PI / 2));
 					}
 					else

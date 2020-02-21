@@ -525,7 +525,7 @@ void State::Playing::saveGame()
 	saveEntities();
 	std::ofstream universeFile(savePath().append("universe.json"));
 	nlohmann::json universeJson(_universeBase);
-	universeJson >> universeFile;
+	universeFile << universeJson;
 }
 
 void State::Playing::loadEntities()
@@ -548,7 +548,7 @@ void State::Playing::saveEntities() const
 	std::ofstream entitiesFile(savePath().append("entities.json"));
 	nlohmann::json entitiesJson;
 	to_json(entitiesJson, _enttRegistry);
-	entitiesJson >> entitiesFile;
+	entitiesFile << entitiesJson;
 }
 
 void State::Playing::createEntities()
@@ -917,6 +917,7 @@ void State::Playing::debugConsoleExec(std::string input)
 				pos.z = std::strtol(argument.c_str(), nullptr, 10);
 			}
 			node->setVelocity(pos);
+			node->physicsData.sleeping = false;
 		}
 	}
 	else if (command == "setParent" && ss.tellg() != -1) {

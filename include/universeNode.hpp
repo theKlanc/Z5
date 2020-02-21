@@ -70,8 +70,8 @@ public:
 	//Physics private obj
 	struct
 	{
-	private:
 		bool sleeping = false;
+	private:
 		rp3d::Vector3 contactNormal;
 		double maxContactDepth = 0;
 		

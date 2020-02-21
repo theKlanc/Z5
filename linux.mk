@@ -20,7 +20,7 @@ ifeq ($(DEBUG), 1)
 FLAGS := $(FLAGS) -DDEBUG -Og -ggdb3 -fstack-protector-all
 BUILDTYPE := Debug
 else
-FLAGS := $(FLAGS) -O3 -ffast-math
+FLAGS := $(FLAGS) -flto -Ofast
 endif
 CCFLAGS := $(FLAGS) $(CCFLAGS)
 CXXFLAGS := $(FLAGS) $(CXXFLAGS)
