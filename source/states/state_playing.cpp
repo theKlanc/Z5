@@ -155,7 +155,7 @@ void State::Playing::input(double dt)
 			playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 		}
 		if (down[HI2::BUTTON::KEY_O]) {
-			playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
+			playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,false,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
 		}
 
 		//SELECT BLOCK
@@ -204,10 +204,26 @@ void State::Playing::update(double dt) {
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
-	cameraPosition.pos.z = playerPosition.pos.z + config::cameraHeight;
+	cameraPosition.pos.z = playerPosition.pos.z + 0.1;
+
 	if (_enttRegistry.has<body>(_player))
 	{
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
+		int h = 0;
+		for (int i = 0; i < config::cameraHeight; i++)
+		{
+			fdd newCameraPos = cameraPosition.pos;
+			newCameraPos.z = ceil(newCameraPos.z + h + 1);
+			if (!cameraPosition.parent->getBlock(newCameraPos.getPoint3Di()).base->opaque)
+			{
+				h++;
+			}
+			else
+			{
+				break;
+			}
+		}
+		cameraPosition.pos.z += h;
 	}
 }
 
@@ -282,7 +298,7 @@ void State::Playing::draw(double dt) {
 	{
 		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
 		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2),selectedFlip?HI2::FLIP::H:HI2::FLIP::NONE);
+		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2), selectedFlip ? HI2::FLIP::H : HI2::FLIP::NONE);
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
@@ -324,7 +340,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			if (config::drawDepthShadows) {
 				HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 			}
-			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r,HI2::FLIP::NONE);
+			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r, HI2::FLIP::NONE);
 			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
@@ -389,7 +405,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 							}
-							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2),b.flip?HI2::FLIP::H:HI2::FLIP::NONE);
+							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 						}
 					}
 				}
@@ -563,14 +579,14 @@ void State::Playing::createEntities()
 	double angle = Services::lcg();
 	angle = angle / Services::lcg.max() * (2 * M_PI);
 	double distance = Services::lcg() % ((int)result->getDiameter() / 2);
-	while((double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)})<250)
+	while ((double)result->getHeight({ (int)(sin(angle) * distance),(int)(cos(angle) * distance) }) < 250)
 	{
 		angle = Services::lcg();
 		angle = angle / Services::lcg.max() * (2 * M_PI);
 		distance = Services::lcg() % ((int)result->getDiameter() / 2);
 	}
 
-	universeNode spaceShip("test_plat", 100000, 64, { sin(angle) * distance - 10.2,cos(angle) * distance +0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0}, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
+	universeNode spaceShip("test_plat", 100000, 128, { sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
 	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("test"));
 	result->addChild(spaceShip);
 	//result = result->getChildren()[1];
@@ -825,7 +841,8 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "pause" << std::endl;
 		std::cout << "step" << std::endl;
 		std::cout << "setNullBlock ID" << std::endl;
-		
+		std::cout << "zoom zoomLevel" << std::endl;
+
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
@@ -874,6 +891,11 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "type: " << node->getType() << std::endl;
 			std::cout << sep << "pos: " << node->getPosition() << std::endl;
 		}
+	}
+	else if (command == "setZoom" && ss.tellg() != -1) {
+		std::string argument;
+		ss >> argument;
+		config::zoom = std::stoi(argument);
 	}
 	else if (command == "setNodePos" && ss.tellg() != -1) {
 		std::string argument;
@@ -959,7 +981,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::string argument;
 		if (ss.tellg() != -1) {
 			ss >> argument;
-			metaBlock::nullBlock.base = &baseBlock::terrainTable[std::strtol(argument.c_str(),nullptr,10)];
+			metaBlock::nullBlock.base = &baseBlock::terrainTable[std::strtol(argument.c_str(), nullptr, 10)];
 		}
 	}
 	std::cout << input << std::endl;

@@ -7,42 +7,12 @@ using nlohmann::json;
 
 blockRotation operator++(blockRotation& a, int)
 {
-	switch (a)
-	{
-	case UP:
-		a = LEFT;
-		break;
-	case LEFT:
-		a = DOWN;
-		break;
-	case DOWN:
-		a = RIGHT;
-		break;
-	case RIGHT:
-		a = UP;
-		break;
-	}
-	return a;
+	return a = (blockRotation)((a + 1) % 4);
 }
 
 blockRotation operator--(blockRotation& a, int)
 {
-	switch (a)
-	{
-	case DOWN:
-		a = LEFT;
-		break;
-	case RIGHT:
-		a = DOWN;
-		break;
-	case UP:
-		a = RIGHT;
-		break;
-	case LEFT:
-		a = UP;
-		break;
-	}
-	return a;
+	return a = (blockRotation)((a + 3) % 4);
 }
 
 bool baseBlock::operator==(const baseBlock& right)
@@ -124,7 +94,7 @@ std::istream& operator>>(std::istream& is, std::vector<metaBlock>& m)
 		length = std::stoi(input);
 		for (int i = 0; i < length; ++i)
 		{
-			m.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), savedMeta?flip:false,savedMeta });
+			m.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), (savedMeta ? flip : false),savedMeta });
 		}
 	}
 	return is;

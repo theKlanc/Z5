@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include "gameCore.hpp"
 #include "services.hpp"
+#include <iostream>
 
 State::PrefabEditor::PrefabEditor(gameCore& c, std::string name)
 {
@@ -111,6 +112,15 @@ void State::PrefabEditor::input(double dt)
 	{
 		_flip = !_flip;
 	}
+	if (keysDown[HI2::BUTTON::KEY_T])
+	{
+		_bgType = (_bgType + 1) % 3;
+	}
+	if (keysDown[HI2::BUTTON::KEY_X])
+	{
+		_symmetryMode = (symmetry)((_symmetryMode + 1) % 4);
+		std::cout << "symmetry mode: " << (_symmetryMode == NONE ? "none" : _symmetryMode == V ? "vertical" : _symmetryMode == H ? "horizontal" : "both") << std::endl;
+	}
 	if (keysHeld[HI2::BUTTON::KEY_H]) {
 		HI2::startFrame();
 
@@ -123,6 +133,8 @@ void State::PrefabEditor::input(double dt)
 		HI2::drawText(*Services::fonts.loadFont("test"), "e: flip block", { 0,80 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("test"), "scroll wheel / left-right: move toolbar selection", { 0,100 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("test"), "up-down: change selected block", { 0,120 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("test"), "x: switch between symmetry modes", { 0,140 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("test"), "t: switch between backgrounds", { 0,160 }, 20, HI2::Color::White);
 
 		HI2::endFrame();
 		_drawingHelp = true;
@@ -141,7 +153,44 @@ void State::PrefabEditor::input(double dt)
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = _rotation;
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
-
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			
+		}
+		if (_symmetryMode == V || _symmetryMode == BOTH)
+		{
+			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
+			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			{
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 - _rotation) % 4);
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			}
+			blockPos.y = -(blockPos.y - _prefab.getSize().y + 1);
+		}
+		if (_symmetryMode == H || _symmetryMode == BOTH)
+		{
+			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
+			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			{
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((4 - _rotation) % 4);
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			}
+			blockPos.x = -(blockPos.x - _prefab.getSize().x + 1);
+		}
+		if (_symmetryMode == BOTH)
+		{
+			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
+			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
+			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			{
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 + _rotation) % 4);
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			}
 		}
 	}
 	if (keysHeld[HI2::BUTTON::KEY_RIGHTCLICK])
@@ -151,7 +200,41 @@ void State::PrefabEditor::input(double dt)
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
 		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		{
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
+		}
+		if (_symmetryMode == V || _symmetryMode == BOTH)
+		{
+			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
+			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			{
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
+			}
+			blockPos.y = -(blockPos.y - _prefab.getSize().y + 1);
+		}
+		if (_symmetryMode == H || _symmetryMode == BOTH)
+		{
+			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
+			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			{
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
+			}
+			blockPos.x = -(blockPos.x - _prefab.getSize().x + 1);
+		}
+		if (_symmetryMode == BOTH)
+		{
+			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
+			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
+			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+			{
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
+			}
+
+		}
 	}
 }
 
@@ -161,16 +244,18 @@ void State::PrefabEditor::update(double dt)
 
 void State::PrefabEditor::draw(double dt)
 {
+	Services::graphics.stepAnimations(dt);
 	if (_drawingHelp)
 	{
 		_drawingHelp = false;
 		return;
 	}
 	HI2::startFrame();
+	drawBG();
 	for (int depth = _cameraDepth - 1; depth >= 0; --depth) {
-		for (int j = 0; j < HI2::getScreenWidth() / (zoom * config::spriteSize); ++j)
+		for (int j = 0; j < ceil((double)HI2::getScreenWidth() / (zoom * config::spriteSize)); ++j)
 		{
-			for (int i = 0; i < HI2::getScreenHeight() / (zoom * config::spriteSize); ++i)
+			for (int i = 0; i < ceil((double)HI2::getScreenHeight() / (zoom * config::spriteSize)); ++i)
 			{
 				point3Di pos = _camera;
 				pos.x += j;
@@ -182,7 +267,7 @@ void State::PrefabEditor::draw(double dt)
 					if (mb.base->visible)
 					{
 						HI2::setTextureColorMod(*mb.base->spr->getTexture(), { (unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),255 });
-						HI2::drawTexture(*mb.base->spr->getTexture(), j * (zoom * config::spriteSize), i * (zoom * config::spriteSize), mb.base->spr->getCurrentFrame().size, mb.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)mb.rotation) * (M_PI / 2), mb.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
+						HI2::drawTexture(*mb.base->spr->getTexture(), j * (zoom * config::spriteSize), i * (zoom * config::spriteSize), mb.base->spr->getCurrentFrame().size, mb.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)mb.rotation) * (M_PI / 2), (HI2::FLIP)mb.flip);
 					}
 					else
 					{
@@ -204,7 +289,8 @@ void State::PrefabEditor::draw(double dt)
 
 	auto mousePos = HI2::getTouchPos();
 	//HI2::drawRectangle({((int)(mousePos.x/(config::spriteSize*zoom)))*config::spriteSize*zoom,((int)(mousePos.y/(config::spriteSize*zoom)))*config::spriteSize*zoom},zoom * config::spriteSize,zoom * config::spriteSize,{255,0,0,127});
-	HI2::drawTexture(*_toolbar[_selectedToolbarPos]->spr->getTexture(), ((int)(mousePos.x / (config::spriteSize * zoom))) * config::spriteSize * zoom, ((int)(mousePos.y / (config::spriteSize * zoom))) * config::spriteSize * zoom, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().size, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().startPos, zoom, ((double)(int)_rotation) * (M_PI / 2), _flip ? HI2::FLIP::H : HI2::FLIP::NONE);
+	if (_toolbar[_selectedToolbarPos]->visible)
+		HI2::drawTexture(*_toolbar[_selectedToolbarPos]->spr->getTexture(), ((int)(mousePos.x / (config::spriteSize * zoom))) * config::spriteSize * zoom, ((int)(mousePos.y / (config::spriteSize * zoom))) * config::spriteSize * zoom, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().size, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().startPos, zoom, ((double)(int)_rotation) * (M_PI / 2), _flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 
 
 
@@ -243,7 +329,7 @@ void State::PrefabEditor::load()
 
 void State::PrefabEditor::initToolbar()
 {
-	unsigned b = 30;
+	unsigned b = 52;
 	for (int i = 0; i < _toolbar.size(); ++i)
 	{
 		while (!baseBlock::terrainTable[b].visible)
@@ -251,5 +337,23 @@ void State::PrefabEditor::initToolbar()
 			++b;
 		}
 		_toolbar[i] = &baseBlock::terrainTable[b++];
+	}
+}
+
+void State::PrefabEditor::drawBG()
+{
+	switch (_bgType)
+	{
+	case 0:
+		HI2::drawRectangle({}, HI2::getScreenWidth(), HI2::getScreenHeight(), HI2::Color::Black);
+		break;
+	case 1:
+		HI2::drawRectangle({}, HI2::getScreenWidth(), HI2::getScreenHeight(), HI2::Color::White);
+		break;
+	case 2:
+	default:
+		HI2::drawTexture(*Services::graphics.loadTexture("test"), 0, 0);
+		break;
+
 	}
 }

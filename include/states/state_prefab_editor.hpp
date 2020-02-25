@@ -20,9 +20,18 @@ namespace State {
 		void load();
 
 		void initToolbar();
+		void drawBG();
 
+		int _bgType = 0;
 		bool _drawingHelp = false;
 		bool _drawStats = false;
+		enum symmetry
+		{
+			NONE,
+			V,
+			H,
+			BOTH
+		}_symmetryMode = V;
 		prefab _prefab;
 		point3Di _camera;
 		blockRotation _rotation = UP;
