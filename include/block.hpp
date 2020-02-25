@@ -35,6 +35,7 @@ struct metaBlock
 {
 	baseBlock* base;
 	blockRotation rotation = UP;
+	bool flip = false;
 	bool saveMeta = false;
 	bool operator==(const metaBlock& right) const;
 

@@ -62,16 +62,16 @@ void baseBlock::loadTerrainTable()
 
 bool metaBlock::operator==(const metaBlock& right) const
 {
-	if (saveMeta == right.saveMeta && saveMeta == false)
+	if (saveMeta == false && saveMeta == false)
 		return base == right.base;
-	return base == right.base && rotation == right.rotation;
+	return base == right.base && rotation == right.rotation && flip == right.flip;
 }
 
 std::ostream& operator<<(std::ostream& os, const metaBlock& m)
 {
 	if (m.saveMeta)
 	{
-		return os << m.base->ID << ' ' << m.saveMeta << ' ' << m.rotation;
+		return os << m.base->ID << ' ' << m.saveMeta << ' ' << m.rotation << ' ' << m.flip;
 	}
 	else {
 		return os << m.base->ID << ' ' << m.saveMeta;
@@ -105,6 +105,7 @@ std::istream& operator>>(std::istream& is, std::vector<metaBlock>& m)
 
 	unsigned blockID;
 	blockRotation rotation;
+	bool flip;
 	bool savedMeta;
 	unsigned length;
 
@@ -116,14 +117,14 @@ std::istream& operator>>(std::istream& is, std::vector<metaBlock>& m)
 		savedMeta = std::stoi(input);
 		if (savedMeta) {
 			is >> input;
-
 			rotation = (blockRotation)std::stoi(input);
+			is >> flip;
 		}
 		is >> input;
 		length = std::stoi(input);
 		for (int i = 0; i < length; ++i)
 		{
-			m.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), savedMeta });
+			m.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), savedMeta?flip:false,savedMeta });
 		}
 	}
 	return is;

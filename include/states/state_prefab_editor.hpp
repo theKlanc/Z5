@@ -20,10 +20,13 @@ namespace State {
 		void load();
 
 		void initToolbar();
-		
+
+		bool _drawingHelp = false;
+		bool _drawStats = false;
 		prefab _prefab;
 		point3Di _camera;
 		blockRotation _rotation = UP;
+		bool _flip = false;
 		int _selectedToolbarPos = 0;
 		std::array<baseBlock*,9> _toolbar;
 		int zoom = 1;

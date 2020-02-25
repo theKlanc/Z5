@@ -293,7 +293,7 @@
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850,
+    "mass": 5300,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -312,7 +312,7 @@
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850,
+    "mass": 250,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -331,7 +331,7 @@
     "visible": true,
     "solid": true,
     "opaque": true,
-    "mass": 7850,
+    "mass": 1220,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -591,6 +591,1133 @@
           "sizeY": 16,
           "startX": 176,
           "startY": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "sandstone",
+    "ID": 29,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 2323,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange",
+    "ID": 30,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_decor1",
+    "ID": 31,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_decor2",
+    "ID": 32,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_corner",
+    "ID": 33,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_edge",
+    "ID": 34,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_edge_decor1",
+    "ID": 35,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_edge_decor2",
+    "ID": 36,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_angle_shallow1",
+    "ID": 37,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 112,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_angle_shallow2",
+    "ID": 38,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 128,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_angle_shallow3",
+    "ID": 39,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_angle_normal1",
+    "ID": 40,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_angle_normal2",
+    "ID": 41,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 176,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_angle_steep",
+    "ID": 42,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_winglet1",
+    "ID": 43,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 208,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_winglet2",
+    "ID": 44,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_winglet3",
+    "ID": 45,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 240,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_winglet4",
+    "ID": 46,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 256,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_winglet5",
+    "ID": 47,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 272,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_orange_winglet6",
+    "ID": 48,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 288,
+          "startY": 96
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey",
+    "ID": 49,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_decor1",
+    "ID": 50,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_decor2",
+    "ID": 51,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_corner",
+    "ID": 52,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_edge",
+    "ID": 53,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_edge_decor1",
+    "ID": 54,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_edge_decor2",
+    "ID": 55,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_angle_shallow1",
+    "ID": 56,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 112,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_angle_shallow2",
+    "ID": 57,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 128,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_angle_shallow3",
+    "ID": 58,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_angle_normal1",
+    "ID": 59,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_angle_normal2",
+    "ID": 60,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 176,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_angle_steep",
+    "ID": 61,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_winglet1",
+    "ID": 62,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 208,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_winglet2",
+    "ID": 63,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_winglet3",
+    "ID": 64,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 240,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_winglet4",
+    "ID": 65,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 256,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_winglet5",
+    "ID": 66,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 272,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_grey_winglet6",
+    "ID": 67,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 288,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "axle",
+    "ID": 68,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 304,
+          "startY": 112
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red",
+    "ID": 69,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red_corner",
+    "ID": 70,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red_edge",
+    "ID": 71,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red_semi_corner",
+    "ID": 72,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red_semi_edge",
+    "ID": 73,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red_semi_edge_decor1",
+    "ID": 74,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_red_semi_edge_decor2",
+    "ID": 75,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_misc1",
+    "ID": 76,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 112,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_misc2",
+    "ID": 77,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 128,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_misc3",
+    "ID": 78,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_panel_misc4",
+    "ID": 79,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_engine1",
+    "ID": 80,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 1000,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 176,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_engine2",
+    "ID": 81,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 1000,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_engine_cone1",
+    "ID": 82,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 1000,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 208,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_engine_cone2",
+    "ID": 83,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 1000,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_engine_exhaust",
+    "ID": 84,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 240,
+          "startY": 128
+        },
+		{
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 256,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_glass_corner",
+    "ID": 85,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 272,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_glass_edge",
+    "ID": 86,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 288,
+          "startY": 128
+        }
+      ]
+    }
+  },
+  {
+    "name": "ship_glass_slim",
+    "ID": 87,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 7850,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 304,
+          "startY": 128
         }
       ]
     }
