@@ -367,7 +367,9 @@ void universeNode::addChild(universeNode u)
 void universeNode::updatePositions(double dt)
 {
 	if (!physicsData.sleeping)
+	{
 		_position += _velocity * dt;
+	}
 	for (universeNode& child : _children)
 	{
 		child.updatePositions(dt);
@@ -464,7 +466,7 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-	p = getLocalPos(p,parent);
+	p = getLocalPos(p, parent);
 
 
 	std::vector<int> posXlist;

@@ -43,6 +43,8 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				applyDrag(universeBase, registry, _timeStep);
 			}
 
+			universeBase.updatePositions(_timeStep);
+
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);
 
@@ -54,7 +56,6 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 					detectNodeEntity(universeBase, registry, _solverStep);
 					solveNodeEntity(universeBase, registry, _solverStep);
 				}
-
 				detectEntityEntity(registry, _timeStep);
 				solveEntityEntity(registry, _timeStep);
 			}
@@ -186,7 +187,6 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 
 void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	universeBase.updatePositions(dt);
 	auto movableEntityView = registry.view<velocity, position>();
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		const velocity& vel = movableEntityView.get<velocity>(entity);
@@ -420,14 +420,15 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		vel.z = result.z;
 
 		//apply new velocity from surface
-		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude()));
+		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude())) * 0.8;
 
 		node.setPosition(pos);
 		node.setVelocity(vel);
-		
-		if (vel.magnitude() < 0.3)
+
+		if (vel.magnitude() < 0.1)
 		{
 			node.physicsData.sleeping = true;
+			std::cout << "putting " << node.getName() << " to sleep" << std::endl;
 		}
 	}
 }
