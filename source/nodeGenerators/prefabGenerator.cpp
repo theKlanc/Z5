@@ -22,6 +22,7 @@ terrainChunk prefabGenerator::getChunk(const point3Di& indexedChunkPos)
 			}
 		}
 	}
+	chunk.clearDirtyFlag();
 	chunk.setLoaded();
 	return chunk;
 }
@@ -36,8 +37,8 @@ baseBlock &prefabGenerator::getTopBlock(const point2D &p)
 
 int prefabGenerator::getHeight(const point2D &p)
 {
-	int height = _prefab.getSize().z;
-	while(!_prefab.get({p.x,p.y,height}).base->solid && height > 0)
+	int height = _prefab.getSize().z-1;
+	while(!_prefab.get({p.x,p.y,height}).base->solid && height-- > 0)
 	{}
 	return height;
 }

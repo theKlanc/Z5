@@ -270,9 +270,6 @@ void universeNode::linkChildren() {
 	else {
 		_depth = _parent->_depth + 1;
 	}
-	for (universeNode& u : _children) {
-		u.linkChildren();
-	}
 }
 
 fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(position) f (which is relative to u)
@@ -410,6 +407,8 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_velocity = u._velocity;
 	_parent = u._parent;
 	_mass = u._mass;
+	_name = u._name;
+	physicsData = u.physicsData;
 	nlohmann::json jTemp;
 	to_json(jTemp, *u._generator.get());
 	connectGenerator(jTemp);
