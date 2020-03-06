@@ -98,14 +98,14 @@ void State::Playing::input(double dt)
 	const point2D& mouse = HI2::getTouchPos();
 
 	if (_debug && _console->isActive()) {
-		if (down[HI2::BUTTON::KEY_ESCAPE]) {
+		if (down[HI2::BUTTON::CANCEL]) {
 			_console->toggle();
 		}
 	}
 	else {
-		if (_debug && down[HI2::BUTTON::KEY_ACCEPT]) {
+		if (_debug && down[HI2::BUTTON::ACCEPT]) {
 			_console->toggle();
-			down[HI2::BUTTON::KEY_ACCEPT] = false;
+			down[HI2::BUTTON::ACCEPT] = false;
 		}
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
@@ -116,16 +116,16 @@ void State::Playing::input(double dt)
 		}
 
 		//MOVE
-		if (held[HI2::BUTTON::BUTTON_LSTICK_UP] || held[HI2::BUTTON::KEY_W]) {
+		if (held[HI2::BUTTON::UP]) {
 			playerSpd.spd.y -= 10 * dt;
 		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
+		if (held[HI2::BUTTON::DOWN]) {
 			playerSpd.spd.y += 10 * dt;
 		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
+		if (held[HI2::BUTTON::LEFT]) {
 			playerSpd.spd.x -= 10 * dt;
 		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
+		if (held[HI2::BUTTON::RIGHT]) {
 			playerSpd.spd.x += 10 * dt;
 		}
 
@@ -177,7 +177,7 @@ void State::Playing::input(double dt)
 		}
 
 		// Exit
-		if (down[HI2::BUTTON::KEY_ESCAPE])
+		if (down[HI2::BUTTON::CANCEL])
 		{
 			_core->popState();
 		}
@@ -528,6 +528,7 @@ void State::Playing::loadGame()
 	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
 	universeFile >> j;
+	while(1){}
 	j.get_to(_universeBase);
 	_universeBase.linkChildren();
 
