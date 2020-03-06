@@ -48,6 +48,14 @@ CXX  := g++
 
 INCLUDE := $(addprefix -I,$(INCLUDE))
 
+#depend: .depend
+#
+#.depend: $(CFILES) $(CPPFILES)
+#	rm -f ./.depend
+#	$(CXX) $(CFLAGS) -MM $^ > ./.depend;
+#
+#include .depend
+
 .PHONY: pre
 pre:
 	mkdir -p $(BINDIR)/$(PLATFORM)/$(BUILDTYPE)/
@@ -65,5 +73,5 @@ all: pre $(OFILES)
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/*
+	rm -rf $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/
 	rm -f $(APPNAME)
