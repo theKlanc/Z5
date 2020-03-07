@@ -14,7 +14,9 @@ State::Demo::Demo(gameCore& c) : State_Base(c) {
 	whiteNoise.SetSeed(1);
 	whiteNoiseDisplacementX.SetSeed(2);
 	whiteNoiseDisplacementY.SetSeed(3);
-	simplexNoise.SetSeed(4);;
+	simplexNoise.SetSeed(4);
+
+	simplexNoise.SetFrequency(2);
 }
 
 State::Demo::~Demo() {
@@ -49,7 +51,10 @@ void State::Demo::input(double dt) {
 	if(keys[HI2::BUTTON::KEY_RIGHTCLICK]){
 		point2D mouse = HI2::getTouchPos();
 		minSpacing = (double)mouse.x / (double)HI2::getScreenWidth() * 10;
+		simplexNoise.SetFrequency(pow((double)mouse.y / (double)HI2::getScreenHeight(),10));
 		std::cout << "minSpacing: " << minSpacing << std::endl;
+		std::cout << "Freq: " << simplexNoise.GetFrequency() << std::endl;
+
 	}
 }
 
