@@ -16,9 +16,11 @@ namespace State {
 	  private:
 		point2D camera;
 		FastNoise whiteNoise;
+		FastNoise whiteNoiseDisplacementX;
+		FastNoise whiteNoiseDisplacementY;
 		FastNoise simplexNoise;
-		double maxCutoff = 0.8;
+		double maxCutoff = 0.9;
 		double minCutoff = 0.3;
-		int minSpacing = 2;
+		int minSpacing = 3;
 	};
 } // namespace State
