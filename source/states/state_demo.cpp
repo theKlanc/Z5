@@ -66,7 +66,7 @@ void State::Demo::draw(double dt) {
 	HI2::startFrame();
 	for(int x = 0; x < HI2::getScreenWidth();x++){
 		for(int y = 0;y<HI2::getScreenHeight();y++){
-			point2D displacement = {round(((whiteNoiseDisplacementX.GetNoise(camera.x+x,camera.y+y))*(minSpacing-1)*2)),round(((whiteNoiseDisplacementY.GetNoise(camera.x+x,camera.y+y))*(minSpacing-1)*2))};
+			point2D displacement = {(int)round(((whiteNoiseDisplacementX.GetNoise(camera.x+x,camera.y+y))*(minSpacing-1)*2)),(int)round(((whiteNoiseDisplacementY.GetNoise(camera.x+x,camera.y+y))*(minSpacing-1)*2))};
 			double density = (simplexNoise.GetNoise(camera.x+x,camera.y+y)+1.0f)/2.0f;
 			if(density > maxCutoff)
 				density = maxCutoff;

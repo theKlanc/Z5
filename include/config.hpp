@@ -5,6 +5,8 @@ namespace config {
 	constexpr int chunkLoadDiameter
 #ifdef __SWITCH__
 	                                = 2;
+#elif __EMSCRIPTEN__
+	= 10;
 #else
 	                                = 14;
 #endif
@@ -20,6 +22,8 @@ namespace config {
 	constexpr double physicsHz
 #ifdef __SWITCH__
 	                           = 2;
+#elif __EMSCRIPTEN__
+	= 30;
 #else
 	                           = 120;
 #endif
