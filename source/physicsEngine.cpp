@@ -43,14 +43,14 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				applyDrag(universeBase, registry, _timeStep);
 			}
 
-			detectNodeNode(universeBase, _timeStep);
-			solveNodeNode(universeBase, _timeStep);
+
 
 			{
 				for (int i = 0; i < config::physicsSolverIterations; ++i)
 				{
 					applyVelocity(universeBase, registry, _solverStep);
-
+					detectNodeNode(universeBase, _solverStep);
+					solveNodeNode(universeBase, _solverStep);
 					detectNodeEntity(universeBase, registry, _solverStep);
 					solveNodeEntity(universeBase, registry, _solverStep);
 				}

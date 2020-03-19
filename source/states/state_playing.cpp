@@ -528,7 +528,6 @@ void State::Playing::loadGame()
 	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
 	universeFile >> j;
-	while(1){}
 	j.get_to(_universeBase);
 	_universeBase.linkChildren();
 
