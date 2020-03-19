@@ -35,7 +35,7 @@ void State::PrefabEditor::input(double dt)
 {
 	auto& keysDown = HI2::getKeysDown();
 	auto& keysHeld = HI2::getKeysHeld();
-	if (keysDown[HI2::BUTTON::KEY_ESCAPE])
+	if (keysDown[HI2::BUTTON::CANCEL])
 	{
 		save();
 		_core->popState();

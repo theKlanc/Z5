@@ -55,7 +55,7 @@ char utils::getChar(HI2::BUTTON b)
 		return 'n';
 	case HI2::KEY_M:
 		return 'm';
-	case HI2::KEY_ACCEPT:
+	case HI2::KEY_ENTER:
 		return '\n';
 	case HI2::KEY_SPACE:
 		return ' ';
@@ -95,7 +95,7 @@ std::string utils::getString(const std::bitset<HI2::BUTTON_SIZE>& buttons,bool c
 				if(str.size()>0)
 					str.erase(str.size()-1,1);
 			}
-			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ACCEPT){}
+			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ENTER){}
 			else if((HI2::BUTTON)i == HI2::BUTTON::KEY_ESCAPE){}
 			else{
 				char c = getChar((HI2::BUTTON)i);

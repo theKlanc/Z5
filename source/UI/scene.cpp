@@ -40,28 +40,28 @@ void scene::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<
 	}
 	if (_selected != nullptr && _selected->isActive())
 	{
-		if (down[HI2::BUTTON::BUTTON_RIGHT]) {
+		if (down[HI2::BUTTON::RIGHT]) {
 			gadget* temp = _selected->getRight();
 			if (temp != nullptr && temp->isSelectable())
 			{
 				_selected = temp;
 			}
 		}
-		else if (down[HI2::BUTTON::BUTTON_UP]) {
+		else if (down[HI2::BUTTON::UP]) {
 			gadget* temp = _selected->getUp();
 			if (temp != nullptr && temp->isSelectable())
 			{
 				_selected = temp;
 			}
 		}
-		else if (down[HI2::BUTTON::BUTTON_LEFT]) {
+		else if (down[HI2::BUTTON::LEFT]) {
 			gadget* temp = _selected->getLeft();
 			if (temp != nullptr && temp->isSelectable())
 			{
 				_selected = temp;
 			}
 		}
-		else if (down[HI2::BUTTON::BUTTON_DOWN]) {
+		else if (down[HI2::BUTTON::DOWN]) {
 			gadget* temp = _selected->getDown();
 			if (temp != nullptr && temp->isSelectable())
 			{

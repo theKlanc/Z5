@@ -19,7 +19,7 @@ textEntry::textEntry(point2D pos, point2D size, HI2::Font font, int textSize, st
 void textEntry::update(const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held, const point2D &mouse, const double& dt)
 {
 	_text = utils::getString(down,held[HI2::BUTTON::KEY_SHIFT],_text);
-	if(down[HI2::BUTTON::KEY_ACCEPT]){
+	if(down[HI2::BUTTON::ACCEPT]){
 		if(_callback)
 			_callback.value()(_text);
 		_text = "";

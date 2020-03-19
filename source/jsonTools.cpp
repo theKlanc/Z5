@@ -6,6 +6,8 @@
 #include "components/velocity.hpp"
 #include "components/drawable.hpp"
 #include "components/body.hpp"
+#include "components/brain.hpp"
+#include "components/astronautBrain.hpp"
 
 void to_json(nlohmann::json& j, const entt::registry& registry)
 {
@@ -43,6 +45,11 @@ void to_json(nlohmann::json& j, const entt::registry& registry)
 		if (registry.has<body>(entity))
 		{
 			nlohmann::json j_component = nlohmann::json{ {"type","BODY"},{ "content",registry.get<body>(entity) } };
+			j_components.push_back(j_component);
+		}
+		if (registry.has<brain*>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","BRAIN"},{ "content",*registry.get<std::unique_ptr<brain>>(entity) } };
 			j_components.push_back(j_component);
 		}
 		j.push_back(nlohmann::json{ {"tags",j_tags},{"components",j_components} });
@@ -105,6 +112,15 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 			{
 				auto& comp = registry.assign<drawable>(e);
 				j_component.at("content").get_to(comp);
+				break;
+			}
+			case BRAIN:
+			{
+				auto& comp = registry.assign<std::unique_ptr<brain>>(e);
+				std::string type = j_component.at("type").get<std::string>();
+				if(type == "astronaut"){
+					comp = std::make_unique<astronautBrain>(j.at("brain"),e);
+				}
 				break;
 			}
 			default:

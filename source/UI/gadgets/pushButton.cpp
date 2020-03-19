@@ -15,7 +15,7 @@ void pushButton::draw(point2D offset)
 
 void pushButton::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<HI2::BUTTON_SIZE>& up, const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, const double& dt)
 {
-	_pressed = (held[HI2::BUTTON::KEY_ACCEPT]) || (touched(mouse) && (held[HI2::BUTTON::TOUCH]));
+	_pressed = (held[HI2::BUTTON::ACCEPT]) || (touched(mouse) && (held[HI2::BUTTON::TOUCH]));
 
 	if (isPressing())
 		_byMouse = (touched(mouse) && (held[HI2::BUTTON::TOUCH]));
@@ -28,7 +28,7 @@ void pushButton::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bi
 		}
 		else
 		{
-			_rising = (up[HI2::BUTTON::KEY_ACCEPT]);
+			_rising = (up[HI2::BUTTON::ACCEPT]);
 		}
 		if(_rising)
 		{

@@ -15,10 +15,13 @@
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include "components/astronautBrain.hpp"
 #include <cmath>
 #include "HardwareInterface/HardwareInterface.hpp"
 #include "nodeGenerators/terrainPainterGenerator.hpp"
 #include "nodeGenerators/prefabGenerator.hpp"
+#include "components/brain.hpp"
+
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
 
@@ -98,92 +101,29 @@ void State::Playing::input(double dt)
 	const point2D& mouse = HI2::getTouchPos();
 
 	if (_debug && _console->isActive()) {
-		if (down[HI2::BUTTON::KEY_ESCAPE]) {
+		if (down[HI2::BUTTON::CANCEL]) {
 			_console->toggle();
 		}
 	}
 	else {
-		if (_debug && down[HI2::BUTTON::KEY_ACCEPT]) {
+		if (_debug && down[HI2::BUTTON::ACCEPT]) {
 			_console->toggle();
-			down[HI2::BUTTON::KEY_ACCEPT] = false;
+			down[HI2::BUTTON::ACCEPT] = false;
 		}
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
-		//STOP
-		if (held[HI2::BUTTON::BUTTON_MINUS]) {
-			playerSpd.spd = fdd();
-		}
-
-		//MOVE
-		if (held[HI2::BUTTON::BUTTON_LSTICK_UP] || held[HI2::BUTTON::KEY_W]) {
-			playerSpd.spd.y -= 10 * dt;
-		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
-			playerSpd.spd.y += 10 * dt;
-		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
-			playerSpd.spd.x -= 10 * dt;
-		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
-			playerSpd.spd.x += 10 * dt;
-		}
-
-		//MOVE VERTICALLY
-		if (held[HI2::BUTTON::KEY_R]) {
-			playerSpd.spd.z += 60 * dt;
-		}
-		if (held[HI2::BUTTON::KEY_F]) {
-			playerSpd.spd.z -= 40 * dt;
-		}
-
-		//JUMP
-		if (down[HI2::BUTTON::KEY_SPACE]) {
-			playerSpd.spd.z = 8;
-		}
-
-		//ROTATE PLAYER
-		if (held[HI2::BUTTON::KEY_E]) {
-			playerSpd.spd.r += 10 * dt;
-		}
-		if (held[HI2::BUTTON::KEY_Q]) {
-			playerSpd.spd.r -= 10 * dt;
-		}
-
-		//PLACE BLOCK
-		if (down[HI2::BUTTON::KEY_P]) {
-			playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-		}
-		if (down[HI2::BUTTON::KEY_O]) {
-			playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,false,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-		}
-
-		//SELECT BLOCK
-		if (down[HI2::BUTTON::BUTTON_DLEFT]) {
-			selectedBlock--;
-			if (selectedBlock < 0)
-				selectedBlock = baseBlock::terrainTable.size() - 1;
-		}
-		if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
-			selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
-		}
-
-		//BLOCK ROTATE
-		if (down[HI2::BUTTON::BUTTON_DUP]) {
-			selectedRotation++;
-		}
-		if (down[HI2::BUTTON::BUTTON_DDOWN]) {
-			selectedRotation--;
-		}
-
 		// Exit
-		if (down[HI2::BUTTON::KEY_ESCAPE])
+		if (down[HI2::BUTTON::CANCEL])
 		{
 			_core->popState();
 		}
 	}
 	_scene.update(down, up, held, mouse, dt);
-
+	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
+	for (auto entity : brainEntities) {
+		brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
+	}
 }
 
 void State::Playing::update(double dt) {
@@ -337,11 +277,15 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
-			if (config::drawDepthShadows) {
-				HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
+			//late culling
+			if(drawPos.x <= HI2::getScreenWidth() && drawPos.y <= HI2::getScreenHeight() && (drawPos.x + zoom*drw.spr->getCurrentFrame().size.x>=0) && (drawPos.y + zoom*drw.spr->getCurrentFrame().size.y>=0))
+			{
+				if (config::drawDepthShadows) {
+					HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
+				}
+				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r, HI2::FLIP::NONE);
+				//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 			}
-			HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r, HI2::FLIP::NONE);
-			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
 			//      deep - - - - shallow
@@ -650,6 +594,8 @@ void State::Playing::createEntities()
 		transform.setPosition(initPosition);
 		playerBody.physicsData._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
 		playerBody.physicsData.collider->addCollisionShape(playerBody.physicsData._collisionShape, transform);
+
+		_enttRegistry.assign<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
 	}
 
 	{

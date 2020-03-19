@@ -25,8 +25,11 @@ XX passar a dynamics world
 XX rotacions de layers
 
 afegir creador de nodes
-afegir creador de prefabs
-afegir generator per a prefabs
+#afegir creador de prefabs
+#afegir generator per a prefabs
+afegir terreny interactuable
+descarregar i diferenciar entre entitats permanents
+reparentitzar nodes i entitats més agressivament
 afegir llunes de mart jupiter saturn i neptu
 afegir planet 9
 afegir planeta newronia
@@ -43,6 +46,7 @@ dibuixar gui
 dibuixar items
 implementar fake tensió superficial
 lighting
+implementar controlador per les naus
 maquina d estats per les entitats
 
 ~~ crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes

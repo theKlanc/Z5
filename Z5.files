@@ -457,8 +457,10 @@ include/block.hpp
 include/block.hpp
 include/block.hpp
 include/block.hpp
+include/components/astronautBrain.hpp
 include/components/body.hpp
 include/components/body.hpp
+include/components/brain.hpp
 include/components/drawable.hpp
 include/components/drawable.hpp
 include/components/name.hpp
@@ -603,7 +605,9 @@ source/audioManager.cpp
 source/block.cpp
 source/block.cpp
 source/block.cpp
+source/components/astronautBrain.cpp
 source/components/body_.cpp
+source/components/brain.cpp
 source/components/drawable.cpp
 source/components/name.cpp
 source/components/position.cpp

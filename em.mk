@@ -1,6 +1,6 @@
 APPNAME := Z5
 BINDIR	:= bin
-PLATFORM := linux
+PLATFORM := emscripten
 SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets
 INCLUDE := include deps deps/reactPhysics3D/src deps/json/single_include/nlohmann
 
@@ -8,20 +8,16 @@ BUILDDIR := build
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/broadphase deps/reactPhysics3D/src/collision/narrowphase
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/shapes
 
-FLAGS    := -D__LINUX__ -Werror=return-type `sdl2-config --cflags` `pkgconf --cflags freetype2`
-CCFLAGS  :=
+FLAGS    := -D__LINUX__ -Werror=return-type -s ALLOW_MEMORY_GROWTH=1 -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_PTHREADS=1 -s WASM_MEM_MAX=256MB
+# -s SDL2_IMAGE_FORMATS='["bmp","png"]'
+CCFLAGS  := `sdl2-config --cflags` `pkgconf --cflags freetype2`
 CXXFLAGS := -std=c++17
 
-LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs -lSDL2_mixer
+LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -lfreetype -lSDL2_mixer
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 BUILDTYPE := Release
-ifeq ($(DEBUG), 1)
-FLAGS := $(FLAGS) -DDEBUG -Og -ggdb3 -fstack-protector-all
-BUILDTYPE := Debug
-else
-FLAGS := $(FLAGS) -flto -Ofast
-endif
+FLAGS := $(FLAGS) -O2
 CCFLAGS := $(FLAGS) $(CCFLAGS)
 CXXFLAGS := $(FLAGS) $(CXXFLAGS)
 
@@ -42,8 +38,8 @@ OFILES := $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(OFILES))
 
 $(info $(OFILES))
 
-CC   := gcc
-CXX  := g++
+CC   := emcc 
+CXX  := em++
 
 
 INCLUDE := $(addprefix -I,$(INCLUDE))
@@ -69,7 +65,7 @@ $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/%.o: %.cpp
 
 .PHONY: all
 all: pre $(OFILES)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) $(OFILES) $(LIBS) -o $(BINDIR)/$(PLATFORM)/$(BUILDTYPE)/$(APPNAME)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) $(OFILES) $(LIBS) -o $(BINDIR)/$(PLATFORM)/$(BUILDTYPE)/$(APPNAME).html --preload-file data --use-preload-plugins
 
 .PHONY: clean
 clean:

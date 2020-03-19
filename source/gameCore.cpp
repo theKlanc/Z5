@@ -6,9 +6,36 @@
 #include <memory>
 #include <iostream>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include <functional>
+void gameCore::loop(){
+    if(HI2::aptMainLoop() && !states.empty() && !_exit){
+        std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
+        double microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currentTick - lastTick).count();
+        double msOg = microSeconds;
+        states.top()->input((double)microSeconds/1000000);
+        states.top()->update((double)microSeconds/1000000);
+        states.top()->draw((double)msOg/1000000);
+        lastTick = currentTick;
+        processStates();
+    }
+    else{
+        emscripten_cancel_main_loop();
+    }
+}
+static void emloop(void* gc){
+    ((gameCore*)gc)->loop();
+}
+#endif
+
+
+
 void gameCore::gameLoop() {
-	std::chrono::time_point<std::chrono::high_resolution_clock> lastTick  = std::chrono::high_resolution_clock::now();
-	
+    lastTick  = std::chrono::high_resolution_clock::now();
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(emloop,(void*)this,60,1);
+#else
 	while (HI2::aptMainLoop() && !states.empty() && !_exit) {
 		
 		std::chrono::time_point<std::chrono::high_resolution_clock> currentTick = std::chrono::high_resolution_clock::now();
@@ -26,6 +53,7 @@ void gameCore::gameLoop() {
   		lastTick = currentTick;
 		processStates();
 	}
+#endif
 }
 
 void gameCore::quit() { _exit = true; }
