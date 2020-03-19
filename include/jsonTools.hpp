@@ -10,6 +10,7 @@ enum componentType{
 	VELOCITY,
 	BODY,
 	DRAWABLE,
+	BRAIN,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
@@ -18,6 +19,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
 	{VELOCITY,"VELOCITY"},
 	{BODY,"BODY"},
 	{DRAWABLE,"DRAWABLE"},
+	{BRAIN,"BRAIN"},
 })
 
 enum entityTag{
