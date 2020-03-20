@@ -5,6 +5,7 @@ class fsm_state{
 public:
 	virtual ~fsm_state() = 0;
 	virtual fsm_state* update(double dt, entt::entity e) = 0;
+	virtual std::string getThoughts() const = 0;
 };
 
 class astronautBrain : public brain {
@@ -16,10 +17,12 @@ public:
 	~astronautBrain() override;
 	void update(double dt) override;
 	nlohmann::json getJson() const override;
+	std::string getThoughts() const override;
 private:
 	class groundedState : public fsm_state{
 	public:
 		fsm_state* update(double dt, entt::entity e) override;
+		std::string getThoughts() const override;
 		~groundedState() override{}
 	private:
 		fsm_state* _jumpingState;
@@ -30,6 +33,7 @@ private:
 	class jumpingState : public fsm_state{
 	public:
 		fsm_state* update(double dt, entt::entity e) override;
+		std::string getThoughts() const override;
 		~jumpingState() override{}
 	private:
 		fsm_state* _airborneState;
@@ -40,6 +44,7 @@ private:
 	class airborneState : public fsm_state{
 	public:
 		fsm_state* update(double dt, entt::entity e) override;
+		std::string getThoughts() const override;
 		~airborneState() override{}
 	private:
 		fsm_state* _groundedState;

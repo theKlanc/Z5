@@ -8,6 +8,7 @@ public:
 	virtual void update(double dt) = 0;
 	virtual nlohmann::json getJson() const = 0;
 
+	virtual std::string getThoughts() const = 0;
 	friend void to_json(nlohmann::json &j, const brain &b);
 };
 

@@ -1,3 +1,4 @@
+#include "components/brain.hpp"
 #include "states/state_playing.hpp"
 #include <fstream>
 #include <iostream>
@@ -21,6 +22,7 @@
 #include "nodeGenerators/terrainPainterGenerator.hpp"
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "components/brain.hpp"
+#include <memory>
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -174,23 +176,9 @@ void State::Playing::draw(double dt) {
 		dt = 1.0f / config::physicsHz;
 
 	Services::graphics.stepAnimations(dt);
-	if constexpr (false)
-	{
-		int height = HI2::getScreenHeight();
-		int width = HI2::getScreenWidth();
-		universeNode* test;
-		_universeBase.findNodeByID(4, test);
-		for (int i = 0; i < height; ++i)
-		{
-			for (int j = 0; j < width; ++j)
-			{
-				test->getTopBlock({ j,i });
-			}
-		}
-	}
+	
 	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
-	{
+	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));{
 		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
 		for (universeNode*& node : sortedDrawingNodes) {
@@ -242,6 +230,7 @@ void State::Playing::draw(double dt) {
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
+	auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
 	if (_debug) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
 		HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
@@ -253,6 +242,8 @@ void State::Playing::draw(double dt) {
 		HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
 		HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
 		HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+		HI2::drawText(_standardFont, "Thoughts: " + br->getThoughts(), { 0,300 }, 30, HI2::Color::Black);
+		
 		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
 	}
 

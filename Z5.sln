@@ -9,6 +9,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Fast Testing Kappa|x64 = Fast Testing Kappa|x64
+		Fast Testing Kappa|x86 = Fast Testing Kappa|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -17,6 +19,10 @@ Global
 		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Debug|x64.Build.0 = Debug|x64
 		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Debug|x86.ActiveCfg = Debug|Win32
 		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Debug|x86.Build.0 = Debug|Win32
+		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Fast Testing Kappa|x64.ActiveCfg = Fast Testing Kappa|x64
+		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Fast Testing Kappa|x64.Build.0 = Fast Testing Kappa|x64
+		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Fast Testing Kappa|x86.ActiveCfg = Fast Testing Kappa|Win32
+		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Fast Testing Kappa|x86.Build.0 = Fast Testing Kappa|Win32
 		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Release|x64.ActiveCfg = Release|x64
 		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Release|x64.Build.0 = Release|x64
 		{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}.Release|x86.ActiveCfg = Release|Win32

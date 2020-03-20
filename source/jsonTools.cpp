@@ -47,7 +47,7 @@ void to_json(nlohmann::json& j, const entt::registry& registry)
 			nlohmann::json j_component = nlohmann::json{ {"type","BODY"},{ "content",registry.get<body>(entity) } };
 			j_components.push_back(j_component);
 		}
-		if (registry.has<brain*>(entity))
+		if (registry.has<std::unique_ptr<brain>>(entity))
 		{
 			nlohmann::json j_component = nlohmann::json{ {"type","BRAIN"},{ "content",*registry.get<std::unique_ptr<brain>>(entity) } };
 			j_components.push_back(j_component);
@@ -117,9 +117,9 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 			case BRAIN:
 			{
 				auto& comp = registry.assign<std::unique_ptr<brain>>(e);
-				std::string type = j_component.at("type").get<std::string>();
+				std::string type = j_component.at("content").at("type").get<std::string>();
 				if(type == "astronaut"){
-					comp = std::make_unique<astronautBrain>(j.at("brain"),e);
+					comp = std::make_unique<astronautBrain>(j_component.at("content").at("brain"),e);
 				}
 				break;
 			}

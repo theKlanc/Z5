@@ -36,33 +36,76 @@ void astronautBrain::update(double dt) {
 nlohmann::json astronautBrain::getJson() const {
 	return json{{"type", "astronaut"}, {"brain", {}}};
 }
+std::string astronautBrain::getThoughts() const
+{
+	return _currentState->getThoughts();
+}
 fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e) {
 	auto& down = HI2::getKeysDown();
-	auto& held = HI2::getKeysDown();
+	auto& held = HI2::getKeysHeld();
 
+	auto pos = Services::enttRegistry->get<position>(e);
+	pos.pos.z-=0.3;
+	if(!pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
+	{
+		return _airborneState;
+	}
 	if(down[HI2::BUTTON::KEY_SPACE]) {
 		return _jumpingState;
 	}
 	auto& vel = Services::enttRegistry->get<velocity>(e);
 	if(held[HI2::BUTTON::KEY_A]){
-		vel.spd.x-=2.0f * dt;
-		exit(0);
+		vel.spd.x-=5.0f * dt;
 	}
 	if(held[HI2::BUTTON::KEY_D]){
-		vel.spd.x+=2.0f * dt;
+		vel.spd.x+=5.0f * dt;
 	}
 	if(held[HI2::BUTTON::KEY_W]){
-		vel.spd.y-=2.0f * dt;
+		vel.spd.y-=5.0f * dt;
 	}
 	if(held[HI2::BUTTON::KEY_S]){
-		vel.spd.y+=2.0f * dt;
+		vel.spd.y+=5.0f * dt;
 	}
 
 	return nullptr;
 }
 
-fsm_state *astronautBrain::jumpingState::update(double dt, entt::entity e) { return nullptr; }
+std::string astronautBrain::groundedState::getThoughts() const
+{
+	return "grounded";
+}
 
-fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e) { return nullptr; }
+fsm_state *astronautBrain::jumpingState::update(double dt, entt::entity e) {
+	auto pos = Services::enttRegistry->get<position>(e);
+	pos.pos.z-=0.3;
+	if(!pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
+	{
+		return _airborneState;
+	}
+	auto& vel = Services::enttRegistry->get<velocity>(e);
+	vel.spd.z+=3;
+	return nullptr;
+}
+
+std::string astronautBrain::jumpingState::getThoughts() const
+{
+	return "jumping";
+}
+
+fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e)
+{
+	auto pos = Services::enttRegistry->get<position>(e);
+	pos.pos.z-=0.1;
+	if(pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
+	{
+		return _groundedState;
+	}
+	return nullptr;
+}
+
+std::string astronautBrain::airborneState::getThoughts() const
+{
+	return "woohoooooooooooooo";
+}
 
 fsm_state::~fsm_state(){}
