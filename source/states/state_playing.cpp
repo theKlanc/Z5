@@ -384,6 +384,8 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 		}
 	}
 	visibility = growVisibility(visibility);
+	visibility = growVisibility(visibility);
+
 	return result;
 }
 

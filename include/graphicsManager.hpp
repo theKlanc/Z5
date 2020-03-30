@@ -19,7 +19,10 @@ public:
 	HI2::Texture* getTexture();
 	frame& getCurrentFrame();
 	void step(double s);
+	void step();
 	std::vector<frame>& getAllFrames();
+	bool autoStep();
+	void setAutoStep(bool b);
 
 private:
 	HI2::Texture* _texture;
@@ -29,6 +32,7 @@ private:
 	double _timeStep = 0.2;
 	std::vector<frame> _frames;
 	frame* _currentFrame;
+	bool _autoStep = true;
 };
 
 class graphicsManager {

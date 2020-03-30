@@ -1,3 +1,9 @@
+# DONE
+// Half Done
+-- Kinda done?
+~~ Aparcao
+XX Abandonat
+
 # arreglar angles de sortida de colisions
 # canviar el rockyplanetgenerator a terrainPainterGenerator
 # implementar colisions entre nodes
@@ -53,8 +59,3 @@ maquina d estats per les entitats
 ~~ fog
 ~~ priority ChunkLoader
 
-# DONE
-// Half Done
--- Kinda done?
-~~ Aparcao
-XX Abandonat

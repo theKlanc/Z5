@@ -78,7 +78,7 @@
         },
         {
           "id": 4,
-          "name": "Earth",
+          "name": "Gaia",
           "type": "PLANET_ROCK",
           "mass": 5.97237e+24,
           "diameter": 12742000,
@@ -97,7 +97,7 @@
           "children": [
             {
               "id": 10,
-              "name": "Moon",
+              "name": "Selene",
               "type": "SATELLITE_NATURAL",
               "mass": 7.342e+22,
               "diameter": 3474200,
@@ -116,7 +116,7 @@
               "children": []
             }
           ],
-          "generator": {
+          "generatore": {
             "generator": {
               "diameter": 12742000,
               "emptyBlockID": 2,

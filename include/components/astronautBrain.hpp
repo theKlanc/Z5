@@ -1,6 +1,9 @@
 #pragma once
+#include "services.hpp"
 #include "components/brain.hpp"
 #include "entt/entt.hpp"
+#include "audioManager.hpp"
+
 class fsm_state{
 public:
 	virtual ~fsm_state() = 0;
@@ -32,12 +35,15 @@ private:
 
 	class jumpingState : public fsm_state{
 	public:
+		jumpingState();
 		fsm_state* update(double dt, entt::entity e) override;
 		std::string getThoughts() const override;
 		~jumpingState() override{}
 	private:
 		fsm_state* _airborneState;
 		fsm_state* _groundedState;
+		HI2::Audio* jumpingSound;
+
 		friend class astronautBrain;
 	};
 

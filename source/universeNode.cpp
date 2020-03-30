@@ -180,7 +180,7 @@ void universeNode::connectGenerator(const nlohmann::json& j)
 		}
 	}
 	else {
-		_generator = std::make_unique<nullGenerator>();
+		_generator = std::make_unique<terrainPainterGenerator>(_ID,_diameter);
 	}
 }
 

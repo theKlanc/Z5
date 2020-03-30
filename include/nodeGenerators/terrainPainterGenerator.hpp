@@ -54,7 +54,7 @@ public:
 	friend void from_json(const json& j, terrainPainterGenerator &tpg);
 private:
 	unsigned _diameter;
-	unsigned _liquidLevel;
+	unsigned _liquidLevel = 0;
 	unsigned _liquidID;
 	unsigned _emptyBlockID;
 	terrainPainter _terrainPainter;

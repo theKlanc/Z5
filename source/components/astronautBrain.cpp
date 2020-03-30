@@ -54,16 +54,16 @@ fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e) {
 		return _jumpingState;
 	}
 	auto& vel = Services::enttRegistry->get<velocity>(e);
-	if(held[HI2::BUTTON::KEY_A]){
+	if(held[HI2::BUTTON::KEY_A] && vel.spd.x > -5.0f){
 		vel.spd.x-=5.0f * dt;
 	}
-	if(held[HI2::BUTTON::KEY_D]){
+	if(held[HI2::BUTTON::KEY_D] && vel.spd.x < 5.0f){
 		vel.spd.x+=5.0f * dt;
 	}
-	if(held[HI2::BUTTON::KEY_W]){
+	if(held[HI2::BUTTON::KEY_W] && vel.spd.y > -5.0f){
 		vel.spd.y-=5.0f * dt;
 	}
-	if(held[HI2::BUTTON::KEY_S]){
+	if(held[HI2::BUTTON::KEY_S] && vel.spd.y < 5.0f){
 		vel.spd.y+=5.0f * dt;
 	}
 
@@ -75,16 +75,22 @@ std::string astronautBrain::groundedState::getThoughts() const
 	return "grounded";
 }
 
+astronautBrain::jumpingState::jumpingState()
+{
+	jumpingSound = Services::audio.loadAudio("sfx/boing");
+}
+
 fsm_state *astronautBrain::jumpingState::update(double dt, entt::entity e) {
-	auto pos = Services::enttRegistry->get<position>(e);
-	pos.pos.z-=0.3;
-	if(!pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
-	{
-		return _airborneState;
-	}
+	//auto pos = Services::enttRegistry->get<position>(e);
+	//pos.pos.z-=0.3;
+	//if(!pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
+	//{
+	//	return _airborneState;
+	//}
 	auto& vel = Services::enttRegistry->get<velocity>(e);
-	vel.spd.z+=3;
-	return nullptr;
+	vel.spd.z+=10;
+	HI2::playSound(*jumpingSound);
+	return _airborneState;
 }
 
 std::string astronautBrain::jumpingState::getThoughts() const
@@ -94,11 +100,25 @@ std::string astronautBrain::jumpingState::getThoughts() const
 
 fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e)
 {
+	auto& held = HI2::getKeysHeld();
 	auto pos = Services::enttRegistry->get<position>(e);
 	pos.pos.z-=0.1;
 	if(pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
 	{
 		return _groundedState;
+	}
+	auto& vel = Services::enttRegistry->get<velocity>(e);
+	if(held[HI2::BUTTON::KEY_A]){
+		vel.spd.x-=2*dt;
+	}
+	if(held[HI2::BUTTON::KEY_D]){
+		vel.spd.x+=2*dt;
+	}
+	if(held[HI2::BUTTON::KEY_W]){
+		vel.spd.y-=2*dt;
+	}
+	if(held[HI2::BUTTON::KEY_S]){
+		vel.spd.y+=2*dt;
 	}
 	return nullptr;
 }

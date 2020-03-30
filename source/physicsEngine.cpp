@@ -300,12 +300,18 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 		entityBody.physicsData.maxContactDepth = 0;
 		entityBody.physicsData.contactNormal = rp3d::Vector3();
 
-		std::vector<universeNode*> collidableNodes = entityPos.parent->getParent()->getChildren();
-		for (universeNode* ntemp : entityPos.parent->getChildren())
-		{
-			collidableNodes.push_back(ntemp);
+		std::vector<universeNode*> collidableNodes;
+		if(entityPos.parent->getParent() != nullptr){
+			collidableNodes = entityPos.parent->getParent()->getChildren();
+			for (universeNode* ntemp : entityPos.parent->getChildren())
+			{
+				collidableNodes.push_back(ntemp);
+			}
+				collidableNodes.push_back(entityPos.parent->getParent());
 		}
-		collidableNodes.push_back(entityPos.parent->getParent());
+		else{
+			collidableNodes.push_back(entityPos.parent);
+		}
 
 		for (universeNode* node : collidableNodes)
 		{

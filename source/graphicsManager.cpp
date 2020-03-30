@@ -115,7 +115,10 @@ void graphicsManager::stepAnimations(double s)
 {
 	for(auto& sprite : _spriteAtlas)
 	{
-		sprite.second.step(s);
+		if(sprite.second.autoStep())
+		{
+			sprite.second.step(s);
+		}
 	}
 }
 
@@ -152,9 +155,24 @@ void sprite::step(double s)
 	_currentFrame=&_frames[_currentIndex];
 }
 
+void sprite::step(){
+	_currentIndex = (_currentIndex+1) % _frames.size();
+	_currentFrame=&_frames[_currentIndex];
+}
+
 std::vector<frame> &sprite::getAllFrames()
 {
 	return _frames;
+}
+
+bool sprite::autoStep()
+{
+	return _autoStep;
+}
+
+void sprite::setAutoStep(bool b)
+{
+	_autoStep=b;
 }
 
 void to_json(nlohmann::json &j, const frame &b)
