@@ -70,7 +70,7 @@ namespace State {
 
 		HI2::Font _standardFont;
 
-		static std::mutex endChunkLoader;
+		static std::mutex _chunkLoaderMutex;
 		static void _chunkLoaderFunc();
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;

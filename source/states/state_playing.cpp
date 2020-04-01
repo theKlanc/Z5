@@ -26,7 +26,7 @@
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
-
+std::mutex State::Playing::_chunkLoaderMutex;
 
 State::Playing::~Playing() {
 
@@ -233,7 +233,7 @@ void State::Playing::draw(double dt) {
 	auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
 	if (_debug) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
-		HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+		HI2::drawText(_standardFont, "Parent: " + playerPos.parent->getName() + " (" + std::to_string(playerPos.parent->getID()) + ")", { 0,30 }, 30, HI2::Color::Orange);
 		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
 		HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
 		HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
@@ -750,12 +750,14 @@ void State::Playing::_chunkLoaderFunc()
 {
 	position* positionCopy = _chunkLoaderPlayerPosition;
 	while (positionCopy != nullptr) {
+		_chunkLoaderMutex.lock();
 		position p(*positionCopy);
 		if (positionCopy != nullptr)
 		{
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
 		}
 		positionCopy = _chunkLoaderPlayerPosition;
+		_chunkLoaderMutex.unlock();
 	}
 }
 
@@ -926,6 +928,10 @@ void State::Playing::debugConsoleExec(std::string input)
 		ss >> argument;
 		debugConsoleExec("setParent " + argument);
 		debugConsoleExec("tp 0 0");
+		position pos = _enttRegistry.get<position>(_player);
+		_chunkLoaderMutex.lock();
+		_universeBase.updateChunks(pos.pos,pos.parent);
+		_chunkLoaderMutex.unlock();
 	}
 	else if (command == "setNullBlock") { // Y THO
 		std::string argument;
