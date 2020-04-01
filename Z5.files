@@ -409,6 +409,7 @@ deps/reactPhysics3D/src/utils/Logger.cpp
 deps/reactPhysics3D/src/utils/Logger.h
 deps/reactPhysics3D/src/utils/Profiler.cpp
 deps/reactPhysics3D/src/utils/Profiler.h
+em.mk
 icon.jpg
 include/4dd.hpp
 include/4dd.hpp

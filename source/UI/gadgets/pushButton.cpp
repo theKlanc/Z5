@@ -67,6 +67,11 @@ bool pushButton::isRisingInside()
 	return _rising;
 }
 
+void pushButton::setPressed(bool b)
+{
+	_pressed=b;
+}
+
 void pushButton::setClickCallback(std::function<void()> f)
 {
 	_clickCallback = f;

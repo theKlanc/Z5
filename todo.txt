@@ -23,6 +23,8 @@ XX Abandonat
 # render
 # rotacions de block ←↑→↓
 #~ fer una sola draw call per layer dibuixat (Fet en una branca, no millorem res, perdem rendiment excepte la possibilitat d'algun efecte nou (ombres) facilment)
+#afegir creador de prefabs
+#afegir generator per a prefabs
 
 // PERFORMANCE
 // crear NPCs (mascotes animals i persones)
@@ -30,9 +32,10 @@ XX Abandonat
 XX passar a dynamics world
 XX rotacions de layers
 
+implementar mapa estelar
+
+implementar controlador per les naus
 afegir creador de nodes
-#afegir creador de prefabs
-#afegir generator per a prefabs
 afegir terreny interactuable
 descarregar i diferenciar entre entitats permanents
 reparentitzar nodes i entitats més agressivament
@@ -52,7 +55,6 @@ dibuixar gui
 dibuixar items
 implementar fake tensió superficial
 lighting
-implementar controlador per les naus
 maquina d estats per les entitats
 
 ~~ crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes

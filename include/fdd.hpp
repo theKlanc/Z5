@@ -34,6 +34,7 @@ struct fdd { // Four DoF descriptor
 	fdd& operator/=(const fdd& f);
 	fdd& operator*=(const double& f);
 	fdd& operator/=(const double& f);
+	fdd operator-();
 	fdd project(const fdd& right)const; //Project right onto this
 	double dot(const fdd& right) const;
 	point2D getPoint2D() const;

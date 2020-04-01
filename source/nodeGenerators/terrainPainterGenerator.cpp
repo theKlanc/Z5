@@ -24,8 +24,8 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 400, baseBlock::terrainTable[104])); // fixed solid
-		_terrainPainter.addSection(terrainSection(0, 100, baseBlock::terrainTable[102])); // fixed stone
+		_terrainPainter.addSection(terrainSection(0.0001, 400, baseBlock::terrainTable[104])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0002, 100, baseBlock::terrainTable[102])); // fixed stone
 		_terrainPainter.addSection(terrainSection(1, 1, baseBlock::terrainTable[0])); // fixed stone
 
 	}
@@ -34,7 +34,7 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[97])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[97])); // fixed solid
 		_terrainPainter.addSection(terrainSection(1, 100, baseBlock::terrainTable[97],&baseBlock::terrainTable[7])); // fixed stone
 	}
 	else if(_seed == 3){ // Venus
@@ -42,7 +42,7 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[98])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[98])); // fixed solid
 		_terrainPainter.addSection(terrainSection(1, 100, baseBlock::terrainTable[98],&baseBlock::terrainTable[99])); // fixed stone
 	}
 	else if(_seed == 4){ // Gaia
@@ -54,14 +54,13 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 		_terrainPainter.addSection(terrainSection(0.2, 60, baseBlock::terrainTable[6])); // stone
 		_terrainPainter.addSection(terrainSection(0.4, 60, baseBlock::terrainTable[4])); //dirt
 		_terrainPainter.addSection(terrainSection(0.48, 60, baseBlock::terrainTable[10])); // underwater sand
-		_terrainPainter.addSection(terrainSection(0.5, 5, baseBlock::terrainTable[10])); // surface sand
+		_terrainPainter.addSection(terrainSection(0.5, 5, baseBlock::terrainTable[29],&baseBlock::terrainTable[10])); // surface sand
 		_terrainPainter.addSection(terrainSection(0.6, 40, baseBlock::terrainTable[4], &baseBlock::terrainTable[5])); //grassdirt
-		_terrainPainter.addSection(terrainSection(0.601, 1, baseBlock::terrainTable[5])); //grassTop
-		_terrainPainter.addSection(terrainSection(0.65, 10, baseBlock::terrainTable[17])); //deep grass
-		_terrainPainter.addSection(terrainSection(0.7, 60, baseBlock::terrainTable[6])); //stone
+		_terrainPainter.addSection(terrainSection(0.65, 10, baseBlock::terrainTable[4], &baseBlock::terrainTable[17])); //deep grass
+		_terrainPainter.addSection(terrainSection(0.7, 60, baseBlock::terrainTable[98], &baseBlock::terrainTable[6])); //stone
 		_terrainPainter.addSection(terrainSection(0.75, 40, baseBlock::terrainTable[6], &baseBlock::terrainTable[16])); //snowstone
-		_terrainPainter.addSection(terrainSection(0.8, 40, baseBlock::terrainTable[16])); //snow
-		_terrainPainter.addSection(terrainSection(1, 10, baseBlock::terrainTable[16])); //snow
+		_terrainPainter.addSection(terrainSection(0.8, 40, baseBlock::terrainTable[107], &baseBlock::terrainTable[16])); //snow
+		_terrainPainter.addSection(terrainSection(1, 10, baseBlock::terrainTable[107], &baseBlock::terrainTable[16])); //snow
 
 		_liquidLevel=240;
 		_liquidID = 3;
@@ -71,7 +70,7 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[98])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[98])); // fixed solid
 		_terrainPainter.addSection(terrainSection(1, 100, baseBlock::terrainTable[98],&baseBlock::terrainTable[99])); // fixed stone
 	}
 	else if(_seed == 6){ // Jupiter
@@ -79,8 +78,8 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[102])); // fixed solid
-		_terrainPainter.addSection(terrainSection(0, 100, baseBlock::terrainTable[100])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[102])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0002, 100, baseBlock::terrainTable[100])); // fixed solid
 		_terrainPainter.addSection(terrainSection(1, 1, baseBlock::terrainTable[102])); // fixed stone
 	}
 	else if(_seed == 7){ // Saturn
@@ -88,26 +87,26 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[102])); // fixed solid
-		_terrainPainter.addSection(terrainSection(0, 100, baseBlock::terrainTable[100])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[102])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0002, 100, baseBlock::terrainTable[100])); // fixed solid
 		_terrainPainter.addSection(terrainSection(1, 1, baseBlock::terrainTable[102])); // fixed stone
 	}
 	else if(_seed == 8){ // Uranus
-		_emptyBlockID = 1;
+		_emptyBlockID = 101;
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[106])); // fixed ice
-		_terrainPainter.addSection(terrainSection(0, 100, baseBlock::terrainTable[101])); // fixed atmo
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[106])); // fixed ice
+		_terrainPainter.addSection(terrainSection(0.0002, 100, baseBlock::terrainTable[101])); // fixed atmo
 		_terrainPainter.addSection(terrainSection(1, 50, baseBlock::terrainTable[101])); // atmo
 	}
 	else if(_seed == 9){ // Neptune
-		_emptyBlockID = 1;
+		_emptyBlockID = 101;
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[106])); // fixed ice
-		_terrainPainter.addSection(terrainSection(0, 100, baseBlock::terrainTable[101])); // fixed atmo
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[106])); // fixed ice
+		_terrainPainter.addSection(terrainSection(0.0002, 100, baseBlock::terrainTable[101])); // fixed atmo
 		_terrainPainter.addSection(terrainSection(1, 50, baseBlock::terrainTable[101])); // atmo
 	}
 	else if(_seed == 10){ // Selene
@@ -115,13 +114,13 @@ terrainPainterGenerator::terrainPainterGenerator(unsigned seed, unsigned diamete
 
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
 
-		_terrainPainter.addSection(terrainSection(0, 200, baseBlock::terrainTable[97])); // fixed solid
+		_terrainPainter.addSection(terrainSection(0.0001, 200, baseBlock::terrainTable[97])); // fixed solid
 		_terrainPainter.addSection(terrainSection(1, 100, baseBlock::terrainTable[97],&baseBlock::terrainTable[7])); // fixed stone
 	}
 	else{
 		_emptyBlockID = 0;
 		_terrainPainter.setEmptyBlock(&baseBlock::terrainTable[_emptyBlockID]);
-		_terrainPainter.addSection(terrainSection(0, 5, baseBlock::terrainTable[106])); // fixed errorinium
+		_terrainPainter.addSection(terrainSection(0.0001, 5, baseBlock::terrainTable[106])); // fixed errorinium
 		_terrainPainter.addSection(terrainSection(1, 1, baseBlock::terrainTable[0])); // fixed errorinium
 
 	}

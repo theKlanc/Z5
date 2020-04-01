@@ -596,110 +596,114 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
 	}
-	{
-		entt::entity dog = _enttRegistry.create();
-
-		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-		std::vector<frame> dogFrames;
-		dogFrames.push_back({ {0,32},{16,16} });
-		dogSprite.spr = Services::graphics.loadSprite("dog", "spritesheet", dogFrames);
-		dogSprite.name = "dog";
-
-		auto& dogPos = _enttRegistry.assign<position>(dog);
-		dogPos.parent = result;
-		dogPos.parentID = result->getID();
-		dogPos.pos.x = 2 + sin(angle) * distance;
-		dogPos.pos.y = 2 + cos(angle) * distance;
-		dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D()) + 1;
-		dogPos.pos.r = 0;
-
-		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
-		dogSpd.spd.x = 0;
-		dogSpd.spd.y = 0;
-		dogSpd.spd.z = 0;
-		dogSpd.spd.r = -0.1;
-
-		auto& dogName = _enttRegistry.assign<name>(dog);
-		dogName.nameString = "Lieutenant Gromit";
-
-		auto& dogBody = _enttRegistry.assign<body>(dog);
-		dogBody.height = 0.4;
-		dogBody.width = 0.3;
-		dogBody.mass = 10;
-		dogBody.elasticity = 0.1;
-		dogBody.volume = 0.02;
-
-		// Initial position and orientation of the collision body 
-		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
-		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-		rp3d::Transform transform(initPosition, initOrientation);
-
-		dogBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-		collidedResponse* dogResponse = new collidedResponse();
-		dogResponse->type = ENTITY;
-		dogResponse->body.entity = dog;
-		dogBody.physicsData.collider->setUserData((void*)dogResponse);
-		initPosition.z += dogBody.width / 2;
-		transform.setPosition(initPosition);
-		dogBody.physicsData._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-		dogBody.physicsData.collider->addCollisionShape(dogBody.physicsData._collisionShape, transform);
-	}
-	for (int i = 0; i < 5; i++)
-		for (int j = 0; j < 5; j++)
+	bool constexpr skipExtraEntities = false;
+	if constexpr(!skipExtraEntities){
 		{
-			entt::entity ball = _enttRegistry.create();
+			entt::entity dog = _enttRegistry.create();
 
-			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
+			auto& dogSprite = _enttRegistry.assign<drawable>(dog);
 			std::vector<frame> dogFrames;
-			if (Services::graphics.isSpriteLoaded("ball")) {
-				ballSprite.spr = Services::graphics.getSprite("ball");
-			}
-			else {
-				std::vector<frame> ballFrames;
-				ballFrames.push_back({ {240,0},{16,16} });
-				ballSprite.spr = Services::graphics.loadSprite("ball", "spritesheet", ballFrames);
-				ballSprite.spr = Services::graphics.loadSprite("ball");
-			}
+			dogFrames.push_back({ {0,32},{16,16} });
+			dogSprite.spr = Services::graphics.loadSprite("dog", "spritesheet", dogFrames);
+			dogSprite.name = "dog";
 
-			ballSprite.name = "ball";
+			auto& dogPos = _enttRegistry.assign<position>(dog);
+			dogPos.parent = result;
+			dogPos.parentID = result->getID();
+			dogPos.pos.x = 2 + sin(angle) * distance;
+			dogPos.pos.y = 2 + cos(angle) * distance;
+			dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D()) + 1;
+			dogPos.pos.r = 0;
 
-			auto& ballPos = _enttRegistry.assign<position>(ball);
-			ballPos.parent = result;
-			ballPos.parentID = result->getID();
-			ballPos.pos.x = 4 + i + sin(angle) * distance;
-			ballPos.pos.y = 4 + j + cos(angle) * distance;
-			ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
-			ballPos.pos.r = 0;
+			auto& dogSpd = _enttRegistry.assign<velocity>(dog);
+			dogSpd.spd.x = 0;
+			dogSpd.spd.y = 0;
+			dogSpd.spd.z = 0;
+			dogSpd.spd.r = -0.1;
 
-			auto& ballSpd = _enttRegistry.assign<velocity>(ball);
-			ballSpd.spd.x = 0;
-			ballSpd.spd.y = 0;
-			ballSpd.spd.z = 0;
-			ballSpd.spd.r = -0.1;
+			auto& dogName = _enttRegistry.assign<name>(dog);
+			dogName.nameString = "Lieutenant Gromit";
 
-			auto& ballBody = _enttRegistry.assign<body>(ball);
-			ballBody.height = 7.0f / 8.0f;
-			ballBody.width = 7.0f / 8.0f;
-			ballBody.mass = 1;
-			ballBody.elasticity = 0.98;
-			ballBody.volume = 0.2;
+			auto& dogBody = _enttRegistry.assign<body>(dog);
+			dogBody.height = 0.4;
+			dogBody.width = 0.3;
+			dogBody.mass = 10;
+			dogBody.elasticity = 0.1;
+			dogBody.volume = 0.02;
 
-			// Initial position and orientation of the collision body 
+			// Initial position and orientation of the collision body
 			rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
 			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 			rp3d::Transform transform(initPosition, initOrientation);
 
-			ballBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-
-			collidedResponse* ballResponse = new collidedResponse();
-			ballResponse->type = ENTITY;
-			ballResponse->body.entity = ball;
-			ballBody.physicsData.collider->setUserData((void*)ballResponse);
-			ballBody.physicsData._collisionShape = new rp3d::SphereShape(0.4);
-			initPosition.z += ballBody.width / 2;
+			dogBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+			collidedResponse* dogResponse = new collidedResponse();
+			dogResponse->type = ENTITY;
+			dogResponse->body.entity = dog;
+			dogBody.physicsData.collider->setUserData((void*)dogResponse);
+			initPosition.z += dogBody.width / 2;
 			transform.setPosition(initPosition);
-			ballBody.physicsData.collider->addCollisionShape(ballBody.physicsData._collisionShape, transform);
+			dogBody.physicsData._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
+			dogBody.physicsData.collider->addCollisionShape(dogBody.physicsData._collisionShape, transform);
 		}
+		for (int i = 0; i < 5; i++){
+			for (int j = 0; j < 5; j++)
+			{
+				entt::entity ball = _enttRegistry.create();
+
+				auto& ballSprite = _enttRegistry.assign<drawable>(ball);
+				std::vector<frame> dogFrames;
+				if (Services::graphics.isSpriteLoaded("ball")) {
+					ballSprite.spr = Services::graphics.getSprite("ball");
+				}
+				else {
+					std::vector<frame> ballFrames;
+					ballFrames.push_back({ {240,0},{16,16} });
+					ballSprite.spr = Services::graphics.loadSprite("ball", "spritesheet", ballFrames);
+					ballSprite.spr = Services::graphics.loadSprite("ball");
+				}
+
+				ballSprite.name = "ball";
+
+				auto& ballPos = _enttRegistry.assign<position>(ball);
+				ballPos.parent = result;
+				ballPos.parentID = result->getID();
+				ballPos.pos.x = 4 + i + sin(angle) * distance;
+				ballPos.pos.y = 4 + j + cos(angle) * distance;
+				ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
+				ballPos.pos.r = 0;
+
+				auto& ballSpd = _enttRegistry.assign<velocity>(ball);
+				ballSpd.spd.x = 0;
+				ballSpd.spd.y = 0;
+				ballSpd.spd.z = 0;
+				ballSpd.spd.r = -0.1;
+
+				auto& ballBody = _enttRegistry.assign<body>(ball);
+				ballBody.height = 7.0f / 8.0f;
+				ballBody.width = 7.0f / 8.0f;
+				ballBody.mass = 1;
+				ballBody.elasticity = 0.98;
+				ballBody.volume = 0.2;
+
+				// Initial position and orientation of the collision body
+				rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform transform(initPosition, initOrientation);
+
+				ballBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+
+				collidedResponse* ballResponse = new collidedResponse();
+				ballResponse->type = ENTITY;
+				ballResponse->body.entity = ball;
+				ballBody.physicsData.collider->setUserData((void*)ballResponse);
+				ballBody.physicsData._collisionShape = new rp3d::SphereShape(0.4);
+				initPosition.z += ballBody.width / 2;
+				transform.setPosition(initPosition);
+				ballBody.physicsData.collider->addCollisionShape(ballBody.physicsData._collisionShape, transform);
+			}
+		}
+	}
 }
 
 void State::Playing::fixEntities()
@@ -781,6 +785,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "step" << std::endl;
 		std::cout << "setNullBlock ID" << std::endl;
 		std::cout << "zoom zoomLevel" << std::endl;
+		std::cout << "goto ID" << std::endl;
 
 	}
 	else if (command == "pause") {
@@ -915,6 +920,12 @@ void State::Playing::debugConsoleExec(std::string input)
 		else {
 			pos.pos.z = 1 + pos.parent->getHeight({ (int)pos.pos.x,(int)pos.pos.y });
 		}
+	}
+	else if (command == "goto" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		debugConsoleExec("setParent " + argument);
+		debugConsoleExec("tp 0 0");
 	}
 	else if (command == "setNullBlock") { // Y THO
 		std::string argument;

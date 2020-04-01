@@ -6,6 +6,7 @@
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "states/state_playing.hpp"
 #include <iostream>
+#include <cmath>
 #include "nodeGenerators/nullGenerator.hpp"
 
 
@@ -260,62 +261,72 @@ int universeNode::chunkIndex(const point3Di& pos) const
 }
 
 void universeNode::linkChildren() {
-	for (universeNode& u : _children) {
-		u._parent = this;
-		u.linkChildren();
-	}
 	if (_parent == nullptr) {
 		_depth = 0;
 	}
 	else {
 		_depth = _parent->_depth + 1;
 	}
+	for (universeNode& u : _children) {
+		u._parent = this;
+		u.linkChildren();
+	}
 }
 
 fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(position) f (which is relative to u)
 								  // relative to our local node (*this)
 {
+	assert(!std::isnan(_position.x));
+	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
 	{
-		fdd transform{ 0,0,0,0 };
+		fdd transform = f;
 		const universeNode* transformLocal = this;
 
-		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
-			if (transformLocal->_depth - u->_depth > 1) {//should move u
-				f += u->_position;
+		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
+			if (u->_depth > transformLocal->_depth) {//should move u
+				transform += u->_position;
 				u = u->_parent;
 			}
 			else {// move transformLocal
-				transform += transformLocal->_position;
+				transform -= transformLocal->_position;
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		return f - transform;
+		if(std::isnan(transform.x)){
+			getLocalPos(f,backUp);
+		}
+		return transform;
 	}
 }
 
 fdd universeNode::getLocalVel(fdd f, universeNode* u) const
 {
+	assert(!std::isnan(_velocity.x));
+	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
 	{
-		fdd transform{ 0,0,0,0 };
+		fdd transform = f;
 		const universeNode* transformLocal = this;
 
-		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
-			if (transformLocal->_depth - u->_depth > 1) {//should move u
-				f += u->_velocity;
+		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
+			if (u->_depth > transformLocal->_depth) {//should move u
+				transform += u->_velocity;
 				u = u->_parent;
 			}
 			else {// move transformLocal
-				transform += transformLocal->_velocity;
+				transform -= transformLocal->_velocity;
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		return f - transform;
+		if(std::isnan(transform.x)){
+			getLocalPos(f,backUp);
+		}
+		return transform;
 	}
 }
 
@@ -368,6 +379,9 @@ void universeNode::updatePositions(double dt)
 {
 	if (!physicsData.sleeping)
 	{
+		assert(!std::isnan(dt));
+		assert(!std::isnan(_velocity.x));
+		assert(!std::isnan(_position.x));
 		_position += _velocity * dt;
 	}
 	for (universeNode& child : _children)

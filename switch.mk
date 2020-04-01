@@ -67,7 +67,7 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g -O0 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --cflags SDL2_mixer`
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DIS_DOUBLE_PRECISION_ENABLED `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --cflags SDL2_mixer`
 
 CXXFLAGS	:= $(CFLAGS) -std=c++17
 

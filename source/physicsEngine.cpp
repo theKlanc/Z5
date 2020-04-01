@@ -1,5 +1,6 @@
 #include "physicsEngine.hpp"
 #include <iostream>
+#include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "reactPhysics3D/src/collision/ContactManifold.h"
 #include "reactPhysics3D/src/constraint/ContactPoint.h"
@@ -96,6 +97,7 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
 			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass()) * dt);
+			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
 	auto movableEntityView = registry.view<velocity, position>();
@@ -113,12 +115,14 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
 			fdd pos = node.getCenterOfMass();
+			pos+=node.getPosition();
 			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z) });
 			if (block.base->ID == 0 || block.base->solid)
 				continue;
 			fdd buoyancy = node.getParent()->getGravityAcceleration(pos) * -1 * ((node.getDiameter() / 2) * (node.getDiameter() / 2) * 4 * M_PI) * block.base->mass;
 			//Bforce = p_fluidDensity * V * g_gravityAcceleration
 			node.setVelocity(node.getVelocity() + (buoyancy / node.getMass()) * dt);
+			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
 	auto movableEntityView = registry.view<velocity, position, body>();
@@ -142,6 +146,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 		if (node.getParent() != nullptr)
 		{
 			fdd pos = node.getCenterOfMass();
+			pos+=node.getPosition();
 			fdd vel = node.getVelocity();
 			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z) });
 			if (block.base->ID == 0)
@@ -158,6 +163,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 			drag.r /= 2;
 			drag *= -1;
 			node.setVelocity(node.getVelocity() + (drag / node.getMass()) * dt);
+			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
 	auto movableEntityView = registry.view<velocity, position, body>();
@@ -316,8 +322,13 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 		for (universeNode* node : collidableNodes)
 		{
 			position pos = registry.get<position>(left);
+			//if(std::isnan(pos.pos.x)){
+			//	std::cout << "Resetting position of entity " << registry.get<name>(left).nameString << " due to nan" << std::endl;
+			//	registry.get<position>(left).pos = fdd();
+			//	continue;
+			//}
 
-			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
+ 			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
 
 			collidedResponse cResponse;
 			cResponse.type = NODE;
@@ -362,36 +373,47 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 	for (const entt::entity& entity : bodyView)
 	{
 		body& bdy = bodyView.get<body>(entity);
-		if (bdy.physicsData.maxContactDepth == 0)
-			continue;
-		position& pos = bodyView.get<position>(entity);
-		velocity& vel = bodyView.get<velocity>(entity);
-		fdd oldSpeed = vel.spd;
-		//backtrack position along the old ~velocity~  until we're "just" colliding with the node (tangentially)
-		//pos.pos -= vel.spd * dt * ((bdy.physicsData.maxContactDepth) / ((oldSpeed * dt).magnitude()));
-		pos.pos -= bdy.physicsData.contactNormal * bdy.physicsData.maxContactDepth;
-		//Calculate new velocity
-		rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
-		auto result = (d - (2 * (bdy.physicsData.contactNormal.dot(d)) * bdy.physicsData.contactNormal));
+		if (bdy.physicsData.maxContactDepth > 0.0001)
+		{
+			position& pos = bodyView.get<position>(entity);
+			velocity& vel = bodyView.get<velocity>(entity);
+			fdd oldPos = pos.pos;
+			fdd oldSpeed = vel.spd;
+			//backtrack position along the old ~velocity~  until we're "just" colliding with the node (tangentially)
+			//pos.pos -= vel.spd * dt * ((bdy.physicsData.maxContactDepth) / ((oldSpeed * dt).magnitude()));
+			pos.pos -= bdy.physicsData.contactNormal * bdy.physicsData.maxContactDepth;
+			//Calculate new velocity
+			rp3d::Vector3 d{ (rp3d::decimal)vel.spd.x,(rp3d::decimal)vel.spd.y,(rp3d::decimal)vel.spd.z };
+			auto result = (d - (2 * (bdy.physicsData.contactNormal.dot(d)) * bdy.physicsData.contactNormal));
 
-		fdd normal;
-		normal.x = bdy.physicsData.contactNormal.x;
-		normal.y = bdy.physicsData.contactNormal.y;
-		normal.z = bdy.physicsData.contactNormal.z;
+			fdd normal;
+			normal.x = bdy.physicsData.contactNormal.x;
+			normal.y = bdy.physicsData.contactNormal.y;
+			normal.z = bdy.physicsData.contactNormal.z;
 
-		fdd projectedFriction = normal.project(vel.spd);
-		projectedFriction *= (1 - bdy.elasticity);
+			fdd projectedFriction = normal.project(vel.spd);
+			projectedFriction *= (1 - bdy.elasticity);
 
-		result.x += projectedFriction.x;
-		result.y += projectedFriction.y;
-		result.z += projectedFriction.z;
+			result.x += projectedFriction.x;
+			result.y += projectedFriction.y;
+			result.z += projectedFriction.z;
 
-		vel.spd.x = result.x;
-		vel.spd.y = result.y;
-		vel.spd.z = result.z;
+			vel.spd.x = result.x;
+			vel.spd.y = result.y;
+			vel.spd.z = result.z;
 
-		//apply new velocity from surface
-		pos.pos += vel.spd * dt * (bdy.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude()));
+			//apply new velocity from surface
+			pos.pos += vel.spd * dt * (bdy.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude()));
+			if(std::isnan(pos.pos.x)){
+				std::cout << "OldVel: " << oldSpeed << std::endl;
+				std::cout << "OldPos: " << oldPos << std::endl;
+				std::cout << "resultat: " << result << std::endl;
+				std::cout << "contactNormal: " << bdy.physicsData.contactNormal << std::endl;
+				std::cout << "contactDepth: " << bdy.physicsData.maxContactDepth << std::endl;
+				std::cout << "dt: " << dt << std::endl;
+			}
+			assert(!std::isnan(pos.pos.x));
+		}
 	}
 }
 
@@ -428,6 +450,8 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		//apply new velocity from surface
 		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude())) * 0.8;
 
+		assert(!std::isnan(pos.x));
+		assert(!std::isnan(vel.x));
 		node.setPosition(pos);
 		node.setVelocity(vel);
 

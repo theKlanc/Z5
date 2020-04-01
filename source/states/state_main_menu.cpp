@@ -249,6 +249,7 @@ void State::MainMenu::createNewGamePanel()
 	_newGamePanel.p->addGadget(std::make_shared<textView>(point2D{ 165,96 }, point2D{ 120,32 }, "Seed", _standardFont, 32, HI2::Color::Black));
 
 	_newGamePanel.debug = std::make_shared<imageToggleButton>(point2D{ 30,160 }, point2D{ 32,32 },*Services::graphics.loadSprite("UI/buttons/toggle_off","UI/buttons/toggle_off"),*Services::graphics.loadSprite("UI/buttons/toggle_on","UI/buttons/toggle_on"));
+	_newGamePanel.debug->setPressed(true);
 	_newGamePanel.p->addGadget(_newGamePanel.debug);
 	last->setDown(_newGamePanel.debug.get());
 	_newGamePanel.debug->setUp(last.get());

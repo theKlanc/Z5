@@ -170,6 +170,11 @@ fdd& fdd::operator/=(const double& f)
 	return *this;
 }
 
+fdd fdd::operator-()
+{
+	return {-x,-y,-z,-r};
+}
+
 fdd fdd::project(const fdd& right) const
 {
 	fdd n = normalized();

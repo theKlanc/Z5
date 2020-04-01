@@ -50,19 +50,19 @@ void State::PrefabEditor::input(double dt)
 	{
 		zoom *= 2;
 	}
-	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_DOWN] || keysDown[HI2::BUTTON::BUTTON_DRIGHT])
+	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_DOWN] || keysDown[HI2::BUTTON::KEY_RIGHT])
 	{
 		_selectedToolbarPos++;
 		if (_selectedToolbarPos >= _toolbar.size())
 			_selectedToolbarPos = 0;
 	}
-	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_UP] || keysDown[HI2::BUTTON::BUTTON_DLEFT])
+	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_UP] || keysDown[HI2::BUTTON::KEY_LEFT])
 	{
 		_selectedToolbarPos--;
 		if (_selectedToolbarPos < 0)
 			_selectedToolbarPos = _toolbar.size() - 1;
 	}
-	if (keysDown[HI2::BUTTON::BUTTON_DUP])
+	if (keysDown[HI2::BUTTON::KEY_UP])
 	{
 		if (_toolbar[_selectedToolbarPos]->ID != baseBlock::terrainTable.size() - 1)
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[_toolbar[_selectedToolbarPos]->ID + 1];
@@ -71,7 +71,7 @@ void State::PrefabEditor::input(double dt)
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[0];
 		}
 	}
-	if (keysDown[HI2::BUTTON::BUTTON_DDOWN])
+	if (keysDown[HI2::BUTTON::KEY_DOWN])
 	{
 		if (_toolbar[_selectedToolbarPos]->ID != 0)
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[_toolbar[_selectedToolbarPos]->ID - 1];

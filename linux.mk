@@ -8,7 +8,7 @@ BUILDDIR := build
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/broadphase deps/reactPhysics3D/src/collision/narrowphase
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/shapes
 
-FLAGS    := -D__LINUX__ -Werror=return-type `sdl2-config --cflags` `pkgconf --cflags freetype2`
+FLAGS    := -D__LINUX__ -DIS_DOUBLE_PRECISION_ENABLED -Werror=return-type `sdl2-config --cflags` `pkgconf --cflags freetype2`
 CCFLAGS  :=
 CXXFLAGS := -std=c++17
 
@@ -17,7 +17,9 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 BUILDTYPE := Release
 ifeq ($(DEBUG), 1)
-FLAGS := $(FLAGS) -DDEBUG -Og -ggdb3 -fstack-protector-all
+FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -Og -fstack-protector-all
+#FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -fstack-protector-all
+$(info DEBOOG)
 BUILDTYPE := Debug
 else
 FLAGS := $(FLAGS) -flto -Ofast

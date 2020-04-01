@@ -120,6 +120,12 @@ fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e)
 	if(held[HI2::BUTTON::KEY_S]){
 		vel.spd.y+=2*dt;
 	}
+	if(held[HI2::BUTTON::KEY_F]){
+		vel.spd.z-=13*dt;
+	}
+	if(held[HI2::BUTTON::KEY_R]){
+		vel.spd.z+=13*dt;
+	}
 	return nullptr;
 }
 

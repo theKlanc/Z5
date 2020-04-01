@@ -13,7 +13,7 @@ class pushButton : public gadget{
 		bool isPressing();
 		bool isRising(); // is button rising (even if by dragging mouse out of the button)
 		bool isRisingInside(); // is button rising with cursor still inside
-
+		void setPressed(bool b);
 		void setClickCallback(std::function<void()> f);
 	protected:
 		bool _pressed = false;
