@@ -1,7 +1,7 @@
 APPNAME := Z5
 BINDIR	:= bin
 PLATFORM := linux
-SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets
+SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets source/UI/customGadgets
 INCLUDE := include deps deps/reactPhysics3D/src deps/json/single_include/nlohmann
 
 BUILDDIR := build

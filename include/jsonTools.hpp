@@ -3,6 +3,7 @@
 #include <string>
 #include "json.hpp"
 #include "entt/entity/fwd.hpp"
+#include "HardwareInterface/HardwareInterface.hpp"
 
 enum componentType{
 	NAME,
@@ -44,6 +45,10 @@ struct jsonEntity
 	std::vector<jsonComponent>  components;
 };
 
+namespace HI2{
+	void to_json(nlohmann::json& j, const HI2::Color& c);
+	void from_json(const nlohmann::json& j, HI2::Color& c);
+}
 
 void to_json(nlohmann::json& j, const entt::registry& registry);
 void from_json(const nlohmann::json& j, entt::registry& registry);

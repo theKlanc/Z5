@@ -413,6 +413,7 @@ em.mk
 icon.jpg
 include/4dd.hpp
 include/4dd.hpp
+include/UI/customGadgets/starmap.hpp
 include/UI/gadget.hpp
 include/UI/gadget.hpp
 include/UI/gadgets/basicPanel.hpp
@@ -578,6 +579,7 @@ include/worldNode.hpp
 include/worldNode.hpp
 linux.mk
 main.cpp
+source/UI/customGadgets/starmap.cpp
 source/UI/gadget.cpp
 source/UI/gadgets/basicPanel.cpp
 source/UI/gadgets/basicPanel.cpp

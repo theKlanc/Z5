@@ -105,6 +105,7 @@ public:
 
 	
 	void connectGenerator(std::unique_ptr<nodeGenerator> ng);
+	HI2::Color getMainColor();
   private:
 
 	bool shouldDraw(fdd f);
@@ -134,7 +135,8 @@ public:
 	unsigned int _ID;
 	rp3d::CollisionBody* _collider;
 	rp3d::CollisionShape* _collisionShape;
-  
+
+	HI2::Color _mainColor = HI2::Color::White;
 };
 
 

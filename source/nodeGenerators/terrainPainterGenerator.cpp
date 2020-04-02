@@ -395,7 +395,7 @@ void from_json(const nlohmann::json &j, terrainPainterGenerator &tpg)
 
 baseBlock &terrainPainterGenerator::getTopBlock(const point2D &p)
 {
-	return baseBlock::terrainTable[0];
+	return _terrainPainter.getBlock(getHeight(p));
 }
 
 nlohmann::json terrainPainterGenerator::getJson() const

@@ -22,6 +22,7 @@
 #include "nodeGenerators/terrainPainterGenerator.hpp"
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "components/brain.hpp"
+#include "UI/customGadgets/starmap.hpp"
 #include <memory>
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
@@ -31,7 +32,6 @@ std::mutex State::Playing::_chunkLoaderMutex;
 State::Playing::~Playing() {
 
 
-	//delete _chunkLoaderPlayerPosition;
 	_chunkLoaderPlayerPosition = nullptr;
 	_chunkLoaderThread->join();
 
@@ -39,7 +39,7 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
 	_debug = debug;
 
 	//load terrain table
@@ -76,8 +76,10 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	}
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
+	universeNode* playerParent;
 	for (auto entity : playerView) {															   //
-		_player = entity;																	   //
+		_player = entity;
+		playerParent = _enttRegistry.get<position>(entity).parent;															   //
 		_chunkLoaderPlayerPosition = new position(_enttRegistry.get<position>(entity));		   //
 	}																						   //
 	auto cameraView = _enttRegistry.view<entt::tag<"CAMERA"_hs>>();					   //
@@ -89,6 +91,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos, _chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
 	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
+	_starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
+	_starmap->toggle();
+	_scene.addGadget(_starmap);
 }
 
 void State::Playing::input(double dt)
@@ -114,6 +119,9 @@ void State::Playing::input(double dt)
 		}
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
+		}
+		if (down[HI2::BUTTON::KEY_M]) {
+			_starmap->toggle();
 		}
 		// Exit
 		if (down[HI2::BUTTON::CANCEL])
@@ -249,7 +257,6 @@ void State::Playing::draw(double dt) {
 
 	_scene.draw();
 	HI2::endFrame();
-
 }
 
 void State::Playing::drawLayer(const State::Playing::renderLayer& rl)

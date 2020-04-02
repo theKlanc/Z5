@@ -130,7 +130,7 @@ gadget *gadget::getDown()
 
 bool gadget::touched(point2D touchPosition)
 {
-	return touchPosition.x > _position.x && touchPosition.y > _position.y &&
-			touchPosition.x < (_position.x + _size.x) && touchPosition.y < (_position.y + _size.y);
+	return touchPosition.x >= 0 && touchPosition.y >= 0 &&
+			touchPosition.x < _size.x && touchPosition.y < _size.y;
 }
 gadget::~gadget(){}

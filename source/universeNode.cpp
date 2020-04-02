@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include "nodeGenerators/nullGenerator.hpp"
+#include "jsonTools.hpp"
 
 
 void universeNode::clean()
@@ -188,6 +189,11 @@ void universeNode::connectGenerator(const nlohmann::json& j)
 void universeNode::connectGenerator(std::unique_ptr<nodeGenerator> ng)
 {
 	_generator = std::move(ng);
+}
+
+HI2::Color universeNode::getMainColor()
+{
+	return _mainColor;
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -424,6 +430,7 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_parent = u._parent;
 	_mass = u._mass;
 	_name = u._name;
+	_mainColor = u._mainColor;
 	physicsData = u.physicsData;
 	nlohmann::json jTemp;
 	to_json(jTemp, *u._generator.get());
@@ -593,7 +600,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()} };
+			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor} };
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -621,6 +628,44 @@ void from_json(const json& j, universeNode& f) {
 	nlohmann::json jt;
 	if (j.contains("generator")) {
 		jt = j.at("generator");
+	}
+	if(j.contains("color")){
+		f._mainColor = j.at("color").get<HI2::Color>();
+	}
+	else{
+		if(f._ID == 0){
+			f._mainColor = HI2::Color::Pink;
+		}
+		if(f._ID == 1){
+			f._mainColor = HI2::Color::Orange;
+		}
+		if(f._ID == 2){
+			f._mainColor = HI2::Color::LightGrey;
+		}
+		if(f._ID == 3){
+			f._mainColor = HI2::Color::Yellow;
+		}
+		if(f._ID == 4){
+			f._mainColor = HI2::Color::Green;
+		}
+		if(f._ID == 5){
+			f._mainColor = HI2::Color::Red;
+		}
+		if(f._ID == 6){
+			f._mainColor = HI2::Color::Brown;
+		}
+		if(f._ID == 7){
+			f._mainColor = HI2::Color::Brown;
+		}
+		if(f._ID == 8){
+			f._mainColor = HI2::Color::Blue;
+		}
+		if(f._ID == 9){
+			f._mainColor = HI2::Color::Blue;
+		}
+		if(f._ID == 10){
+			f._mainColor = HI2::Color::LightGrey;
+		}
 	}
 	f.connectGenerator(jt);
 	f.populateColliders();

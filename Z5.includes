@@ -46,3 +46,5 @@ deps/reactPhysics3D/src/collision/shapes
 deps/reactPhysics3D/src/collision/broadphase
 deps/reactPhysics3D/src/collision/narrowphase
 deps/reactPhysics3D/src/utils
+include/UI/customGadgets
+source/UI/customGadgets

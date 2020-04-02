@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <thread>
 #include "components/position.hpp"
+#include "UI/customGadgets/starmap.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
 
@@ -79,9 +80,13 @@ namespace State {
 
 		scene _scene;
 		std::shared_ptr<basicTextEntry> _console;
+		std::shared_ptr<starmap> _starmap;
 
 		bool _paused = false;
 		bool _step = false;
+
+
+		scene _uiScene;
 
 	};
 

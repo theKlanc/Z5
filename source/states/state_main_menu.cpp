@@ -16,7 +16,7 @@
 #include "states/state_prefab_editor.hpp"
 
 
-State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test"))
+State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon"))
 {
 	std::filesystem::create_directory(HI2::getSavesPath());
 

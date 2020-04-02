@@ -32,7 +32,7 @@ void scene::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<
 	for (std::shared_ptr<gadget> g : _gadgets) {
 		if (g->isActive()) {
 			g->update(dt);
-			if (down[HI2::BUTTON::TOUCH] && g->touched(mouse) && g->isSelectable())
+			if (down[HI2::BUTTON::TOUCH] && g->touched(mouse - g->getPosition()) && g->isSelectable())
 			{
 				_selected = g.get();
 			}
@@ -73,7 +73,7 @@ void scene::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<
 
 
 	if (_selected != nullptr && _selected->isActive()) {
-		_selected->update(down, up, held, mouse, dt);
+		_selected->update(down, up, held, mouse-_selected->getPosition(), dt);
 	}
 
 }

@@ -131,3 +131,16 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 
 	}
 }
+
+void HI2::to_json(nlohmann::json &j, const HI2::Color &color)
+{
+	j = json{{"r",color.r},{"g",color.g},{"b",color.b},{"a",color.a}};
+}
+
+void HI2::from_json(const nlohmann::json &j, HI2::Color &color)
+{
+	color.r = j.at("r").get<unsigned char>();
+	color.g = j.at("g").get<unsigned char>();
+	color.b = j.at("b").get<unsigned char>();
+	color.a = j.at("a").get<unsigned char>();
+}

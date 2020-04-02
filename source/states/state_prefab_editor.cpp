@@ -126,15 +126,15 @@ void State::PrefabEditor::input(double dt)
 
 		HI2::drawRectangle({}, HI2::getScreenWidth(), HI2::getScreenHeight(), HI2::Color::DarkGrey);
 
-		HI2::drawText(*Services::fonts.loadFont("test"), "wasd: movement", { 0,0 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "rf: move up and down", { 0,20 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "h: show this help", { 0,40 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "q: rotate block", { 0,60 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "e: flip block", { 0,80 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "scroll wheel / left-right: move toolbar selection", { 0,100 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "up-down: change selected block", { 0,120 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "x: switch between symmetry modes", { 0,140 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "t: switch between backgrounds", { 0,160 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "wasd: movement", { 0,0 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "rf: move up and down", { 0,20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "h: show this help", { 0,40 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "q: rotate block", { 0,60 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "e: flip block", { 0,80 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "scroll wheel / left-right: move toolbar selection", { 0,100 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "up-down: change selected block", { 0,120 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "x: switch between symmetry modes", { 0,140 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "t: switch between backgrounds", { 0,160 }, 20, HI2::Color::White);
 
 		HI2::endFrame();
 		_drawingHelp = true;

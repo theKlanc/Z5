@@ -92,16 +92,14 @@ gadget* panel::getDown()
 
 void panel::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<HI2::BUTTON_SIZE>& up, const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, const double& dt)
 {
-	point2D relativeMouse;
-	relativeMouse = mouse - _position;
 	for (std::shared_ptr<gadget> g : _gadgets) {
-		if (down[HI2::BUTTON::TOUCH] && g->touched(relativeMouse) && g->isSelectable())
+		if (down[HI2::BUTTON::TOUCH] && g->touched(mouse-g->getPosition()) && g->isSelectable())
 		{
 			_selected = g.get();
 		}
 	}
 	if (_selected != nullptr) {
-		_selected->update(down, up, held, relativeMouse, dt);
+		_selected->update(down, up, held, mouse-_selected->getPosition(), dt);
 	}
 }
 
