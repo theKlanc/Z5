@@ -115,6 +115,7 @@ void State::Playing::input(double dt)
 	else {
 		if (_debug && down[HI2::BUTTON::ACCEPT]) {
 			_console->toggle();
+			_scene.select(_console);
 			down[HI2::BUTTON::ACCEPT] = false;
 		}
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
@@ -122,6 +123,7 @@ void State::Playing::input(double dt)
 		}
 		if (down[HI2::BUTTON::KEY_M]) {
 			_starmap->toggle();
+			_scene.select(_starmap);
 		}
 		// Exit
 		if (down[HI2::BUTTON::CANCEL])

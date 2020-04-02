@@ -9,3 +9,4 @@ double config::depthScale = 1.5;
 double config::minScale = 0.5;
 int config::cameraHeight = 5;
 bool config::drawDepthShadows = true;
+int config::orbitDebugMultiplier = 8640;

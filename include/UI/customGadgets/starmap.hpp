@@ -17,10 +17,12 @@ protected:
 
 	universeNode* getHoveredNode(const point2D& mouse)const;
 	void drawNodes(const point2D& offset) const;
-	void drawNodeRing(const point2D& offset,universeNode* node, HI2::Color color = HI2::Color::White);
-	void drawInfo(const point2D& offset,universeNode* node, bool fullInfo = true);
+	void drawNodeRing(const point2D& offset,universeNode* node, HI2::Color color = HI2::Color::White) const;
+	void drawInfo(const point2D& offset,universeNode* node, bool fullInfo = true) const;
+	point2D translateToDisplayCoord(fdd position, universeNode* parent) const;
 	bool wasHolding = false;
 	point2D lastMousePos;
+	std::vector<point2D> calculateOrbit(universeNode* node, double timeStep, int stepCount) const;
 
 	point2Dd mapOffset;
 	double _scale = 1;

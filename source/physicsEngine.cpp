@@ -44,7 +44,7 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 				applyDrag(universeBase, registry, _timeStep);
 			}
 
-			universeBase.updatePositions(_timeStep*8640);
+			universeBase.updatePositions(_timeStep*config::orbitDebugMultiplier);
 
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);

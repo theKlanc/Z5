@@ -18,6 +18,7 @@ namespace config {
 	extern double depthScale;
 	extern double minScale;
 	extern int cameraHeight;
+	extern int orbitDebugMultiplier;
 
 	constexpr double physicsHz
 #ifdef __SWITCH__
