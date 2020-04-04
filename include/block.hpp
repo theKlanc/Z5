@@ -1,7 +1,7 @@
 #pragma once
 #include "graphicsManager.hpp"
 #include "json.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 
 using nlohmann::json;
 

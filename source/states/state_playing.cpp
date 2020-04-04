@@ -18,7 +18,7 @@
 #include "physicsEngine.hpp"
 #include "components/astronautBrain.hpp"
 #include <cmath>
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "nodeGenerators/terrainPainterGenerator.hpp"
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "components/brain.hpp"

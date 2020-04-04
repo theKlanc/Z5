@@ -1,6 +1,6 @@
 #pragma once
 #include "state_base.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "block.hpp"
 #include "prefab.hpp"
 

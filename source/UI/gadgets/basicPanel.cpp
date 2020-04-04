@@ -1,5 +1,5 @@
 #include "UI/gadgets/basicPanel.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 
 basicPanel::basicPanel(point2D pos, point2D size, HI2::Color c, std::string s) : panel(pos,size,s)
 {

@@ -3,7 +3,7 @@
 #include <string>
 #include "json.hpp"
 #include "entt/entity/fwd.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 
 enum componentType{
 	NAME,

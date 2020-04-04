@@ -7,7 +7,7 @@
 #include "block.hpp"
 #include "terrainChunk.hpp"
 #include "nodeGenerator.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 
 const double G = (6.67408e-11);
 

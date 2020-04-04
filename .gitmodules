@@ -10,3 +10,6 @@
 	url = https://github.com/theKlanc/reactphysics3d
 [submodule "deps/FastNoise"]
 	url = https://github.com/Auburns/FastNoise
+[submodule "deps/icecream-cpp"]
+	path = deps/icecream-cpp
+	url = https://github.com/renatoGarcia/icecream-cpp

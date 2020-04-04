@@ -1,6 +1,6 @@
 #pragma once
-#include "HardwareInterface/HardwareInterface.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "HI2.hpp"
+#include "reactphysics3d.h"
 #include "json.hpp"
 using nlohmann::json;
 

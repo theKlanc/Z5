@@ -1,5 +1,5 @@
 #include "terrainChunk.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "config.hpp"
 #include <cmath>
 #include <iostream>

@@ -2,8 +2,8 @@
 #include "json.hpp"
 #include <cmath>
 #include <math.h>
-#include "HardwareInterface/HardwareInterface.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "HI2.hpp"
+#include "reactphysics3d.h"
 
 void to_json(nlohmann::json& j, const fdd& f)
 {

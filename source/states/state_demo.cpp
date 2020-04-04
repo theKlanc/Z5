@@ -1,7 +1,7 @@
 #include "states/state_demo.hpp"
 #include <iostream>
 #include "gameCore.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "services.hpp"
 #include "FastNoise/FastNoise.h"
 

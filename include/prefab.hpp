@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "block.hpp"
 
 class prefab

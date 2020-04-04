@@ -7,15 +7,22 @@ scrollablePanel::scrollablePanel(point2D pos, point2D size, point2D maxDimension
 
 void scrollablePanel::draw(point2D offset)
 {
+	HI2::Texture panelTex(point2D{_size.x,_size.y});
+	auto oldTarget = HI2::getRenderTarget();
+	HI2::setRenderTarget(&panelTex,true);
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(g->isVisible() && g->isCompletelyRenderable(_offset,_size))
+		if(g->isVisible() && g->isRenderable(_offset,_size))
 		{
-			g->draw(offset + _position+_offset);
+			g->draw(offset +_offset);
 		}
 	}
-	if(_selected != nullptr && _selected->isVisible() && _selected->isCompletelyRenderable(offset+_offset,_size)){
-		HI2::drawEmptyRectangle(_selected->getPosition()+_position+offset+_offset,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
+	if(_selected != nullptr && _selected->isVisible() && _selected->isRenderable(_offset,_size)){
+		HI2::drawEmptyRectangle(_selected->getPosition()+_offset,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
 	}
+
+	HI2::setRenderTarget(&oldTarget);
+	HI2::drawTexture(panelTex,_position.x + offset.x,_position.y + offset.y);
+	panelTex.clean();
 }
 
 void scrollablePanel::update(const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held, const point2D &mouse, const double &dt)

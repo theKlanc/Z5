@@ -24,8 +24,8 @@ deps/FastNoise/FastNoise.h
 deps/FastNoise/FastNoise.h
 deps/FastNoise/LICENSE
 deps/FastNoise/README.md
+deps/HardwareInterface/HI2.hpp
 deps/HardwareInterface/HardwareInterface.h
-deps/HardwareInterface/HardwareInterface.hpp
 deps/HardwareInterface/HardwareInterface.hpp
 deps/HardwareInterface/HardwareInterface3DS.cpp
 deps/HardwareInterface/HardwareInterface3DS.cpp

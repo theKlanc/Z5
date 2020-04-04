@@ -1,5 +1,5 @@
 #include "audioManager.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include <iostream>
 #include "config.hpp"
 

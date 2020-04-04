@@ -1,5 +1,5 @@
 #include "gameCore.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "states/state_playing.hpp"
 #include "states/state_demo.hpp"
 #include "states/state_main_menu.hpp"

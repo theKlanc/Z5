@@ -1,5 +1,5 @@
 #pragma once
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "json.hpp"
 
 class brain{

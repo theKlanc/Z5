@@ -1,5 +1,5 @@
-﻿#include "graphicsManager.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "graphicsManager.hpp"
+#include "HI2.hpp"
 #include <iostream>
 
 graphicsManager::~graphicsManager() {
