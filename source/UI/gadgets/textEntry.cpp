@@ -3,15 +3,14 @@
 
 textEntry::textEntry(point2D pos, point2D size, HI2::Font font, int textSize, std::string text, std::string hint, HI2::Color textColor, HI2::Color hintColor, std::string name)
 {
-	_position = pos;
-	_size = size;
+	init(pos,size,name);
+
 	_font = font;
 	_textSize = textSize;
 	_text = text;
 	_hint = hint;
 	_textColor=textColor;
 	_hintColor=hintColor;
-	_name = name;
 	_selectable = true;
 
 }
@@ -27,12 +26,12 @@ void textEntry::update(const std::bitset<HI2::BUTTON_SIZE> &down, const std::bit
 	}
 }
 
-void textEntry::draw(point2D offset)
+void textEntry::_draw_internal()
 {
 	if(_text!="")
-		HI2::drawText(_font,_text,_position+offset,_textSize,_textColor);
+		HI2::drawText(_font,_text,point2D{0,0},_textSize,_textColor);
 	else
-		HI2::drawText(_font,_hint,_position+offset,_textSize,_hintColor);
+		HI2::drawText(_font,_hint,point2D{0,0},_textSize,_hintColor);
 }
 
 void textEntry::setHint(std::string hint)

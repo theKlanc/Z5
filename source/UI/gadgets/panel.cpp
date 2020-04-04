@@ -3,30 +3,21 @@
 
 panel::panel(point2D pos, point2D size, std::string s)
 {
+	init(pos,size,s);
 	_selectable = true;
-	_position = pos;
-	_size = size;
-	_name = s;
 }
 
-void panel::draw(point2D offset)
+void panel::_draw_internal()
 {
-	HI2::Texture panelTex(point2D{_size.x,_size.y});
-	auto oldTarget = HI2::getRenderTarget();
-	HI2::setRenderTarget(&panelTex,true);
 	for (std::shared_ptr<gadget> g : _gadgets) {
 		if (g->isVisible() && true || g->isCompletelyRenderable({ 0,0 }, _size))
 		{
-			g->draw({0,0});
+			g->draw();
 		}
 	}
 	if (_selected != nullptr && _selected->isVisible() && _selected->isRenderable({ 0,0 }, _size)) {
-		_selected->drawOverlay({0,0});
+		_selected->drawOverlay();
 	}
-
-	HI2::setRenderTarget(&oldTarget);
-	HI2::drawTexture(panelTex,_position.x + offset.x,_position.y + offset.y);
-	panelTex.clean();
 }
 
 void panel::update(const double& dt)

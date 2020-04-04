@@ -2,15 +2,13 @@
 
 pushButton::pushButton(point2D pos, point2D size, std::string s)
 {
+	init(pos,size,s);
 	_selectable = true;
-	_position = pos;
-	_size = size;
-	_name = s;
 }
 
-void pushButton::draw(point2D offset)
+void pushButton::_draw_internal()
 {
-	HI2::drawRectangle(_position + offset, _size.x, _size.y, (_pressed ? HI2::Color::Green : HI2::Color::Red));
+	HI2::drawRectangle(point2D{0,0}, _size.x, _size.y, (_pressed ? HI2::Color::Green : HI2::Color::Red));
 }
 
 void pushButton::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<HI2::BUTTON_SIZE>& up, const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, const double& dt)

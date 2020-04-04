@@ -6,8 +6,8 @@ basicPanel::basicPanel(point2D pos, point2D size, HI2::Color c, std::string s) :
 	_color = c;
 }
 
-void basicPanel::draw(point2D offset)
+void basicPanel::_draw_internal()
 {
-	HI2::drawRectangle(offset + _position,_size.x,_size.y,_color);
-	panel::draw(offset);
+	HI2::drawRectangle(point2D{0,0},_size.x,_size.y,_color);
+	panel::_draw_internal();
 }

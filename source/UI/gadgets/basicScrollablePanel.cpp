@@ -6,8 +6,8 @@ basicScrollablePanel::basicScrollablePanel(point2D pos, point2D size, point2D ma
 	_color = c;
 }
 
-void basicScrollablePanel::draw(point2D offset){
-	HI2::drawRectangle(offset + _position,_size.x,_size.y,_color);
-	scrollablePanel::draw(offset);
+void basicScrollablePanel::_draw_internal(){
+	HI2::drawRectangle(point2D{0,0},_size.x,_size.y,_color);
+	scrollablePanel::_draw_internal();
 }
 

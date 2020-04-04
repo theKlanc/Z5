@@ -563,6 +563,7 @@ include/terrainChunk.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
+include/thrustSystem.hpp
 include/ui.hpp
 include/universe.hpp
 include/universe.hpp
@@ -719,6 +720,7 @@ source/terrainChunk.cpp
 source/terrainChunk.cpp
 source/terrainChunk.cpp
 source/terrainChunk.cpp
+source/thrustSystem.cpp
 source/universeNode.cpp
 source/universeNode.cpp
 source/universeNode.cpp

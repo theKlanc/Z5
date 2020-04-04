@@ -4,7 +4,6 @@
 class pushButton : public gadget{
 	public:
 		pushButton(point2D pos, point2D size, std::string s = "");
-		void draw(point2D offset) override;
 
 		void update(const std::bitset<HI2::BUTTON_SIZE>&down, const std::bitset<HI2::BUTTON_SIZE>&up, const std::bitset<HI2::BUTTON_SIZE>&held, const point2D &mouse, const double &dt) override;
 		void update(const double &dt) override;
@@ -22,4 +21,6 @@ class pushButton : public gadget{
 		bool _byMouse = false;
 
 		std::function<void()> _clickCallback;
+
+		void _draw_internal() override;
 };

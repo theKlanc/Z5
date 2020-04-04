@@ -4,7 +4,6 @@
 class panel : public gadget {
 public:
 	panel(point2D pos, point2D size, std::string s = "");
-	void draw(point2D offset) override;
 	void update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<HI2::BUTTON_SIZE>& up, const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, const double& dt) override;
 	void update(const double& dt) override;
 
@@ -21,4 +20,6 @@ public:
 protected:
 	std::vector<std::shared_ptr<gadget>> _gadgets;
 	gadget* _selected = nullptr;
+
+	void _draw_internal() override;
 };

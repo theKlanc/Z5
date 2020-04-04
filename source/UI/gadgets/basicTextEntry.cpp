@@ -5,8 +5,8 @@ basicTextEntry::basicTextEntry(point2D pos, point2D size, HI2::Font font, int te
 	_bgColor=bgColor;
 }
 
-void basicTextEntry::draw(point2D offset)
+void basicTextEntry::_draw_internal()
 {
-	HI2::drawRectangle(offset + _position,_size.x,_size.y,_bgColor);
-	textEntry::draw(offset);
+	HI2::drawRectangle(point2D{0,0},_size.x,_size.y,_bgColor);
+	textEntry::_draw_internal();
 }

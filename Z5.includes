@@ -10,6 +10,8 @@ source/states
 include/states
 include
 deps
+deps/HardwareInterface
+deps/icecream-cpp
 deps/entt/entity
 deps/entt/signal
 deps/entt/locator
