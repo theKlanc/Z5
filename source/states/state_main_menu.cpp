@@ -24,7 +24,7 @@ State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services
 
 
 	_uiScene.addGadget(std::make_shared<imageView>(point2D{ 0,0 }, point2D{ 1280,720 }, bg));
-	_uiScene.addGadget(std::make_shared<textView>(point2D{ HI2::getScreenWidth() / 2 - 110,50 }, point2D{ 220,50 }, "Z5", _standardFont, 200, HI2::Color::White));
+	_uiScene.addGadget(std::make_shared<textView>(point2D{ HI2::getScreenWidth() / 2 - 110,50 }, point2D{ 220,220 }, "Z5", _standardFont, 200, HI2::Color::White));
 
 	createMainPanel();
 

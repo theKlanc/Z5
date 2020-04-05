@@ -27,4 +27,6 @@ protected:
 
 	point2Dd mapOffset;
 	double _scale = 1;
+
+	bool isSquareVisible(point2D pos, int size) const;
 };
