@@ -1,8 +1,7 @@
 #pragma once
 #include "state_base.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
-
-#include "SDL2/SDL_mixer.h"
+#include "HI2.hpp"
+#include "FastNoise/FastNoise.h"
 
 namespace State {
 	class Demo : public State_Base {
@@ -15,12 +14,13 @@ namespace State {
 		void draw(double dt) override;
 
 	  private:
-		HI2::Texture* texture;
-		HI2::Font font;
-		HI2::Audio effect;
-		Mix_Music *audio;
-		point2D pixelPos;
-		point2D pixelSpd;
-		bool done=false;
+		point2D camera;
+		FastNoise whiteNoise;
+		FastNoise whiteNoiseDisplacementX;
+		FastNoise whiteNoiseDisplacementY;
+		FastNoise simplexNoise;
+		double maxCutoff = 0.9;
+		double minCutoff = 0.3;
+		int minSpacing = 3;
 	};
 } // namespace State

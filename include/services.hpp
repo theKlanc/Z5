@@ -17,5 +17,5 @@ struct Services
 	static graphicsManager graphics;
 	static fontManager fonts;
 	static audioManager audio;
-	static std::mt19937 twister;
+	static std::minstd_rand lcg;
 };

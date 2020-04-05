@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <thread>
 #include "components/position.hpp"
+#include "UI/customGadgets/starmap.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
 
@@ -31,28 +32,30 @@ namespace State {
 		struct nodeLayer {
 			universeNode* node;
 			int layerHeight;
+			std::vector<metaBlock> blocks;
+			std::vector<bool> visibility;
 		};
 		struct renderLayer {
 			double depth;
 			std::variant<entt::entity, nodeLayer> target;
 		};
+
+		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);
+		std::vector<bool> growVisibility(std::vector<bool> visibility);
 		void drawLayer(const renderLayer& rl);
 		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
-
-		void loadTerrainTable();
 
 		entt::entity _player;
 		entt::entity _camera;
 		int selectedBlock = 7;
 		blockRotation selectedRotation = UP;
-
-		std::vector<baseBlock> _terrainTable;
+		bool selectedFlip = false;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;
 
 		static std::filesystem::path _savePath;
 
-		void createNewGame(int seed);
+		void createNewGame(std::string saveName, int seed);
 
 		void loadGame();
 		void saveGame();
@@ -68,7 +71,7 @@ namespace State {
 
 		HI2::Font _standardFont;
 
-		static std::mutex endChunkLoader;
+		static std::mutex _chunkLoaderMutex;
 		static void _chunkLoaderFunc();
 		static universeNode* _chunkLoaderUniverseBase;
 		static position* _chunkLoaderPlayerPosition;
@@ -77,9 +80,14 @@ namespace State {
 
 		scene _scene;
 		std::shared_ptr<basicTextEntry> _console;
+		std::shared_ptr<starmap> _starmap;
 
 		bool _paused = false;
 		bool _step = false;
 
+
+		scene _uiScene;
+
 	};
+
 } // namespace State

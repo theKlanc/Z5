@@ -1,6 +1,6 @@
 #pragma once
-#include "HardwareInterface/HardwareInterface.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "HI2.hpp"
+#include "reactphysics3d.h"
 #include "json.hpp"
 using nlohmann::json;
 
@@ -22,6 +22,8 @@ struct fdd { // Four DoF descriptor
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;
 	fdd operator-(const fdd& f)const;
+	fdd operator+(const point3Di& f)const;
+	fdd operator-(const point3Di& f)const;
 	fdd operator*(const fdd& f)const;
 	fdd operator/(const fdd& f)const;
 	fdd operator*(const double& f)const;
@@ -32,6 +34,7 @@ struct fdd { // Four DoF descriptor
 	fdd& operator/=(const fdd& f);
 	fdd& operator*=(const double& f);
 	fdd& operator/=(const double& f);
+	fdd operator-();
 	fdd project(const fdd& right)const; //Project right onto this
 	double dot(const fdd& right) const;
 	point2D getPoint2D() const;

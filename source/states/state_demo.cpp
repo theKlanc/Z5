@@ -1,27 +1,22 @@
 #include "states/state_demo.hpp"
 #include <iostream>
 #include "gameCore.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_audio.h"
-#include "SDL2/SDL_mixer.h"
+#include "HI2.hpp"
 #include "services.hpp"
+#include "FastNoise/FastNoise.h"
 
 State::Demo::Demo(gameCore& c) : State_Base(c) {
-	pixelSpd.x = 1;
-	pixelSpd.y = 1;
-	pixelPos.x = 60;
-	pixelPos.y = 60;
-	texture = Services::graphics.loadTexture("test");
-	font = *Services::fonts.loadFont("test");
-	effect = HI2::Audio(HI2::getDataPath().append("sounds/sfx/oof.mp3"), false, 1);
-	//--
+	whiteNoise.SetNoiseType(FastNoise::WhiteNoise);
+	whiteNoiseDisplacementX.SetNoiseType(FastNoise::WhiteNoise);
+	whiteNoiseDisplacementY.SetNoiseType(FastNoise::WhiteNoise);
+	simplexNoise.SetNoiseType(FastNoise::SimplexFractal);
 
+	whiteNoise.SetSeed(1);
+	whiteNoiseDisplacementX.SetSeed(2);
+	whiteNoiseDisplacementY.SetSeed(3);
+	simplexNoise.SetSeed(4);
 
-	// Load sound file to use
-	// Sound from https://freesound.org/people/jens.enk/sounds/434610/
-
-	//---
+	simplexNoise.SetFrequency(2);
 }
 
 State::Demo::~Demo() {
@@ -29,72 +24,59 @@ State::Demo::~Demo() {
 }
 
 void State::Demo::input(double dt) {
-
-	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
-	if (held[HI2::BUTTON::BUTTON_MINUS]) {
-		pixelSpd.x = 0;
-		pixelSpd.y = 0;
-	}
-
-	if (held[HI2::BUTTON::BUTTON_UP]) {
-		pixelSpd.y -= 1;
-	}
-	if (held[HI2::BUTTON::BUTTON_DOWN]) {
-		pixelSpd.y += 1;
-	}
-	if (held[HI2::BUTTON::BUTTON_LEFT]) {
-		pixelSpd.x -= 1;
-	}
-	if (held[HI2::BUTTON::BUTTON_RIGHT]) {
-		pixelSpd.x += 1;
-	}
-	if (held[HI2::BUTTON::BUTTON_PLUS]) {
-		_core->quit();
-	}
-	if (held[HI2::BUTTON::KEY_A]) {
-		done = true;
-	}
-	if (held[HI2::BUTTON::KEY_B]) {
-		HI2::playSound(effect);
-		std::cout << "Played Sound" << std::endl;
-	}
-	if (held[HI2::BUTTON::KEY_ESCAPE]) {
+	auto keys = HI2::getKeysHeld();
+	if (keys[HI2::BUTTON::CANCEL]) {
 		_core->popState();
+	}
+	if(keys[HI2::BUTTON::LEFT]){
+		camera.x-=10;
+	}
+	if(keys[HI2::BUTTON::RIGHT]){
+		camera.x+=10;
+	}
+	if(keys[HI2::BUTTON::UP]){
+		camera.y-=10;
+	}
+	if(keys[HI2::BUTTON::DOWN]){
+		camera.y+=10;
+	}
+	if(keys[HI2::BUTTON::TOUCH]){
+		point2D mouse = HI2::getTouchPos();
+		maxCutoff = (double)mouse.x / (double)HI2::getScreenWidth();
+		minCutoff = (double)mouse.y / (double)HI2::getScreenHeight();
+		std::cout << "maxCutoff: " << maxCutoff << std::endl;
+		std::cout << "minCutoff: " << minCutoff << std::endl;
+
+	}
+	if(keys[HI2::BUTTON::KEY_RIGHTCLICK]){
+		point2D mouse = HI2::getTouchPos();
+		minSpacing = (double)mouse.x / (double)HI2::getScreenWidth() * 10;
+		simplexNoise.SetFrequency(pow((double)mouse.y / (double)HI2::getScreenHeight(),10));
+		std::cout << "minSpacing: " << minSpacing << std::endl;
+		std::cout << "Freq: " << simplexNoise.GetFrequency() << std::endl;
+
 	}
 }
 
 void State::Demo::update(double dt) {
-	pixelPos.x += pixelSpd.x;
-	pixelPos.y += pixelSpd.y;
-	//bounds checks
-	if (pixelPos.x < 0) {
-		pixelSpd.x = pixelSpd.x * -1;
-		pixelPos.x = pixelPos.x * -1;
-	}
-	if (pixelPos.y < 0) {
-		pixelSpd.y = pixelSpd.y * -1;
-		pixelPos.y = pixelPos.y * -1;
-	}
-	if (pixelPos.x > HI2::getScreenWidth()) {
-		pixelSpd.x = pixelSpd.x * -1;
-		pixelPos.x = (pixelPos.x - HI2::getScreenWidth()) * -1 + HI2::getScreenWidth();
-	}
-	if (pixelPos.y > HI2::getScreenHeight()) {
-		pixelSpd.y = pixelSpd.y * -1;
-		pixelPos.y = (pixelPos.y - HI2::getScreenHeight()) * -1 + HI2::getScreenHeight();
-	}
 
 }
 
 void State::Demo::draw(double dt) {
 	HI2::startFrame();
-	if (texture != nullptr)
-		HI2::drawTexture(*texture, 0, 0, 1);
-
-	HI2::drawText(font, "OOF", point2D{ 0,0 }, 40, HI2::Color(255, 0, 0, 255));
-	HI2::drawRectangle(pixelPos, 40, 40, HI2::Color(255, 255, 255, 255));
-
-
-
+	for(int x = 0; x < HI2::getScreenWidth();x++){
+		for(int y = 0;y<HI2::getScreenHeight();y++){
+			point2D displacement = {(int)round(((whiteNoiseDisplacementX.GetNoise(camera.x+x,camera.y+y))*(minSpacing-1)*2)),(int)round(((whiteNoiseDisplacementY.GetNoise(camera.x+x,camera.y+y))*(minSpacing-1)*2))};
+			double density = (simplexNoise.GetNoise(camera.x+x,camera.y+y)+1.0f)/2.0f;
+			if(density > maxCutoff)
+				density = maxCutoff;
+			if(density < minCutoff)
+				density = 0;
+			if((camera.x+x+displacement.x)%(minSpacing+1)!=0 || (camera.y+y+displacement.y)%(minSpacing+1)!=0)
+				density = 0;
+			double noise = (whiteNoise.GetNoise(camera.x+x,camera.y+y)+1.0f)/2.0f;
+			HI2::drawPixel({x,y},(noise<density?HI2::Color::Black:HI2::Color::White));
+		}
+	}
 	HI2::endFrame();
 }

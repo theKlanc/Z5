@@ -1,5 +1,5 @@
 #include "terrainChunk.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "config.hpp"
 #include <cmath>
 #include <iostream>
@@ -37,7 +37,7 @@ metaBlock& terrainChunk::getBlock(const point3Di& p) {
 	int z = p.z % config::chunkSize;
 	if (z < 0)
 		z += config::chunkSize;
-	return _blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z];
+	return _blocks[z * config::chunkSize * config::chunkSize + y * config::chunkSize + x];
 }
 
 void terrainChunk::clearDirtyFlag()
@@ -56,16 +56,16 @@ void terrainChunk::setBlock(metaBlock b, const point3Di& p) {
 	int z = p.z % config::chunkSize;
 	if (z < 0)
 		z += config::chunkSize;
-	_blocks[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] = b;
+	_blocks[z * config::chunkSize * config::chunkSize + y * config::chunkSize + x] = b;
 	Services::physicsMutex.lock();
-	if (_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] != nullptr)
+	if (_colliders[z * config::chunkSize * config::chunkSize + y * config::chunkSize + x] != nullptr)
 	{
-		_collisionBody->removeCollisionShape(_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z]);
-		_colliders[x * config::chunkSize * config::chunkSize + y * config::chunkSize + z] = nullptr;
+		_collisionBody->removeCollisionShape(_colliders[z * config::chunkSize * config::chunkSize + y * config::chunkSize + x]);
+		_colliders[z * config::chunkSize * config::chunkSize + y * config::chunkSize + x] = nullptr;
 	}
 	if (b.base->solid)
 	{
-		_colliders[(x * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + z] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x + 0.5),(rp3d::decimal)(y + 0.5),(rp3d::decimal)(z + 0.5)},rp3d::Quaternion::identity() });
+		_colliders[(z * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + x] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x + 0.5),(rp3d::decimal)(y + 0.5),(rp3d::decimal)(z + 0.5)},rp3d::Quaternion::identity() });
 	}
 	Services::physicsMutex.unlock();
 }
@@ -124,33 +124,9 @@ void terrainChunk::load(const std::filesystem::path& fileName, const point3Di& c
 			std::cout << "Loading a new chunk on top of another already loaded one";
 		}
 
-		_blocks.clear();
-		_blocks.resize(0);
-
-		unsigned blockID;
-		blockRotation rotation;
-		bool savedMeta;
-		unsigned length;
-
-		std::ifstream file(fileName);
-		std::string input;
-		while (file >> input)
-		{
-			blockID = std::stoi(input);
-			file >> input;
-			savedMeta = std::stoi(input);
-			if (savedMeta) {
-				file >> input;
-
-				rotation = (blockRotation)std::stoi(input);
-			}
-			file >> input;
-			length = std::stoi(input);
-			for (int i = 0; i < length; ++i)
-			{
-				_blocks.push_back({ &baseBlock::terrainTable[blockID],(savedMeta ? rotation : (blockRotation)(rand() % 4)), savedMeta });
-			}
-		}
+		std::ifstream input(fileName);
+		input >> _blocks;
+		
 		updateAllColliders();
 		setLoaded();
 
@@ -174,34 +150,7 @@ void terrainChunk::unload(std::filesystem::path file) {
 			//3 5
 			//1 3
 			// STORE TO file
-			metaBlock lastBlock = _blocks[0];
-			unsigned accumulatedLength = 0;
-			for (metaBlock& b : _blocks)
-			{
-				if (b != lastBlock)
-				{
-					if (lastBlock.saveMeta) {
-						outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
-					}
-					else
-					{
-						outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
-					}
-					lastBlock = b;
-					accumulatedLength = 1;
-				}
-				else
-				{
-					accumulatedLength++;
-				}
-			}
-			if (lastBlock.saveMeta) {
-				outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << lastBlock.rotation << ' ' << accumulatedLength << std::endl;
-			}
-			else
-			{
-				outputFile << lastBlock.base->ID << ' ' << lastBlock.saveMeta << ' ' << accumulatedLength << std::endl;
-			}
+			outputFile << _blocks;
 		}
 
 		if (_collisionBody != nullptr) {
@@ -235,7 +184,7 @@ void terrainChunk::updateAllColliders()
 				{
 					if (_blocks[counter++].base->solid)
 					{
-						_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(i + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(k + 0.5)},rp3d::Quaternion::identity() }));
+						_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(k + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(i + 0.5)},rp3d::Quaternion::identity() }));
 					}
 					else
 					{

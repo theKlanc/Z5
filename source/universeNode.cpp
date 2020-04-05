@@ -2,17 +2,13 @@
 #include "config.hpp"
 #include "fdd.hpp"
 
-#include "nodeGenerators/artificialSatelliteGenerator.hpp"
-#include "nodeGenerators/asteroidGenerator.hpp"
-#include "nodeGenerators/blackHoleGenerator.hpp"
-#include "nodeGenerators/gasPlanetGenerator.hpp"
-#include "nodeGenerators/naturalSatelliteGenerator.hpp"
-#include "nodeGenerators/rockyPlanetGenerator.hpp"
-#include "nodeGenerators/spaceStationGenerator.hpp"
-#include "nodeGenerators/spaceshipGenerator.hpp"
-#include "nodeGenerators/starGenerator.hpp"
+#include "nodeGenerators/terrainPainterGenerator.hpp"
+#include "nodeGenerators/prefabGenerator.hpp"
 #include "states/state_playing.hpp"
 #include <iostream>
+#include <cmath>
+#include "nodeGenerators/nullGenerator.hpp"
+#include "jsonTools.hpp"
 
 
 void universeNode::clean()
@@ -56,8 +52,8 @@ universeNode::universeNode(std::string name, double mass, double diameter, fdd p
 	else {
 		_depth = _parent->_depth + 1;
 	}
-	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter);
-	connectGenerator();
+	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter * config::chunkLoadDiameter * config::chunkLoadDiameter);
+	connectGenerator({ {"type","null"} });
 	populateColliders();
 }
 
@@ -66,9 +62,9 @@ baseBlock& universeNode::getTopBlock(const point2D& pos)
 	return _generator->getTopBlock(pos);
 }
 
-metaBlock universeNode::getBlock(const point3Di& pos) {
+metaBlock& universeNode::getBlock(const point3Di& pos) {
 	terrainChunk& tChunk = chunkAt(pos);
-	if(tChunk.isValid(pos))
+	if (tChunk.isValid(pos))
 	{
 		return tChunk.getBlock(pos);
 	}
@@ -76,9 +72,7 @@ metaBlock universeNode::getBlock(const point3Di& pos) {
 	//	return _generator.getBlock()
 	//}
 	else {
-		metaBlock m;
-		m.base = &baseBlock::terrainTable[0];
-		return m;
+		return metaBlock::nullBlock;
 	}
 }
 
@@ -173,37 +167,33 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 				(int)floor((double)pos.z / config::chunkSize) };
 }
 
-void universeNode::connectGenerator()
+void universeNode::connectGenerator(const nlohmann::json& j)
 {
-	switch (_type) {
-	case STAR:
-		_generator = std::make_unique<starGenerator>();
-		break;
-	case BLACK_HOLE:
-		_generator = std::make_unique<blackHoleGenerator>();
-		break;
-	case PLANET_GAS:
-		_generator = std::make_unique<gasPlanetGenerator>();
-		break;
-	case PLANET_ROCK:
-		_generator = std::make_unique<rockyPlanetGenerator>(_ID, _diameter);
-		break;
-	case ASTEROID:
-		_generator = std::make_unique<asteroidGenerator>();
-		break;
-	case SATELLITE_NATURAL:
-		_generator = std::make_unique<naturalSatelliteGenerator>();
-		break;
-	case SATELLITE_ARTIFICIAL:
-		_generator = std::make_unique<artificialSatelliteGenerator>();
-		break;
-	case SPACE_STATION:
-		_generator = std::make_unique<spaceStationGenerator>();
-		break;
-	case SPACESHIP:
-		_generator = std::make_unique<spaceshipGenerator>();
-		break;
+	if (j.contains("type")) {
+		std::string type = j.at("type");
+		if (type == "prefab") {
+			_generator = std::make_unique<prefabGenerator>(j.at("generator").get<prefabGenerator>());
+		}
+		else if (type == "terrainPainter") {
+			_generator = std::make_unique<terrainPainterGenerator>(j.at("generator").get<terrainPainterGenerator>());
+		}
+		else {
+			_generator = std::make_unique<nullGenerator>();
+		}
 	}
+	else {
+		_generator = std::make_unique<terrainPainterGenerator>(_ID,_diameter);
+	}
+}
+
+void universeNode::connectGenerator(std::unique_ptr<nodeGenerator> ng)
+{
+	_generator = std::move(ng);
+}
+
+HI2::Color universeNode::getMainColor()
+{
+	return _mainColor;
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -244,7 +234,7 @@ terrainChunk& universeNode::chunkAt(const point3Di& pos) {
 	int z = (int(floor((double)pos.z / config::chunkSize)) % config::chunkLoadDiameter);
 	if (z < 0)
 		z += config::chunkLoadDiameter;
-	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
+	return _chunks[(z * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + x];
 }
 
 terrainChunk& universeNode::getChunk(const point3Di& pos)
@@ -259,7 +249,7 @@ terrainChunk& universeNode::getChunk(const point3Di& pos)
 	if (z < 0)
 		z += config::chunkLoadDiameter;
 
-	return _chunks[(x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z];
+	return _chunks[(z * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + x];
 }
 
 int universeNode::chunkIndex(const point3Di& pos) const
@@ -273,14 +263,10 @@ int universeNode::chunkIndex(const point3Di& pos) const
 	int z = (pos.z / config::chunkSize % config::chunkLoadDiameter);
 	if (z < 0)
 		z += config::chunkLoadDiameter;
-	return (x * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + z;
+	return (z * config::chunkLoadDiameter * config::chunkLoadDiameter) + (y * config::chunkLoadDiameter) + x;
 }
 
 void universeNode::linkChildren() {
-	for (universeNode& u : _children) {
-		u._parent = this;
-		u.linkChildren();
-	}
 	if (_parent == nullptr) {
 		_depth = 0;
 	}
@@ -288,6 +274,7 @@ void universeNode::linkChildren() {
 		_depth = _parent->_depth + 1;
 	}
 	for (universeNode& u : _children) {
+		u._parent = this;
 		u.linkChildren();
 	}
 }
@@ -295,47 +282,57 @@ void universeNode::linkChildren() {
 fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(position) f (which is relative to u)
 								  // relative to our local node (*this)
 {
+	assert(!std::isnan(_position.x));
+	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
 	{
-		fdd transform{ 0,0,0,0 };
+		fdd transform = f;
 		const universeNode* transformLocal = this;
 
-		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
-			if (transformLocal->_depth - u->_depth > 1) {//should move u
-				f += u->_position;
+		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
+			if (u->_depth > transformLocal->_depth) {//should move u
+				transform += u->_position;
 				u = u->_parent;
 			}
 			else {// move transformLocal
-				transform += transformLocal->_position;
+				transform -= transformLocal->_position;
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		return f - transform;
+		if(std::isnan(transform.x)){
+			getLocalPos(f,backUp);
+		}
+		return transform;
 	}
 }
 
 fdd universeNode::getLocalVel(fdd f, universeNode* u) const
 {
+	assert(!std::isnan(_velocity.x));
+	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
 	{
-		fdd transform{ 0,0,0,0 };
+		fdd transform = f;
 		const universeNode* transformLocal = this;
 
-		while (transformLocal != u) { // while transformLocal isn't u (f's parent)
-			if (transformLocal->_depth - u->_depth > 1) {//should move u
-				f += u->_velocity;
+		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
+			if (u->_depth > transformLocal->_depth) {//should move u
+				transform += u->_velocity;
 				u = u->_parent;
 			}
 			else {// move transformLocal
-				transform += transformLocal->_velocity;
+				transform -= transformLocal->_velocity;
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		return f - transform;
+		if(std::isnan(transform.x)){
+			getLocalPos(f,backUp);
+		}
+		return transform;
 	}
 }
 
@@ -386,7 +383,13 @@ void universeNode::addChild(universeNode u)
 
 void universeNode::updatePositions(double dt)
 {
-	_position += _velocity * dt;
+	if (!physicsData.sleeping)
+	{
+		assert(!std::isnan(dt));
+		assert(!std::isnan(_velocity.x));
+		assert(!std::isnan(_position.x));
+		_position += _velocity * dt;
+	}
 	for (universeNode& child : _children)
 	{
 		child.updatePositions(dt);
@@ -397,18 +400,18 @@ fdd universeNode::getGravityAcceleration(fdd localPosition)
 {
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
 	fdd realGravity = (_centerOfMass - localPosition).setMagnitude(G * (_mass / ((_diameter / 2) * (_diameter / 2))));
-	double factorMagic = 1;
+	double magicFactor = 1;
 	double distance = _centerOfMass.distance(localPosition);
 	if (distance > _diameter / 2)
 	{
-		factorMagic = distance - _diameter / 2;
-		factorMagic /= 10;
-		if (factorMagic > 1)
-			factorMagic = 1;
-		factorMagic = 1 - factorMagic;
+		magicFactor = distance - _diameter / 2;
+		magicFactor /= 10;
+		if (magicFactor > 1)
+			magicFactor = 1;
+		magicFactor = 1 - magicFactor;
 	}
 
-	return magicGravity * factorMagic + realGravity * (1 - factorMagic);
+	return magicGravity * magicFactor + realGravity * (1 - magicFactor);
 }
 
 universeNode& universeNode::operator=(const universeNode& u)
@@ -426,11 +429,16 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_velocity = u._velocity;
 	_parent = u._parent;
 	_mass = u._mass;
-	connectGenerator();
+	_name = u._name;
+	_mainColor = u._mainColor;
+	physicsData = u.physicsData;
+	nlohmann::json jTemp;
+	to_json(jTemp, *u._generator.get());
+	connectGenerator(jTemp);
 	return *this;
 }
 
-std::vector<terrainChunk> &universeNode::getChunks()
+std::vector<terrainChunk>& universeNode::getChunks()
 {
 	return _chunks;
 }
@@ -479,7 +487,7 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 {
 	std::vector<terrainChunk*> candidateBodies;
 	//fem 3 llistes de coordenades, afegim a akestes i despres iterem per totes les combinacions
-
+	p = getLocalPos(p, parent);
 
 
 	std::vector<int> posXlist;
@@ -488,15 +496,15 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 	posYlist.push_back(floor(p.y));
 	std::vector<int> posZlist;
 	posZlist.push_back(floor(p.z));
-	if (size.x!=0 && floor(p.x/config::chunkSize) != floor((p.x + size.x)/config::chunkSize))
+	if (size.x != 0 && floor(p.x / config::chunkSize) != floor((p.x + size.x) / config::chunkSize))
 	{
 		posXlist.push_back(floor(p.x + size.x));
 	}
-	if (size.y!=0 && floor(p.y/config::chunkSize) != floor((p.y + size.y)/config::chunkSize))
+	if (size.y != 0 && floor(p.y / config::chunkSize) != floor((p.y + size.y) / config::chunkSize))
 	{
 		posYlist.push_back(floor(p.y + size.y));
 	}
-	if (size.z!=0 && floor(p.z/config::chunkSize) != floor((p.z + size.z)/config::chunkSize))
+	if (size.z != 0 && floor(p.z / config::chunkSize) != floor((p.z + size.z) / config::chunkSize))
 	{
 		posZlist.push_back(floor(p.z + size.z));
 	}
@@ -520,14 +528,11 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 
 void universeNode::populateColliders()
 {
-	rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
-	rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-	rp3d::Transform transform(initPosition, initOrientation);
 	Services::physicsMutex.lock();
-	_collider = Services::collisionWorld->createCollisionBody(transform);
+	_collider = Services::collisionWorld->createCollisionBody(rp3d::Transform::identity());
 
 	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
-	_collider->addCollisionShape(_collisionShape, transform);
+	_collider->addCollisionShape(_collisionShape, rp3d::Transform::identity());
 	Services::physicsMutex.unlock();
 	for (universeNode& u : _children) {
 		u.populateColliders();
@@ -595,7 +600,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID} };
+			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor} };
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -620,7 +625,48 @@ void from_json(const json& j, universeNode& f) {
 	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
-
-	f.connectGenerator();
+	nlohmann::json jt;
+	if (j.contains("generator")) {
+		jt = j.at("generator");
+	}
+	if(j.contains("color")){
+		f._mainColor = j.at("color").get<HI2::Color>();
+	}
+	else{
+		if(f._ID == 0){
+			f._mainColor = HI2::Color::Pink;
+		}
+		if(f._ID == 1){
+			f._mainColor = HI2::Color::Orange;
+		}
+		if(f._ID == 2){
+			f._mainColor = HI2::Color::LightGrey;
+		}
+		if(f._ID == 3){
+			f._mainColor = HI2::Color::Yellow;
+		}
+		if(f._ID == 4){
+			f._mainColor = HI2::Color::Green;
+		}
+		if(f._ID == 5){
+			f._mainColor = HI2::Color::Red;
+		}
+		if(f._ID == 6){
+			f._mainColor = HI2::Color::Brown;
+		}
+		if(f._ID == 7){
+			f._mainColor = HI2::Color::Brown;
+		}
+		if(f._ID == 8){
+			f._mainColor = HI2::Color::Blue;
+		}
+		if(f._ID == 9){
+			f._mainColor = HI2::Color::Blue;
+		}
+		if(f._ID == 10){
+			f._mainColor = HI2::Color::LightGrey;
+		}
+	}
+	f.connectGenerator(jt);
 	f.populateColliders();
 }

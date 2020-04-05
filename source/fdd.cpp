@@ -2,10 +2,12 @@
 #include "json.hpp"
 #include <cmath>
 #include <math.h>
+#include "HI2.hpp"
+#include "reactphysics3d.h"
 
 void to_json(nlohmann::json& j, const fdd& f)
 {
-	j = json{ {"x",f.x},{"y",f.y},{"z",f.z},{"r",f.r} };
+	j = nlohmann::json{ {"x",f.x},{"y",f.y},{"z",f.z},{"r",f.r} };
 }
 
 void from_json(const nlohmann::json& j, fdd& f)
@@ -16,12 +18,12 @@ void from_json(const nlohmann::json& j, fdd& f)
 	j.at("r").get_to(f.r);
 }
 
-fdd::fdd(reactphysics3d::Vector3 v)
+fdd::fdd(rp3d::Vector3 v)
 {
-	x=v.x;
-	y=v.y;
-	z=v.z;
-	r=0;
+	x = v.x;
+	y = v.y;
+	z = v.z;
+	r = 0;
 }
 
 fdd fdd::setMagnitude(double mag)
@@ -33,7 +35,7 @@ fdd fdd::setMagnitude(double mag)
 fdd fdd::normalized() const
 {
 	fdd copy = *this;
-	return copy/copy.magnitude();
+	return copy / copy.magnitude();
 }
 
 double fdd::magnitude() const
@@ -82,6 +84,16 @@ fdd fdd::operator+(const fdd& f)const
 fdd fdd::operator-(const fdd& f)const
 {
 	return fdd{ x - f.x,y - f.y,z - f.z,r - f.r };
+}
+
+fdd fdd::operator+(const point3Di& f) const
+{
+	return { x + f.x,y + f.y,z + f.z, r};
+}
+
+fdd fdd::operator-(const point3Di& f) const
+{
+	return { x - f.x,y - f.y,z - f.z, r};
 }
 
 fdd fdd::operator*(const fdd& f) const
@@ -158,15 +170,20 @@ fdd& fdd::operator/=(const double& f)
 	return *this;
 }
 
-fdd fdd::project(const fdd &right) const
+fdd fdd::operator-()
 {
-	fdd n = normalized();
-	return n*(right.dot(n));
+	return {-x,-y,-z,-r};
 }
 
-double fdd::dot(const fdd &right) const
+fdd fdd::project(const fdd& right) const
 {
-	return x*right.x + y*right.y + z*right.z;
+	fdd n = normalized();
+	return n * (right.dot(n));
+}
+
+double fdd::dot(const fdd& right) const
+{
+	return x * right.x + y * right.y + z * right.z;
 }
 
 point2D fdd::getPoint2D() const
@@ -179,7 +196,7 @@ point2D fdd::getPoint2D() const
 
 point3Di fdd::getPoint3Di()const
 {
-	return { (int)x,(int)y,(int)z };
+	return { (int)floor(x),(int)floor(y),(int)floor(z) };
 }
 
 point3Dd fdd::getPoint3Dd()const
@@ -194,10 +211,10 @@ point3Dl fdd::getPoint3Dl()const
 
 reactphysics3d::Vector3 fdd::getVector3() const
 {
-	return rp3d::Vector3{(rp3d::decimal)x,(rp3d::decimal)y,(rp3d::decimal)z};
+	return rp3d::Vector3{ (rp3d::decimal)x,(rp3d::decimal)y,(rp3d::decimal)z };
 }
 
-std::ostream &operator<<(std::ostream &os, const fdd &f)
+std::ostream& operator<<(std::ostream& os, const fdd& f)
 {
-	return os << "x: "<<f.x<< " y: "<<f.y<< " z: "<<f.z<< " r: "<<f.r;
+	return os << "x: " << f.x << " y: " << f.y << " z: " << f.z << " r: " << f.r;
 }

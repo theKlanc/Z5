@@ -5,30 +5,28 @@ scrollablePanel::scrollablePanel(point2D pos, point2D size, point2D maxDimension
 	_maxDimensions = maxDimensions;
 }
 
-void scrollablePanel::draw(point2D offset)
+void scrollablePanel::_draw_internal()
 {
 	for(std::shared_ptr<gadget> g : _gadgets){
-		if(g->isVisible() && g->isCompletelyRenderable(_offset,_size))
+		if(g->isVisible() && g->isRenderable(_offset,_size))
 		{
-			g->draw(offset + _position+_offset);
+			g->draw(_offset);
 		}
 	}
-	if(_selected != nullptr && _selected->isVisible() && _selected->isCompletelyRenderable(offset+_offset,_size)){
-		HI2::drawEmptyRectangle(_selected->getPosition()+_position+offset+_offset,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
+	if(_selected != nullptr && _selected->isVisible() && _selected->isRenderable(_offset,_size)){
+		HI2::drawEmptyRectangle(_selected->getPosition()+_offset,_selected->getSize().x,_selected->getSize().y,HI2::Color::Blue);
 	}
 }
 
 void scrollablePanel::update(const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held, const point2D &mouse, const double &dt)
 {
-	point2D relativeMouse;
-	relativeMouse = mouse-_position;
 	bool emptyTouch = false;
 
 	if(down[HI2::BUTTON::TOUCH])
 	{
 		emptyTouch = true;
 		for(std::shared_ptr<gadget> g : _gadgets){
-			if(g->touched(relativeMouse-_offset) && g->isSelectable())
+			if(g->touched(mouse-_offset-g->getPosition()) && g->isSelectable())
 			{
 				_selected=g.get();
 				emptyTouch = false;
@@ -37,17 +35,17 @@ void scrollablePanel::update(const std::bitset<HI2::BUTTON_SIZE> &down, const st
 	}
 	if(emptyTouch){
 		_wasDragging=true;
-		_lastTouch=relativeMouse;
+		_lastTouch=mouse;
 	}
 	if(_wasDragging){
-		_offset = _offset + relativeMouse - _lastTouch;
-		_lastTouch = relativeMouse;
+		_offset = _offset + mouse - _lastTouch;
+		_lastTouch = mouse;
 	}
 	if(_wasDragging && ! (held[HI2::BUTTON::TOUCH] && touched(mouse))){
 		_wasDragging=false;
 	}
 	if(_selected != nullptr){
-		_selected->update(down,up,held,relativeMouse-_offset,dt);
+		_selected->update(down,up,held,mouse-_offset-_selected->getPosition(),dt);
 	}
 	if(down[HI2::BUTTON::KEY_MOUSEWHEEL_UP])
 		_offset.y+=_scrollMultiplier;

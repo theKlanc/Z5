@@ -1,11 +1,10 @@
 #include "UI/gadgets/imageToggleButton.hpp"
 
-void imageToggleButton::draw(point2D offset)
+void imageToggleButton::_draw_internal()
 {
-	point2D finalDrawPos = offset+_position;
-	HI2::drawTexture(_pressed?_on:_off,finalDrawPos.x,finalDrawPos.y);
+	HI2::drawTexture(_pressed?*_on.getTexture():*_off.getTexture(),0,0);
 }
 
-void imageToggleButton::drawOverlay(point2D offset)
+void imageToggleButton::_draw_overlay_internal()
 {
 }

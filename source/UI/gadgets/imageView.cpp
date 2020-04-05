@@ -1,16 +1,14 @@
 #include "UI/gadgets/imageView.hpp"
 #include "graphicsManager.hpp"
 
-imageView::imageView(point2D pos, point2D size, HI2::Texture image, std::string s)
+imageView::imageView(point2D pos, point2D size, sprite image, std::string s)
 {
-	_position = pos;
-	_size = size;
+	init(pos,size,s);
 	_selectable = false;
-	_texture = image;
-	_name = s;
+	_sprite = image;
 }
 
-void imageView::draw(point2D offset)
+void imageView::_draw_internal()
 {
-	HI2::drawTexture(_texture,_position.x+offset.x,_position.y+offset.y);
+	HI2::drawTexture(*_sprite.getTexture(),0,0);
 }

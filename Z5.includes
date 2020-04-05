@@ -1,6 +1,7 @@
 HardwareInterface
 .
 source
+/usr/include/SDL2
 /opt/devkitpro/libnx/include
 /opt/devkitpro/devkitA64/aarch64-none-elf/include
 /opt/devkitpro/devkitA64/aarch64-none-elf/include/c++/8.3.0
@@ -9,6 +10,8 @@ source/states
 include/states
 include
 deps
+deps/HardwareInterface
+deps/icecream-cpp
 deps/entt/entity
 deps/entt/signal
 deps/entt/locator
@@ -45,3 +48,5 @@ deps/reactPhysics3D/src/collision/shapes
 deps/reactPhysics3D/src/collision/broadphase
 deps/reactPhysics3D/src/collision/narrowphase
 deps/reactPhysics3D/src/utils
+include/UI/customGadgets
+source/UI/customGadgets

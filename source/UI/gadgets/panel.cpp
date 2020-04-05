@@ -3,22 +3,20 @@
 
 panel::panel(point2D pos, point2D size, std::string s)
 {
+	init(pos,size,s);
 	_selectable = true;
-	_position = pos;
-	_size = size;
-	_name = s;
 }
 
-void panel::draw(point2D offset)
+void panel::_draw_internal()
 {
 	for (std::shared_ptr<gadget> g : _gadgets) {
-		if (g->isVisible() && g->isCompletelyRenderable({ 0,0 }, _size))
+		if (g->isVisible() && true || g->isCompletelyRenderable({ 0,0 }, _size))
 		{
-			g->draw(offset + _position);
+			g->draw();
 		}
 	}
 	if (_selected != nullptr && _selected->isVisible() && _selected->isRenderable({ 0,0 }, _size)) {
-		_selected->drawOverlay(offset + _position);
+		_selected->drawOverlay();
 	}
 }
 
@@ -92,16 +90,14 @@ gadget* panel::getDown()
 
 void panel::update(const std::bitset<HI2::BUTTON_SIZE>& down, const std::bitset<HI2::BUTTON_SIZE>& up, const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, const double& dt)
 {
-	point2D relativeMouse;
-	relativeMouse = mouse - _position;
 	for (std::shared_ptr<gadget> g : _gadgets) {
-		if (down[HI2::BUTTON::TOUCH] && g->touched(relativeMouse) && g->isSelectable())
+		if (down[HI2::BUTTON::TOUCH] && g->touched(mouse-g->getPosition()) && g->isSelectable())
 		{
 			_selected = g.get();
 		}
 	}
 	if (_selected != nullptr) {
-		_selected->update(down, up, held, relativeMouse, dt);
+		_selected->update(down, up, held, mouse-_selected->getPosition(), dt);
 	}
 }
 
@@ -121,4 +117,10 @@ void panel::removeGadget(std::shared_ptr<gadget> g)
 	}
 	auto it = std::find(_gadgets.begin(),_gadgets.end(),g);
 	_gadgets.erase(it);
+}
+
+void panel::clear()
+{
+	_gadgets.clear();
+	_selected = nullptr;
 }

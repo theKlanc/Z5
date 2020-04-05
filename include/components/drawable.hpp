@@ -1,10 +1,11 @@
 #pragma once
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include "json.hpp"
+#include "graphicsManager.hpp"
 
 struct drawable{
 	std::string name;
-	HI2::Texture* sprite;
+	sprite* spr;
 };
 
 void to_json(nlohmann::json& j, const drawable& n);

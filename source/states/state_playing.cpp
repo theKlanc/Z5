@@ -1,3 +1,4 @@
+#include "components/brain.hpp"
 #include "states/state_playing.hpp"
 #include <fstream>
 #include <iostream>
@@ -15,16 +16,22 @@
 #include "components/name.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include "components/astronautBrain.hpp"
 #include <cmath>
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
+#include "nodeGenerators/terrainPainterGenerator.hpp"
+#include "nodeGenerators/prefabGenerator.hpp"
+#include "components/brain.hpp"
+#include "UI/customGadgets/starmap.hpp"
+#include <memory>
+
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
-
+std::mutex State::Playing::_chunkLoaderMutex;
 
 State::Playing::~Playing() {
 
 
-	//delete _chunkLoaderPlayerPosition;
 	_chunkLoaderPlayerPosition = nullptr;
 	_chunkLoaderThread->join();
 
@@ -32,13 +39,21 @@ State::Playing::~Playing() {
 	_universeBase.clean();
 }
 
-State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("test")) {
+State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
 	_debug = debug;
 
-	Services::twister.seed(seed);
+	//load terrain table
+	baseBlock::loadTerrainTable();
+
+	Services::lcg.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
 	Services::collisionWorld = _physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
+
+	////DEBUG SECTION
+	//terrainPainterGenerator tpg(4,12742000);
+	//std::cout << "JSON\n" << tpg.getJson() << "ENDJSON\n" << std::flush;
+	////ENDEBUG
 
 	//create saveGame if it doesn't exist, otherwise load
 	if (!std::filesystem::exists(savePath())) {
@@ -46,23 +61,25 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		{
 			seed = rand();
 		}
-		createNewGame(seed);
+		createNewGame(saveName, seed);
 	}
 	else
 	{
 		loadGame();
 	}
 
-	if(_debug){
-		_console = std::make_shared<basicTextEntry>(point2D{0,0},point2D{HI2::getScreenWidth(),40},_standardFont,35,"","Enter a command here",HI2::Color(0,0,0,127),HI2::Color(255,255,255,255));
+	if (_debug) {
+		_console = std::make_shared<basicTextEntry>(point2D{ 0,0 }, point2D{ HI2::getScreenWidth(),40 }, _standardFont, 35, "", "Enter a command here", HI2::Color(0, 0, 0, 127), HI2::Color(255, 255, 255, 255));
 		_console->toggle();
 		_console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
 		_scene.addGadget(_console);
 	}
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
+	universeNode* playerParent;
 	for (auto entity : playerView) {															   //
-		_player = entity;																	   //
+		_player = entity;
+		playerParent = _enttRegistry.get<position>(entity).parent;															   //
 		_chunkLoaderPlayerPosition = new position(_enttRegistry.get<position>(entity));		   //
 	}																						   //
 	auto cameraView = _enttRegistry.view<entt::tag<"CAMERA"_hs>>();					   //
@@ -74,6 +91,9 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos, _chunkLoaderPlayerPosition->parent);
 	_chunkLoaderUniverseBase = &_universeBase;
 	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
+	_starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
+	_starmap->toggle();
+	_scene.addGadget(_starmap);
 }
 
 void State::Playing::input(double dt)
@@ -87,99 +107,42 @@ void State::Playing::input(double dt)
 	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
 	const point2D& mouse = HI2::getTouchPos();
 
-	if(_debug && _console->isActive()){
-		if(down[HI2::BUTTON::KEY_ESCAPE]){
+	if (_debug && _console->isActive()) {
+		if (down[HI2::BUTTON::CANCEL]) {
 			_console->toggle();
 		}
 	}
-	else{
-		if(_debug && down[HI2::BUTTON::KEY_ACCEPT]){
+	else {
+		if (_debug && down[HI2::BUTTON::ACCEPT]) {
 			_console->toggle();
-			down[HI2::BUTTON::KEY_ACCEPT]=false;
+			_scene.select(_console);
+			down[HI2::BUTTON::ACCEPT] = false;
 		}
-		if(_debug && down[HI2::BUTTON::KEY_Z]){
+		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
-		//STOP
-		if (held[HI2::BUTTON::BUTTON_MINUS]) {
-			playerSpd.spd = fdd();
+		if (down[HI2::BUTTON::KEY_M]) {
+			_starmap->toggle();
+			_scene.select(_starmap);
 		}
-
-		//MOVE
-		if (held[HI2::BUTTON::BUTTON_LSTICK_UP]  || held[HI2::BUTTON::KEY_W]) {
-			playerSpd.spd.y -= 10 * dt;
-		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_DOWN] || held[HI2::BUTTON::KEY_S]) {
-			playerSpd.spd.y += 10 * dt;
-		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_LEFT] || held[HI2::BUTTON::KEY_A]) {
-			playerSpd.spd.x -= 10 * dt;
-		}
-		if (held[HI2::BUTTON::BUTTON_LSTICK_RIGHT] || held[HI2::BUTTON::KEY_D]) {
-			playerSpd.spd.x += 10 * dt;
-		}
-
-		//MOVE VERTICALLY
-		if (held[HI2::BUTTON::KEY_R]) {
-			playerSpd.spd.z += 60 * dt;
-		}
-		if (held[HI2::BUTTON::KEY_F]) {
-			playerSpd.spd.z -= 40 * dt;
-		}
-
-		if (down[HI2::BUTTON::KEY_SPACE]){
-			playerSpd.spd.z = 20;
-		}
-
-		//ROTATE PLAYER
-		if (held[HI2::BUTTON::KEY_E]) {
-			playerSpd.spd.r += 10 * dt;
-		}
-		if (held[HI2::BUTTON::KEY_Q]) {
-			playerSpd.spd.r -= 10 * dt;
-		}
-
-		//PLACE BLOCK
-		if (down[HI2::BUTTON::KEY_P]) {
-			playerPos.parent->setBlock({ &baseBlock::terrainTable[1],UP }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-		}
-		if (down[HI2::BUTTON::KEY_O]) {
-			playerPos.parent->setBlock({ &baseBlock::terrainTable[selectedBlock],selectedRotation,true }, { (int)playerPos.pos.x,(int)playerPos.pos.y - 1,(int)playerPos.pos.z });
-		}
-
-		//SELECT BLOCK
-		if (down[HI2::BUTTON::BUTTON_DLEFT]) {
-			selectedBlock--;
-			if (selectedBlock < 0)
-				selectedBlock = baseBlock::terrainTable.size() - 1;
-		}
-		if (down[HI2::BUTTON::BUTTON_DRIGHT]) {
-			selectedBlock = (selectedBlock + 1) % baseBlock::terrainTable.size();
-		}
-
-		//BLOCK ROTATE
-		if (down[HI2::BUTTON::BUTTON_DUP]) {
-			selectedRotation++;
-		}
-		if (down[HI2::BUTTON::BUTTON_DDOWN]) {
-			selectedRotation--;
-		}
-
 		// Exit
-		if(down[HI2::BUTTON::KEY_ESCAPE])
+		if (down[HI2::BUTTON::CANCEL])
 		{
 			_core->popState();
 		}
 	}
-	_scene.update(down,up,held,mouse,dt);
-
+	_scene.update(down, up, held, mouse, dt);
+	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
+	for (auto entity : brainEntities) {
+		brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
+	}
 }
 
 void State::Playing::update(double dt) {
-	if(_paused)
+	if (_paused)
 		dt = 0;
-	if(_step)
-		dt = 1.0f/config::physicsHz;
+	if (_step)
+		dt = 1.0f / config::physicsHz;
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -193,44 +156,46 @@ void State::Playing::update(double dt) {
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
-	cameraPosition.pos.z = playerPosition.pos.z + config::cameraHeight;
+	cameraPosition.pos.z = playerPosition.pos.z + 0.1;
+
 	if (_enttRegistry.has<body>(_player))
 	{
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
+		int h = 0;
+		for (int i = 0; i < config::cameraHeight; i++)
+		{
+			fdd newCameraPos = cameraPosition.pos;
+			newCameraPos.z = ceil(newCameraPos.z + h + 1);
+			if (!cameraPosition.parent->getBlock(newCameraPos.getPoint3Di()).base->opaque)
+			{
+				h++;
+			}
+			else
+			{
+				break;
+			}
+		}
+		cameraPosition.pos.z += h;
 	}
 }
 
 void State::Playing::draw(double dt) {
-	if(_paused)
+	if (_paused)
 		dt = 0;
-	if(_step)
-		dt = 1.0f/config::physicsHz;
+	if (_step)
+		dt = 1.0f / config::physicsHz;
 
 	Services::graphics.stepAnimations(dt);
-	if constexpr (false)
-	{
-		int height = HI2::getScreenHeight();
-		int width = HI2::getScreenWidth();
-		universeNode* test;
-		_universeBase.findNodeByID(4, test);
-		for (int i = 0; i < height; ++i)
-		{
-			for (int j = 0; j < width; ++j)
-			{
-				test->getTopBlock({ j,i });
-			}
-		}
-	}
+	
 	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
-	{
+	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));{
 		position cameraPos = _enttRegistry.get<position>(_camera);
 		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
-
-		for (int i = config::cameraDepth; i >= 0; --i) {//for depth afegim cada capa dels DrawingNodes
-			position currentCameraPos = cameraPos;
-			currentCameraPos.pos.z -= i;
-			for (universeNode*& node : sortedDrawingNodes) {
+		for (universeNode*& node : sortedDrawingNodes) {
+			std::vector<bool> visibility(((int)(HI2::getScreenWidth() / config::spriteSize)) * ((int)(HI2::getScreenHeight() / config::spriteSize)), true);
+			for (int i = 0; i <= config::cameraDepth; ++i) {//for depth afegim cada capa dels DrawingNodes
+				position currentCameraPos = cameraPos;
+				currentCameraPos.pos.z -= i;
 				//obtenir posicio de la camera al node
 				fdd localCameraPos = node->getLocalPos(currentCameraPos.pos, currentCameraPos.parent);
 				//obtenir profunditat
@@ -239,7 +204,9 @@ void State::Playing::draw(double dt) {
 				double partFraccional = fmod(localCameraPos.z, 1);
 				double depth = i + partFraccional;
 
-				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nodeLayer{node,layer}) });
+				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
+
+				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nLayer) });
 			}
 		}
 
@@ -267,14 +234,16 @@ void State::Playing::draw(double dt) {
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
 	{
-		HI2::setTextureColorMod(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*Services::graphics.getTexture(baseBlock::terrainTable[selectedBlock].name), 0, HI2::getScreenHeight() - config::spriteSize * 4, 4, ((double)(int)selectedRotation) * (M_PI / 2));
+		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
+		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
+		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2), selectedFlip ? HI2::FLIP::H : HI2::FLIP::NONE);
 	}
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
-	if(_debug){
+	auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
+	if (_debug) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
-		HI2::drawText(_standardFont, "ID: " + std::to_string(playerPos.parent->getID()), { 0,30 }, 30, HI2::Color::Orange);
+		HI2::drawText(_standardFont, "Parent: " + playerPos.parent->getName() + " (" + std::to_string(playerPos.parent->getID()) + ")", { 0,30 }, 30, HI2::Color::Orange);
 		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
 		HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
 		HI2::drawText(_standardFont, "Z: " + std::to_string(playerPos.pos.z), { 0,120 }, 30, HI2::Color::Yellow);
@@ -283,15 +252,14 @@ void State::Playing::draw(double dt) {
 		HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
 		HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
 		HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
+		HI2::drawText(_standardFont, "Thoughts: " + br->getThoughts(), { 0,300 }, 30, HI2::Color::Black);
+		
 		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
 	}
 
 	_scene.draw();
 	HI2::endFrame();
-
 }
-
-
 
 void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
@@ -305,15 +273,19 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
-			const drawable& sprite = registry->get<drawable>(entity);
+			const drawable& drw = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
-			if (config::drawDepthShadows) {
-				HI2::setTextureColorMod(*sprite.sprite, HI2::Color(mask, mask, mask, 0));
+			//late culling
+			if(drawPos.x <= HI2::getScreenWidth() && drawPos.y <= HI2::getScreenHeight() && (drawPos.x + zoom*drw.spr->getCurrentFrame().size.x>=0) && (drawPos.y + zoom*drw.spr->getCurrentFrame().size.y>=0))
+			{
+				if (config::drawDepthShadows) {
+					HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
+				}
+				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r, HI2::FLIP::NONE);
+				//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 			}
-			HI2::drawTexture(*sprite.sprite, drawPos.x, drawPos.y, zoom, localPos.r);
-			//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 		}
 		void operator()(const nodeLayer& node) const {
 			//      deep - - - - shallow
@@ -347,9 +319,11 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			if (fraccionalY < 0)fraccionalY += 1;
 			fdd localPos = firstBlock - cameraPos.pos;
 
-			firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
-			firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
+			int rowSize = (HI2::getScreenWidth() / config::spriteSize);
+			int colSize = (HI2::getScreenHeight() / config::spriteSize);
 
+			firstBlock.x -= rowSize / 2;
+			firstBlock.y -= colSize / 2; // bloc del TL
 			HI2::Texture textureTarget(point2D{HI2::getScreenWidth(),HI2::getScreenHeight()});
 			HI2::setRenderTarget(&textureTarget,true);
 
@@ -362,34 +336,28 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				//else if (finalXdrawPos > HI2::getScreenWidth())
 				//	break;
 
-				for (int y = 0; y < HI2::getScreenHeight() / config::spriteSize; ++y)
+				for (int y = 0; y < colSize; ++y)
 				{
+					if (node.visibility[(y * rowSize) + x]) {
 					int finalYdrawPos = (int)(drawPos.y) + y*config::spriteSize;
 					//if (finalYdrawPos + config::spriteSize * zoom < 0)
 					//	continue;
 					//else if (finalYdrawPos > HI2::getScreenHeight())
 					//	break;
 
-					metaBlock b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-					if (b.base->ID!=0) {
-						if (b.base->visible)
-						{
+						metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+						if (b.base->ID != 0 && b.base->visible) {
 							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
-								HI2::setTextureColorMod(*b.base->texture, HI2::Color(mask, mask, mask, 0));
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, 1, ((double)(int)b.rotation) * (M_PI / 2));
-								//HI2::drawRectangle({finalXdrawPos,finalYdrawPos},zoom*config::spriteSize,zoom*config::spriteSize,{255,255,255,255});
+								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 							}
-							else {
-								HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, 1, ((double)(int)b.rotation) * (M_PI / 2));
-								//HI2::drawTexture(*b.base->texture, finalXdrawPos, finalYdrawPos, zoom, localPos.r + b.rotation); LMAO FUNKY AF
-							}
+							HI2::drawTexture(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, 1, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 						}
 					}
 				}
 			}
 			HI2::setRenderTarget(nullptr, false);
-			HI2::drawTexture(textureTarget,(HI2::getScreenWidth()/2.0f)-(HI2::getScreenWidth()*zoom/2.0f),(HI2::getScreenHeight()/2.0f)-(HI2::getScreenHeight()*zoom/2.0f),zoom,0);
+			HI2::drawTextureOverlap(textureTarget,(HI2::getScreenWidth()/2.0f)-(HI2::getScreenWidth()*zoom/2.0f),(HI2::getScreenHeight()/2.0f)-(HI2::getScreenHeight()*zoom/2.0f),zoom,0);
 			textureTarget.clean();
 		}
 		entt::registry* registry;
@@ -404,18 +372,71 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 		std::visit(v, rl.target);
 }
 
-void State::Playing::loadTerrainTable()
+State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos)
 {
-	std::ifstream terrainTableFile(HI2::getDataPath().append("blockTable.json"));
-	json j;
-	terrainTableFile >> j;
-	j.get_to(_terrainTable);
-	for (baseBlock& b : _terrainTable) {
-		if (b.visible) {
-			b.texture = Services::graphics.loadTexture(b.name);
+	fdd firstBlock = localCameraPos;
+	firstBlock.z = floor(localCameraPos.z);
+
+	firstBlock.x -= (HI2::getScreenWidth() / config::spriteSize) / 2;
+	firstBlock.y -= (HI2::getScreenHeight() / config::spriteSize) / 2; // bloc del TL
+
+	const int layerHeight = floor(localCameraPos.z);
+
+	nodeLayer result;
+	result.node = node;
+	result.layerHeight = layerHeight;
+	result.visibility = visibility;
+	int i = 0;
+	for (int y = 0; y < floor(HI2::getScreenHeight() / config::spriteSize); ++y)
+	{
+		for (int x = 0; x < floor(HI2::getScreenWidth() / config::spriteSize); ++x)
+		{
+			metaBlock b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
+			result.blocks.push_back(b);
+			visibility[i] = (b.base->ID == 0 ? true : !b.base->opaque);
+			i++;
 		}
 	}
-	baseBlock::terrainTable = _terrainTable;
+	visibility = growVisibility(visibility);
+	visibility = growVisibility(visibility);
+
+	return result;
+}
+
+std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
+{
+	std::vector<bool> newVis(visibility);
+	int rowSize = HI2::getScreenWidth() / config::spriteSize;
+	int colSize = HI2::getScreenHeight() / config::spriteSize;
+
+	for (int y = 0; y < colSize; ++y)
+	{
+		for (int x = 0; x < rowSize; ++x)
+		{
+			int index = x + (y * rowSize);
+			//visibility[index] = true;
+			if (visibility[index])
+			{
+				if (x > 0 && y > 0)//UL
+					newVis[index - rowSize - 1] = true;
+				if (y > 0) //UP
+					newVis[index - rowSize] = true;
+				if (y > 0 && x < rowSize - 1)//UR
+					newVis[index - rowSize + 1] = true;
+				if (x > 0) //LEFT
+					newVis[index - 1] = true;
+				if (x < rowSize - 1) //RIGHT
+					newVis[index + 1] = true;
+				if (y < colSize - 1 && x > 0)//DL
+					newVis[index - 1 + rowSize] = true;
+				if (y < colSize - 1) //DOWN
+					newVis[index + rowSize] = true;
+				if (x < rowSize - 1 && y < colSize - 1) //DR
+					newVis[index + rowSize + 1] = true;
+			}
+		}
+	}
+	return newVis;
 }
 
 point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)
@@ -435,13 +456,10 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 	return pos;
 }
 
-void State::Playing::createNewGame(int seed)
+void State::Playing::createNewGame(std::string saveName, int seed)
 {
-	std::filesystem::create_directories(savePath());
+	std::filesystem::create_directory(HI2::getSavesPath().append(saveName));
 	std::filesystem::copy_file(HI2::getDataPath().append("defData").append("universe.json"), savePath().append("universe.json"));
-
-	//load terrain table
-	loadTerrainTable();
 
 	//load universe.json
 	std::ifstream universeFile(savePath().append("universe.json"));
@@ -457,9 +475,6 @@ void State::Playing::createNewGame(int seed)
 
 void State::Playing::loadGame()
 {
-	//load terrain table
-	loadTerrainTable();
-
 	//load universe.json
 	std::ifstream universeFile(savePath().append("universe.json"));
 	json j;
@@ -467,11 +482,9 @@ void State::Playing::loadGame()
 	j.get_to(_universeBase);
 	_universeBase.linkChildren();
 
-
-
 	loadEntities();
 
-	_debug=true;
+	_debug = true;
 }
 
 void State::Playing::saveGame()
@@ -479,7 +492,7 @@ void State::Playing::saveGame()
 	saveEntities();
 	std::ofstream universeFile(savePath().append("universe.json"));
 	nlohmann::json universeJson(_universeBase);
-	universeJson >> universeFile;
+	universeFile << universeJson;
 }
 
 void State::Playing::loadEntities()
@@ -502,7 +515,7 @@ void State::Playing::saveEntities() const
 	std::ofstream entitiesFile(savePath().append("entities.json"));
 	nlohmann::json entitiesJson;
 	to_json(entitiesJson, _enttRegistry);
-	entitiesJson >> entitiesFile;
+	entitiesFile << entitiesJson;
 }
 
 void State::Playing::createEntities()
@@ -514,19 +527,39 @@ void State::Playing::createEntities()
 		bool temp = _universeBase.findNodeByID(pID, result);
 	}
 
-	double angle = Services::twister();
-	angle = angle/Services::twister.max()*(2*M_PI);
-	double distance = Services::twister()%((int)result->getDiameter()/2);
+	double angle = Services::lcg();
+	angle = angle / Services::lcg.max() * (2 * M_PI);
+	double distance = Services::lcg() % ((int)result->getDiameter() / 2);
+	while ((double)result->getHeight({ (int)(sin(angle) * distance),(int)(cos(angle) * distance) }) < 250)
+	{
+		angle = Services::lcg();
+		angle = angle / Services::lcg.max() * (2 * M_PI);
+		distance = Services::lcg() % ((int)result->getDiameter() / 2);
+	}
 
-	result->addChild(universeNode("test_plat", 100000, 64, { sin(angle) * distance-10,cos(angle) * distance,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 5 }
-	,{2,2,0},{0,0,0},nodeType::SPACESHIP,result,200));
+	universeNode spaceShip("test_plat", 100000, 128, { sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
+	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("test"));
+	result->addChild(spaceShip);
 	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
 		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
 
 		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
-		playerSprite.sprite = Services::graphics.loadTexture("player3");
+		std::vector<frame> playerFrames;
+		playerFrames.push_back({ {256,0},{16,16} });
+		playerFrames.push_back({ {256,16},{16,16} });
+		playerFrames.push_back({ {256,32},{16,16} });
+		playerFrames.push_back({ {256,48},{16,16} });
+		playerFrames.push_back({ {256,64},{16,16} });
+		playerFrames.push_back({ {256,80},{16,16} });
+		playerFrames.push_back({ {272,0},{16,16} });
+		playerFrames.push_back({ {272,16},{16,16} });
+		playerFrames.push_back({ {272,32},{16,16} });
+		playerFrames.push_back({ {272,48},{16,16} });
+		playerFrames.push_back({ {272,64},{16,16} });
+		playerFrames.push_back({ {272,80},{16,16} });
+		playerSprite.spr = Services::graphics.loadSprite("player3", "spritesheet", playerFrames);
 		playerSprite.name = "player3";
 
 
@@ -535,7 +568,7 @@ void State::Playing::createEntities()
 		playerPos.parentID = result->getID();
 		playerPos.pos.x = sin(angle) * distance;
 		playerPos.pos.y = cos(angle) * distance;
-		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D())+1;
+		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D()) + 1;
 		playerPos.pos.r = 0;
 
 		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
@@ -559,15 +592,17 @@ void State::Playing::createEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		playerBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		playerBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* playerResponse = new collidedResponse();
 		playerResponse->type = ENTITY;
 		playerResponse->body.entity = _player;
-		playerBody.collisionInfo.collider->setUserData((void*)playerResponse);
+		playerBody.physicsData.collider->setUserData((void*)playerResponse);
 		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
-		playerBody.collisionInfo._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
-		playerBody.collisionInfo.collider->addCollisionShape(playerBody.collisionInfo._collisionShape, transform);
+		playerBody.physicsData._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
+		playerBody.physicsData.collider->addCollisionShape(playerBody.physicsData._collisionShape, transform);
+
+		_enttRegistry.assign<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
 	}
 
 	{
@@ -575,98 +610,114 @@ void State::Playing::createEntities()
 		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
 		_enttRegistry.assign<position>(_camera);
 	}
-	{
-		entt::entity dog = _enttRegistry.create();
-
-		auto& dogSprite = _enttRegistry.assign<drawable>(dog);
-		dogSprite.sprite = Services::graphics.loadTexture("dog");
-		dogSprite.name = "dog";
-
-		auto& dogPos = _enttRegistry.assign<position>(dog);
-		dogPos.parent = result;
-		dogPos.parentID = result->getID();
-		dogPos.pos.x = 2 + sin(angle) * distance;
-		dogPos.pos.y = 2 + cos(angle) * distance;
-		dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D())+1;
-		dogPos.pos.r = 0;
-
-		auto& dogSpd = _enttRegistry.assign<velocity>(dog);
-		dogSpd.spd.x = 0;
-		dogSpd.spd.y = 0;
-		dogSpd.spd.z = 0;
-		dogSpd.spd.r = -0.1;
-
-		auto& dogName = _enttRegistry.assign<name>(dog);
-		dogName.nameString = "Lieutenant Gromit";
-
-		auto& dogBody = _enttRegistry.assign<body>(dog);
-		dogBody.height = 0.4;
-		dogBody.width = 0.3;
-		dogBody.mass = 10;
-		dogBody.elasticity = 0.1;
-		dogBody.volume = 0.02;
-
-		// Initial position and orientation of the collision body 
-		rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
-		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
-		rp3d::Transform transform(initPosition, initOrientation);
-
-		dogBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-		collidedResponse* dogResponse = new collidedResponse();
-		dogResponse->type = ENTITY;
-		dogResponse->body.entity = dog;
-		dogBody.collisionInfo.collider->setUserData((void*)dogResponse);
-		initPosition.z += dogBody.width / 2;
-		transform.setPosition(initPosition);
-		dogBody.collisionInfo._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-		dogBody.collisionInfo.collider->addCollisionShape(dogBody.collisionInfo._collisionShape, transform);
-	}
-	for (int i = 0; i < 5; i++)
-		for (int j = 0; j < 5; j++)
+	bool constexpr skipExtraEntities = false;
+	if constexpr(!skipExtraEntities){
 		{
-			entt::entity ball = _enttRegistry.create();
+			entt::entity dog = _enttRegistry.create();
 
-			auto& ballSprite = _enttRegistry.assign<drawable>(ball);
-			ballSprite.sprite = Services::graphics.loadTexture("ball");
-			ballSprite.name = "ball";
+			auto& dogSprite = _enttRegistry.assign<drawable>(dog);
+			std::vector<frame> dogFrames;
+			dogFrames.push_back({ {0,32},{16,16} });
+			dogSprite.spr = Services::graphics.loadSprite("dog", "spritesheet", dogFrames);
+			dogSprite.name = "dog";
 
-			auto& ballPos = _enttRegistry.assign<position>(ball);
-			ballPos.parent = result;
-			ballPos.parentID = result->getID();
-			ballPos.pos.x = 4 + i + sin(angle) * distance;
-			ballPos.pos.y = 4 + j + cos(angle) * distance;
-			ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
-			ballPos.pos.r = 0;
+			auto& dogPos = _enttRegistry.assign<position>(dog);
+			dogPos.parent = result;
+			dogPos.parentID = result->getID();
+			dogPos.pos.x = 2 + sin(angle) * distance;
+			dogPos.pos.y = 2 + cos(angle) * distance;
+			dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D()) + 1;
+			dogPos.pos.r = 0;
 
-			auto& ballSpd = _enttRegistry.assign<velocity>(ball);
-			ballSpd.spd.x = 0;
-			ballSpd.spd.y = 0;
-			ballSpd.spd.z = 0;
-			ballSpd.spd.r = -0.1;
+			auto& dogSpd = _enttRegistry.assign<velocity>(dog);
+			dogSpd.spd.x = 0;
+			dogSpd.spd.y = 0;
+			dogSpd.spd.z = 0;
+			dogSpd.spd.r = -0.1;
 
-			auto& ballBody = _enttRegistry.assign<body>(ball);
-			ballBody.height = 7.0f / 8.0f;
-			ballBody.width = 7.0f / 8.0f;
-			ballBody.mass = 1;
-			ballBody.elasticity = 0.98;
-			ballBody.volume = 0.2;
+			auto& dogName = _enttRegistry.assign<name>(dog);
+			dogName.nameString = "Lieutenant Gromit";
 
-			// Initial position and orientation of the collision body 
+			auto& dogBody = _enttRegistry.assign<body>(dog);
+			dogBody.height = 0.4;
+			dogBody.width = 0.3;
+			dogBody.mass = 10;
+			dogBody.elasticity = 0.1;
+			dogBody.volume = 0.02;
+
+			// Initial position and orientation of the collision body
 			rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
 			rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 			rp3d::Transform transform(initPosition, initOrientation);
 
-			ballBody.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-
-			collidedResponse* ballResponse = new collidedResponse();
-			ballResponse->type = ENTITY;
-			ballResponse->body.entity = ball;
-			ballBody.collisionInfo.collider->setUserData((void*)ballResponse);
-			ballBody.collisionInfo._collisionShape = new rp3d::SphereShape(0.4);
-			initPosition.z += ballBody.width / 2;
+			dogBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+			collidedResponse* dogResponse = new collidedResponse();
+			dogResponse->type = ENTITY;
+			dogResponse->body.entity = dog;
+			dogBody.physicsData.collider->setUserData((void*)dogResponse);
+			initPosition.z += dogBody.width / 2;
 			transform.setPosition(initPosition);
-			ballBody.collisionInfo.collider->addCollisionShape(ballBody.collisionInfo._collisionShape, transform);
+			dogBody.physicsData._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
+			dogBody.physicsData.collider->addCollisionShape(dogBody.physicsData._collisionShape, transform);
 		}
+		for (int i = 0; i < 5; i++){
+			for (int j = 0; j < 5; j++)
+			{
+				entt::entity ball = _enttRegistry.create();
+
+				auto& ballSprite = _enttRegistry.assign<drawable>(ball);
+				std::vector<frame> dogFrames;
+				if (Services::graphics.isSpriteLoaded("ball")) {
+					ballSprite.spr = Services::graphics.getSprite("ball");
+				}
+				else {
+					std::vector<frame> ballFrames;
+					ballFrames.push_back({ {240,0},{16,16} });
+					ballSprite.spr = Services::graphics.loadSprite("ball", "spritesheet", ballFrames);
+					ballSprite.spr = Services::graphics.loadSprite("ball");
+				}
+
+				ballSprite.name = "ball";
+
+				auto& ballPos = _enttRegistry.assign<position>(ball);
+				ballPos.parent = result;
+				ballPos.parentID = result->getID();
+				ballPos.pos.x = 4 + i + sin(angle) * distance;
+				ballPos.pos.y = 4 + j + cos(angle) * distance;
+				ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
+				ballPos.pos.r = 0;
+
+				auto& ballSpd = _enttRegistry.assign<velocity>(ball);
+				ballSpd.spd.x = 0;
+				ballSpd.spd.y = 0;
+				ballSpd.spd.z = 0;
+				ballSpd.spd.r = -0.1;
+
+				auto& ballBody = _enttRegistry.assign<body>(ball);
+				ballBody.height = 7.0f / 8.0f;
+				ballBody.width = 7.0f / 8.0f;
+				ballBody.mass = 1;
+				ballBody.elasticity = 0.98;
+				ballBody.volume = 0.2;
+
+				// Initial position and orientation of the collision body
+				rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform transform(initPosition, initOrientation);
+
+				ballBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+
+				collidedResponse* ballResponse = new collidedResponse();
+				ballResponse->type = ENTITY;
+				ballResponse->body.entity = ball;
+				ballBody.physicsData.collider->setUserData((void*)ballResponse);
+				ballBody.physicsData._collisionShape = new rp3d::SphereShape(0.4);
+				initPosition.z += ballBody.width / 2;
+				transform.setPosition(initPosition);
+				ballBody.physicsData.collider->addCollisionShape(ballBody.physicsData._collisionShape, transform);
+			}
+		}
+	}
 }
 
 void State::Playing::fixEntities()
@@ -681,11 +732,11 @@ void State::Playing::fixEntities()
 		}
 	}
 	//drawable
-	auto drawableEntities = _enttRegistry.view<drawable>();
-	for (const entt::entity& entity : drawableEntities) {
-		drawable& d = _enttRegistry.get<drawable>(entity);
-		d.sprite = Services::graphics.loadTexture(d.name);
-	}
+	//auto drawableEntities = _enttRegistry.view<drawable>();
+	//for (const entt::entity& entity : drawableEntities) {
+	//	drawable& d = _enttRegistry.get<drawable>(entity);
+	//	d.spr = Services::graphics.loadSprite(d.name);
+	//}
 	//body
 	auto bodyEntities = _enttRegistry.view<body>();
 	for (const entt::entity& entity : bodyEntities) {
@@ -695,30 +746,32 @@ void State::Playing::fixEntities()
 		rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 		rp3d::Transform transform(initPosition, initOrientation);
 
-		b.collisionInfo.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+		b.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 		collidedResponse* bodyResponse = new collidedResponse();
 		bodyResponse->type = ENTITY;
 		bodyResponse->body.entity = entity;
-		b.collisionInfo.collider->setUserData((void*)bodyResponse);
+		b.physicsData.collider->setUserData((void*)bodyResponse);
 
-		b.collisionInfo._collisionShape = new rp3d::SphereShape(b.width / 2);
+		b.physicsData._collisionShape = new rp3d::SphereShape(b.width / 2);
 		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
-		b.collisionInfo.collider->addCollisionShape(b.collisionInfo._collisionShape, transform);
+		b.physicsData.collider->addCollisionShape(b.physicsData._collisionShape, transform);
 	}
 }
 
 void State::Playing::_chunkLoaderFunc()
 {
-	position* positionCopy=_chunkLoaderPlayerPosition;
+	position* positionCopy = _chunkLoaderPlayerPosition;
 	while (positionCopy != nullptr) {
+		_chunkLoaderMutex.lock();
 		position p(*positionCopy);
 		if (positionCopy != nullptr)
 		{
 			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
 		}
-		positionCopy=_chunkLoaderPlayerPosition;
+		positionCopy = _chunkLoaderPlayerPosition;
+		_chunkLoaderMutex.unlock();
 	}
 }
 
@@ -733,7 +786,7 @@ void State::Playing::debugConsoleExec(std::string input)
 	std::stringstream ss(input);
 	std::string command;
 	ss >> command;
-	if(command == "help"){ //fake switch
+	if (command == "help") { //fake switch
 		std::cout << "tp [x] [y] [z]" << std::endl;
 		std::cout << "listNodes" << std::endl;
 		std::cout << "nodeInfo ID" << std::endl;
@@ -746,31 +799,35 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "setNodeVel ID x y z" << std::endl;
 		std::cout << "pause" << std::endl;
 		std::cout << "step" << std::endl;
+		std::cout << "setNullBlock ID" << std::endl;
+		std::cout << "zoom zoomLevel" << std::endl;
+		std::cout << "goto ID" << std::endl;
+
 	}
-	else if(command == "pause"){
-		_paused=!_paused;
+	else if (command == "pause") {
+		_paused = !_paused;
 	}
-	else if(command =="step"){
-		_step=true;
+	else if (command == "step") {
+		_step = true;
 	}
-	else if(command == "stop"){
+	else if (command == "stop") {
 		velocity& vel = _enttRegistry.get<velocity>(_player);
-		vel.spd=fdd();
+		vel.spd = fdd();
 	}
-	else if(command == "toggleGravity"){
-		config::gravityEnabled=!config::gravityEnabled;
+	else if (command == "toggleGravity") {
+		config::gravityEnabled = !config::gravityEnabled;
 	}
-	else if(command == "toggleDrag"){
-		config::dragEnabled=!config::dragEnabled;
+	else if (command == "toggleDrag") {
+		config::dragEnabled = !config::dragEnabled;
 	}
-	else if(command == "toggleDepthShadows"){
-		config::drawDepthShadows=!config::drawDepthShadows;
+	else if (command == "toggleDepthShadows") {
+		config::drawDepthShadows = !config::drawDepthShadows;
 	}
-	else if(command == "listNodes"){
-		for(universeNode& node : _universeBase){
+	else if (command == "listNodes") {
+		for (universeNode& node : _universeBase) {
 			std::string sep;
-			for(int i =0;i<node.getDepth();++i){
-				sep+="   ";
+			for (int i = 0; i < node.getDepth(); ++i) {
+				sep += "   ";
 			}
 			std::cout << sep << "ID: " << node.getID() << std::endl;
 			std::cout << sep << "name: " << node.getName() << std::endl;
@@ -779,15 +836,15 @@ void State::Playing::debugConsoleExec(std::string input)
 
 		}
 	}
-	else if(command == "nodeInfo" && ss.tellg() != -1){
+	else if (command == "nodeInfo" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			std::string sep;
-			for(int i =0;i<node->getDepth();++i){
-				sep+="   ";
+			for (int i = 0; i < node->getDepth(); ++i) {
+				sep += "   ";
 			}
 			std::cout << sep << "ID: " << node->getID() << std::endl;
 			std::cout << sep << "name: " << node->getName() << std::endl;
@@ -795,83 +852,106 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "pos: " << node->getPosition() << std::endl;
 		}
 	}
-	else if(command == "setNodePos" && ss.tellg() != -1){
+	else if (command == "setZoom" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		config::zoom = std::stoi(argument);
+	}
+	else if (command == "setNodePos" && ss.tellg() != -1) {
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			fdd pos;
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.x = std::strtol(argument.c_str(),nullptr,10);
+				pos.x = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.y = std::strtol(argument.c_str(),nullptr,10);
+				pos.y = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.z = std::strtol(argument.c_str(),nullptr,10);
+				pos.z = std::strtol(argument.c_str(), nullptr, 10);
 			}
 			node->setPosition(pos);
 		}
 	}
-	else if(command == "setNodeVel" && ss.tellg() != -1){
+	else if (command == "setNodeVel" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			fdd pos;
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.x = std::strtol(argument.c_str(),nullptr,10);
+				pos.x = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.y = std::strtol(argument.c_str(),nullptr,10);
+				pos.y = std::strtol(argument.c_str(), nullptr, 10);
 			}
-			if(ss.tellg() != -1){
+			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.z = std::strtol(argument.c_str(),nullptr,10);
+				pos.z = std::strtol(argument.c_str(), nullptr, 10);
 			}
 			node->setVelocity(pos);
+			node->physicsData.sleeping = false;
 		}
 	}
-	else if(command == "setParent" && ss.tellg() != -1){
+	else if (command == "setParent" && ss.tellg() != -1) {
 		std::string argument;
 		ss >> argument;
-		unsigned id = std::strtol(argument.c_str(),nullptr,10);
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
-		if(_universeBase.findNodeByID(id,node)){
+		if (_universeBase.findNodeByID(id, node)) {
 			velocity& vel = _enttRegistry.get<velocity>(_player);
 			position& pos = _enttRegistry.get<position>(_player);
-			vel.spd=node->getLocalVel(vel.spd,pos.parent);
-			pos.pos=node->getLocalPos(pos.pos,pos.parent);
-			pos.parent=node;
-			pos.parentID=node->getID();
+			vel.spd = node->getLocalVel(vel.spd, pos.parent);
+			pos.pos = node->getLocalPos(pos.pos, pos.parent);
+			pos.parent = node;
+			pos.parentID = node->getID();
 		}
 	}
-	else if(command == "tp"){
+	else if (command == "tp") {
 		velocity& vel = _enttRegistry.get<velocity>(_player);
-		vel.spd=fdd();
+		vel.spd = fdd();
 		position& pos = _enttRegistry.get<position>(_player);
 		std::string argument;
-		if(ss.tellg() != -1){
+		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.x = std::strtol(argument.c_str(),nullptr,10);
+			pos.pos.x = std::strtol(argument.c_str(), nullptr, 10);
 		}
-		if(ss.tellg() != -1){
+		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.y = std::strtol(argument.c_str(),nullptr,10);
+			pos.pos.y = std::strtol(argument.c_str(), nullptr, 10);
 		}
-		if(ss.tellg() != -1){
+		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.z = std::strtol(argument.c_str(),nullptr,10);
+			pos.pos.z = std::strtol(argument.c_str(), nullptr, 10);
 		}
-		else{
-			pos.pos.z = 1+pos.parent->getHeight({(int)pos.pos.x,(int)pos.pos.y});
+		else {
+			pos.pos.z = 1 + pos.parent->getHeight({ (int)pos.pos.x,(int)pos.pos.y });
+		}
+	}
+	else if (command == "goto" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		debugConsoleExec("setParent " + argument);
+		debugConsoleExec("tp 0 0");
+		position pos = _enttRegistry.get<position>(_player);
+		_chunkLoaderMutex.lock();
+		_universeBase.updateChunks(pos.pos,pos.parent);
+		_chunkLoaderMutex.unlock();
+	}
+	else if (command == "setNullBlock") { // Y THO
+		std::string argument;
+		if (ss.tellg() != -1) {
+			ss >> argument;
+			metaBlock::nullBlock.base = &baseBlock::terrainTable[std::strtol(argument.c_str(), nullptr, 10)];
 		}
 	}
 	std::cout << input << std::endl;

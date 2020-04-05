@@ -7,7 +7,7 @@
 #include "block.hpp"
 #include "terrainChunk.hpp"
 #include "nodeGenerator.hpp"
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 
 const double G = (6.67408e-11);
 
@@ -31,7 +31,7 @@ public:
 	universeNode(const universeNode& u);
 	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
-	metaBlock getBlock(const point3Di &pos);
+	metaBlock& getBlock(const point3Di &pos);
 	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
@@ -67,6 +67,18 @@ public:
 	bool drawBefore(universeNode& r)const;
 	void clean();
 
+	//Physics private obj
+	struct
+	{
+		bool sleeping = false;
+	private:
+		rp3d::Vector3 contactNormal;
+		double maxContactDepth = 0;
+		
+		friend class physicsEngine;
+		friend class universeNode;
+	}physicsData;
+
 	bool operator!= (const universeNode& right)const;
 	bool operator== (const universeNode& right)const;
 	friend void to_json(nlohmann::json &j, const universeNode &f);
@@ -90,12 +102,16 @@ public:
 	};
 	universeNodeIterator begin();
 	universeNodeIterator end();
+
+	
+	void connectGenerator(std::unique_ptr<nodeGenerator> ng);
+	HI2::Color getMainColor();
   private:
 
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
 	point3Di chunkFromPos(const point3Di& pos);
-	void connectGenerator();
+	void connectGenerator(const nlohmann::json& j);
 
 	void iUpdateChunks(const point3Di& localChunk);
 	terrainChunk& chunkAt(const point3Di &pos);
@@ -119,7 +135,8 @@ public:
 	unsigned int _ID;
 	rp3d::CollisionBody* _collider;
 	rp3d::CollisionShape* _collisionShape;
-  
+
+	HI2::Color _mainColor = HI2::Color::White;
 };
 
 
@@ -137,3 +154,4 @@ NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
 
 void to_json(json& j, const universeNode& f);
 void from_json(const json& j, universeNode& f);
+

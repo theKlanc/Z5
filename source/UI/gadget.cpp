@@ -1,11 +1,37 @@
 #include "UI/gadget.hpp"
 #include <cmath>
 
-void gadget::draw(point2D offset){}
+void gadget::_draw_internal(){}
+
+void gadget::_draw_overlay_internal()
+{
+	HI2::drawEmptyRectangle(point2D{0,0},_size.x,_size.y,HI2::Color::Blue);
+}
+
+void gadget::init(point2D pos, point2D size, std::string name)
+{
+	_position = pos;
+	_size = size;
+	_name = name;
+	_renderTexture = HI2::Texture(size);
+}
+
+void gadget::draw(point2D offset)
+{
+	auto oldTarget = HI2::getRenderTarget();
+	HI2::setRenderTarget(&_renderTexture,true);
+	_draw_internal();
+	HI2::setRenderTarget(&oldTarget);
+	HI2::drawTexture(_renderTexture,_position.x + offset.x,_position.y + offset.y);
+}
 
 void gadget::drawOverlay(point2D offset)
 {
-	HI2::drawEmptyRectangle(_position+offset,_size.x,_size.y,HI2::Color::Blue);
+	auto oldTarget = HI2::getRenderTarget();
+	HI2::setRenderTarget(&_renderTexture,true);
+	_draw_overlay_internal();
+	HI2::setRenderTarget(&oldTarget);
+	HI2::drawTexture(_renderTexture,_position.x + offset.x,_position.y + offset.y);
 }
 
 void gadget::update(const std::bitset<HI2::BUTTON_SIZE>&down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held, const point2D &mouse, const double &dt){}
@@ -130,7 +156,7 @@ gadget *gadget::getDown()
 
 bool gadget::touched(point2D touchPosition)
 {
-	return touchPosition.x > _position.x && touchPosition.y > _position.y &&
-			touchPosition.x < (_position.x + _size.x) && touchPosition.y < (_position.y + _size.y);
+	return touchPosition.x >= 0 && touchPosition.y >= 0 &&
+			touchPosition.x < _size.x && touchPosition.y < _size.y;
 }
 gadget::~gadget(){}

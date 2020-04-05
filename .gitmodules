@@ -1,14 +1,15 @@
-[submodule "deps/FastNoise"]
-	path = deps/FastNoise
-	url = https://github.com/Auburns/FastNoise
 [submodule "deps/HardwareInterface"]
 	path = deps/HardwareInterface
 	url = https://github.com/theKlanc/HardwareInterface/
 	branch = master
 	update = merge
-[submodule "deps/reactPhysics3D"]
-	path = deps/reactPhysics3D
-	url = https://github.com/DanielChappuis/reactphysics3d
 [submodule "deps/json"]
 	path = deps/json
-	url = https://github.com/nlohmann/json
+	url = https://github.com/theKlanc/json
+[submodule "deps/reactPhysics3D"]
+	url = https://github.com/theKlanc/reactphysics3d
+[submodule "deps/FastNoise"]
+	url = https://github.com/Auburns/FastNoise
+[submodule "deps/icecream-cpp"]
+	path = deps/icecream-cpp
+	url = https://github.com/renatoGarcia/icecream-cpp

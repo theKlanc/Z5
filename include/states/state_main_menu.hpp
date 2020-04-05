@@ -16,6 +16,8 @@ namespace State {
 		void update(double dt) override;
 		void draw(double dt) override;
 
+		void mapEditorCallback();
+
 	  private:
 		void regenerateSavesVector();
 

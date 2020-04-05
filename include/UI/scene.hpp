@@ -11,6 +11,7 @@ class scene{
 		void addGadget(std::shared_ptr<gadget> g);
 		void removeGadget(std::shared_ptr<gadget> g);
 		void select(std::shared_ptr<gadget> g);
+		void clear();
 	private:
 		std::string _name;
 		gadget* _selected = nullptr;

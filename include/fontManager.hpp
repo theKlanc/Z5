@@ -1,5 +1,5 @@
 #pragma once
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include <unordered_map>
 class fontManager {
   public:
@@ -9,8 +9,8 @@ class fontManager {
 	HI2::Font* loadFont(std::string fileName);
 	void freeFont(std::string fontName);
 	HI2::Font* getFont(std::string fontName);
+	void freeAllFonts();
 
   private:
-	void freeAllFonts();
 	std::unordered_map<std::string, HI2::Font> fontAtlas;
 };

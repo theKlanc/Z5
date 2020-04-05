@@ -3,6 +3,7 @@
 #include <string>
 #include "json.hpp"
 #include "entt/entity/fwd.hpp"
+#include "HI2.hpp"
 
 enum componentType{
 	NAME,
@@ -10,6 +11,7 @@ enum componentType{
 	VELOCITY,
 	BODY,
 	DRAWABLE,
+	BRAIN,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
@@ -18,6 +20,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
 	{VELOCITY,"VELOCITY"},
 	{BODY,"BODY"},
 	{DRAWABLE,"DRAWABLE"},
+	{BRAIN,"BRAIN"},
 })
 
 enum entityTag{
@@ -42,6 +45,10 @@ struct jsonEntity
 	std::vector<jsonComponent>  components;
 };
 
+namespace HI2{
+	void to_json(nlohmann::json& j, const HI2::Color& c);
+	void from_json(const nlohmann::json& j, HI2::Color& c);
+}
 
 void to_json(nlohmann::json& j, const entt::registry& registry);
 void from_json(const nlohmann::json& j, entt::registry& registry);

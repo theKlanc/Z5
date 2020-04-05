@@ -1,5 +1,5 @@
 #pragma once
-#include "HardwareInterface/HardwareInterface.hpp"
+#include "HI2.hpp"
 #include <unordered_map>
 class audioManager {
   public:
@@ -10,7 +10,7 @@ class audioManager {
 	void freeAudio(std::string audioName);
 	HI2::Audio* getAudio(std::string audioName);
 
-  private:
 	void freeAllAudio();
+  private:
 	std::unordered_map<std::string, HI2::Audio> audioAtlas;
 };

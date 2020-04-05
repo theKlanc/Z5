@@ -1,48 +1,63 @@
-#crear la resta de generadors
-#associar generadors amb nodes al crearlos
-#crear camera (kinda done)
-#chunkloader
-#render
-#implementar colisions
-#arreglar memleak
-passar a dynamics world
-//separar deteccio de colisions i agregacio+resolució
-//implementar elasticitat en colisions correctament
-//implementar gravetat correctament
-//implementar friccio correctament
-//implementar colisions entre nodes
-
-
-#animacions locu, animacions
-#rotacions de block
-rotacions de layers
-maquina d estats per les entitats
-
-fog
-priority ChunkLoader
-
-//arreglar angles de sortida de colisions
-
-fer una sola draw call per layer dibuixat
-millorar terrain generator i crear biomes
-crear observer
-crear soundObserver
-assignar bgm als nodes
-crear health i items
-dibuixar items
-dibuixar gui
-crear inventari
-crear colisionadors d altres tipus per a bales i tal
-lighting
-biomes i diferents tipus de biomes per cada planeta, somehow
-PERFORMANCE
-afegir llunes de jupiter saturn i neptu
-afegir planet 9
-//crear NPCs (mascotes animals i persones)
---crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
-#persistència (json i tal)
-
-
 # DONE
 // Half Done
 -- Kinda done?
+~~ Aparcao
+XX Abandonat
+
+# arreglar angles de sortida de colisions
+# canviar el rockyplanetgenerator a terrainPainterGenerator
+# implementar colisions entre nodes
+# implementar elasticitat en colisions correctament
+# implementar friccio correctament
+# implementar gravetat correctament
+# persistència (json i tal)
+# separar deteccio de colisions i agregacio+resolució
+#- millorar terrain generator i crear biomes
+# animacions
+# arreglar memleak
+# associar generadors amb nodes al crearlos
+# chunkloader
+# crear camera (kinda done)
+# crear la resta de generadors
+# implementar colisions
+# render
+# rotacions de block ←↑→↓
+#~ fer una sola draw call per layer dibuixat (Fet en una branca, no millorem res, perdem rendiment excepte la possibilitat d'algun efecte nou (ombres) facilment)
+#afegir creador de prefabs
+#afegir generator per a prefabs
+
+// PERFORMANCE
+// crear NPCs (mascotes animals i persones)
+
+XX passar a dynamics world
+XX rotacions de layers
+
+implementar mapa estelar
+
+implementar controlador per les naus
+afegir creador de nodes
+afegir terreny interactuable
+descarregar i diferenciar entre entitats permanents
+reparentitzar nodes i entitats més agressivament
+afegir llunes de mart jupiter saturn i neptu
+afegir planet 9
+afegir planeta newronia
+afegir zones prefabricades al biomeGenerator
+assignar bgm als nodes
+biomes i diferents tipus de biomes per cada planeta, somehow
+crear biomeGenerator
+crear colisionadors d altres tipus per a bales i tal
+crear health i items
+crear inventari
+crear observer
+crear soundObserver
+dibuixar gui
+dibuixar items
+implementar fake tensió superficial
+lighting
+maquina d estats per les entitats
+
+~~ crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
+~~ fog
+~~ priority ChunkLoader
+

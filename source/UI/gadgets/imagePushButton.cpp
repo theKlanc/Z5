@@ -1,11 +1,10 @@
 #include "UI/gadgets/imagePushButton.hpp"
 
-void imagePushButton::draw(point2D offset)
+void imagePushButton::_draw_internal()
 {
-	point2D finalDrawPos = offset+_position;
-	HI2::drawTexture(_pressed?_on:_off,finalDrawPos.x,finalDrawPos.y);
+	HI2::drawTexture(_pressed?*_on.getTexture():*_off.getTexture(),0,0);
 }
 
-void imagePushButton::drawOverlay(point2D offset)
+void imagePushButton::_draw_overlay_internal()
 {
 }
