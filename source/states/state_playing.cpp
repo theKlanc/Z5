@@ -345,8 +345,8 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					}
 				}
 			}
-			HI2::setRenderTarget(nullptr, false);
-			HI2::drawTextureF(textureTarget,
+			HI2::setRenderTarget(nullptr, false); // podriem intentar renderitzar totes les textures a la finestra de cop
+			HI2::drawTextureOverlap(textureTarget,
 			drawPos.x + (HI2::getScreenWidth()/2),
 			drawPos.y + (HI2::getScreenHeight()/2),
 			zoom,0);
