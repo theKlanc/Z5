@@ -28,21 +28,27 @@ namespace State {
 		void debugConsoleExec(std::string command);
 	private:
 
-
 		struct nodeLayer {
 			universeNode* node;
 			int layerHeight;
 			std::vector<metaBlock> blocks;
 			std::vector<bool> visibility;
 		};
+
+		struct nodeDrawLayer{
+			HI2::Texture tex;
+			point2D pos;
+		};
+
 		struct renderLayer {
 			double depth;
-			std::variant<entt::entity, nodeLayer> target;
+			std::variant<entt::entity, nodeDrawLayer> target;
 		};
 
 		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);
 		std::vector<bool> growVisibility(std::vector<bool> visibility);
 		void drawLayer(const renderLayer& rl);
+		nodeDrawLayer generateNodeDrawLayer(double depth, nodeLayer nl); // Disturbs the renderTarget
 		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 
 		entt::entity _player;

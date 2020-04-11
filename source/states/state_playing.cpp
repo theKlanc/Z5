@@ -205,8 +205,8 @@ void State::Playing::draw(double dt) {
 				double depth = i + partFraccional;
 
 				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
-
-				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nLayer) });
+				nodeDrawLayer ndl = generateNodeDrawLayer(depth,nLayer);
+				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeDrawLayer>(ndl) });
 			}
 		}
 
@@ -219,7 +219,7 @@ void State::Playing::draw(double dt) {
 				depth -= _enttRegistry.get<body>(entity).height;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeLayer>(entity) });
+				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeDrawLayer>(entity) });
 		}
 
 	}
@@ -229,6 +229,7 @@ void State::Playing::draw(double dt) {
 	});
 
 	HI2::startFrame();
+	HI2::setRenderTarget(nullptr,true);
 	for (renderLayer& rl : renderOrders) {
 		drawLayer(rl);
 	}
@@ -287,70 +288,11 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 			}
 		}
-		void operator()(const nodeLayer& node) const {
-			//      deep - - - - shallow
-			// dFt  0                  1
-			// shdw 0                105
-			// mask 150              255
-			// 
-			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
-			if (depthFactor < 0)
-				depthFactor = 0;
-			//depthFactor=pow(depthFactor,2);
-			int topVis = 255 - config::minShadow;
-			double shadowVal = depthFactor * topVis;
-			short mask = shadowVal + config::minShadow;
-
-
-
-
-			int blocksPerRow = (HI2::getScreenWidth() / config::spriteSize); // de moment no tindrem en compte el zoom
-			int blocksPerCol = (HI2::getScreenHeight() / config::spriteSize);
-
-			fdd topLeftBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
-			topLeftBlock.z = node.layerHeight;
-
-
-			topLeftBlock.x = floor(topLeftBlock.x);
-			topLeftBlock.y = floor(topLeftBlock.y);
-			topLeftBlock.x -= blocksPerRow / 2;
-			topLeftBlock.y -= blocksPerCol / 2; // bloc del TL
-			HI2::Texture textureTarget(point2D{HI2::getScreenWidth(),HI2::getScreenHeight()});
-			HI2::setRenderTarget(&textureTarget,true);
-
-			point2Dd drawPos = {zoom*config::spriteSize*(topLeftBlock.x - cameraPos.pos.x),zoom*config::spriteSize*(topLeftBlock.y - cameraPos.pos.y)};
-
-			int realBlocksPerRow = blocksPerRow/zoom + 2;
-			int realBlocksPerCol = blocksPerCol/zoom + 2;
-
-			int firstX = blocksPerRow/2 - realBlocksPerRow/2;
-			int lastX = blocksPerRow - firstX;
-
-			int firstY = blocksPerCol/2 - realBlocksPerCol/2;
-			int lastY = blocksPerCol - firstY;
-
-			for (int x = firstX; x <= lastX; ++x)
-			{
-				for (int y = firstY; y <= lastY; ++y)
-				{
-					if (node.visibility[(y * blocksPerRow) + x]) {
-						metaBlock& b = node.node->getBlock({ (int)topLeftBlock.x + x,(int)topLeftBlock.y + y,node.layerHeight });
-						if (b.base->ID != 0 && b.base->visible) {
-							if (config::drawDepthShadows) {
-								//mask anira de 255 a 150
-								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
-							}
-							HI2::drawTexture(*b.base->spr->getTexture(), x*config::spriteSize, y*config::spriteSize, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, 1, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
-						}
-					}
-				}
-			}
-			HI2::setRenderTarget(nullptr, false); // podriem intentar renderitzar totes les textures a la finestra de cop
-			HI2::drawTextureOverlap(textureTarget,
-			drawPos.x + (HI2::getScreenWidth()/2),
-			drawPos.y + (HI2::getScreenHeight()/2),
+		void operator()(const nodeDrawLayer& ndl) const {
+			HI2::drawTexture(ndl.tex,
+			ndl.pos.x,
+			ndl.pos.y,
 			zoom,0);
-			textureTarget.clean();
 		}
 		entt::registry* registry;
 		position cameraPos;
@@ -362,6 +304,62 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 	v.zoom = (((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale - config::minScale)) + config::minScale) * config::zoom;
 	if (v.zoom > 0)
 		std::visit(v, rl.target);
+}
+
+State::Playing::nodeDrawLayer State::Playing::generateNodeDrawLayer(double depth, State::Playing::nodeLayer nl)
+{
+	position cameraPos = _enttRegistry.get<position>(_camera);
+	double zoom = (((config::cameraDepth - depth) / config::cameraDepth * (config::depthScale - config::minScale)) + config::minScale) * config::zoom;
+	double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
+	if (depthFactor < 0)
+		depthFactor = 0;
+	//depthFactor=pow(depthFactor,2);
+	int topVis = 255 - config::minShadow;
+	double shadowVal = depthFactor * topVis;
+	short mask = shadowVal + config::minShadow;
+
+	int blocksPerRow = (HI2::getScreenWidth() / config::spriteSize); // de moment no tindrem en compte el zoom
+	int blocksPerCol = (HI2::getScreenHeight() / config::spriteSize);
+
+	fdd topLeftBlock = nl.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
+	topLeftBlock.z = nl.layerHeight;
+
+
+	topLeftBlock.x = floor(topLeftBlock.x);
+	topLeftBlock.y = floor(topLeftBlock.y);
+	topLeftBlock.x -= blocksPerRow / 2;
+	topLeftBlock.y -= blocksPerCol / 2; // bloc del TL
+	HI2::Texture textureTarget(point2D{HI2::getScreenWidth(),HI2::getScreenHeight()});
+	HI2::setRenderTarget(&textureTarget,false);
+
+	point2Dd drawPos = {zoom*config::spriteSize*(topLeftBlock.x - cameraPos.pos.x),zoom*config::spriteSize*(topLeftBlock.y - cameraPos.pos.y)};
+
+	int realBlocksPerRow = blocksPerRow/zoom + 2;
+	int realBlocksPerCol = blocksPerCol/zoom + 2;
+
+	int firstX = blocksPerRow/2 - realBlocksPerRow/2;
+	int lastX = blocksPerRow - firstX;
+
+	int firstY = blocksPerCol/2 - realBlocksPerCol/2;
+	int lastY = blocksPerCol - firstY;
+
+	for (int x = firstX; x <= lastX; ++x)
+	{
+		for (int y = firstY; y <= lastY; ++y)
+		{
+			if (nl.visibility[(y * blocksPerRow) + x]) {
+				metaBlock& b = nl.node->getBlock({ (int)topLeftBlock.x + x,(int)topLeftBlock.y + y,nl.layerHeight });
+				if (b.base->ID != 0 && b.base->visible) {
+					if (config::drawDepthShadows) {
+						//mask anira de 255 a 150
+						HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
+					}
+					HI2::drawTexture(*b.base->spr->getTexture(), x*config::spriteSize, y*config::spriteSize, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, 1, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
+				}
+			}
+		}
+	}
+	return nodeDrawLayer{textureTarget,{(int)(drawPos.x + (HI2::getScreenWidth()/2)),(int)(drawPos.y + (HI2::getScreenHeight()/2))}};
 }
 
 State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos)
