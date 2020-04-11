@@ -319,9 +319,19 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			HI2::setRenderTarget(&textureTarget,true);
 
 			point2Dd drawPos = {zoom*config::spriteSize*(topLeftBlock.x - cameraPos.pos.x),zoom*config::spriteSize*(topLeftBlock.y - cameraPos.pos.y)};
-			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
+
+			int realBlocksPerRow = blocksPerRow/zoom + 2;
+			int realBlocksPerCol = blocksPerCol/zoom + 2;
+
+			int firstX = blocksPerRow/2 - realBlocksPerRow/2;
+			int lastX = blocksPerRow - firstX;
+
+			int firstY = blocksPerCol/2 - realBlocksPerCol/2;
+			int lastY = blocksPerCol - firstY;
+
+			for (int x = firstX; x <= lastX; ++x)
 			{
-				for (int y = 0; y < blocksPerCol; ++y)
+				for (int y = firstY; y <= lastY; ++y)
 				{
 					if (node.visibility[(y * blocksPerRow) + x]) {
 						metaBlock& b = node.node->getBlock({ (int)topLeftBlock.x + x,(int)topLeftBlock.y + y,node.layerHeight });
