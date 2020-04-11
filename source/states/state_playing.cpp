@@ -302,62 +302,44 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			short mask = shadowVal + config::minShadow;
 
 
-			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
-			firstBlock.z = node.layerHeight;
 
-			double tmp = fmod(firstBlock.x, 1);
-			if (tmp < 0)
-				tmp = 1.0f - std::abs(tmp);
-			double fraccionalX = 0.5 - tmp;
 
-			if (fraccionalX < 0)fraccionalX += 1;
+			int blocksPerRow = (HI2::getScreenWidth() / config::spriteSize); // de moment no tindrem en compte el zoom
+			int blocksPerCol = (HI2::getScreenHeight() / config::spriteSize);
 
-			tmp = fmod(firstBlock.y, 1);
-			if (tmp < 0)
-				tmp = 1.0f - std::abs(tmp);
-			double fraccionalY = 0.5 - tmp;
-			if (fraccionalY < 0)fraccionalY += 1;
-			fdd localPos = firstBlock - cameraPos.pos;
+			fdd topLeftBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
+			topLeftBlock.z = node.layerHeight;
 
-			int rowSize = (HI2::getScreenWidth() / config::spriteSize);
-			int colSize = (HI2::getScreenHeight() / config::spriteSize);
 
-			firstBlock.x -= rowSize / 2;
-			firstBlock.y -= colSize / 2; // bloc del TL
+			topLeftBlock.x = floor(topLeftBlock.x);
+			topLeftBlock.y = floor(topLeftBlock.y);
+			topLeftBlock.x -= blocksPerRow / 2;
+			topLeftBlock.y -= blocksPerCol / 2; // bloc del TL
 			HI2::Texture textureTarget(point2D{HI2::getScreenWidth(),HI2::getScreenHeight()});
 			HI2::setRenderTarget(&textureTarget,true);
 
-			point2Dd drawPos = translatePositionToDisplay({ (double)-((HI2::getScreenWidth() / config::spriteSize) / 2) + fraccionalX,(double)-((HI2::getScreenHeight() / config::spriteSize) / 2) + fraccionalY }, 1);
+			point2Dd drawPos = {zoom*config::spriteSize*(topLeftBlock.x - cameraPos.pos.x),zoom*config::spriteSize*(topLeftBlock.y - cameraPos.pos.y)};
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
-				int finalXdrawPos = (int)(drawPos.x) + x*config::spriteSize;
-				//if (finalXdrawPos + config::spriteSize * zoom < 0)
-				//	continue;
-				//else if (finalXdrawPos > HI2::getScreenWidth())
-				//	break;
-
-				for (int y = 0; y < colSize; ++y)
+				for (int y = 0; y < blocksPerCol; ++y)
 				{
-					if (node.visibility[(y * rowSize) + x]) {
-					int finalYdrawPos = (int)(drawPos.y) + y*config::spriteSize;
-					//if (finalYdrawPos + config::spriteSize * zoom < 0)
-					//	continue;
-					//else if (finalYdrawPos > HI2::getScreenHeight())
-					//	break;
-
-						metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+					if (node.visibility[(y * blocksPerRow) + x]) {
+						metaBlock& b = node.node->getBlock({ (int)topLeftBlock.x + x,(int)topLeftBlock.y + y,node.layerHeight });
 						if (b.base->ID != 0 && b.base->visible) {
 							if (config::drawDepthShadows) {
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 							}
-							HI2::drawTexture(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, 1, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
+							HI2::drawTexture(*b.base->spr->getTexture(), x*config::spriteSize, y*config::spriteSize, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, 1, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 						}
 					}
 				}
 			}
 			HI2::setRenderTarget(nullptr, false);
-			HI2::drawTextureOverlap(textureTarget,(HI2::getScreenWidth()/2.0f)-(HI2::getScreenWidth()*zoom/2.0f),(HI2::getScreenHeight()/2.0f)-(HI2::getScreenHeight()*zoom/2.0f),zoom,0);
+			HI2::drawTextureF(textureTarget,
+			drawPos.x + (HI2::getScreenWidth()/2),
+			drawPos.y + (HI2::getScreenHeight()/2),
+			zoom,0);
 			textureTarget.clean();
 		}
 		entt::registry* registry;
@@ -444,14 +426,14 @@ point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& 
 	pos.x *= config::spriteSize * zoom; // passem de coordenades del mon a coordenades de pantalla
 	pos.y *= config::spriteSize * zoom;
 
-	pos.x += (HI2::getScreenWidth() * zoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
-	pos.y += (HI2::getScreenHeight() * zoom) / 2;
+	pos.x += ((double)HI2::getScreenWidth() * zoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
+	pos.y += ((double)HI2::getScreenHeight() * zoom) / 2;
 
 	pos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
 	pos.y -= (config::spriteSize * zoom) / 2;
 
-	pos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth()) / 2;
-	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight()) / 2;
+	pos.x -= (((double)HI2::getScreenWidth() * zoom) - (double)HI2::getScreenWidth()) / 2;
+	pos.y -= (((double)HI2::getScreenHeight() * zoom) - (double)HI2::getScreenHeight()) / 2;
 
 	return pos;
 }
