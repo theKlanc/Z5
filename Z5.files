@@ -524,6 +524,7 @@ include/nodeGenerators/spaceshipGenerator.hpp
 include/nodeGenerators/starGenerator.hpp
 include/nodeGenerators/terrainPainterGenerator.hpp
 include/physicsEngine.hpp
+include/prefab.hpp
 include/services.hpp
 include/states/state_base.h
 include/states/state_base.h
@@ -682,6 +683,7 @@ source/nodeGenerators/spaceshipGenerator.cpp
 source/nodeGenerators/starGenerator.cpp
 source/nodeGenerators/terrainPainterGenerator.cpp
 source/physicsEngine.cpp
+source/prefab.cpp
 source/services.cpp
 source/states/state_base.cpp
 source/states/state_base.cpp
