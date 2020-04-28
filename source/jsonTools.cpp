@@ -126,9 +126,7 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 			default:
 				throw "Unknown component type";
 			}
-
 		}
-
 	}
 }
 
@@ -143,4 +141,17 @@ void HI2::from_json(const nlohmann::json &j, HI2::Color &color)
 	color.g = j.at("g").get<unsigned char>();
 	color.b = j.at("b").get<unsigned char>();
 	color.a = j.at("a").get<unsigned char>();
+}
+
+
+void to_json(nlohmann::json &j, const point3Dd &p)
+{
+	j = nlohmann::json{{"x",p.x},{"y",p.y},{"z",p.z}};
+}
+
+void from_json(const nlohmann::json &j, point3Dd &p)
+{
+	p.x = j.at("x").get<double>();
+	p.y = j.at("y").get<double>();
+	p.z = j.at("z").get<double>();
 }

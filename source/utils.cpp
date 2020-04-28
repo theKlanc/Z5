@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "json.hpp"
 
 char utils::getChar(HI2::BUTTON b)
 {

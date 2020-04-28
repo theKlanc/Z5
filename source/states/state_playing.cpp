@@ -24,6 +24,7 @@
 #include "components/brain.hpp"
 #include "UI/customGadgets/starmap.hpp"
 #include <memory>
+#include "fuel.hpp"
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -42,8 +43,9 @@ State::Playing::~Playing() {
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
 	_debug = debug;
 
-	//load terrain table
+	//load json tables
 	baseBlock::loadTerrainTable();
+	fuel::loadFuelList();
 
 	Services::lcg.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
@@ -306,6 +308,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			firstBlock.z = node.layerHeight;
 
 			double tmp = fmod(firstBlock.x, 1);
+
 			if (tmp < 0)
 				tmp = 1.0f - std::abs(tmp);
 			double fraccionalX = 0.5 - tmp;
@@ -329,7 +332,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			for (int x = 0; x < HI2::getScreenWidth() / config::spriteSize; ++x)
 			{
 				const int finalXdrawPos = (int)(drawPos.x) + (x * zoom * config::spriteSize);
-				if (finalXdrawPos + config::spriteSize * zoom < 0)
+				if (finalXdrawPos + config::spriteSize * zoom < 0) //Netejar aquesta porcada, reimplementar el que es va fer a la branca de RTT
 					continue;
 				else if (finalXdrawPos > HI2::getScreenWidth())
 					break;

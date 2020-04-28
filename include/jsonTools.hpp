@@ -4,6 +4,7 @@
 #include "json.hpp"
 #include "entt/entity/fwd.hpp"
 #include "HI2.hpp"
+#include "fdd.hpp"
 
 enum componentType{
 	NAME,
@@ -52,3 +53,7 @@ namespace HI2{
 
 void to_json(nlohmann::json& j, const entt::registry& registry);
 void from_json(const nlohmann::json& j, entt::registry& registry);
+
+
+void to_json(nlohmann::json& j, const point3Dd& p);
+void from_json(const nlohmann::json& j, point3Dd& p);

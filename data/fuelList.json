@@ -1,0 +1,14 @@
+[
+  {
+    "ID": 0,
+    "name": "water",
+    "density": 1000,
+    "energy": 0
+  },
+  {
+    "ID": 1,
+    "name": "Methalox",
+    "density": 1000,
+    "energy": 1000
+  }
+]

@@ -486,6 +486,8 @@ include/fdd.hpp
 include/fdd.hpp
 include/fontManager.hpp
 include/fontManager.hpp
+include/fuel.hpp
+include/fuelContainer.hpp
 include/gameCore.h
 include/gameCore.h
 include/gameCore.h
@@ -564,6 +566,8 @@ include/terrainChunk.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
 include/thrustSystem.hpp
+include/thrustSystem.hpp
+include/thruster.hpp
 include/ui.hpp
 include/universe.hpp
 include/universe.hpp
@@ -624,6 +628,8 @@ source/fdd.cpp
 source/fdd.cpp
 source/fdd.cpp
 source/fontManager.cpp
+source/fuel.cpp
+source/fuelContainer.cpp
 source/gameCore.cpp
 source/gameCore.cpp
 source/gameCore.cpp
@@ -721,6 +727,8 @@ source/terrainChunk.cpp
 source/terrainChunk.cpp
 source/terrainChunk.cpp
 source/thrustSystem.cpp
+source/thrustSystem.cpp
+source/thruster.cpp
 source/universeNode.cpp
 source/universeNode.cpp
 source/universeNode.cpp
