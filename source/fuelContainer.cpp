@@ -1,5 +1,36 @@
 #include "fuelContainer.hpp"
 
+double fuelContainer::fill(double mass)
+{
+	double freeSpace = _capacity-_content;
+	if(freeSpace > mass){
+		_content+=mass;
+		return 0;
+	}
+	else{
+		_content=_capacity;
+		return mass - freeSpace;
+	}
+}
+
+double fuelContainer::request(double mass)
+{
+	if(_content > mass){
+		_content-=mass;
+		return 0;
+	}
+	else{
+		double contentTemp = _content;
+		_content=0;
+		return mass - contentTemp;
+	}
+}
+
+double fuelContainer::getContent()
+{
+	return _content;
+}
+
 bool fuelContainer::isEmpty() const
 {
 	return _content == 0;
@@ -8,6 +39,16 @@ bool fuelContainer::isEmpty() const
 bool fuelContainer::isFull() const
 {
 	return _content == _capacity;
+}
+
+const fuel *fuelContainer::getFuelType() const
+{
+	return _fuelType;
+}
+
+bool fuelContainer::operator==(const fuelContainer &fc) const
+{
+	return _pos == fc._pos; //According to the Pauli exclusion principle, two containers cannot coexist in the same exact position, therefore we only need to check for equal positions when comparing
 }
 
 void from_json(const nlohmann::json &j, fuelContainer &c)

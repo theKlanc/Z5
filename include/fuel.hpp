@@ -11,6 +11,8 @@ struct fuel{
 
 	static std::vector<fuel> fuelList;
 	static void loadFuelList();
+
+	bool operator==(const fuel& f)const;
 };
 
 void to_json(nlohmann::json& j, const fuel& f);

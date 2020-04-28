@@ -9,7 +9,8 @@ class thruster
 {
 public:
 	thruster(){}
-	point3Dd getThrustVector(double consumedMass, double dt); //thrust vector in newtons
+	thruster(const thruster &t, fdd pos);
+	std::tuple<point3Dd,point3Dd> getThrustVector(double consumedMass, double dt); //[thrust vector in newtons,position]
 	double getTargetThrust();
 	void setTargetThrust(double p);//p is a double from 0.0 to 1.0
 	void update(double dt); //lerp towards targetThrust
@@ -21,11 +22,11 @@ private:
 	double _currentThrustPercent = 0;
 	double _maxThrust = 2e6; // maximum thrust magnitude in Newtons
 	double _maxConsumption = 500; //fuel consumption at full thrust in kg/s
-	fdd _position;
+	point3Dd _position;
 
 	double _thrustAgility = 1.0F/4.0F; //how fast can th
 	//rp3d::Quaternion _thrustVectoring;
-	point3Dd _thrustDirection = {1,0,0}; //must be normalized
+	point3Dd _thrustDirection = {0,-1,0}; //must be normalized, non rotated thrusters always point downwards, so thrust goes upwards (-y)
 
 	friend void to_json(nlohmann::json& j, const thruster& t);
 	friend void from_json(const nlohmann::json& j, thruster& t);

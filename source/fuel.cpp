@@ -14,6 +14,11 @@ void fuel::loadFuelList()
 	j.get_to(fuelList);
 }
 
+bool fuel::operator==(const fuel &f) const
+{
+	return ID == f.ID;
+}
+
 void to_json(nlohmann::json &j, const fuel &f)
 {
 	j = nlohmann::json{{"ID",f.ID},{"name",f.name},{"density",f.density},{"energy",f.specificEnergy}};

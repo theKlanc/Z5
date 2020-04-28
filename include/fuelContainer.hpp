@@ -1,6 +1,6 @@
 #pragma once
 #include "fuel.hpp"
-
+#include "HI2.hpp"
 
 class fuelContainer
 {
@@ -11,10 +11,13 @@ public:
 	double getContent();//returns the amount of mass contained within
 	bool isEmpty() const;
 	bool isFull() const;
+	const fuel* getFuelType() const;
+	bool operator==(const fuelContainer& fc) const;
 private:
 	const fuel *_fuelType = nullptr;
 	double _capacity; //fuel capacity in kg
 	double _content; //current fuel in kg
+	point3Di _pos;
 
 	friend void to_json(nlohmann::json& j, const fuelContainer& c);
 	friend void from_json(const nlohmann::json& j, fuelContainer& c);

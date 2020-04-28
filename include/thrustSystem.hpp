@@ -9,8 +9,18 @@ public:
 	thrustSystem();
 	void addThruster(thruster t);
 	thruster removeThruster(const thruster& t);
+	void addContainer(fuelContainer fc);
+	fuelContainer removeContainer(const fuelContainer& fc);
+
+	double addFuel(const fuel* f, double kg); //Returns the remainder
+	double getFuel(const fuel* f, double kg); //Returns the remainder
+
+	std::tuple<point3Dd,point3Dd> getThrust(double dt);
 private:
-	std::vector<std::unique_ptr<fuelContainer>> _containers;
-	int _currentContainerIndex = -1; //[REDACTED] style baby!
+	struct fuelTypeContainers{
+		std::vector<std::unique_ptr<fuelContainer>> containers;
+		int currentContainerIndex = -1; //[REDACTED] style baby!
+	};
+	std::unordered_map<unsigned,fuelTypeContainers> _containers;
 	std::vector<std::unique_ptr<thruster>> _thrusters;
 };
