@@ -16,6 +16,7 @@ public:
 	void update(double dt); //lerp towards targetThrust
 	double getConsumption(); //returns the current mass consumption per second rate
 	bool operator==(const thruster &right) const;
+	const fuel* getFuelType() const;
 private:
 	const fuel *_fuelType = nullptr;
 	double _targetThrustPercent = 0;

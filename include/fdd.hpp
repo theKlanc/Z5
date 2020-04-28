@@ -22,6 +22,8 @@ struct fdd { // Four DoF descriptor
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;
 	fdd operator-(const fdd& f)const;
+	fdd operator+(const point3Dd& f)const;
+	fdd operator-(const point3Dd& f)const;
 	fdd operator+(const point3Di& f)const;
 	fdd operator-(const point3Di& f)const;
 	fdd operator*(const fdd& f)const;
@@ -30,6 +32,8 @@ struct fdd { // Four DoF descriptor
 	fdd operator/(const double& f)const;
 	fdd& operator+=(const fdd& f);
 	fdd& operator-=(const fdd& f);
+	fdd& operator+=(const point3Dd& f);
+	fdd& operator-=(const point3Dd& f);
 	fdd& operator*=(const fdd& f);
 	fdd& operator/=(const fdd& f);
 	fdd& operator*=(const double& f);

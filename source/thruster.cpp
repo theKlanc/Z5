@@ -29,6 +29,11 @@ bool thruster::operator==(const thruster &right) const
 	return _position == right._position; //According to the Pauli exclusion principle, two thrusters cannot coexist in the same exact position, therefore we only need to check for equal positions when comparing
 }
 
+const fuel *thruster::getFuelType() const
+{
+	return _fuelType;
+}
+
 void thruster::setTargetThrust(double p)
 {
 	if(p<0)

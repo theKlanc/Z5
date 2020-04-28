@@ -8,6 +8,7 @@
 #include "terrainChunk.hpp"
 #include "nodeGenerator.hpp"
 #include "HI2.hpp"
+#include "thrustSystem.hpp"
 
 const double G = (6.67408e-11);
 
@@ -51,6 +52,7 @@ public:
 	std::vector<universeNode*> getChildren();
 	void addChild(universeNode u);
 	void updatePositions(double dt);
+	void applyThrusters(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
 	universeNode& operator=(const universeNode& n);
 
@@ -137,6 +139,8 @@ public:
 	rp3d::CollisionShape* _collisionShape;
 
 	HI2::Color _mainColor = HI2::Color::White;
+
+	thrustSystem _thrustSystem;
 };
 
 

@@ -396,6 +396,14 @@ void universeNode::updatePositions(double dt)
 	}
 }
 
+void universeNode::applyThrusters(double dt)
+{
+	auto [thrust, position] = _thrustSystem.getThrust(dt);
+	_velocity+=thrust;
+	if(_velocity.magnitude()> 0.01)
+		physicsData.sleeping=false;
+}
+
 fdd universeNode::getGravityAcceleration(fdd localPosition)
 {
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
@@ -600,7 +608,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor} };
+			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",f._thrustSystem}};
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -669,4 +677,7 @@ void from_json(const json& j, universeNode& f) {
 	}
 	f.connectGenerator(jt);
 	f.populateColliders();
+	if(j.contains("thrustSystem")){
+		f._thrustSystem = j.at("thrustSystem").get<thrustSystem>();
+	}
 }

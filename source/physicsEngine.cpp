@@ -43,7 +43,7 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 			{
 				applyDrag(universeBase, registry, _timeStep);
 			}
-
+			applyThrusters(universeBase,_timeStep);
 			universeBase.updatePositions(_timeStep*config::orbitDebugMultiplier);
 
 			detectNodeNode(universeBase, _timeStep);
@@ -106,6 +106,13 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 		const position& pos = movableEntityView.get<position>(entity);
 
 		vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * dt);
+	}
+}
+
+void physicsEngine::applyThrusters(universeNode &universeBase, double dt)
+{
+	for(auto &n : universeBase){
+		n.applyThrusters(dt);
 	}
 }
 
@@ -455,7 +462,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		node.setPosition(pos);
 		node.setVelocity(vel);
 
-		if (vel.magnitude() < 0.1)
+		if (vel.magnitude() < 0.01)
 		{
 			node.physicsData.sleeping = true;
 			std::cout << "putting " << node.getName() << " to sleep" << std::endl;

@@ -86,6 +86,16 @@ fdd fdd::operator-(const fdd& f)const
 	return fdd{ x - f.x,y - f.y,z - f.z,r - f.r };
 }
 
+fdd fdd::operator+(const point3Dd &f) const
+{
+	return { x + f.x,y + f.y,z + f.z, r};
+}
+
+fdd fdd::operator-(const point3Dd &f) const
+{
+	return { x - f.x,y - f.y,z - f.z, r};
+}
+
 fdd fdd::operator+(const point3Di& f) const
 {
 	return { x + f.x,y + f.y,z + f.z, r};
@@ -131,6 +141,22 @@ fdd& fdd::operator-=(const fdd& f)
 	y -= f.y;
 	z -= f.z;
 	r -= f.r;
+	return *this;
+}
+
+fdd &fdd::operator+=(const point3Dd &f)
+{
+	x += f.x;
+	y += f.y;
+	z += f.z;
+	return *this;
+}
+
+fdd &fdd::operator-=(const point3Dd &f)
+{
+	x -= f.x;
+	y -= f.y;
+	z -= f.z;
 	return *this;
 }
 

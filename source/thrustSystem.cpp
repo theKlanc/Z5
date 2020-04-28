@@ -86,5 +86,74 @@ double thrustSystem::getFuel(const fuel *f, double kg)
 std::tuple<point3Dd, point3Dd> thrustSystem::getThrust(double dt)
 {
 	//TODO rigidbody calculation
-	return std::make_tuple(point3Dd(),point3Dd());
+	std::unordered_map<unsigned,double> massRequired;
+
+	for(auto ft : fuel::fuelList){
+		massRequired.emplace(ft.ID,0);
+	}
+
+	for(auto &t : _thrusters){
+		massRequired[t->getFuelType()->ID]+=t->getConsumption() * dt;
+	}
+
+	std::unordered_map<unsigned,double> fuelPercent;
+	for(auto ft : fuel::fuelList){
+		fuelPercent.emplace(ft.ID,(massRequired[ft.ID] - getFuel(&ft,massRequired[ft.ID]))/massRequired[ft.ID]);
+	}
+
+	//TODO real rigidbody calculation
+	point3Dd totalThrust;
+	for(auto &t : _thrusters){
+		auto [thrust, position] = t->getThrustVector(t->getConsumption()*dt*fuelPercent[t->getFuelType()->ID],dt);
+		totalThrust+=thrust;
+
+	}
+
+	return std::make_tuple(totalThrust,point3Dd());
+}
+
+
+void to_json(nlohmann::json &j, const fuelTypeContainers &t){
+	auto list = nlohmann::json{};
+	for(auto &c : t.containers){
+		list.push_back(*c);
+	}
+	j = nlohmann::json{{"containers",list},{"index",t.currentContainerIndex}};
+}
+
+void from_json(const nlohmann::json &j, fuelTypeContainers &t)
+{
+	t.currentContainerIndex = j.at("index").get<unsigned>();
+	for(auto jj : j.at("containers")){
+		auto temp = std::make_unique<fuelContainer>();
+		from_json(jj,*temp);
+		t.containers.push_back(std::move(temp));
+	}
+}
+
+void to_json(nlohmann::json &j, const thrustSystem &t)
+{
+	auto containerList = nlohmann::json{};
+	for(auto &c : t._containers){
+		containerList.push_back({{"fuelID",c.first},{"ftContainers",c.second}});
+	}
+
+	auto thrusterList = nlohmann::json{};
+	for(auto &c : t._thrusters){
+		containerList.push_back(*c);
+	}
+
+	j = nlohmann::json{{"containers",containerList},{"thrusters",thrusterList}};
+}
+
+void from_json(const nlohmann::json &j, thrustSystem &t)
+{
+	t._thrusters.clear();
+	t._containers.clear();
+	for(auto jj : j.at("containers")){
+		t._containers.emplace(jj.at("fuelID").get<unsigned>(),jj.at("ftContainers").get<fuelTypeContainers>());
+	}
+	for(auto jj : j.at("thrusters")){
+		t._thrusters.push_back(std::make_unique<thruster>(jj.get<thruster>()));
+	}
 }

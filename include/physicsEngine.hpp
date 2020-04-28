@@ -36,6 +36,7 @@ private:
 	double _remainingTime = 0;
 
 	void applyGravity(universeNode& universeBase, entt::registry& registry, double dt);
+	void applyThrusters(universeNode& universeBase, double dt);
 	void applyBuoyancy(universeNode& universeBase, entt::registry& registry, double dt);
 	void applyDrag(universeNode& universeBase, entt::registry& registry, double dt);
 
