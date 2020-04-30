@@ -19,7 +19,7 @@ public:
 	astronautBrain(const nlohmann::json& j,entt::entity entity);
 
 	~astronautBrain() override;
-	void update(double dt) override;
+	void _updateInternal(double dt) override;
 	void update(double dt, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
 	nlohmann::json getJson() const override;
 	std::string getThoughts() const override;

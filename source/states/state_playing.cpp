@@ -149,6 +149,11 @@ void State::Playing::update(double dt) {
 			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
 	}
 
+	//Update thrusters
+	for(auto& node : _universeBase){
+		node.updateThrusters(dt);
+	}
+
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -957,5 +962,15 @@ void State::Playing::debugConsoleExec(std::string input)
 			metaBlock::nullBlock.base = &baseBlock::terrainTable[std::strtol(argument.c_str(), nullptr, 10)];
 		}
 	}
+	else if (command == "awaken") { // Y THO
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* node;
+		if (_universeBase.findNodeByID(id, node)) {
+			node->physicsData.sleeping=false;
+		}
+	}
+
 	std::cout << input << std::endl;
 }

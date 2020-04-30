@@ -2,6 +2,7 @@
 #include "components/position.hpp"
 #include "components/velocity.hpp"
 #include <iostream>
+#include <optional>
 
 astronautBrain::astronautBrain(){}
 
@@ -27,14 +28,22 @@ astronautBrain::astronautBrain(const nlohmann::json &j, entt::entity entity) : a
 
 astronautBrain::~astronautBrain(){}
 
-void astronautBrain::update(double dt) {
+void astronautBrain::_updateInternal(double dt) {
 	_currentState = _currentState->update(dt,_entity);
 }
 
 void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held)
 {
-
-	_currentState = _currentState->update(dt,_entity,down,up,held);
+	if(_controlling){
+		_controlling->update(dt,down,up,held);
+	}
+	else{
+		auto& entityPos = Services::enttRegistry->get<position>(_entity);
+		if(interactable* i = entityPos.parent->getClosestInteractable(entityPos.pos); i){//TODO interact only on keypress
+			i->interact(_entity);
+		}
+		_currentState = _currentState->update(dt,_entity,down,up,held);
+	}
 }
 
 nlohmann::json astronautBrain::getJson() const {

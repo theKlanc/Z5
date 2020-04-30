@@ -5,3 +5,12 @@ void to_json(nlohmann::json &j, const brain &b) {
 }
 
 brain::~brain(){}
+void brain::update(double dt)
+{
+	_updateInternal(dt);
+}
+
+void brain::setControlling(controllable *c)
+{
+	_controlling = c;
+}

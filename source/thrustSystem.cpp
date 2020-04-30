@@ -55,6 +55,14 @@ fuelContainer thrustSystem::removeContainer(const fuelContainer &fc)
 	else return fuelContainer();
 }
 
+void thrustSystem::update(double dt)
+{
+	for(auto& t : _thrusters){
+		if(t)
+			t->update(dt);
+	}
+}
+
 double thrustSystem::addFuel(const fuel *f, double kg)
 {
 	auto &fclist = _containers[f->ID];
@@ -140,7 +148,7 @@ void to_json(nlohmann::json &j, const thrustSystem &t)
 
 	auto thrusterList = nlohmann::json{};
 	for(auto &c : t._thrusters){
-		containerList.push_back(*c);
+		thrusterList.push_back(*c);
 	}
 
 	j = nlohmann::json{{"containers",containerList},{"thrusters",thrusterList}};

@@ -505,6 +505,7 @@ include/graphics.hpp
 include/graphicsManager.hpp
 include/graphicsManager.hpp
 include/interactable.hpp
+include/interactables/nodeController.hpp
 include/jsonFactory.hpp
 include/jsonFactory.hpp
 include/jsonTools.hpp
@@ -652,6 +653,7 @@ source/graphics.cpp
 source/graphics.cpp
 source/graphicsManager.cpp
 source/interactable.cpp
+source/interactables/nodeController.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp

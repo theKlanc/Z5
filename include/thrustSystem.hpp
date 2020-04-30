@@ -17,6 +17,8 @@ public:
 	void addContainer(fuelContainer fc);
 	fuelContainer removeContainer(const fuelContainer& fc);
 
+	void update(double dt);
+
 	double addFuel(const fuel* f, double kg); //Returns the remainder
 	double getFuel(const fuel* f, double kg); //Returns the remainder
 

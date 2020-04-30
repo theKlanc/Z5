@@ -19,6 +19,7 @@ namespace config {
 	extern double minScale;
 	extern int cameraHeight;
 	extern int orbitDebugMultiplier;
+	constexpr double interactableRadius = 1.5;
 
 	constexpr double physicsHz
 #ifdef __SWITCH__

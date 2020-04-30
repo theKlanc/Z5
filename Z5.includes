@@ -50,3 +50,5 @@ deps/reactPhysics3D/src/collision/narrowphase
 deps/reactPhysics3D/src/utils
 include/UI/customGadgets
 source/UI/customGadgets
+include/interactables
+source/interactables

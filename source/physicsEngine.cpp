@@ -150,7 +150,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr)
+		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
 			fdd pos = node.getCenterOfMass();
 			pos+=node.getPosition();
@@ -462,7 +462,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		node.setPosition(pos);
 		node.setVelocity(vel);
 
-		if (vel.magnitude() < 0.01)
+		if (vel.magnitude() < 0.1)
 		{
 			node.physicsData.sleeping = true;
 			std::cout << "putting " << node.getName() << " to sleep" << std::endl;

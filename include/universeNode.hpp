@@ -57,6 +57,7 @@ public:
 	void applyThrusters(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
 	universeNode& operator=(const universeNode& n);
+	void updateThrusters(double dt);
 
 
 	std::vector<terrainChunk>& getChunks();
@@ -112,7 +113,7 @@ public:
 	void connectGenerator(std::unique_ptr<nodeGenerator> ng);
 	HI2::Color getMainColor();
 
-	std::optional<interactable> getClosestInteractable(fdd pos);
+	interactable* getClosestInteractable(fdd pos);
 private:
 
 	bool shouldDraw(fdd f);
@@ -148,7 +149,7 @@ private:
 
 	HI2::Color _mainColor = HI2::Color::White;
 
-	thrustSystem _thrustSystem;
+	std::shared_ptr<thrustSystem> _thrustSystem = std::make_shared<thrustSystem>();
 };
 
 

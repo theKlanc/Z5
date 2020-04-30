@@ -196,6 +196,20 @@ HI2::Color universeNode::getMainColor()
 	return _mainColor;
 }
 
+interactable* universeNode::getClosestInteractable(fdd pos)
+{
+	auto endasso = _interactables.end();
+	auto interactable = std::min(_interactables.begin(),_interactables.end(),[pos,endasso](auto i,auto j){
+		if(i!=endasso && j!=endasso)
+			return (*i)->getPosition().distance(pos)<(*j)->getPosition().distance(pos);
+		else return false;
+	});
+	if(interactable != _interactables.end() && (*interactable) && (*interactable)->getPosition().distance(pos)<config::interactableRadius){
+		return interactable->get();
+	}
+	return nullptr;
+}
+
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
 	for (int x = localChunk.x - floor(config::chunkLoadDiameter / 2);
 		x < localChunk.x + ceil(config::chunkLoadDiameter / 2); ++x) {
@@ -398,9 +412,9 @@ void universeNode::updatePositions(double dt)
 
 void universeNode::applyThrusters(double dt)
 {
-	auto [thrust, position] = _thrustSystem.getThrust(dt);
-	_velocity+=thrust;
-	if(_velocity.magnitude()> 0.01)
+	auto [thrust, position] = _thrustSystem->getThrust(dt);
+	_velocity+=(thrust/_mass)*dt;
+	if(_velocity.magnitude()> 0.1)
 		physicsData.sleeping=false;
 }
 
@@ -439,11 +453,19 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_mass = u._mass;
 	_name = u._name;
 	_mainColor = u._mainColor;
+	_thrustSystem = u._thrustSystem;
 	physicsData = u.physicsData;
+
 	nlohmann::json jTemp;
 	to_json(jTemp, *u._generator.get());
 	connectGenerator(jTemp);
 	return *this;
+}
+
+void universeNode::updateThrusters(double dt)
+{
+    if(_thrustSystem)
+		_thrustSystem->update(dt);
 }
 
 std::vector<terrainChunk>& universeNode::getChunks()
@@ -612,7 +634,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",f._thrustSystem},{"interactables",interactablesJson}};
+			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -637,8 +659,11 @@ void from_json(const json& j, universeNode& f) {
 	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
 	}
-	for (const nlohmann::json& element : j.at("interactables")) {
-		f._interactables.push_back(std::move(getInteractableFromJson(element)));
+	if(j.contains("interactables")){
+	   for (const nlohmann::json& element : j.at("interactables")) {
+		   f._interactables.push_back(std::move(getInteractableFromJson(element)));
+		   f._interactables.back()->setParent(&f);
+	   }
 	}
 	nlohmann::json jt;
 	if (j.contains("generator")) {
@@ -685,6 +710,6 @@ void from_json(const json& j, universeNode& f) {
 	f.connectGenerator(jt);
 	f.populateColliders();
 	if(j.contains("thrustSystem")){
-		f._thrustSystem = j.at("thrustSystem").get<thrustSystem>();
+		f._thrustSystem = std::make_shared<thrustSystem>(j.at("thrustSystem").get<thrustSystem>());
 	}
 }

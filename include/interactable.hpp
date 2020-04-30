@@ -16,7 +16,9 @@ public:
 	fdd getPosition() const;
 	void setPosition(fdd f);
 
-private:
+	void setParent(universeNode* p);
+
+protected:
 	fdd _position;
 	universeNode* _parent;
 };
