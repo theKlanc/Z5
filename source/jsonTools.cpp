@@ -155,3 +155,24 @@ void from_json(const nlohmann::json &j, point3Dd &p)
 	p.y = j.at("y").get<double>();
 	p.z = j.at("z").get<double>();
 }
+void from_json(const nlohmann::json &j, interactable &c)
+{
+	interactableType type = j.at("type").get<interactableType>();
+	switch(type){
+	case BLOCK_SWITCH:
+		break;
+	case NODE_CONTROLLER:
+		break;
+	}
+}
+std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json &j)
+{
+	interactableType type = j.at("type").get<interactableType>();
+	switch(type){
+	case BLOCK_SWITCH:
+		break;
+	case NODE_CONTROLLER:
+		break;
+	}
+	return std::unique_ptr<interactable>();
+}

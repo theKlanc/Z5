@@ -481,6 +481,7 @@ include/config.hpp
 include/config.hpp
 include/config.hpp
 include/config.hpp
+include/controllable.hpp
 include/fdd.hpp
 include/fdd.hpp
 include/fdd.hpp
@@ -503,6 +504,7 @@ include/graphics.hpp
 include/graphics.hpp
 include/graphicsManager.hpp
 include/graphicsManager.hpp
+include/interactable.hpp
 include/jsonFactory.hpp
 include/jsonFactory.hpp
 include/jsonTools.hpp
@@ -625,6 +627,7 @@ source/config.cpp
 source/config.cpp
 source/config.cpp
 source/config.cpp
+source/controllable.cpp
 source/fdd.cpp
 source/fdd.cpp
 source/fdd.cpp
@@ -648,6 +651,7 @@ source/graphics.cpp
 source/graphics.cpp
 source/graphics.cpp
 source/graphicsManager.cpp
+source/interactable.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp
 source/jsonFactory.cpp

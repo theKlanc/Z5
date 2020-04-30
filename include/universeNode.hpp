@@ -9,6 +9,8 @@
 #include "nodeGenerator.hpp"
 #include "HI2.hpp"
 #include "thrustSystem.hpp"
+#include "interactable.hpp"
+#include <optional>
 
 const double G = (6.67408e-11);
 
@@ -56,6 +58,7 @@ public:
 	fdd getGravityAcceleration(fdd localPosition);
 	universeNode& operator=(const universeNode& n);
 
+
 	std::vector<terrainChunk>& getChunks();
 
 	universeNode* getParent();
@@ -87,7 +90,7 @@ public:
 	friend void from_json(const json& j, universeNode& f);
 
 	class universeNodeIterator : public std::iterator<std::forward_iterator_tag,universeNode>{
-	public:
+	    public:
 		universeNodeIterator(){}
 		universeNodeIterator(const universeNodeIterator& r);
 		universeNodeIterator& operator=(const universeNodeIterator& r);
@@ -97,7 +100,7 @@ public:
 		universeNode& operator->();
 		universeNodeIterator& operator++();
 		universeNodeIterator operator++(int devnull);
-	private:
+	    private:
 		universeNode* p=nullptr;
 		std::queue<universeNode*> q;
 		friend class universeNode;
@@ -108,7 +111,9 @@ public:
 	
 	void connectGenerator(std::unique_ptr<nodeGenerator> ng);
 	HI2::Color getMainColor();
-  private:
+
+	std::optional<interactable> getClosestInteractable(fdd pos);
+private:
 
 	bool shouldDraw(fdd f);
 	point3Di chunkFromPos(const fdd& pos);
@@ -120,6 +125,7 @@ public:
 	terrainChunk& getChunk(const point3Di &pos);
 	int chunkIndex(const point3Di &pos) const;
 
+
 	std::string _name;
 	double _mass; // mass in kg
 	double _diameter; // diameter in m
@@ -128,6 +134,8 @@ public:
 	fdd _velocity;
 
 	std::vector<terrainChunk> _chunks; // So big, should be on the heap. So fat, too much for the stack.
+
+	std::vector<std::unique_ptr<interactable>> _interactables;
 
 	nodeType _type;
 	std::vector<universeNode> _children;

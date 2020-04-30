@@ -8,7 +8,7 @@ namespace config {
 #elif __EMSCRIPTEN__
 	= 10;
 #else
-	                                = 14;
+	                                = 20;
 #endif
 
 	constexpr int chunkSize = 4;

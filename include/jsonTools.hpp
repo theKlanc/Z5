@@ -5,6 +5,7 @@
 #include "entt/entity/fwd.hpp"
 #include "HI2.hpp"
 #include "fdd.hpp"
+#include "interactable.hpp"
 
 enum componentType{
 	NAME,
@@ -22,6 +23,16 @@ NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
 	{BODY,"BODY"},
 	{DRAWABLE,"DRAWABLE"},
 	{BRAIN,"BRAIN"},
+})
+
+enum interactableType{
+	BLOCK_SWITCH,
+	NODE_CONTROLLER
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM( interactableType, {
+	{BLOCK_SWITCH,"BLOCK_SWITCH"},
+	{NODE_CONTROLLER,"NODE_CONTROLLER"},
 })
 
 enum entityTag{
@@ -57,3 +68,5 @@ void from_json(const nlohmann::json& j, entt::registry& registry);
 
 void to_json(nlohmann::json& j, const point3Dd& p);
 void from_json(const nlohmann::json& j, point3Dd& p);
+
+std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json& j);

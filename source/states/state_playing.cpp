@@ -134,10 +134,7 @@ void State::Playing::input(double dt)
 		}
 	}
 	_scene.update(down, up, held, mouse, dt);
-	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
-	for (auto entity : brainEntities) {
-		brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
-	}
+	_enttRegistry.get<std::unique_ptr<brain>>(_player)->update(dt,down,up,held);
 }
 
 void State::Playing::update(double dt) {
@@ -145,6 +142,13 @@ void State::Playing::update(double dt) {
 		dt = 0;
 	if (_step)
 		dt = 1.0f / config::physicsHz;
+	//update enemies
+	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
+	for (auto entity : brainEntities) {
+		if(entity != _player)
+			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
+	}
+
 	//TODO update nodes positions
 	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
 
@@ -352,6 +356,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 								//mask anira de 255 a 150
 								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 							}
+							//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
 							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 						}
 					}

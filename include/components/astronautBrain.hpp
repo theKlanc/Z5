@@ -7,7 +7,8 @@
 class fsm_state{
 public:
 	virtual ~fsm_state() = 0;
-	virtual fsm_state* update(double dt, entt::entity e) = 0;
+	virtual fsm_state* update(double dt, entt::entity e);
+	virtual fsm_state* update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held);
 	virtual std::string getThoughts() const = 0;
 };
 
@@ -19,12 +20,13 @@ public:
 
 	~astronautBrain() override;
 	void update(double dt) override;
+	void update(double dt, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
 	nlohmann::json getJson() const override;
 	std::string getThoughts() const override;
 private:
 	class groundedState : public fsm_state{
 	public:
-		fsm_state* update(double dt, entt::entity e) override;
+		fsm_state* update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
 		std::string getThoughts() const override;
 		~groundedState() override{}
 	private:
@@ -36,7 +38,7 @@ private:
 	class jumpingState : public fsm_state{
 	public:
 		jumpingState();
-		fsm_state* update(double dt, entt::entity e) override;
+		fsm_state* update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
 		std::string getThoughts() const override;
 		~jumpingState() override{}
 	private:
@@ -49,7 +51,7 @@ private:
 
 	class airborneState : public fsm_state{
 	public:
-		fsm_state* update(double dt, entt::entity e) override;
+		fsm_state* update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
 		std::string getThoughts() const override;
 		~airborneState() override{}
 	private:

@@ -28,9 +28,13 @@ astronautBrain::astronautBrain(const nlohmann::json &j, entt::entity entity) : a
 astronautBrain::~astronautBrain(){}
 
 void astronautBrain::update(double dt) {
-	if (auto result = _currentState->update(dt,_entity); result){
-		_currentState = result;
-	}
+	_currentState = _currentState->update(dt,_entity);
+}
+
+void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held)
+{
+
+	_currentState = _currentState->update(dt,_entity,down,up,held);
 }
 
 nlohmann::json astronautBrain::getJson() const {
@@ -40,10 +44,7 @@ std::string astronautBrain::getThoughts() const
 {
 	return _currentState->getThoughts();
 }
-fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e) {
-	auto& down = HI2::getKeysDown();
-	auto& held = HI2::getKeysHeld();
-
+fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) {
 	auto pos = Services::enttRegistry->get<position>(e);
 	pos.pos.z-=0.3;
 	if(!pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
@@ -67,7 +68,7 @@ fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e) {
 		vel.spd.y+=5.0f * dt;
 	}
 
-	return nullptr;
+	return this;
 }
 
 std::string astronautBrain::groundedState::getThoughts() const
@@ -75,12 +76,12 @@ std::string astronautBrain::groundedState::getThoughts() const
 	return "grounded";
 }
 
-astronautBrain::jumpingState::jumpingState()
+astronautBrain::jumpingState::jumpingState() : fsm_state()
 {
 	jumpingSound = Services::audio.loadAudio("sfx/boing");
 }
 
-fsm_state *astronautBrain::jumpingState::update(double dt, entt::entity e) {
+fsm_state *astronautBrain::jumpingState::update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) {
 	//auto pos = Services::enttRegistry->get<position>(e);
 	//pos.pos.z-=0.3;
 	//if(!pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
@@ -98,9 +99,8 @@ std::string astronautBrain::jumpingState::getThoughts() const
 	return "jumping";
 }
 
-fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e)
+fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held)
 {
-	auto& held = HI2::getKeysHeld();
 	auto pos = Services::enttRegistry->get<position>(e);
 	pos.pos.z-=0.1;
 	if(pos.parent->getBlock(pos.pos.getPoint3Di()).base->solid)
@@ -126,7 +126,7 @@ fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e)
 	if(held[HI2::BUTTON::KEY_R]){
 		vel.spd.z+=13*dt;
 	}
-	return nullptr;
+	return this;
 }
 
 std::string astronautBrain::airborneState::getThoughts() const
@@ -135,3 +135,12 @@ std::string astronautBrain::airborneState::getThoughts() const
 }
 
 fsm_state::~fsm_state(){}
+fsm_state *fsm_state::update(double dt, entt::entity e)
+{
+	return this;
+}
+
+fsm_state *fsm_state::update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held)
+{
+	return this;
+}

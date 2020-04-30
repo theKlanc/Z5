@@ -605,10 +605,14 @@ universeNode::universeNodeIterator universeNode::universeNodeIterator::operator+
 
 
 void to_json(nlohmann::json& j, const universeNode& f) {
+    json interactablesJson;
+    for(auto& i : f._interactables){
+        interactablesJson.push_back(i->getJson());
+    }
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",f._thrustSystem}};
+			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",f._thrustSystem},{"interactables",interactablesJson}};
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -632,6 +636,9 @@ void from_json(const json& j, universeNode& f) {
 	f._children = std::vector<universeNode>();
 	for (const nlohmann::json& element : j.at("children")) {
 		f._children.push_back(element.get<universeNode>());
+	}
+	for (const nlohmann::json& element : j.at("interactables")) {
+		f._interactables.push_back(std::move(getInteractableFromJson(element)));
 	}
 	nlohmann::json jt;
 	if (j.contains("generator")) {
