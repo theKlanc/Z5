@@ -34,6 +34,11 @@ const fuel *thruster::getFuelType() const
 	return _fuelType;
 }
 
+point3Dd thruster::getThrustDirection() const
+{
+	return _thrustDirection;
+}
+
 void thruster::setTargetThrust(double p)
 {
 	if(p<0)

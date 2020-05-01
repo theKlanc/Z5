@@ -8,6 +8,7 @@
 #include "components/body.hpp"
 #include "components/brain.hpp"
 #include "components/astronautBrain.hpp"
+#include "interactables/nodeController.hpp"
 
 void to_json(nlohmann::json& j, const entt::registry& registry)
 {
@@ -155,24 +156,17 @@ void from_json(const nlohmann::json &j, point3Dd &p)
 	p.y = j.at("y").get<double>();
 	p.z = j.at("z").get<double>();
 }
-void from_json(const nlohmann::json &j, interactable &c)
-{
-	interactableType type = j.at("type").get<interactableType>();
-	switch(type){
-	case BLOCK_SWITCH:
-		break;
-	case NODE_CONTROLLER:
-		break;
-	}
-}
+
 std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json &j)
 {
 	interactableType type = j.at("type").get<interactableType>();
 	switch(type){
 	case BLOCK_SWITCH:
-		break;
+		return std::unique_ptr<interactable>();
 	case NODE_CONTROLLER:
-		break;
+		nodeController nc;
+		j.at("interactable").get_to(nc);
+		return std::make_unique<nodeController>(nc);
 	}
 	return std::unique_ptr<interactable>();
 }

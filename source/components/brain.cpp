@@ -13,4 +13,10 @@ void brain::update(double dt)
 void brain::setControlling(controllable *c)
 {
 	_controlling = c;
+	c->setExitCallback(std::bind(&brain::clearControlling, this));
+}
+
+void brain::clearControlling()
+{
+	_controlling = nullptr;
 }

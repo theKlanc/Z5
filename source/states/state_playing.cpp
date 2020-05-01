@@ -109,17 +109,13 @@ void State::Playing::input(double dt)
 	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
 	const point2D& mouse = HI2::getTouchPos();
 
-	if (_debug && _console->isActive()) {
-		if (down[HI2::BUTTON::CANCEL]) {
-			_console->toggle();
+	if (_debug && down[HI2::BUTTON::KEY_CONSOLE]) {
+		_console->toggle();
+		if(_console->isActive()){
+			_scene.select(_console);
 		}
 	}
 	else {
-		if (_debug && down[HI2::BUTTON::ACCEPT]) {
-			_console->toggle();
-			_scene.select(_console);
-			down[HI2::BUTTON::ACCEPT] = false;
-		}
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
@@ -128,7 +124,7 @@ void State::Playing::input(double dt)
 			_scene.select(_starmap);
 		}
 		// Exit
-		if (down[HI2::BUTTON::CANCEL])
+		if (held[HI2::BUTTON::CANCEL])
 		{
 			_core->popState();
 		}
@@ -176,7 +172,7 @@ void State::Playing::update(double dt) {
 		for (int i = 0; i < config::cameraHeight; i++)
 		{
 			fdd newCameraPos = cameraPosition.pos;
-			newCameraPos.z = ceil(newCameraPos.z + h + 1);
+			newCameraPos.z = newCameraPos.z + h + 1;
 			if (!cameraPosition.parent->getBlock(newCameraPos.getPoint3Di()).base->opaque)
 			{
 				h++;
@@ -198,6 +194,11 @@ void State::Playing::draw(double dt) {
 
 	Services::graphics.stepAnimations(dt);
 	
+	position playerPos = _enttRegistry.get<position>(_player);
+	velocity playerVel = _enttRegistry.get<velocity>(_player);
+
+	auto ible = playerPos.parent->getClosestInteractable(playerPos.pos);
+
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));{
 		position cameraPos = _enttRegistry.get<position>(_camera);
@@ -215,9 +216,15 @@ void State::Playing::draw(double dt) {
 				double partFraccional = fmod(localCameraPos.z, 1);
 				double depth = i + partFraccional;
 
-				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
+				if(depth < 0.01)
+					continue;
 
-				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer>(nLayer) });
+				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
+				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
+
+				if(ible && node == playerPos.parent && ible->getPosition().z == layer){
+					renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(ible->getPosition().getPoint3Di()) });
+				}
 			}
 		}
 
@@ -230,7 +237,7 @@ void State::Playing::draw(double dt) {
 				depth -= _enttRegistry.get<body>(entity).height;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeLayer>(entity) });
+				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
 		}
 
 	}
@@ -249,8 +256,6 @@ void State::Playing::draw(double dt) {
 		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
 		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2), selectedFlip ? HI2::FLIP::H : HI2::FLIP::NONE);
 	}
-	position playerPos = _enttRegistry.get<position>(_player);
-	velocity playerVel = _enttRegistry.get<velocity>(_player);
 	auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
 	if (_debug) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
@@ -267,7 +272,6 @@ void State::Playing::draw(double dt) {
 		
 		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
 	}
-
 	_scene.draw();
 	HI2::endFrame();
 }
@@ -367,6 +371,10 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 					}
 				}
 			}
+		}
+		void operator()(const point3Di& p) const {
+			point2Dd drawPos = translatePositionToDisplay({p.x-cameraPos.pos.x+0.5,p.y-cameraPos.pos.y+0.5}, zoom);
+			HI2::drawEmptyRectangle({(int)drawPos.x,(int)drawPos.y},16*zoom,16*zoom,3,HI2::getKeysHeld()[HI2::BUTTON::KEY_ENTER]?HI2::Color::Green : HI2::Color::White);
 		}
 		entt::registry* registry;
 		position cameraPos;

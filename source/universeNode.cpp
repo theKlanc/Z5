@@ -1,7 +1,7 @@
 #include "universeNode.hpp"
 #include "config.hpp"
 #include "fdd.hpp"
-
+#include "icecream.hpp"
 #include "nodeGenerators/terrainPainterGenerator.hpp"
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "states/state_playing.hpp"
@@ -208,6 +208,11 @@ interactable* universeNode::getClosestInteractable(fdd pos)
 		return interactable->get();
 	}
 	return nullptr;
+}
+
+std::shared_ptr<thrustSystem> universeNode::getThrustSystem()
+{
+	return _thrustSystem;
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -454,6 +459,12 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_name = u._name;
 	_mainColor = u._mainColor;
 	_thrustSystem = u._thrustSystem;
+
+	for(auto& i : u._interactables){
+		_interactables.push_back(getInteractableFromJson(i->getJson()));
+		_interactables.back()->setParent(this);
+	}
+
 	physicsData = u.physicsData;
 
 	nlohmann::json jTemp;

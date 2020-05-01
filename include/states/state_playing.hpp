@@ -37,7 +37,7 @@ namespace State {
 		};
 		struct renderLayer {
 			double depth;
-			std::variant<entt::entity, nodeLayer> target;
+			std::variant<entt::entity, nodeLayer,point3Di> target;
 		};
 
 		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);

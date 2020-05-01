@@ -38,9 +38,11 @@ void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down
 		_controlling->update(dt,down,up,held);
 	}
 	else{
-		auto& entityPos = Services::enttRegistry->get<position>(_entity);
-		if(interactable* i = entityPos.parent->getClosestInteractable(entityPos.pos); i){//TODO interact only on keypress
-			i->interact(_entity);
+		if(down[HI2::BUTTON::KEY_ENTER]){
+			auto& entityPos = Services::enttRegistry->get<position>(_entity);
+			if(interactable* i = entityPos.parent->getClosestInteractable(entityPos.pos); i){
+				i->interact(_entity);
+			}
 		}
 		_currentState = _currentState->update(dt,_entity,down,up,held);
 	}
@@ -53,6 +55,7 @@ std::string astronautBrain::getThoughts() const
 {
 	return _currentState->getThoughts();
 }
+
 fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) {
 	auto pos = Services::enttRegistry->get<position>(e);
 	pos.pos.z-=0.3;

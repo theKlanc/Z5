@@ -23,7 +23,20 @@ public:
 	void update(double dt, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
 	nlohmann::json getJson() const override;
 	std::string getThoughts() const override;
+
 private:
+	entt::entity _entity;
+	fsm_state* _currentState;
+	std::vector<std::shared_ptr<fsm_state>> _states;
+
+
+
+
+
+
+
+
+
 	class groundedState : public fsm_state{
 	public:
 		fsm_state* update(double dt, entt::entity e, const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held) override;
@@ -59,7 +72,5 @@ private:
 		friend class astronautBrain;
 	};
 
-	entt::entity _entity;
-	fsm_state* _currentState;
-	std::vector<std::shared_ptr<fsm_state>> _states;
+
 };

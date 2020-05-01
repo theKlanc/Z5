@@ -14,6 +14,9 @@ public:
 	friend void to_json(nlohmann::json &j, const brain &b);
 
 	void setControlling(controllable* c = nullptr);
+	void clearControlling();
+
+	virtual void drawUI() const{}
 protected:
 	virtual void _updateInternal(double dt) = 0;
 	controllable* _controlling=nullptr;

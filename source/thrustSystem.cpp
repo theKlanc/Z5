@@ -1,6 +1,8 @@
 #include "thrustSystem.hpp"
 #include "fuel.hpp"
 #include <algorithm>
+#include "jsonTools.hpp"
+#include "icecream.hpp"
 
 thrustSystem::thrustSystem()
 {
@@ -106,7 +108,10 @@ std::tuple<point3Dd, point3Dd> thrustSystem::getThrust(double dt)
 
 	std::unordered_map<unsigned,double> fuelPercent;
 	for(auto ft : fuel::fuelList){
-		fuelPercent.emplace(ft.ID,(massRequired[ft.ID] - getFuel(&ft,massRequired[ft.ID]))/massRequired[ft.ID]);
+		double percent = (massRequired[ft.ID] - getFuel(&ft,massRequired[ft.ID]))/massRequired[ft.ID];
+		if(!std::isnormal(percent))
+			percent = 0;
+		fuelPercent.emplace(ft.ID,percent);
 	}
 
 	//TODO real rigidbody calculation
@@ -117,7 +122,38 @@ std::tuple<point3Dd, point3Dd> thrustSystem::getThrust(double dt)
 
 	}
 
+	assert(!std::isnan(totalThrust.x));
 	return std::make_tuple(totalThrust,point3Dd());
+}
+
+void thrustSystem::setThrustTarget(point3Dd target)
+{
+	for(auto& thruster : _thrusters){
+		auto direction = thruster->getThrustDirection();
+		//X
+		if(direction.x == 1 && target.x>=0){
+			thruster->setTargetThrust(target.x);
+		}
+		if(direction.x == -1 && target.x<=0){
+			thruster->setTargetThrust(target.x);
+		}
+
+		//Y
+		if(direction.y == 1 && target.y>=0){
+			thruster->setTargetThrust(target.y);
+		}
+		if(direction.y == -1 && target.y<=0){
+			thruster->setTargetThrust(target.y);
+		}
+
+		//Z
+		if(direction.z == 1 && target.z>=0){
+			thruster->setTargetThrust(target.z);
+		}
+		if(direction.z == -1 && target.z<=0){
+			thruster->setTargetThrust(target.z);
+		}
+	}
 }
 
 
