@@ -273,6 +273,7 @@ void State::Playing::draw(double dt) {
 		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
 	}
 	_scene.draw();
+	_enttRegistry.get<std::unique_ptr<brain>>(_player)->drawUI();
 	HI2::endFrame();
 }
 

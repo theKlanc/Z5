@@ -7,8 +7,8 @@ class gadget{
 		virtual ~gadget() = 0;
 
 
-		virtual void draw(point2D offset = {0,0});
-		virtual void drawOverlay(point2D offset = {0,0});
+		void draw(point2D offset = {0,0});
+		void drawOverlay(point2D offset = {0,0});
 
 		virtual void update(const std::bitset<HI2::BUTTON_SIZE>& down,const std::bitset<HI2::BUTTON_SIZE>& up,const std::bitset<HI2::BUTTON_SIZE>& held, const point2D& mouse, const double& dt);
 		virtual void update(const double& dt);

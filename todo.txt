@@ -32,11 +32,18 @@ XX Abandonat
 XX passar a dynamics world
 XX rotacions de layers
 
-implementar mapa estelar
+#implementar mapa estelar
+#implementar controlador per les naus
+#afegir terreny interactuable
 
-implementar controlador per les naus
+crear gui pel nodeController
+implementar portes
+implementar spawners de nodes
+
+items
+prefabEditor amb items
+
 afegir creador de nodes
-afegir terreny interactuable
 descarregar i diferenciar entre entitats permanents
 reparentitzar nodes i entitats més agressivament
 afegir llunes de mart jupiter saturn i neptu

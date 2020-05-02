@@ -16,9 +16,10 @@ public:
 	void setControlling(controllable* c = nullptr);
 	void clearControlling();
 
-	virtual void drawUI() const{}
+	void drawUI() override;
 protected:
 	virtual void _updateInternal(double dt) = 0;
+	virtual void _drawUIInternal(){}
 	controllable* _controlling=nullptr;
 };
 

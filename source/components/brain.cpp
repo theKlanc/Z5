@@ -20,3 +20,13 @@ void brain::clearControlling()
 {
 	_controlling = nullptr;
 }
+
+void brain::drawUI()
+{
+	if(_controlling){
+		_controlling->drawUI();
+	}
+	else{
+		_drawUIInternal();
+	}
+}

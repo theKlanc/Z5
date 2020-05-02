@@ -40,6 +40,7 @@ struct fdd { // Four DoF descriptor
 	fdd& operator/=(const double& f);
 	fdd operator-();
 	fdd project(const fdd& right)const; //Project right onto this
+	std::string to_string() const;
 	double dot(const fdd& right) const;
 	point2D getPoint2D() const;
 	point3Di getPoint3Di()const;
@@ -47,6 +48,7 @@ struct fdd { // Four DoF descriptor
 	point3Dl getPoint3Dl()const;
 	rp3d::Vector3 getVector3() const;
 };
+
 
 std::ostream& operator<<(std::ostream &os, const fdd& f);
 

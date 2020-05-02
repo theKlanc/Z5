@@ -73,4 +73,8 @@ private:
 	};
 
 
+
+	// brain interface
+protected:
+	void _drawUIInternal() override{}
 };

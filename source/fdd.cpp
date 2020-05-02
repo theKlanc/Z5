@@ -207,6 +207,11 @@ fdd fdd::project(const fdd& right) const
 	return n * (right.dot(n));
 }
 
+std::string fdd::to_string() const
+{
+	return "x: " + std::to_string(x) + " y: " + std::to_string(y) + " z: " + std::to_string(z) + " r: " + std::to_string(r);
+}
+
 double fdd::dot(const fdd& right) const
 {
 	return x * right.x + y * right.y + z * right.z;
