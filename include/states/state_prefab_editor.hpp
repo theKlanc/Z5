@@ -31,7 +31,7 @@ namespace State {
 			V,
 			H,
 			BOTH
-		}_symmetryMode = V;
+		}_symmetryMode = NONE;
 		prefab _prefab;
 		point3Di _camera;
 		blockRotation _rotation = UP;

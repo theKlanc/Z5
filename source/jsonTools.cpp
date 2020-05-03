@@ -9,6 +9,7 @@
 #include "components/brain.hpp"
 #include "components/astronautBrain.hpp"
 #include "interactables/nodeController.hpp"
+#include "interactables/blockSwitch.hpp"
 
 void to_json(nlohmann::json& j, const entt::registry& registry)
 {
@@ -156,17 +157,34 @@ void from_json(const nlohmann::json &j, point3Dd &p)
 	p.y = j.at("y").get<double>();
 	p.z = j.at("z").get<double>();
 }
+void to_json(nlohmann::json &j, const point3Di &p)
+{
+	j = nlohmann::json{{"x",p.x},{"y",p.y},{"z",p.z}};
+}
+
+void from_json(const nlohmann::json &j, point3Di &p)
+{
+	p.x = j.at("x").get<double>();
+	p.y = j.at("y").get<double>();
+	p.z = j.at("z").get<double>();
+}
 
 std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json &j)
 {
 	interactableType type = j.at("type").get<interactableType>();
 	switch(type){
 	case BLOCK_SWITCH:
-		return std::unique_ptr<interactable>();
+	{
+			blockSwitch bc;
+			j.at("interactable").get_to(bc);
+			return std::make_unique<blockSwitch>(bc);
+	}
 	case NODE_CONTROLLER:
+	{
 		nodeController nc;
 		j.at("interactable").get_to(nc);
 		return std::make_unique<nodeController>(nc);
+	}
 	}
 	return std::unique_ptr<interactable>();
 }

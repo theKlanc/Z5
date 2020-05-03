@@ -127,3 +127,18 @@ void from_json(const nlohmann::json& j, baseBlock& b)
 
 std::vector<baseBlock> baseBlock::terrainTable;
 metaBlock metaBlock::nullBlock;
+
+void to_json(nlohmann::json &j, const metaBlock &b)
+{
+	j = nlohmann::json{{"baseID",b.base->ID},{"flip",b.flip},{"rotation",b.rotation},{"save",b.saveMeta}};
+}
+
+void from_json(const nlohmann::json &j, metaBlock &b)
+{
+	b.base = &baseBlock::terrainTable[j.at("baseID").get<unsigned>()];
+	b.flip = j.at("flip").get<bool>();
+	b.rotation = j.at("rotation").get<blockRotation>();
+	b.saveMeta = j.at("save").get<bool>();
+
+
+}

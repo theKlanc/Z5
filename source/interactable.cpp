@@ -5,9 +5,9 @@ interactable::interactable()
 
 }
 
-void interactable::setPosition(fdd f)
+void interactable::setPositions(std::vector<fdd> f)
 {
-	_position = f;
+	_positions = f;
 }
 
 void interactable::setParent(universeNode* p)
@@ -15,7 +15,7 @@ void interactable::setParent(universeNode* p)
 	_parent = p;
 }
 
-fdd interactable::getPosition() const
+std::vector<fdd> interactable::getPositions() const
 {
-	return _position;
+	return _positions;
 }

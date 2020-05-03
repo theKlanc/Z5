@@ -1751,7 +1751,7 @@
           "startX": 240,
           "startY": 176
         },
-		{
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 256,
@@ -1862,7 +1862,7 @@
     "solid": true,
     "opaque": false,
     "mass": 10,
-    "collider":"ramp",
+    "collider": "ramp",
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -1882,7 +1882,7 @@
     "solid": true,
     "opaque": true,
     "mass": 10,
-    "collider":"ramp",
+    "collider": "ramp",
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -2043,17 +2043,20 @@
           "sizeY": 16,
           "startX": 16,
           "startY": 96
-        },{
+        },
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 16,
           "startY": 112
-        },{
+        },
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 16,
           "startY": 128
-        },{
+        },
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 16,
@@ -2077,17 +2080,20 @@
           "sizeY": 16,
           "startX": 0,
           "startY": 96
-        },{
+        },
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 0,
           "startY": 112
-        },{
+        },
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 0,
           "startY": 128
-        },{
+        },
+        {
           "sizeX": 16,
           "sizeY": 16,
           "startX": 0,
@@ -2130,6 +2136,601 @@
           "sizeY": 16,
           "startX": 32,
           "startY": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "wooden_crate",
+    "ID": 108,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "wooden_barrel",
+    "ID": 109,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "pushbutton_unpressed",
+    "ID": 110,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "pushbutton_pressed",
+    "ID": 111,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "togglebutton_off",
+    "ID": 112,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "togglebutton_on",
+    "ID": 113,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "wallswitch_off",
+    "ID": 114,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 1,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "wallswitch_on",
+    "ID": 115,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 1,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "liquidcontainer_black",
+    "ID": 116,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "liquidcontainer_cyan",
+    "ID": 117,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 112,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "liquidcontainer_blue",
+    "ID": 118,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 128,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "liquidcontainer_orange",
+    "ID": 119,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "smalldoor_frame_closed",
+    "ID": 120,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "smalldoor_frame_open",
+    "ID": 121,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 176,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "smalldoor_door",
+    "ID": 122,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "door_open",
+    "ID": 123,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 40,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 208,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "chunkydoor_frame_closed",
+    "ID": 124,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 80,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 224,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "chunkydoor_frame_open",
+    "ID": 125,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 80,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 240,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "chunkydoor_door",
+    "ID": 126,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 80,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 256,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "thruster_vertical_glow",
+    "ID": 127,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 272,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "thruster_vertical",
+    "ID": 128,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 300,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 288,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "thruster_small",
+    "ID": 129,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 300,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 304,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "thruster_small_glow",
+    "ID": 130,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 320,
+          "startY": 192
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 336,
+          "startY": 192
+        }
+      ]
+    }
+  },
+  {
+    "name": "wooden_platform",
+    "ID": 131,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 10,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "toilet",
+    "ID": 132,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 30,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "sink",
+    "ID": 133,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 30,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "restroom_tile",
+    "ID": 134,
+    "visible": true,
+    "solid": true,
+    "opaque": true,
+    "mass": 500,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "potted_plant_1",
+    "ID": 135,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 10,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "potted_plant_2",
+    "ID": 136,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 10,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "bed_1",
+    "ID": 137,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 10,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "bed_2",
+    "ID": 138,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 10,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 208
         }
       ]
     }

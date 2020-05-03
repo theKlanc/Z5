@@ -114,6 +114,7 @@ public:
 	HI2::Color getMainColor();
 
 	interactable* getClosestInteractable(fdd pos);
+	point3Di getClosestInteractablePos(fdd pos);
 
 	std::shared_ptr<thrustSystem> getThrustSystem();
 private:

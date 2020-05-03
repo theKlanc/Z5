@@ -198,16 +198,33 @@ HI2::Color universeNode::getMainColor()
 
 interactable* universeNode::getClosestInteractable(fdd pos)
 {
-	auto endasso = _interactables.end();
-	auto interactable = std::min(_interactables.begin(),_interactables.end(),[pos,endasso](auto i,auto j){
-		if(i!=endasso && j!=endasso)
-			return (*i)->getPosition().distance(pos)<(*j)->getPosition().distance(pos);
-		else return false;
-	});
-	if(interactable != _interactables.end() && (*interactable) && (*interactable)->getPosition().distance(pos)<config::interactableRadius){
-		return interactable->get();
+	double minDist = config::interactableRadius;
+	interactable* inter = nullptr;
+	for(auto& i : _interactables){
+		for(auto& p : i->getPositions()){
+			if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(pos); dist <= minDist){
+				minDist = dist;
+				inter = i.get();
+			}
+		}
 	}
-	return nullptr;
+	return inter;
+}
+
+point3Di universeNode::getClosestInteractablePos(fdd pos)
+{
+
+	double minDist = config::interactableRadius;
+	point3Di inter;
+	for(auto& i : _interactables){
+		for(auto& p : i->getPositions()){
+			if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(pos); dist <= minDist){
+				minDist = dist;
+				inter = p.getPoint3Di();
+			}
+		}
+	}
+	return inter;
 }
 
 std::shared_ptr<thrustSystem> universeNode::getThrustSystem()

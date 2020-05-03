@@ -57,3 +57,7 @@ std::istream& operator>>(std::istream& is, std::vector<metaBlock>& m);
 
 void to_json(json& j, const baseBlock& b);
 void from_json(const json& j, baseBlock& b);
+
+void to_json(json& j, const metaBlock& b);
+void from_json(const json& j, metaBlock& b);
+

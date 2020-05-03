@@ -80,6 +80,10 @@ void State::PrefabEditor::input(double dt)
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[baseBlock::terrainTable.size() - 1];
 		}
 	}
+	if (keysDown[HI2::BUTTON::KEY_O])
+	{
+		_drawStats = !_drawStats;
+	}
 	if (keysDown[HI2::BUTTON::KEY_W])
 	{
 		_camera.y--;
@@ -135,12 +139,23 @@ void State::PrefabEditor::input(double dt)
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "up-down: change selected block", { 0,120 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "x: switch between symmetry modes", { 0,140 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "t: switch between backgrounds", { 0,160 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "i: toggle between drawing invisible blocks or not", { 0,180 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "o: toggle between drawing info or not", { 0,200 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "u: toggle between drawing lower layers or not", { 0,220 }, 20, HI2::Color::White);
+
+
 
 		HI2::endFrame();
 		_drawingHelp = true;
 	}
 	if (keysDown[HI2::BUTTON::KEY_I]) {
 		_drawInvisible = !_drawInvisible;
+	}
+	if (keysDown[HI2::BUTTON::KEY_U]) {
+		if(_cameraDepth==1)
+			_cameraDepth=3;
+		else
+			_cameraDepth=1;
 	}
 	if (keysHeld[HI2::BUTTON::KEY_LEFTCLICK])
 	{
@@ -308,10 +323,20 @@ void State::PrefabEditor::draw(double dt)
 	}
 	if (_drawStats)
 	{
-		HI2::drawText(*Services::fonts.loadFont("test"), "name: " + _prefab.getName(), { 0,0 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "size: x:" + std::to_string(_prefab.getSize().x), { 0,20 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "      y:" + std::to_string(_prefab.getSize().y), { 0,40 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("test"), "      z:" + std::to_string(_prefab.getSize().z), { 0,60 }, 20, HI2::Color::White);
+		auto mouse = HI2::getTouchPos();
+		point3Di blockPos = _camera;
+		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
+		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
+
+
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "name: " + _prefab.getName(), { 0,0 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "size: x:" + std::to_string(_prefab.getSize().x), { 0,20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "      y:" + std::to_string(_prefab.getSize().y), { 0,40 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "      z:" + std::to_string(_prefab.getSize().z), { 0,60 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "pos   x:" + std::to_string(blockPos.x), { 0,80 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "      y:" + std::to_string(blockPos.y), { 0,100 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "      z:" + std::to_string(_camera.z), { 0,120 }, 20, HI2::Color::White);
+
 	}
 
 	HI2::endFrame();

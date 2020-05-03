@@ -69,4 +69,9 @@ void from_json(const nlohmann::json& j, entt::registry& registry);
 void to_json(nlohmann::json& j, const point3Dd& p);
 void from_json(const nlohmann::json& j, point3Dd& p);
 
+void to_json(nlohmann::json& j, const point3Di& p);
+void from_json(const nlohmann::json& j, point3Di& p);
+
+
+
 std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json& j);

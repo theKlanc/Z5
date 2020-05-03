@@ -111,9 +111,9 @@ void State::Playing::input(double dt)
 
 	if (_debug && down[HI2::BUTTON::KEY_CONSOLE]) {
 		_console->toggle();
-		if(_console->isActive()){
-			_scene.select(_console);
-		}
+	}
+	if(_console->isActive()){
+		_scene.select(_console);
 	}
 	else {
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
@@ -197,7 +197,8 @@ void State::Playing::draw(double dt) {
 	position playerPos = _enttRegistry.get<position>(_player);
 	velocity playerVel = _enttRegistry.get<velocity>(_player);
 
-	auto ible = playerPos.parent->getClosestInteractable(playerPos.pos);
+	bool interactableInRange = playerPos.parent->getClosestInteractable(playerPos.pos) != nullptr;
+	point3Di iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
 
 	std::vector<renderLayer> renderOrders;
 	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));{
@@ -222,8 +223,8 @@ void State::Playing::draw(double dt) {
 				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
 				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
 
-				if(ible && node == playerPos.parent && ible->getPosition().z == layer){
-					renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(ible->getPosition().getPoint3Di()) });
+				if(interactableInRange && node == playerPos.parent && iblePos.z == layer){
+					renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(iblePos)});
 				}
 			}
 		}

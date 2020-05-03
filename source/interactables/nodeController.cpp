@@ -27,7 +27,7 @@ void nodeController::interact(entt::entity e)
 nlohmann::json nodeController::getJson() const
 {
 	return nlohmann::json{{"type",NODE_CONTROLLER},{"interactable",{
-	{"position",_position},{"thrustTarget",_thrustTarget}
+	{"positions",_positions},{"thrustTarget",_thrustTarget}
 	}}};
 }
 
@@ -82,6 +82,6 @@ void nodeController::drawUI()
 
 void from_json(const nlohmann::json &j, nodeController &nc)
 {
-	nc._position = j.at("position").get<fdd>();
+	nc._positions = j.at("positions").get<std::vector<fdd>>();
 	nc._thrustTarget = j.at("thrustTarget").get<point3Dd>();
 }

@@ -13,13 +13,13 @@ public:
 
 	virtual json getJson() const = 0;
 
-	fdd getPosition() const;
-	void setPosition(fdd f);
+	std::vector<fdd> getPositions() const;
+	void setPositions(std::vector<fdd> f);
 
 	void setParent(universeNode* p);
 
 protected:
-	fdd _position;
+	std::vector<fdd> _positions;
 	universeNode* _parent;
 };
 
