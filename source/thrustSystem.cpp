@@ -131,27 +131,27 @@ void thrustSystem::setThrustTarget(point3Dd target)
 	for(auto& thruster : _thrusters){
 		auto direction = thruster->getThrustDirection();
 		//X
-		if(direction.x == 1 && target.x>=0){
-			thruster->setTargetThrust(target.x);
+		if(direction.x == 1){
+			thruster->setTargetThrust(target.x>=0?target.x:0);
 		}
-		if(direction.x == -1 && target.x<=0){
-			thruster->setTargetThrust(target.x);
+		if(direction.x == -1){
+			thruster->setTargetThrust(target.x<=0?-target.x:0);
 		}
 
 		//Y
-		if(direction.y == 1 && target.y>=0){
-			thruster->setTargetThrust(target.y);
+		if(direction.y == 1){
+			thruster->setTargetThrust(target.y>=0?target.y:0);
 		}
-		if(direction.y == -1 && target.y<=0){
-			thruster->setTargetThrust(target.y);
+		if(direction.y == -1){
+			thruster->setTargetThrust(target.y<=0?-target.y:0);
 		}
 
 		//Z
-		if(direction.z == 1 && target.z>=0){
-			thruster->setTargetThrust(target.z);
+		if(direction.z == 1){
+			thruster->setTargetThrust(target.z>=0?target.z:0);
 		}
-		if(direction.z == -1 && target.z<=0){
-			thruster->setTargetThrust(target.z);
+		if(direction.z == -1){
+			thruster->setTargetThrust(target.z<=0?-target.z:0);
 		}
 	}
 }

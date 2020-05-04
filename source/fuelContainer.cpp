@@ -1,4 +1,5 @@
 #include "fuelContainer.hpp"
+#include "jsonTools.hpp"
 
 double fuelContainer::fill(double mass)
 {
@@ -57,9 +58,10 @@ void from_json(const nlohmann::json &j, fuelContainer &c)
 	c._fuelType = std::find_if(fuel::fuelList.begin(),fuel::fuelList.end(),[fueltofind](const fuel& f) { return f.ID == fueltofind;}).base();
 	c._content = j.at("content").get<double>();
 	c._capacity = j.at("capacity").get<double>();
+	c._pos = j.at("position").get<point3Di>();
 }
 
 void to_json(nlohmann::json &j, const fuelContainer &c)
 {
-	j = nlohmann::json{{"fuelID",c._fuelType->ID},{"capacity",c._capacity},{"content",c._content}};
+	j = nlohmann::json{{"fuelID",c._fuelType->ID},{"capacity",c._capacity},{"content",c._content},{"position",c._pos}};
 }

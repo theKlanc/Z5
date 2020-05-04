@@ -163,7 +163,7 @@ void State::Playing::update(double dt) {
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
-	cameraPosition.pos.z = playerPosition.pos.z + 0.1;
+	cameraPosition.pos.z = playerPosition.pos.z + 0.01;
 
 	if (_enttRegistry.has<body>(_player))
 	{
@@ -172,7 +172,7 @@ void State::Playing::update(double dt) {
 		for (int i = 0; i < config::cameraHeight; i++)
 		{
 			fdd newCameraPos = cameraPosition.pos;
-			newCameraPos.z = newCameraPos.z + h + 1;
+			newCameraPos.z = newCameraPos.z + h;
 			if (!cameraPosition.parent->getBlock(newCameraPos.getPoint3Di()).base->opaque)
 			{
 				h++;
@@ -215,11 +215,11 @@ void State::Playing::draw(double dt) {
 				int layer = floor(localCameraPos.z);
 
 				double partFraccional = fmod(localCameraPos.z, 1);
-				double depth = i + partFraccional;
+				double depth = i + partFraccional - 1;
 
-				if(depth < 0.01)
+				if(depth < 0.2)
 					continue;
-
+				depth +=0.5;
 				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
 				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
 
@@ -238,7 +238,7 @@ void State::Playing::draw(double dt) {
 				depth -= _enttRegistry.get<body>(entity).height;
 			}
 			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth + 0.05,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
+				renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
 		}
 
 	}
