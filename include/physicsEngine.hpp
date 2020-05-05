@@ -3,7 +3,7 @@
 #include "entt/entity/registry.hpp"
 #include "universeNode.hpp"
 
-enum physicsType
+enum class physicsType
 {
 	ENTITY,
 	NODE,
@@ -29,7 +29,6 @@ class physicsEngine : public rp3d::CollisionCallback
 	void processCollisions(universeNode& universeBase, entt::registry& registry, double dt);
 	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
 	rp3d::CollisionWorld* getWorld() const;
-	
 private:
 	static constexpr double _timeStep = 1.0f/config::physicsHz;
 	static constexpr double _solverStep = _timeStep / config::physicsSolverIterations;

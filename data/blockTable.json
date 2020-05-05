@@ -1862,7 +1862,7 @@
     "solid": true,
     "opaque": false,
     "mass": 10,
-    "collider": "ramp",
+    "collider": 1,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -1882,7 +1882,7 @@
     "solid": true,
     "opaque": true,
     "mass": 10,
-    "collider": "ramp",
+    "collider": 1,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [

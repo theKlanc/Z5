@@ -442,6 +442,9 @@ void universeNode::applyThrusters(double dt)
 
 fdd universeNode::getGravityAcceleration(fdd localPosition)
 {
+	if(_artificialGravity)
+		return *_artificialGravity;
+
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
 	fdd realGravity = (_centerOfMass - localPosition).setMagnitude(G * (_mass / ((_diameter / 2) * (_diameter / 2))));
 	double magicFactor = 1;
@@ -476,6 +479,7 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_name = u._name;
 	_mainColor = u._mainColor;
 	_thrustSystem = u._thrustSystem;
+	_artificialGravity = u._artificialGravity;
 
 	for(auto& i : u._interactables){
 		_interactables.push_back(getInteractableFromJson(i->getJson()));
@@ -663,6 +667,8 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
 			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
+	if(f._artificialGravity)
+		j.emplace("artificial_gravity",*f._artificialGravity);
 }
 
 void from_json(const json& j, universeNode& f) {
@@ -681,6 +687,9 @@ void from_json(const json& j, universeNode& f) {
 	else
 	{
 		f._centerOfMass = { 0,0,0,0 };
+	}
+	if(j.contains("artificial_gravity")){
+		f._artificialGravity = j.at("artificial_gravity").get<fdd>();
 	}
 	f._velocity = j.at("velocity").get<fdd>();
 	f._children = std::vector<universeNode>();

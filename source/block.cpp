@@ -7,12 +7,12 @@ using nlohmann::json;
 
 blockRotation operator++(blockRotation& a, int)
 {
-	return a = (blockRotation)((a + 1) % 4);
+	return a = (blockRotation)((static_cast<int>(a) + 1) % 4);
 }
 
 blockRotation operator--(blockRotation& a, int)
 {
-	return a = (blockRotation)((a + 3) % 4);
+	return a = (blockRotation)(( static_cast<int>(a) + 3) % 4);
 }
 
 bool baseBlock::operator==(const baseBlock& right)
@@ -30,6 +30,21 @@ void baseBlock::loadTerrainTable()
 	metaBlock::nullBlock.base = &baseBlock::terrainTable[0];
 }
 
+reactphysics3d::Quaternion metaBlock::getRotationQuat() const
+{
+	double r = M_PI*0.5*(float) rotation;
+	if(flip)
+		r+=M_PI;
+    double cz = cos(r*0.5);
+    double sz = sin(r*0.5);
+	rp3d::Quaternion q;
+    q.w = cz;
+    q.x = 0;
+    q.y = 0;
+    q.z = sz;
+	return q;
+}
+
 bool metaBlock::operator==(const metaBlock& right) const
 {
 	if (saveMeta == false && saveMeta == false)
@@ -41,7 +56,7 @@ std::ostream& operator<<(std::ostream& os, const metaBlock& m)
 {
 	if (m.saveMeta)
 	{
-		return os << m.base->ID << ' ' << m.saveMeta << ' ' << m.rotation << ' ' << m.flip;
+		return os << m.base->ID << ' ' << m.saveMeta << ' ' << static_cast<int>(m.rotation) << ' ' << m.flip;
 	}
 	else {
 		return os << m.base->ID << ' ' << m.saveMeta;
@@ -122,6 +137,9 @@ void from_json(const nlohmann::json& j, baseBlock& b)
 			frames.push_back(element.get<frame>());
 		}
 		b.spr = Services::graphics.loadSprite(b.name, "spritesheet", frames);
+	}
+	if(j.contains("collider")){
+		b.collider = j.at("collider").get<colliderType>();
 	}
 }
 

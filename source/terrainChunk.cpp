@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include "states/state_playing.hpp"
+#include "utils.hpp"
 
 terrainChunk::~terrainChunk()
 {
@@ -17,7 +18,7 @@ terrainChunk::~terrainChunk()
 }
 
 terrainChunk::terrainChunk(const point3Di& p) : _indexedPosition(p), _loaded(false),
-_blocks(config::chunkSize* config::chunkSize* config::chunkSize, { &baseBlock::terrainTable[0],UP }),
+_blocks(config::chunkSize* config::chunkSize* config::chunkSize, { &baseBlock::terrainTable[0],blockRotation::UP }),
 _colliders(config::chunkSize* config::chunkSize* config::chunkSize, nullptr)
 {
 	Services::physicsMutex.lock();
@@ -65,7 +66,7 @@ void terrainChunk::setBlock(metaBlock b, const point3Di& p) {
 	}
 	if (b.base->solid)
 	{
-		_colliders[(z * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + x] = _collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(x + 0.5),(rp3d::decimal)(y + 0.5),(rp3d::decimal)(z + 0.5)},rp3d::Quaternion::identity() });
+		_colliders[(z * config::chunkSize * config::chunkSize) + (y * config::chunkSize) + x] = _collisionBody->addCollisionShape(Services::colliders.getCollider(b.base->collider), { {(rp3d::decimal)(x + 0.5),(rp3d::decimal)(y + 0.5),(rp3d::decimal)(z + 0.5)},b.getRotationQuat() });
 	}
 	Services::physicsMutex.unlock();
 }
@@ -184,7 +185,7 @@ void terrainChunk::updateAllColliders()
 				{
 					if (_blocks[counter++].base->solid)
 					{
-						_colliders.push_back(_collisionBody->addCollisionShape(&_colliderBox, { {(rp3d::decimal)(k + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(i + 0.5)},rp3d::Quaternion::identity() }));
+						_colliders.push_back(_collisionBody->addCollisionShape(Services::colliders.getCollider(_blocks[counter-1].base->collider), { {(rp3d::decimal)(k + 0.5),(rp3d::decimal)(j + 0.5),(rp3d::decimal)(i + 0.5)},_blocks[counter-1].getRotationQuat() }));
 					}
 					else
 					{

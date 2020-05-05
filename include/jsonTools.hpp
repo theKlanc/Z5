@@ -7,7 +7,7 @@
 #include "fdd.hpp"
 #include "interactable.hpp"
 
-enum componentType{
+enum class componentType{
 	NAME,
 	POSITION,
 	VELOCITY,
@@ -17,45 +17,33 @@ enum componentType{
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
-	{NAME,"NAME"},
-	{POSITION,"POSITION"},
-	{VELOCITY,"VELOCITY"},
-	{BODY,"BODY"},
-	{DRAWABLE,"DRAWABLE"},
-	{BRAIN,"BRAIN"},
+	{componentType::NAME,"NAME"},
+	{componentType::POSITION,"POSITION"},
+	{componentType::VELOCITY,"VELOCITY"},
+	{componentType::BODY,"BODY"},
+	{componentType::DRAWABLE,"DRAWABLE"},
+	{componentType::BRAIN,"BRAIN"},
 })
 
-enum interactableType{
+enum class interactableType{
 	BLOCK_SWITCH,
 	NODE_CONTROLLER
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( interactableType, {
-	{BLOCK_SWITCH,"BLOCK_SWITCH"},
-	{NODE_CONTROLLER,"NODE_CONTROLLER"},
+	{interactableType::BLOCK_SWITCH,"BLOCK_SWITCH"},
+	{interactableType::NODE_CONTROLLER,"NODE_CONTROLLER"},
 })
 
-enum entityTag{
+enum class entityTag{
 	PLAYER,
 	CAMERA,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( entityTag, {
-	{PLAYER,"PLAYER"},
-	{CAMERA,"CAMERA"},
+	{entityTag::PLAYER,"PLAYER"},
+	{entityTag::CAMERA,"CAMERA"},
 })
-
-
-struct jsonComponent
-{
-	
-};
-
-struct jsonEntity
-{
-	std::vector<std::string> tags;
-	std::vector<jsonComponent>  components;
-};
 
 namespace HI2{
 	void to_json(nlohmann::json& j, const HI2::Color& c);
@@ -71,7 +59,6 @@ void from_json(const nlohmann::json& j, point3Dd& p);
 
 void to_json(nlohmann::json& j, const point3Di& p);
 void from_json(const nlohmann::json& j, point3Di& p);
-
 
 
 std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json& j);

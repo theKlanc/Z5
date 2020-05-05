@@ -221,7 +221,7 @@ void terrainPainterGenerator::placeTree(terrainChunk& c, const point3Di p)const
 	{
 		if (p.x >= 0 && p.x < config::chunkSize && p.y >= 0 && p.y < config::chunkSize && z >= 0 && z < config::chunkSize)
 		{
-			c.setBlock({&baseBlock::terrainTable[8],UP}, { p.x,p.y,z });
+			c.setBlock({&baseBlock::terrainTable[8],blockRotation::UP}, { p.x,p.y,z });
 		}
 	}
 }

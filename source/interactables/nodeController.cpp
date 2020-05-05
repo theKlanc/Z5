@@ -26,7 +26,7 @@ void nodeController::interact(entt::entity e)
 
 nlohmann::json nodeController::getJson() const
 {
-	return nlohmann::json{{"type",NODE_CONTROLLER},{"interactable",{
+	return nlohmann::json{{"type",interactableType::NODE_CONTROLLER},{"interactable",{
 	{"positions",_positions},{"thrustTarget",_thrustTarget}
 	}}};
 }

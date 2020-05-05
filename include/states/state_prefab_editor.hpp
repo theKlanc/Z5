@@ -34,7 +34,7 @@ namespace State {
 		}_symmetryMode = NONE;
 		prefab _prefab;
 		point3Di _camera;
-		blockRotation _rotation = UP;
+		blockRotation _rotation = blockRotation::UP;
 		bool _flip = false;
 		int _selectedToolbarPos = 0;
 		std::array<baseBlock*,9> _toolbar;

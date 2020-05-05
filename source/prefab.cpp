@@ -17,7 +17,7 @@ prefab::prefab(std::string name, point3Di size)
 	_name = name;
 	_folder = HI2::getDataPath().append("prefabs").append(_name);
 	_size = size;
-	_blocks.resize(size.x * size.y * size.z, metaBlock{ &baseBlock::terrainTable[0],UP,false,true });
+	_blocks.resize(size.x * size.y * size.z, metaBlock{ &baseBlock::terrainTable[0],blockRotation::UP,false,true });
 }
 
 void prefab::save() const

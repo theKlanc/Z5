@@ -7,6 +7,7 @@
 #include "graphicsManager.hpp"
 #include "fontManager.hpp"
 #include "audioManager.hpp"
+#include "colliderManager.hpp"
 
 struct Services
 {
@@ -18,4 +19,6 @@ struct Services
 	static fontManager fonts;
 	static audioManager audio;
 	static std::minstd_rand lcg;
+
+	static colliderManager colliders;
 };

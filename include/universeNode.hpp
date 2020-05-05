@@ -16,7 +16,7 @@ const double G = (6.67408e-11);
 
 using nlohmann::json;
 
-enum nodeType{
+enum class nodeType{
 	STAR,
 	BLACK_HOLE,
 	PLANET_GAS,
@@ -136,6 +136,7 @@ private:
 	fdd _position;
 	fdd _centerOfMass;
 	fdd _velocity;
+	std::optional<fdd> _artificialGravity;
 
 	std::vector<terrainChunk> _chunks; // So big, should be on the heap. So fat, too much for the stack.
 
@@ -157,15 +158,15 @@ private:
 
 
 NLOHMANN_JSON_SERIALIZE_ENUM( nodeType, {
-	{STAR,"STAR"},
-	{BLACK_HOLE,"BLACK_HOLE"},
-	{PLANET_GAS,"PLANET_GAS"},
-	{PLANET_ROCK,"PLANET_ROCK"},
-	{ASTEROID,"ASTEROID"},
-	{SATELLITE_NATURAL,"SATELLITE_NATURAL"},
-	{SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
-	{SPACE_STATION,"SPACE_STATION"},
-	{SPACESHIP,"SPACESHIP"},
+	{nodeType::STAR,"STAR"},
+	{nodeType::BLACK_HOLE,"BLACK_HOLE"},
+	{nodeType::PLANET_GAS,"PLANET_GAS"},
+	{nodeType::PLANET_ROCK,"PLANET_ROCK"},
+	{nodeType::ASTEROID,"ASTEROID"},
+	{nodeType::SATELLITE_NATURAL,"SATELLITE_NATURAL"},
+	{nodeType::SATELLITE_ARTIFICIAL,"SATELLITE_ARTIFICIAL"},
+	{nodeType::SPACE_STATION,"SPACE_STATION"},
+	{nodeType::SPACESHIP,"SPACESHIP"},
 })
 
 void to_json(json& j, const universeNode& f);

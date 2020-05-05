@@ -23,7 +23,7 @@ nlohmann::json blockSwitch::getJson() const
 	for(const std::pair<metaBlock,point3Di> &m : _blocks){
 		blocksJJ.push_back(nlohmann::json{{"block",m.first},{"position",m.second}});
 	}
-	return nlohmann::json{{"type",BLOCK_SWITCH},{"interactable",{
+	return nlohmann::json{{"type",interactableType::BLOCK_SWITCH},{"interactable",{
 	{"positions",_positions},{"blocks",blocksJJ}
 			}}};
 }

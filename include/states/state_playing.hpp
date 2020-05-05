@@ -48,7 +48,7 @@ namespace State {
 		entt::entity _player;
 		entt::entity _camera;
 		int selectedBlock = 7;
-		blockRotation selectedRotation = UP;
+		blockRotation selectedRotation = blockRotation::UP;
 		bool selectedFlip = false;
 		universeNode _universeBase;
 		entt::registry _enttRegistry;

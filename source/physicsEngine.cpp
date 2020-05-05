@@ -70,7 +70,7 @@ void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallback
 {
 	if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
 	{
-		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ENTITY)
+		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == physicsType::ENTITY)
 		{
 			EntityEntityCallback(collisionCallbackInfo);
 		}
@@ -238,13 +238,13 @@ void physicsEngine::testCollisionBetweenNodes(universeNode& left, universeNode& 
 					if (_zaWarudo->testAABBOverlap(rightChunk->getCollider(), leftChunk.getCollider()))
 					{
 						collidedResponse cResponse;
-						cResponse.type = NODE;
+						cResponse.type = physicsType::NODE;
 						cResponse.body.node = &left;
 
 						leftChunk.getCollider()->setUserData(&cResponse);
 
 						collidedResponse cResponse2;
-						cResponse2.type = NODE;
+						cResponse2.type = physicsType::NODE;
 						cResponse2.body.node = &right;
 
 						rightChunk->getCollider()->setUserData(&cResponse2);
@@ -305,7 +305,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 		body& entityBody = registry.get<body>(left);
 
 		collidedResponse cResponse2;
-		cResponse2.type = ENTITY;
+		cResponse2.type = physicsType::ENTITY;
 		cResponse2.body.entity = left;
 
 		entityBody.physicsData.collider->setUserData(&cResponse2);
@@ -338,7 +338,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
  			fdd posRelativeToNode = node->getLocalPos(pos.pos, pos.parent);
 
 			collidedResponse cResponse;
-			cResponse.type = NODE;
+			cResponse.type = physicsType::NODE;
 			cResponse.body.node = node;
 
 			rp3d::Vector3 entityPosition(posRelativeToNode.x, posRelativeToNode.y, posRelativeToNode.z);
@@ -492,7 +492,7 @@ void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 				leftBody.physicsData.collider->setTransform(leftTransform);
 
 				collidedResponse cResponse;
-				cResponse.type = ENTITY;
+				cResponse.type = physicsType::ENTITY;
 				cResponse.body.entity = left;
 
 				leftBody.physicsData.collider->setUserData(&cResponse);
@@ -501,7 +501,7 @@ void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 				rightBody.physicsData.collider->setTransform(rightTransform);
 
 				collidedResponse cResponse2;
-				cResponse2.type = ENTITY;
+				cResponse2.type = physicsType::ENTITY;
 				cResponse2.body.entity = right;
 
 				rightBody.physicsData.collider->setUserData(&cResponse2);
@@ -552,7 +552,7 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 	entt::entity entity;
 	universeNode* node;
 	rp3d::CollisionBody* entityCollisionBody;
-	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == ENTITY) { // BODY1 �s l entity
+	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == physicsType::ENTITY) { // BODY1 �s l entity
 		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
 		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
 	}

@@ -2,10 +2,11 @@
 #include "graphicsManager.hpp"
 #include "json.hpp"
 #include "HI2.hpp"
+#include "colliderManager.hpp"
 
 using nlohmann::json;
 
-enum blockRotation
+enum class blockRotation
 {
 	UP = 0,
 	LEFT = 1,
@@ -25,6 +26,8 @@ struct baseBlock { // A baseBlock represents a 1m³ cube of material
 	double mass = 1220; // mass in kg
 	sprite* spr = nullptr;
 
+	colliderType collider = colliderType::CUBE;
+
 	bool operator==(const baseBlock& right);
 	static std::vector<baseBlock> terrainTable;
 
@@ -34,7 +37,7 @@ struct baseBlock { // A baseBlock represents a 1m³ cube of material
 struct metaBlock
 {
 	baseBlock* base;
-	blockRotation rotation = UP;
+	blockRotation rotation = blockRotation::UP;
 	bool flip = false;
 	bool saveMeta = false;
 	bool operator==(const metaBlock& right) const;
@@ -44,6 +47,8 @@ struct metaBlock
 		return !(*this == right);
 	}
 	static metaBlock nullBlock;
+
+	reactphysics3d::Quaternion getRotationQuat() const;
 
 	friend std::ostream& operator<<(std::ostream& os, const metaBlock& m);
 	//friend std::istream& operator>>(std::istream& is, const metaBlock& m);

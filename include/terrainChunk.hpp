@@ -40,5 +40,4 @@ private:
 	rp3d::CollisionBody* _collisionBody = nullptr;
 	std::vector<metaBlock> _blocks;
 	std::vector<rp3d::ProxyShape*> _colliders;
-	inline static rp3d::BoxShape _colliderBox = rp3d::BoxShape({ 0.5,0.5,0.5 });
 };

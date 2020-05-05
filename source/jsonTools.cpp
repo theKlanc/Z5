@@ -67,12 +67,12 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 		{
 			switch (j_tag.get<entityTag>())
 			{
-			case PLAYER:
+			case entityTag::PLAYER:
 			{
 				registry.assign<entt::tag<"PLAYER"_hs>>(e);
 				break;
 			}
-			case CAMERA:
+			case entityTag::CAMERA:
 			{
 				registry.assign<entt::tag<"CAMERA"_hs>>(e);
 				break;
@@ -86,37 +86,37 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 		{
 			switch (j_component.at("type").get<componentType>())
 			{
-			case NAME:
+			case componentType::NAME:
 			{
 				auto& comp = registry.assign<name>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
-			case POSITION:
+			case componentType::POSITION:
 			{
 				auto& comp = registry.assign<position>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
-			case VELOCITY:
+			case componentType::VELOCITY:
 			{
 				auto& comp = registry.assign<velocity>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
-			case BODY:
+			case componentType::BODY:
 			{
 				auto& comp = registry.assign<body>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
-			case DRAWABLE:
+			case componentType::DRAWABLE:
 			{
 				auto& comp = registry.assign<drawable>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
-			case BRAIN:
+			case componentType::BRAIN:
 			{
 				auto& comp = registry.assign<std::unique_ptr<brain>>(e);
 				std::string type = j_component.at("content").at("type").get<std::string>();
@@ -173,13 +173,13 @@ std::unique_ptr<interactable> getInteractableFromJson(const nlohmann::json &j)
 {
 	interactableType type = j.at("type").get<interactableType>();
 	switch(type){
-	case BLOCK_SWITCH:
+	case interactableType::BLOCK_SWITCH:
 	{
 			blockSwitch bc;
 			j.at("interactable").get_to(bc);
 			return std::make_unique<blockSwitch>(bc);
 	}
-	case NODE_CONTROLLER:
+	case interactableType::NODE_CONTROLLER:
 	{
 		nodeController nc;
 		j.at("interactable").get_to(nc);

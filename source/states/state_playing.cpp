@@ -612,7 +612,7 @@ void State::Playing::createEntities()
 
 		playerBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 		collidedResponse* playerResponse = new collidedResponse();
-		playerResponse->type = ENTITY;
+		playerResponse->type = physicsType::ENTITY;
 		playerResponse->body.entity = _player;
 		playerBody.physicsData.collider->setUserData((void*)playerResponse);
 		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
@@ -670,7 +670,7 @@ void State::Playing::createEntities()
 
 			dogBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 			collidedResponse* dogResponse = new collidedResponse();
-			dogResponse->type = ENTITY;
+			dogResponse->type = physicsType::ENTITY;
 			dogResponse->body.entity = dog;
 			dogBody.physicsData.collider->setUserData((void*)dogResponse);
 			initPosition.z += dogBody.width / 2;
@@ -726,7 +726,7 @@ void State::Playing::createEntities()
 				ballBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 				collidedResponse* ballResponse = new collidedResponse();
-				ballResponse->type = ENTITY;
+				ballResponse->type = physicsType::ENTITY;
 				ballResponse->body.entity = ball;
 				ballBody.physicsData.collider->setUserData((void*)ballResponse);
 				ballBody.physicsData._collisionShape = new rp3d::SphereShape(0.4);
@@ -767,7 +767,7 @@ void State::Playing::fixEntities()
 		b.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
 
 		collidedResponse* bodyResponse = new collidedResponse();
-		bodyResponse->type = ENTITY;
+		bodyResponse->type = physicsType::ENTITY;
 		bodyResponse->body.entity = entity;
 		b.physicsData.collider->setUserData((void*)bodyResponse);
 

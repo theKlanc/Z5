@@ -250,6 +250,7 @@ include/block.hpp
 include/block.hpp
 include/block.hpp
 include/block.hpp
+include/colliderManager.hpp
 include/components/astronautBrain.hpp
 include/components/body.hpp
 include/components/body.hpp
@@ -410,6 +411,7 @@ source/audioManager.cpp
 source/block.cpp
 source/block.cpp
 source/block.cpp
+source/colliderManager.cpp
 source/components/astronautBrain.cpp
 source/components/body_.cpp
 source/components/brain.cpp

@@ -177,7 +177,7 @@ void State::PrefabEditor::input(double dt)
 			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
 			{
 				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 - _rotation) % 4);
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 - (int)_rotation) % 4);
 				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
 			}
@@ -189,7 +189,7 @@ void State::PrefabEditor::input(double dt)
 			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
 			{
 				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((4 - _rotation) % 4);
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((4 - (int)_rotation) % 4);
 				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
 			}
@@ -202,7 +202,7 @@ void State::PrefabEditor::input(double dt)
 			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
 			{
 				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 + _rotation) % 4);
+				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 + (int)_rotation) % 4);
 				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
 			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
 			}

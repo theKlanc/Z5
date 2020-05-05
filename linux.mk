@@ -15,15 +15,19 @@ CXXFLAGS := -std=c++17
 LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs -lSDL2_mixer
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
-BUILDTYPE := Release
-ifeq ($(DEBUG), 1)
-FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -Og -fstack-protector-all
-#FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -fstack-protector-all
-$(info DEBOOG)
+ifeq ($(PRECISE_DEBUG), 1)
+FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -O0 -fstack-protector-all
 BUILDTYPE := Debug
+else ifeq ($(DEBUG), 1)
+FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -Og -fstack-protector-all
+BUILDTYPE := FastDebug
 else
 FLAGS := $(FLAGS) -flto -Ofast
+BUILDTYPE := Release
 endif
+
+$(info $$BUILDTYPE is [${BUILDTYPE}])
+
 CCFLAGS := $(FLAGS) $(CCFLAGS)
 CXXFLAGS := $(FLAGS) $(CXXFLAGS)
 
