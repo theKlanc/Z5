@@ -119,7 +119,7 @@ void State::Playing::input(double dt)
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
-		if (down[HI2::BUTTON::KEY_M]) {
+		if (down[HI2::BUTTON::KEY_M] || down[HI2::BUTTON::BUTTON_RSTICK]) {
 			_starmap->toggle();
 			_scene.select(_starmap);
 		}

@@ -33,40 +33,40 @@ nlohmann::json nodeController::getJson() const
 
 void nodeController::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held)
 {
-	if(down[HI2::BUTTON::KEY_BACKSPACE] && _exitCallback)
+	if((down[HI2::BUTTON::KEY_BACKSPACE] || down[HI2::BUTTON::BUTTON_B]) && _exitCallback)
 		_exitCallback();
 	else{
-		if(held[HI2::BUTTON::KEY_W]){
+		if(held[HI2::BUTTON::KEY_W] || held[HI2::BUTTON::UP]){
 			_thrustTarget.y-=dt*agility;
 			if(_thrustTarget.y < -1)
 				_thrustTarget.y=-1;
 		}
-		if(held[HI2::BUTTON::KEY_A]){
+		if(held[HI2::BUTTON::KEY_A] || held[HI2::BUTTON::LEFT]){
 			_thrustTarget.x-=dt*agility;
 			if(_thrustTarget.x < -1)
 				_thrustTarget.x=-1;
 		}
-		if(held[HI2::BUTTON::KEY_S]){
+		if(held[HI2::BUTTON::KEY_S] || held[HI2::BUTTON::DOWN]){
 			_thrustTarget.y+=dt*agility;
 			if(_thrustTarget.y > 1)
 				_thrustTarget.y=1;
 		}
-		if(held[HI2::BUTTON::KEY_D]){
+		if(held[HI2::BUTTON::KEY_D] || held[HI2::BUTTON::RIGHT]){
 			_thrustTarget.x+=dt*agility;
 			if(_thrustTarget.x > 1)
 				_thrustTarget.x=1;
 		}
-		if(held[HI2::BUTTON::KEY_R]){
+		if(held[HI2::BUTTON::KEY_R] || held[HI2::BUTTON::BUTTON_L]){
 			_thrustTarget.z+=dt*agility;
 			if(_thrustTarget.z > 1)
 				_thrustTarget.z=1;
 		}
-		if(held[HI2::BUTTON::KEY_F]){
+		if(held[HI2::BUTTON::KEY_F] || held[HI2::BUTTON::BUTTON_ZL]){
 			_thrustTarget.z-=dt*agility;
 			if(_thrustTarget.z < -1)
 				_thrustTarget.z=-1;
 		}
-		if(held[HI2::BUTTON::KEY_X]){
+		if(held[HI2::BUTTON::KEY_X] || held[HI2::BUTTON::BUTTON_X]){
 			_thrustTarget = {};
 		}
 	}

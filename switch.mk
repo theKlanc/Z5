@@ -33,7 +33,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	bin/switch/Z5
 BUILD		:=	buildSwitch
-SOURCES		:=	deps deps/HardwareInterface deps/FastNoise source source/components source/states source/nodeGenerators source/UI source/UI/gadgets
+SOURCES		:=	deps deps/HardwareInterface deps/FastNoise source source/components source/states source/nodeGenerators source/UI source/UI/gadgets source/UI/customGadgets source/interactables
 
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/body
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision
@@ -50,7 +50,7 @@ SOURCES := $(SOURCES) deps/reactPhysics3D/src/memory
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/utils
 
 DATA		:= datadummy
-INCLUDES	:= deps deps/entt deps/HardwareInterface deps/reactPhysics3D/src deps/FastNoise deps/json/single_include/nlohmann include
+INCLUDES	:= deps deps/icecream-cpp deps/entt deps/HardwareInterface deps/reactPhysics3D/src deps/FastNoise deps/json/single_include/nlohmann include
 ROMFS	:=	data
 
 
@@ -64,7 +64,7 @@ APP_TITLEID	:= 0100F33DC0DEBABE
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS	:=	-g -O0 -ffunction-sections \
+CFLAGS	:=	-flto -Ofast -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DIS_DOUBLE_PRECISION_ENABLED `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --cflags SDL2_mixer`

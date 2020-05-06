@@ -32,20 +32,66 @@ XX Abandonat
 XX passar a dynamics world
 XX rotacions de layers
 
+
+#dibuixar gui
+#maquina d estats per les entitats
+
 #implementar mapa estelar
 #implementar controlador per les naus
 #afegir terreny interactuable
 
-crear gui pel nodeController
-implementar portes
-implementar spawners de nodes
+#nodeController
+#crear gui pel nodeController
+#implementar portes
+afegir efectes visuals als thrusters (almenys encendre/apagar)
+afegir so a les portes i als thrusters
+crear nau petita + estacio espacial
+canviar el univers default
 
-items
+implementar spawners de nodes
+docking
+
+rework controls (mayb bindings més tard)
+
+electricity and other resources (water and oxygen mayb?) [rename fuelContainers to resourceContainers]
+
+ultraThrusters (x viatjar dins un sistema)
+alcubierre engine
+
+items(usables)
+
+placeables
+
 prefabEditor amb items
 
-afegir creador de nodes
+node fusing / splitting
+
+arreglar Switch perhaps?
+
+health
+projectiles
+
+crear inventari
+
+
 descarregar i diferenciar entre entitats permanents
 reparentitzar nodes i entitats més agressivament
+
+implementar fake tensió superficial
+
+portals
+
+crear spawners de entitats
+
+crear enemics i npcs
+
+arreglar orbites
+planificadors de vol
+autopilot
+
+ROTACIONS DE NODES
+
+afegir creador de nodes
 afegir llunes de mart jupiter saturn i neptu
 afegir planet 9
 afegir planeta newronia
@@ -53,16 +99,9 @@ afegir zones prefabricades al biomeGenerator
 assignar bgm als nodes
 biomes i diferents tipus de biomes per cada planeta, somehow
 crear biomeGenerator
-crear colisionadors d altres tipus per a bales i tal
-crear health i items
-crear inventari
 crear observer
 crear soundObserver
-dibuixar gui
-dibuixar items
-implementar fake tensió superficial
 lighting
-maquina d estats per les entitats
 
 ~~ crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
 ~~ fog

@@ -38,7 +38,7 @@ void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down
 		_controlling->update(dt,down,up,held);
 	}
 	else{
-		if(down[HI2::BUTTON::KEY_ENTER]){
+		if(down[HI2::BUTTON::KEY_ENTER] || down[HI2::BUTTON::BUTTON_Y]){
 			auto& entityPos = Services::enttRegistry->get<position>(_entity);
 			if(interactable* i = entityPos.parent->getClosestInteractable(entityPos.pos); i){
 				i->interact(_entity);
@@ -63,20 +63,20 @@ fsm_state *astronautBrain::groundedState::update(double dt, entt::entity e, cons
 	{
 		return _airborneState;
 	}
-	if(down[HI2::BUTTON::KEY_SPACE]) {
+	if(down[HI2::BUTTON::KEY_SPACE] || down[HI2::BUTTON::BUTTON_A]) {
 		return _jumpingState;
 	}
 	auto& vel = Services::enttRegistry->get<velocity>(e);
-	if(held[HI2::BUTTON::KEY_A] && vel.spd.x > -5.0f){
+	if((held[HI2::BUTTON::KEY_A] || held[HI2::BUTTON::LEFT]) && vel.spd.x > -5.0f){
 		vel.spd.x-=5.0f * dt;
 	}
-	if(held[HI2::BUTTON::KEY_D] && vel.spd.x < 5.0f){
+	if((held[HI2::BUTTON::KEY_D] || held[HI2::BUTTON::RIGHT]) && vel.spd.x < 5.0f){
 		vel.spd.x+=5.0f * dt;
 	}
-	if(held[HI2::BUTTON::KEY_W] && vel.spd.y > -5.0f){
+	if((held[HI2::BUTTON::KEY_W] || held[HI2::BUTTON::UP]) && vel.spd.y > -5.0f){
 		vel.spd.y-=5.0f * dt;
 	}
-	if(held[HI2::BUTTON::KEY_S] && vel.spd.y < 5.0f){
+	if((held[HI2::BUTTON::KEY_S] || held[HI2::BUTTON::DOWN]) && vel.spd.y < 5.0f){
 		vel.spd.y+=5.0f * dt;
 	}
 
@@ -120,22 +120,22 @@ fsm_state *astronautBrain::airborneState::update(double dt, entt::entity e, cons
 		return _groundedState;
 	}
 	auto& vel = Services::enttRegistry->get<velocity>(e);
-	if(held[HI2::BUTTON::KEY_A]){
+	if(held[HI2::BUTTON::KEY_A] || held[HI2::BUTTON::LEFT]){
 		vel.spd.x-=2*dt;
 	}
-	if(held[HI2::BUTTON::KEY_D]){
+	if(held[HI2::BUTTON::KEY_D] || held[HI2::BUTTON::RIGHT]){
 		vel.spd.x+=2*dt;
 	}
-	if(held[HI2::BUTTON::KEY_W]){
+	if(held[HI2::BUTTON::KEY_W] || held[HI2::BUTTON::UP]){
 		vel.spd.y-=2*dt;
 	}
-	if(held[HI2::BUTTON::KEY_S]){
+	if(held[HI2::BUTTON::KEY_S] || held[HI2::BUTTON::DOWN]){
 		vel.spd.y+=2*dt;
 	}
-	if(held[HI2::BUTTON::KEY_F]){
+	if(held[HI2::BUTTON::KEY_F] || held[HI2::BUTTON::BUTTON_ZL]){
 		vel.spd.z-=13*dt;
 	}
-	if(held[HI2::BUTTON::KEY_R]){
+	if(held[HI2::BUTTON::KEY_R] || held[HI2::BUTTON::BUTTON_L]){
 		vel.spd.z+=13*dt;
 	}
 	return this;
