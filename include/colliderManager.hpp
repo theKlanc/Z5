@@ -34,5 +34,5 @@ class colliderManager {
 
   private:
 	rp3d::BoxShape _boxShape = rp3d::BoxShape({ 0.5,0.5,0.5 });
-	std::unordered_map<colliderType, customCollider> _colliders;
+	std::unordered_map<colliderType, customCollider*> _colliders;
 };

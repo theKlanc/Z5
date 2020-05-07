@@ -2,8 +2,10 @@
 
 colliderManager::colliderManager()
 {
-	_colliders.insert(std::make_pair(colliderType::RAMP,customCollider({0.5,-0.5,-0.5,0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5},{  {2,3,0,1},{5,2,1,4},{3,5,4,0},{4,1,0},{5,3,2}   })));
-	_colliders.insert(std::make_pair(colliderType::HALF,customCollider({-0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,0.5,-0.5,-0.5,0.5,-0.5,-0.5,-0.5,0, 0.5,-0.5,0, 0.5,0.5,0, -0.5,0.5,0},{  {0,1,2,3},{1,5,6,2},{3,2,6,7},{0,3,7,4},{4,5,1,0},{5,4,7,6}   })));
+	customCollider* temp = new customCollider({0.5,-0.5,-0.5,0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5},{  {2,3,0,1},{5,2,1,4},{3,5,4,0},{4,1,0},{5,3,2}   });
+	_colliders.insert(std::make_pair(colliderType::RAMP,temp));
+	temp = new customCollider({-0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,0.5,-0.5,-0.5,0.5,-0.5,-0.5,-0.5,0, 0.5,-0.5,0, 0.5,0.5,0, -0.5,0.5,0},{  {0,1,2,3},{1,5,6,2},{3,2,6,7},{0,3,7,4},{4,5,1,0},{5,4,7,6}   });
+	_colliders.insert(std::make_pair(colliderType::HALF,temp));
 }
 
 colliderManager::~colliderManager()
@@ -16,7 +18,7 @@ reactphysics3d::CollisionShape *colliderManager::getCollider(colliderType c)
 	if(c == colliderType::CUBE)
 		return &_boxShape;
 	else
-		return _colliders.at(c).getCollider();
+		return _colliders.at(c)->getCollider();
 }
 
 

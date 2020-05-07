@@ -32,7 +32,7 @@ void baseBlock::loadTerrainTable()
 
 reactphysics3d::Quaternion metaBlock::getRotationQuat() const
 {
-	return rp3d::Quaternion::identity();
+	//return rp3d::Quaternion::identity();
 	double r = M_PI*0.5*(float) rotation;
 	if(flip)
 		r+=M_PI;

@@ -410,10 +410,10 @@
     "name": "redChair",
     "ID": 20,
     "visible": true,
-    "solid": false,
+    "solid": true,
     "opaque": true,
     "mass": 8,
-    "collider":1,
+    "collider": 2,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -2702,10 +2702,10 @@
     "name": "bed_1",
     "ID": 137,
     "visible": true,
-    "solid": false,
+    "solid": true,
     "opaque": false,
     "mass": 10,
-    "collider":2,
+    "collider": 1,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -2722,10 +2722,10 @@
     "name": "bed_2",
     "ID": 138,
     "visible": true,
-    "solid": false,
+    "solid": true,
     "opaque": false,
     "mass": 10,
-    "collider":2,
+    "collider": 1,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [

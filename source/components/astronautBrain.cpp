@@ -44,6 +44,10 @@ void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down
 				i->interact(_entity);
 			}
 		}
+		if(held[HI2::BUTTON::KEY_P]){
+			auto& entityPos = Services::enttRegistry->get<position>(_entity);
+			entityPos.parent->setBlock(metaBlock{&baseBlock::terrainTable[20]},entityPos.pos.getPoint3Di()+point3Di{0,-2,0});
+		}
 		_currentState = _currentState->update(dt,_entity,down,up,held);
 	}
 }
