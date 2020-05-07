@@ -413,6 +413,7 @@
     "solid": false,
     "opaque": true,
     "mass": 8,
+    "collider":1,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -2704,6 +2705,7 @@
     "solid": false,
     "opaque": false,
     "mass": 10,
+    "collider":2,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [
@@ -2723,6 +2725,7 @@
     "solid": false,
     "opaque": false,
     "mass": 10,
+    "collider":2,
     "sprite": {
       "path": "spritesheet.png",
       "frames": [

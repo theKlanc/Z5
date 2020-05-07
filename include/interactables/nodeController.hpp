@@ -3,6 +3,7 @@
 #include "controllable.hpp"
 #include "UI/scene.hpp"
 #include "UI/customGadgets/fddViewer.hpp"
+#include "HI2.hpp"
 
 class nodeController : public interactable, public controllable{
 public:
@@ -19,7 +20,6 @@ private:
 	std::shared_ptr<fddViewer> _spdViewer;
 	scene _scene;
 	friend void from_json(const json& j, nodeController& nc);
-
 
 	// controllable interface
 public:

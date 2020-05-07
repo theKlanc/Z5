@@ -3,6 +3,7 @@
 colliderManager::colliderManager()
 {
 	_colliders.insert(std::make_pair(colliderType::RAMP,customCollider({0.5,-0.5,-0.5,0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5},{  {2,3,0,1},{5,2,1,4},{3,5,4,0},{4,1,0},{5,3,2}   })));
+	_colliders.insert(std::make_pair(colliderType::HALF,customCollider({-0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,0.5,-0.5,-0.5,0.5,-0.5,-0.5,-0.5,0, 0.5,-0.5,0, 0.5,0.5,0, -0.5,0.5,0},{  {0,1,2,3},{1,5,6,2},{3,2,6,7},{0,3,7,4},{4,5,1,0},{5,4,7,6}   })));
 }
 
 colliderManager::~colliderManager()
@@ -25,7 +26,7 @@ customCollider::customCollider(std::vector<float> v, std::vector<std::vector<int
 	_idx.clear();
 	_faces = new rp3d::PolygonVertexArray::PolygonFace[v.size()];
 	for(int f = 0; f < i.size(); ++f){
-		auto face = i[f];
+		std::vector<int> face = i[f];
 		_faces[f].indexBase = _idx.size();
 		_idx.insert(_idx.end(),face.begin(),face.end());
 		_faces[f].nbVertices = face.size();

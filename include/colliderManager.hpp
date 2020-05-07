@@ -6,7 +6,8 @@
 
 enum class colliderType{
 	CUBE = 0,
-	RAMP = 1
+	RAMP = 1,
+	HALF = 2,
 };
 
 class customCollider{
