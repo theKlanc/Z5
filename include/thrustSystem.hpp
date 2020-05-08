@@ -3,6 +3,8 @@
 #include "thruster.hpp"
 #include "fuelContainer.hpp"
 
+class universeNode;
+
 struct fuelTypeContainers{
 	std::vector<std::unique_ptr<fuelContainer>> containers;
 	int currentContainerIndex = -1; //[REDACTED] style baby!
@@ -16,6 +18,7 @@ public:
 	thruster removeThruster(const thruster& t);
 	void addContainer(fuelContainer fc);
 	fuelContainer removeContainer(const fuelContainer& fc);
+	void setParent(universeNode* u);
 
 	void update(double dt);
 

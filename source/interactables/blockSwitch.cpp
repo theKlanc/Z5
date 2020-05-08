@@ -41,10 +41,8 @@ void from_json(const nlohmann::json &j, blockSwitch &bs)
 	bs._positions = j.at("positions").get<std::vector<fdd>>();
 	if(j.contains("sfx"))
 	{
-		IC("contains sfx yaay");
 		bs._sfxname = j.at("sfx").get<std::string>();
 		bs._sfx = Services::audio.loadAudio(bs._sfxname);
-		IC(bs._sfx);
 	}
 	for(nlohmann::json jj : j.at("blocks")){
 		bs._blocks.push_back(std::make_pair<>(jj.at("block").get<metaBlock>(),jj.at("position").get<point3Di>()));

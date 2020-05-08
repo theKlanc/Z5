@@ -1,1 +1,208 @@
-[{"components":[{"content":{"nameString":"Captain Lewis"},"type":"NAME"},{"content":{"parent":200,"pos":{"r":6.038794299534714,"x":14.54270321483066,"y":21.379926950592253,"z":22.97893348635197}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":-0.25251162350250933,"y":0.1312263358211108,"z":5.685176420438287}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":256,"startY":0},{"sizeX":16,"sizeY":16,"startX":256,"startY":16},{"sizeX":16,"sizeY":16,"startX":256,"startY":32},{"sizeX":16,"sizeY":16,"startX":256,"startY":48},{"sizeX":16,"sizeY":16,"startX":256,"startY":64},{"sizeX":16,"sizeY":16,"startX":256,"startY":80},{"sizeX":16,"sizeY":16,"startX":272,"startY":0},{"sizeX":16,"sizeY":16,"startX":272,"startY":16},{"sizeX":16,"sizeY":16,"startX":272,"startY":32},{"sizeX":16,"sizeY":16,"startX":272,"startY":48},{"sizeX":16,"sizeY":16,"startX":272,"startY":64},{"sizeX":16,"sizeY":16,"startX":272,"startY":80}],"spriteName":"player3","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.1,"height":0.8,"mass":65.0,"volume":0.07,"width":0.8},"type":"BODY"},{"content":{"brain":null,"type":"astronaut"},"type":"BRAIN"}],"tags":["PLAYER"]},{"components":[{"content":{"parent":200,"pos":{"r":0.0,"x":14.54270321483066,"y":21.379926950592253,"z":23.788933486351972}},"type":"POSITION"}],"tags":["CAMERA"]},{"components":[{"content":{"nameString":"Lieutenant Gromit"},"type":"NAME"},{"content":{"parent":4,"pos":{"r":4.401224258955409,"x":5215067.396357039,"y":696770.2602956338,"z":-1186.30503151856}},"type":"POSITION"},{"content":{"spd":{"r":-0.09470066463859278,"x":4.771866764541194e-13,"y":0.0,"z":-32.693283418897614}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":0,"startY":32}],"spriteName":"dog","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.1,"height":0.4,"mass":10.0,"volume":0.02,"width":0.3},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.632723260744609,"x":5215069.899348046,"y":696772.4495009666,"z":268.5315181191854}},"type":"POSITION"},{"content":{"spd":{"r":-0.0278185687497008,"x":-1.287787007262379e-13,"y":1.582067810090848e-15,"z":44.25922104020816}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":0.27607892396867073,"x":5215069.39635587,"y":696777.0314432388,"z":60.42854245963787}},"type":"POSITION"},{"content":{"spd":{"r":-0.028263700045326065,"x":1.5300152148207267e-15,"y":0.0,"z":-8.775442651953096}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":1.0772282905168054,"x":5215069.599662642,"y":696773.3261121326,"z":3544.5807220269744}},"type":"POSITION"},{"content":{"spd":{"r":-0.02823273290319323,"x":6.633148891266316e-15,"y":-1.6731906188284918e-13,"z":-129.47068749507972}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.9613585833993135,"x":-1139635.0883186755,"y":-152251.49982369688,"z":-9824843.979929712}},"type":"POSITION"},{"content":{"spd":{"r":-0.0204657508121253,"x":-6024.180864325728,"y":-804.8900694379615,"z":6652.4780292235555}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":5.132215089154582,"x":5178377.390616296,"y":696775.7351513985,"z":1010.7536641481098}},"type":"POSITION"},{"content":{"spd":{"r":-0.02551147626009934,"x":-1.6007727977052593,"y":1.966785723032149e-08,"z":141.93037941670624}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":3.233736841580396,"x":5215105.074774365,"y":696769.7191279453,"z":-158.09638649144256}},"type":"POSITION"},{"content":{"spd":{"r":-0.016971982649767233,"x":0.001400177788611376,"y":-8.029131033145374e-05,"z":-33.12439568327679}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":5.1583985372659,"x":5215058.19221421,"y":696751.4323473958,"z":-4041.4048779607638}},"type":"POSITION"},{"content":{"spd":{"r":0.0013717075571831156,"x":-0.0006041176912873396,"y":-0.0008588551832610476,"z":85.18912791964473}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":1.3595677801003763,"x":5215070.356966222,"y":696774.4011292089,"z":-3651.3995369376375}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":0.0,"y":0.0,"z":81.7201842618853}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":3.6733646144062972,"x":5215070.356228505,"y":696775.3333492052,"z":0.00043615987661562377}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":0.0,"y":0.0,"z":0.09575455942526984}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":1.97919829857286,"x":5217184.70506696,"y":696773.059677555,"z":-642902.2779769021}},"type":"POSITION"},{"content":{"spd":{"r":-0.04848680684313101,"x":0.08948788893147501,"y":9.81964767755033e-07,"z":5035.401440731625}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.355851813335712,"x":5946335.109349552,"y":696816.8696698915,"z":1332607.7715627875}},"type":"POSITION"},{"content":{"spd":{"r":-0.02632374142136454,"x":31.839309881545162,"y":0.001903483730318668,"z":-3179.4644049509193}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":3.152819741551463,"x":5215072.250476354,"y":696768.6581346404,"z":7927.216017828956}},"type":"POSITION"},{"content":{"spd":{"r":-0.024389048268782288,"x":4.221494811637815e-05,"y":-0.00021759808851730042,"z":-33.21281243550683}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.565872998653155,"x":5215072.147529916,"y":696774.2698735333,"z":0.0010416780582487074}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":0.0,"y":0.0,"z":-0.0016198304331381114}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.924550801751897,"x":5215070.813552332,"y":696775.3496828243,"z":0.0003751876642764488}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":0.0,"y":0.0,"z":-0.0005849547971968766}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":2.167995210105979,"x":5215071.396357039,"y":696776.2602956338,"z":927.7158370603914}},"type":"POSITION"},{"content":{"spd":{"r":-0.028699845909268017,"x":1.740628883629703e-13,"y":0.0,"z":-59.067202464499665}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":2.3338746394886987,"x":5215068.305980693,"y":696762.873130009,"z":-1250.8885409208388}},"type":"POSITION"},{"content":{"spd":{"r":0.0036290918490292628,"x":-0.00019722070886320662,"y":-0.0004228648724090679,"z":-84.39467938178811}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":1.9735586906251208,"x":5215072.4790331395,"y":696773.4091813855,"z":8.30976669621533e-05}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":0.0,"y":0.0,"z":0.06968095348871561}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.445175714200591,"x":5215072.609994079,"y":696774.271340167,"z":0.00011172534885280014}},"type":"POSITION"},{"content":{"spd":{"r":0.0,"x":0.0,"y":0.0,"z":-0.05614018254385966}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":1.0772590218605056,"x":5215073.120821484,"y":696775.2602956338,"z":1553.7292486561628}},"type":"POSITION"},{"content":{"spd":{"r":-0.02822191759681786,"x":-8.571584666150961e-14,"y":0.0,"z":174.63590644434547}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":3.4160469609806228,"x":5215072.396357039,"y":696776.2602956338,"z":366.60137262853397}},"type":"POSITION"},{"content":{"spd":{"r":-0.02865432316712349,"x":1.790645580309209e-13,"y":0.0,"z":-233.15619837280073}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":2.3367668780798425,"x":8024008.723402833,"y":1199990.2369388707,"z":2909888.175417173}},"type":"POSITION"},{"content":{"spd":{"r":-0.004552850593528861,"x":-2162.747045962942,"y":-397.4273600042756,"z":6382.963279292241}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":1.072688968236922,"x":176148.9450770297,"y":23372.71199164072,"z":-4242588.418221141}},"type":"POSITION"},{"content":{"spd":{"r":-0.054369827676858426,"x":-4787.553052659503,"y":-641.5384154134694,"z":-2896.1865128272066}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":5.877022167117179,"x":-5588175.206578686,"y":-746718.2815307074,"z":-14127367.882379718}},"type":"POSITION"},{"content":{"spd":{"r":-0.11163024355508486,"x":-4435.450921476651,"y":-592.6608974862618,"z":4929.185588280853}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":0.8534472562514868,"x":5210084.023874574,"y":696775.2537959121,"z":-2324191.890215733}},"type":"POSITION"},{"content":{"spd":{"r":-0.06714198221405455,"x":-0.21584686939401565,"y":-2.8624000617982983e-07,"z":-1588.1880267778367}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null},{"components":[{"content":{"parent":4,"pos":{"r":4.684337122002969,"x":-5332425.285815383,"y":1281382.5374216856,"z":1790792.887555753}},"type":"POSITION"},{"content":{"spd":{"r":-0.12463043459838442,"x":9592.802719764644,"y":-3614.6703628717714,"z":-4945.175977280621}},"type":"VELOCITY"},{"content":{"frames":[{"sizeX":16,"sizeY":16,"startX":240,"startY":0}],"spriteName":"ball","textureName":"spritesheet"},"type":"DRAWABLE"},{"content":{"elasticity":0.98,"height":0.875,"mass":1.0,"volume":0.2,"width":0.875},"type":"BODY"}],"tags":null}]
+[
+  {
+    "components": [
+      {
+        "content": {
+          "parent": 200,
+          "pos": {
+            "r": 1,
+            "x": 16,
+            "y": 16,
+            "z": 5
+          }
+        },
+        "type": "POSITION"
+      },
+      {
+        "content": {
+          "spd": {
+            "r": 0,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        "type": "VELOCITY"
+      },
+      {
+        "content": {
+          "frames": [
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 240,
+              "startY": 0
+            }
+          ],
+          "spriteName": "ball",
+          "textureName": "spritesheet"
+        },
+        "type": "DRAWABLE"
+      },
+      {
+        "content": {
+          "elasticity": 0.98,
+          "height": 0.875,
+          "mass": 1,
+          "volume": 0.2,
+          "width": 0.875
+        },
+        "type": "BODY"
+      }
+    ],
+    "tags": null
+  },
+  {
+    "components": [
+      {
+        "content": {
+          "parent": 200,
+          "pos": {
+            "r": 0,
+            "x": 19.509964369546477,
+            "y": 14.543371097057845,
+            "z": 10.310011478409844
+          }
+        },
+        "type": "POSITION"
+      }
+    ],
+    "tags": [
+      "CAMERA"
+    ]
+  },
+  {
+    "components": [
+      {
+        "content": {
+          "nameString": "Captain Lewis"
+        },
+        "type": "NAME"
+      },
+      {
+        "content": {
+          "parent": 200,
+          "pos": {
+            "r": 6.038794299534714,
+            "x": 19.509964369546477,
+            "y": 14.543371097057845,
+            "z": 8.500011478409844
+          }
+        },
+        "type": "POSITION"
+      },
+      {
+        "content": {
+          "spd": {
+            "r": 0,
+            "x": -1.4995454977273975e-15,
+            "y": 1.4995454977273975e-15,
+            "z": 0.0015151500993448933
+          }
+        },
+        "type": "VELOCITY"
+      },
+      {
+        "content": {
+          "frames": [
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 256,
+              "startY": 0
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 256,
+              "startY": 16
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 256,
+              "startY": 32
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 256,
+              "startY": 48
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 256,
+              "startY": 64
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 256,
+              "startY": 80
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 272,
+              "startY": 0
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 272,
+              "startY": 16
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 272,
+              "startY": 32
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 272,
+              "startY": 48
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 272,
+              "startY": 64
+            },
+            {
+              "sizeX": 16,
+              "sizeY": 16,
+              "startX": 272,
+              "startY": 80
+            }
+          ],
+          "spriteName": "player3",
+          "textureName": "spritesheet"
+        },
+        "type": "DRAWABLE"
+      },
+      {
+        "content": {
+          "elasticity": 0.1,
+          "height": 0.8,
+          "mass": 65,
+          "volume": 0.07,
+          "width": 0.8
+        },
+        "type": "BODY"
+      },
+      {
+        "content": {
+          "brain": null,
+          "type": "astronaut"
+        },
+        "type": "BRAIN"
+      }
+    ],
+    "tags": [
+      "PLAYER"
+    ]
+  }
+]

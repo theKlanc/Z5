@@ -3,7 +3,9 @@
 #include "HI2.hpp"
 #include "json.hpp"
 #include "fdd.hpp"
+#include "block.hpp"
 
+class universeNode;
 
 class thruster
 {
@@ -12,6 +14,7 @@ public:
 	thruster(const thruster &t, fdd pos);
 	std::tuple<point3Dd,point3Dd> getThrustVector(double consumedMass, double dt); //[thrust vector in newtons,position]
 	double getTargetThrust();
+	void setParent(universeNode* u);
 	void setTargetThrust(double p);//p is a double from 0.0 to 1.0
 	void update(double dt); //lerp towards targetThrust
 	double getConsumption(); //returns the current mass consumption per second rate
@@ -33,6 +36,9 @@ private:
 
 	friend void to_json(nlohmann::json& j, const thruster& t);
 	friend void from_json(const nlohmann::json& j, thruster& t);
+
+	std::vector<std::pair<metaBlock,point3Di>> _blocks;
+	universeNode* _parent;
 };
 
 void to_json(nlohmann::json& j, const thruster& t);

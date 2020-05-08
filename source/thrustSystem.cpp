@@ -57,6 +57,13 @@ fuelContainer thrustSystem::removeContainer(const fuelContainer &fc)
 	else return fuelContainer();
 }
 
+void thrustSystem::setParent(universeNode *u)
+{
+	for(auto& t : _thrusters){
+		t->setParent(u);
+	}
+}
+
 void thrustSystem::update(double dt)
 {
 	for(auto& t : _thrusters){

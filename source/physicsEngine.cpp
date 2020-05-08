@@ -15,6 +15,7 @@ physicsEngine::physicsEngine()
 	//Create collision world
 	rp3d::WorldSettings collisionSettings;
 	collisionSettings.defaultVelocitySolverNbIterations = 5;
+	collisionSettings.defaultPositionSolverNbIterations = 3;
 	collisionSettings.isSleepingEnabled = false;
 	collisionSettings.worldName = "za warudo";
 
@@ -455,7 +456,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		vel.z = result.z;
 
 		//apply new velocity from surface
-		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude())) * 0.8;
+		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude())) * 0.5;
 
 		assert(!std::isnan(pos.x));
 		assert(!std::isnan(vel.x));
@@ -465,6 +466,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		if (vel.magnitude() < 0.1)
 		{
 			node.physicsData.sleeping = true;
+			node.setVelocity({});
 			std::cout << "putting " << node.getName() << " to sleep" << std::endl;
 		}
 	}

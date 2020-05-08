@@ -479,6 +479,7 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_name = u._name;
 	_mainColor = u._mainColor;
 	_thrustSystem = u._thrustSystem;
+	_thrustSystem->setParent(this);
 	_artificialGravity = u._artificialGravity;
 
 	for(auto& i : u._interactables){
@@ -747,6 +748,8 @@ void from_json(const json& j, universeNode& f) {
 	f.connectGenerator(jt);
 	f.populateColliders();
 	if(j.contains("thrustSystem")){
-		f._thrustSystem = std::make_shared<thrustSystem>(j.at("thrustSystem").get<thrustSystem>());
+	    auto ts = std::make_shared<thrustSystem>(j.at("thrustSystem").get<thrustSystem>());
+	    ts->setParent(&f);
+		f._thrustSystem = ts;
 	}
 }

@@ -556,7 +556,7 @@ void State::Playing::createEntities()
 	}
 
 	universeNode spaceShip("test_plat", 100000, 128, { sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
-	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("test"));
+	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("Roc"));
 	result->addChild(spaceShip);
 	//result = result->getChildren()[1];
 	{

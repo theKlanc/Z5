@@ -1,4 +1,5 @@
 #include "prefab.hpp"
+#include "icecream.hpp"
 
 prefab::prefab()
 {
@@ -42,6 +43,9 @@ void prefab::load()
 			input >> _size.x >> _size.y >> _size.z;
 			input >> _blocks;
 		}
+	}
+	else{
+		IC(_name+".z5p not found");
 	}
 }
 

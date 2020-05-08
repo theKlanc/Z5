@@ -1,6 +1,8 @@
 #include "thruster.hpp"
 #include "jsonTools.hpp"
 #include <tuple>
+#include "universeNode.hpp"
+#include "icecream.hpp"
 
 thruster::thruster(const thruster &t, fdd pos)
 {
@@ -21,6 +23,11 @@ std::tuple<point3Dd,point3Dd> thruster::getThrustVector(double consumedMass, dou
 double thruster::getTargetThrust()
 {
 	return _targetThrustPercent;
+}
+
+void thruster::setParent(universeNode *u)
+{
+	_parent = u;
 }
 
 
@@ -51,6 +58,7 @@ void thruster::setTargetThrust(double p)
 
 void thruster::update(double dt)
 {
+	double oldPercent = _currentThrustPercent;
 	if(_targetThrustPercent != _currentThrustPercent){
 		double mobility = dt * _thrustAgility;
 		if(std::abs(_currentThrustPercent-_targetThrustPercent) < mobility){
@@ -63,6 +71,14 @@ void thruster::update(double dt)
 			_currentThrustPercent-=mobility;
 		}
 	}
+	if((oldPercent == 0 && _currentThrustPercent != 0) || (oldPercent != 0 && _currentThrustPercent == 0)){
+		std::vector<std::pair<metaBlock,point3Di>> newBlocks;
+		for(std::pair<metaBlock,point3Di> &m : _blocks){
+			newBlocks.push_back(std::make_pair<>(_parent->getBlock(m.second),m.second));
+			_parent->setBlock(m.first,m.second);
+		}
+		_blocks=newBlocks;
+	}
 }
 
 double thruster::getConsumption()
@@ -73,7 +89,11 @@ double thruster::getConsumption()
 
 void to_json(nlohmann::json &j, const thruster &t)
 {
-	j = nlohmann::json{{"fuelID",t._fuelType->ID},{"target",t._targetThrustPercent},{"current",t._currentThrustPercent},{"maxThrust",t._maxThrust},{"consumption",t._maxConsumption},{"agility",t._thrustAgility},{"direction",t._thrustDirection},{"position",t._position}};
+	nlohmann::json jj{};
+	for(auto pair : t._blocks){
+		jj.push_back(nlohmann::json{{"block",pair.first},{"position",pair.second}});
+	}
+	j = nlohmann::json{{"fuelID",t._fuelType->ID},{"target",t._targetThrustPercent},{"current",t._currentThrustPercent},{"maxThrust",t._maxThrust},{"consumption",t._maxConsumption},{"agility",t._thrustAgility},{"thrustDirection",t._thrustDirection},{"position",t._position},{"blocks",jj}};
 }
 
 void from_json(const nlohmann::json &j, thruster &t)
@@ -86,5 +106,9 @@ void from_json(const nlohmann::json &j, thruster &t)
 	t._maxThrust = j.at("maxThrust").get<double>();
 	t._maxConsumption = j.at("consumption").get<double>();
 	t._thrustAgility = j.at("agility").get<double>();
-	t._thrustDirection = j.at("direction").get<point3Dd>();
+	t._thrustDirection = j.at("thrustDirection").get<point3Dd>();
+	for(nlohmann::json jj : j.at("blocks")){
+		t._blocks.push_back(std::make_pair<>(jj.at("block").get<metaBlock>(),jj.at("position").get<point3Di>()));
+	}
+
 }
