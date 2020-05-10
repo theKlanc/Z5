@@ -37,7 +37,8 @@ void State::PrefabEditor::input(double dt)
 	auto& keysHeld = HI2::getKeysHeld();
 	if (keysDown[HI2::BUTTON::CANCEL])
 	{
-		save();
+		if(!keysHeld[HI2::BUTTON::KEY_SHIFT])
+			save();
 		_core->popState();
 	}
 	if (keysDown[HI2::BUTTON::KEY_DASH])
@@ -142,6 +143,8 @@ void State::PrefabEditor::input(double dt)
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "i: toggle between drawing invisible blocks or not", { 0,180 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "o: toggle between drawing info or not", { 0,200 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "u: toggle between drawing lower layers or not", { 0,220 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Esc: Save and quit", { 0,240 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Shift+Esc: Quit without saving", { 0,260 }, 20, HI2::Color::White);
 
 
 

@@ -3,6 +3,7 @@
 -- Kinda done?
 ~~ Aparcao
 XX Abandonat
+== WIP
 
 # arreglar angles de sortida de colisions
 # canviar el rockyplanetgenerator a terrainPainterGenerator
@@ -77,7 +78,14 @@ crear inventari
 
 
 descarregar i diferenciar entre entitats permanents
-reparentitzar nodes i entitats més agressivament
+{CHUNKLOADER REWORK
+passar universeNodes a non-copyable
+refer sistema de chunkloaders, amb un chunkloader per node,
+==reparentitzar nodes i entitats més agressivament
+   reparentitzar nodes no és trivial, requereix sincronía entre chunkloader i main
+   una possible implementacio podria ser fer el seguent redisseny:
+   un thread per cada node, amb una posicio atòmica ja local, que actualitzarem frequentment des de mainThread
+}
 
 implementar fake tensió superficial
 

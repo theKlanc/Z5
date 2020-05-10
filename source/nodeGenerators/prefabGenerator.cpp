@@ -8,7 +8,7 @@ prefabGenerator::prefabGenerator(std::string s)
 terrainChunk prefabGenerator::getChunk(const point3Di& indexedChunkPos)
 {
 	point3Di pos = indexedChunkPos * config::chunkSize;
-	if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x+config::chunkSize-1 >= _prefab.getSize().x || pos.y+config::chunkSize-1 >= _prefab.getSize().y || pos.z+config::chunkSize-1 >= _prefab.getSize().z)
+	if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= _prefab.getSize().x || pos.y >= _prefab.getSize().y || pos.z >= _prefab.getSize().z)
 	{
 		return terrainChunk();
 	}

@@ -25,6 +25,7 @@
 #include "UI/customGadgets/starmap.hpp"
 #include <memory>
 #include "fuel.hpp"
+#include "icecream.hpp"
 
 universeNode* State::Playing::_chunkLoaderUniverseBase;
 position* State::Playing::_chunkLoaderPlayerPosition;
@@ -126,6 +127,11 @@ void State::Playing::input(double dt)
 		// Exit
 		if (held[HI2::BUTTON::CANCEL])
 		{
+			if(held[HI2::BUTTON::KEY_SHIFT])
+			{
+				IC();
+				exit(0);
+			}
 			_core->popState();
 		}
 	}
@@ -151,7 +157,7 @@ void State::Playing::update(double dt) {
 	}
 
 	//TODO update nodes positions
-	_physicsEngine.processCollisions(_universeBase, _enttRegistry, dt);
+	_physicsEngine.updatePhysics(_universeBase, _enttRegistry, dt);
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
 	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
@@ -557,7 +563,7 @@ void State::Playing::createEntities()
 
 	universeNode spaceShip("test_plat", 100000, 128, { sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
 	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("Roc"));
-	result->addChild(spaceShip);
+	result->addChild(std::move(spaceShip));
 	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
@@ -820,6 +826,8 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "setNullBlock ID" << std::endl;
 		std::cout << "zoom zoomLevel" << std::endl;
 		std::cout << "goto ID" << std::endl;
+		std::cout << "refill ID" << std::endl;
+
 
 	}
 	else if (command == "pause") {
@@ -979,6 +987,17 @@ void State::Playing::debugConsoleExec(std::string input)
 		universeNode* node;
 		if (_universeBase.findNodeByID(id, node)) {
 			node->physicsData.sleeping=false;
+		}
+	}
+	else if (command == "refill") { // Y THO
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* node;
+		if (_universeBase.findNodeByID(id, node)) {
+			ss >> argument;
+			unsigned fid = std::strtol(argument.c_str(), nullptr, 10);
+			node->getThrustSystem()->addFuel(&fuel::fuelList[fid],9999999999999999);
 		}
 	}
 

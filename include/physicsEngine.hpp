@@ -26,7 +26,7 @@ class physicsEngine : public rp3d::CollisionCallback
 	public:
 	physicsEngine();
 	~physicsEngine() override;
-	void processCollisions(universeNode& universeBase, entt::registry& registry, double dt);
+	void updatePhysics(universeNode& universeBase, entt::registry& registry, double dt);
 	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
 	rp3d::CollisionWorld* getWorld() const;
 private:
@@ -55,4 +55,7 @@ private:
 	void NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
 	void NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo);
 	std::unique_ptr<rp3d::CollisionWorld> _zaWarudo;
+
+
+	void reparentizeChildren(universeNode& base);
 };

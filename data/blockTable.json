@@ -2429,21 +2429,10 @@
   {
     "name": "door_open",
     "ID": 123,
-    "visible": true,
+    "visible": false,
     "solid": false,
     "opaque": false,
-    "mass": 40,
-    "sprite": {
-      "path": "spritesheet.png",
-      "frames": [
-        {
-          "sizeX": 16,
-          "sizeY": 16,
-          "startX": 208,
-          "startY": 192
-        }
-      ]
-    }
+    "mass": 0
   },
   {
     "name": "chunkydoor_frame_closed",
@@ -2734,6 +2723,252 @@
           "sizeY": 16,
           "startX": 96,
           "startY": 208
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_leg",
+    "ID": 139,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 0,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_multiengine",
+    "ID": 140,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 200,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 16,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_glass",
+    "ID": 141,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 2,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 32,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_thruster_fire",
+    "ID": 142,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 0,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 48,
+          "startY": 224
+        },
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 64,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_body_1",
+    "ID": 143,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 80,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_body_2",
+    "ID": 144,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 96,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_body_3",
+    "ID": 145,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 112,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_body_4",
+    "ID": 146,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 128,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_cockpit",
+    "ID": 147,
+    "visible": true,
+    "solid": false,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 144,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_body_5",
+    "ID": 148,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 160,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_body_6",
+    "ID": 149,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 50,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 176,
+          "startY": 224
+        }
+      ]
+    }
+  },
+  {
+    "name": "sparrow_engine",
+    "ID": 150,
+    "visible": true,
+    "solid": true,
+    "opaque": false,
+    "mass": 300,
+    "collider": 0,
+    "sprite": {
+      "path": "spritesheet.png",
+      "frames": [
+        {
+          "sizeX": 16,
+          "sizeY": 16,
+          "startX": 192,
+          "startY": 224
         }
       ]
     }

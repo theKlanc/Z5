@@ -76,6 +76,11 @@ metaBlock& universeNode::getBlock(const point3Di& pos) {
 	}
 }
 
+metaBlock &universeNode::getTheoreticalBlock(const point3Di &pos)
+{
+	return getBlock(pos);
+}
+
 void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 	if (!chunkAt(pos).loaded())
 	{
@@ -125,13 +130,6 @@ bool universeNode::findNodeByID(const unsigned int& id, universeNode*& result)
 	}
 	result = nullptr;
 	return false;
-}
-
-bool universeNode::drawBefore(universeNode& r) const
-{
-	fdd localPos = getLocalPos(r._position, r._parent);
-	return std::fmod(_position.z, 1.0f) < std::fmod(localPos.z, 1.0f);
-
 }
 
 bool universeNode::operator!=(const universeNode& right) const {
@@ -414,7 +412,54 @@ std::vector<universeNode*> universeNode::getChildren()
 
 void universeNode::addChild(universeNode u)
 {
+	u._depth = _depth+1;
+	if(u._parent!=this && u._parent != nullptr){
+		u._position = getLocalPos(u._position,u._parent);
+		u._velocity = getLocalVel(u._velocity,u._parent);
+	}
 	_children.push_back(u);
+}
+
+universeNode *universeNode::calculateBestParent(fdd pos)
+{
+	std::vector<universeNode*> candidates;
+	if(_parent!=nullptr)
+	{
+		candidates.push_back(_parent);
+		const auto& brethren = _parent->getChildren();
+		candidates.insert(candidates.end(),brethren.begin(),brethren.end());
+	}
+	else{
+		candidates.push_back(this);
+	}
+	const auto& choldren = getChildren();
+	candidates.insert(candidates.end(),choldren.begin(),choldren.end());
+	// is first < second ?
+	return *std::max_element(candidates.begin(),candidates.end(),[pos, this](universeNode* a, universeNode* b){
+		bool isInsideA = a->getTheoreticalBlock(pos.getPoint3Di()) == metaBlock::nullBlock;
+		bool isInsideB = b->getTheoreticalBlock(pos.getPoint3Di()) == metaBlock::nullBlock;
+		if(isInsideA && !isInsideB)
+			return false;
+		else if(!isInsideA && isInsideB)
+			return true;
+		else{
+			if(isInsideA){
+				return a->getDiameter() > b->getDiameter();
+			}
+			//else
+			fdd accA = a->getGravityAcceleration(a->getLocalPos(pos,this));
+			fdd accB = b->getGravityAcceleration(b->getLocalPos(pos,this));
+			return accB.magnitude()>accA.magnitude();
+		}
+		;
+	});
+}
+
+void universeNode::removeChild(unsigned ID)
+{
+	auto iter = std::find_if(_children.begin(),_children.end(),[ID](universeNode& n){return ID == n._ID;});
+	std::optional<universeNode> copy = *iter;
+	_children.erase(iter);
 }
 
 void universeNode::updatePositions(double dt)

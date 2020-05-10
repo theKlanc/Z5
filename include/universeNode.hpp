@@ -35,6 +35,8 @@ public:
 	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
 	metaBlock& getBlock(const point3Di &pos);
+	metaBlock& getTheoreticalBlock(const point3Di &pos);
+
 	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
@@ -53,6 +55,8 @@ public:
 	nodeType getType();
 	std::vector<universeNode*> getChildren();
 	void addChild(universeNode u);
+	universeNode* calculateBestParent(fdd pos);
+	void removeChild(unsigned ID);
 	void updatePositions(double dt);
 	void applyThrusters(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
@@ -70,7 +74,6 @@ public:
 	void populateColliders();
 	void linkChildren();
 	bool findNodeByID(const unsigned int& id, universeNode*& result);
-	bool drawBefore(universeNode& r)const;
 	void clean();
 
 	//Physics private obj

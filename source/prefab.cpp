@@ -61,7 +61,9 @@ metaBlock& prefab::operator[](int i)
 
 metaBlock& prefab::get(point3Di p)
 {
-	return _blocks[p.z * _size.y * _size.x + p.y * _size.x + p.x];
+	if(p.x < _size.x && p.y < _size.y && p.z < _size.z)
+		return _blocks[p.z * _size.y * _size.x + p.y * _size.x + p.x];
+	return metaBlock::nullBlock;
 }
 
 std::string prefab::getName() const

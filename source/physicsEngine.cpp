@@ -8,6 +8,7 @@
 #include "components/velocity.hpp"
 #include "components/body.hpp"
 #include "components/position.hpp"
+#include "icecream.hpp"
 
 
 physicsEngine::physicsEngine()
@@ -25,7 +26,7 @@ physicsEngine::physicsEngine()
 physicsEngine::~physicsEngine()
 {}
 
-void physicsEngine::processCollisions(universeNode& universeBase, entt::registry& registry, double dt)
+void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	_remainingTime += dt;
 	if (_remainingTime > 2.0f)
@@ -46,6 +47,7 @@ void physicsEngine::processCollisions(universeNode& universeBase, entt::registry
 			}
 			applyThrusters(universeBase,_timeStep);
 			universeBase.updatePositions(_timeStep*config::orbitDebugMultiplier);
+			//reparentizeChildren(universeBase);
 
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);
@@ -260,12 +262,16 @@ void physicsEngine::testCollisionBetweenNodes(universeNode& left, universeNode& 
 void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 {
 	for (universeNode& node : universe) {
+		node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
+	}
+	for (universeNode& node : universe) {
 		node.physicsData.maxContactDepth = 0;
 		node.physicsData.contactNormal = rp3d::Vector3();
 
 		if (node.getParent() != nullptr && !node.physicsData.sleeping)
 		{
-			node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
+			auto oldParentTransform = node.getParent()->getNodeCollider()->getTransform();
+			node.getParent()->getNodeCollider()->setTransform(rp3d::Transform::identity());
 
 
 
@@ -277,21 +283,23 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 
 
 			//brethren
-			for (universeNode* brotha : universe.getChildren())
+			for (universeNode* brotha : node.getParent()->getChildren())
 			{
 				if (*brotha != node)
 				{
-					if (brotha->physicsData.sleeping || brotha->getID() < node.getID())
+					if (true || !brotha->physicsData.sleeping || brotha->getID() < node.getID())
 					{
-						brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
-						if (node.getNodeCollider()->testAABBOverlap(node.getParent()->getNodeCollider()->getAABB()))
+						//node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
+						//brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
+						if (node.getNodeCollider()->testAABBOverlap(brotha->getNodeCollider()->getAABB()))
 						{
-							//TODO
+							IC("BROOO");
+							testCollisionBetweenNodes(node, *brotha);
 						}
 					}
 				}
 			}
-			node.getNodeCollider()->setTransform({ rp3d::Vector3::zero(),rp3d::Quaternion::identity() });
+			node.getParent()->getNodeCollider()->setTransform(oldParentTransform);
 		}
 	}
 }
@@ -347,6 +355,8 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 
 
 			entityBody.physicsData.collider->setTransform(entityTransform);
+			auto oldTransform = node->getNodeCollider()->getTransform();
+			node->getNodeCollider()->setTransform(rp3d::Transform::identity());
 
 			if (_zaWarudo->testAABBOverlap(entityBody.physicsData.collider, node->getNodeCollider()))
 			{
@@ -371,6 +381,8 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 					}
 				}
 			}
+			node->getNodeCollider()->setTransform(oldTransform);
+
 		}
 	}
 }
@@ -613,6 +625,8 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 		fatNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
 		slimNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
 	}
+	if(slimNode->getParent() != fatNode)
+		IC("collided " + fatNode->getName() + " with " + slimNode->getName());
 
 	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
 	while (contactManifold != nullptr)
@@ -630,5 +644,18 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 			contactPoint = contactPoint->getNext();
 		}
 		contactManifold = contactManifold->getNext();
+	}
+}
+
+void physicsEngine::reparentizeChildren(universeNode &base)
+{
+	for(auto & child : base){
+		auto bestP = child.getParent()->calculateBestParent(child.getPosition());
+		if(bestP != child.getParent())
+		{
+			auto oldParent = child.getParent();
+			bestP->addChild(child);
+			oldParent->removeChild(child.getID());
+		}
 	}
 }

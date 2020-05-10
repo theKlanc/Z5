@@ -26,11 +26,16 @@ State::MainMenu::MainMenu(gameCore& gc) :State_Base(gc), _standardFont(*Services
 	_uiScene.addGadget(std::make_shared<imageView>(point2D{ 0,0 }, point2D{ 1280,720 }, bg));
 	_uiScene.addGadget(std::make_shared<textView>(point2D{ HI2::getScreenWidth() / 2 - 110,50 }, point2D{ 220,220 }, "Z5", _standardFont, 200, HI2::Color::White));
 
-	createMainPanel();
 
 	createContinuePanel();
 
 	createNewGamePanel();
+
+	createPrefabPanel();
+
+
+
+	createMainPanel();
 
 	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 }
@@ -55,6 +60,11 @@ void State::MainMenu::input(double dt) {
 			_mainPanel.p->setActive(true);
 			_mainPanel.p->setVisible(true);
 
+			_uiScene.select(_mainPanel.p);
+		}
+		else if (_prefabPanel.p->isActive()){
+			_prefabPanel.p->toggle();
+			_mainPanel.p->toggle();
 			_uiScene.select(_mainPanel.p);
 		}
 	}
@@ -88,6 +98,9 @@ void State::MainMenu::update(double dt) {
 	}
 	if(_mainPanel.optionsButton->isRisingInside()){
 		_core->pushState(std::make_unique<State::Demo>(*_core));
+	}
+	if(_mainPanel.mapEditorButton->isRisingInside()){
+		_mainPanel.p->setVisible(false);
 	}
 	if (_newGamePanel.start->isRisingInside())
 	{
@@ -148,10 +161,35 @@ void State::MainMenu::draw(double dt) {
 	HI2::endFrame();
 }
 
-void State::MainMenu::mapEditorCallback()
+void State::MainMenu::editPrefabCallback(std::filesystem::path s)
 {
-	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,"Roc"));
-	//_core->pushState(std::make_unique<State::PrefabEditor>(*_core,"test",point3Di{64,32,16}));
+	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,s));
+}
+
+void State::MainMenu::newPrefabCallback()
+{
+	if(std::filesystem::exists(HI2::getDataPath().append("prefabs").append(_prefabPanel.newPrefab.pfbName->getText())))
+		return;
+	point3Di p;
+	p.x = std::stoi(_prefabPanel.newPrefab.xSize->getText());
+	p.y = std::stoi(_prefabPanel.newPrefab.ySize->getText());
+	p.z = std::stoi(_prefabPanel.newPrefab.zSize->getText());
+	if(p.z == 0 || p.y == 0 || p.x == 0)
+		return;
+	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,_prefabPanel.newPrefab.pfbName->getText(),p));
+}
+
+void State::MainMenu::toggleEditorPanel()
+{
+	_prefabPanel.p->toggle();
+	_mainPanel.p->toggle();
+	if(_prefabPanel.p->isActive()){
+		regeneratePrefabsVector();
+		_uiScene.select(_prefabPanel.p);
+	}
+	else{
+		_uiScene.select(_mainPanel.p);
+	}
 }
 
 void State::MainMenu::regenerateSavesVector()
@@ -216,7 +254,7 @@ void State::MainMenu::createMainPanel()
 	last->setDown(_mainPanel.mapEditorButton.get());
 	_mainPanel.mapEditorButton->setUp(last.get());
 	last = _mainPanel.mapEditorButton;
-	_mainPanel.mapEditorButton->setClickCallback(std::bind(&State::MainMenu::mapEditorCallback, this));
+	_mainPanel.mapEditorButton->setClickCallback(std::bind(&State::MainMenu::toggleEditorPanel, this));
 	_mainPanel.p->addGadget(std::make_shared<textView>(point2D{ 80,160 }, point2D{ 200,32 }, "Map editor", _standardFont, 32, HI2::Color::Black, HI2::Color::White));
 
 	_mainPanel.optionsButton = std::make_shared<imagePushButton>(point2D{ 32,224 }, point2D{ 32,32 }, off, on, "");
@@ -270,4 +308,59 @@ void State::MainMenu::createContinuePanel()
 	_continuePanel.p->setVisible(false);
 
 	_uiScene.addGadget(_continuePanel.p);
+}
+
+void State::MainMenu::createPrefabPanel()
+{
+	_prefabPanel.p = std::make_shared<basicScrollablePanel>(point2D{ HI2::getScreenWidth() / 2 - 1000 / 2,250 }, point2D{ 1000,400 }, point2D{ 1000,400 }, HI2::Color::LightGrey);
+	_prefabPanel.p->setActive(false);
+	_prefabPanel.p->setVisible(false);
+	_prefabPanel.newPrefab.p = std::make_shared<basicPanel>(point2D{ 32,32}, point2D{ 936,160 }, HI2::Color::LightestGrey);
+	_prefabPanel.p->addGadget(_prefabPanel.newPrefab.p);
+	_prefabPanel.newPrefab.pfbName = std::make_shared<basicTextEntry>(point2D{ 32 ,32},point2D{936 - 64,32},_standardFont,32,"","Prefab name here",HI2::Color::White);
+	_prefabPanel.newPrefab.p->addGadget(_prefabPanel.newPrefab.pfbName);
+
+
+	sprite on = *Services::graphics.loadSprite("UI/buttons/blue_button_on","UI/buttons/blue_button_on");
+	sprite off = *Services::graphics.loadSprite("UI/buttons/blue_button_off","UI/buttons/blue_button_off");
+	_prefabPanel.newPrefab.start = std::make_shared<imagePushButton>(point2D{ 936 - 64,96 }, point2D{ 32,32 }, off, on, "");
+	_prefabPanel.newPrefab.start->setClickCallback(std::bind(&State::MainMenu::newPrefabCallback, this));
+	_prefabPanel.newPrefab.p->addGadget(_prefabPanel.newPrefab.start);
+
+	_prefabPanel.newPrefab.xSize = std::make_shared<basicTextEntry>(point2D{32,96},point2D{64, 32},_standardFont,32,"","x",HI2::Color::White);
+	_prefabPanel.newPrefab.p->addGadget(_prefabPanel.newPrefab.xSize);
+
+	_prefabPanel.newPrefab.ySize = std::make_shared<basicTextEntry>(point2D{128,96},point2D{64, 32},_standardFont,32,"","y",HI2::Color::White);
+	_prefabPanel.newPrefab.p->addGadget(_prefabPanel.newPrefab.ySize);
+
+	_prefabPanel.newPrefab.zSize = std::make_shared<basicTextEntry>(point2D{224,96},point2D{64, 32},_standardFont,32,"","z",HI2::Color::White);
+	_prefabPanel.newPrefab.p->addGadget(_prefabPanel.newPrefab.zSize);
+
+
+
+	_uiScene.addGadget(_prefabPanel.p);
+}
+
+void State::MainMenu::regeneratePrefabsVector()
+{
+	for(auto& p : _prefabPanel.prefabs){
+		_prefabPanel.p->removeGadget(p.txt);
+		_prefabPanel.p->removeGadget(p.startButton);
+	}
+	_prefabPanel.prefabs.clear();
+
+	sprite play_on = *Services::graphics.loadSprite("UI/buttons/play_button_on","UI/buttons/play_button_on");
+	sprite play_off = *Services::graphics.loadSprite("UI/buttons/play_button_off","UI/buttons/play_button_off");
+	int i = 0;
+	for (auto& s : std::filesystem::directory_iterator(HI2::getDataPath().append("prefabs"))) {
+		pfb prefabPanel;
+		prefabPanel.txt = std::make_shared<textView>(point2D{32,224+64*i},point2D{936 - 64 - 96,32},s.path().filename(),_standardFont,32,HI2::Color::Black);
+		prefabPanel.startButton = std::make_shared<imagePushButton>(point2D{936 - 64,224+64*i++},point2D{32,32},play_off,play_on);
+		prefabPanel.startButton->setClickCallback(std::bind(&State::MainMenu::editPrefabCallback, this, s.path().filename()));
+		_prefabPanel.p->addGadget(prefabPanel.txt);
+		_prefabPanel.p->addGadget(prefabPanel.startButton);
+		_prefabPanel.prefabs.push_back(prefabPanel);
+	}
+	_prefabPanel.p->setMaxDimensions({1000,224+64*i});
+
 }
