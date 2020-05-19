@@ -11,6 +11,8 @@
 #include "thrustSystem.hpp"
 #include "interactable.hpp"
 #include <optional>
+#include "icecream.hpp"
+#include <thread>
 
 const double G = (6.67408e-11);
 
@@ -31,11 +33,15 @@ enum class nodeType{
 class universeNode {
 public:
 	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
+	~universeNode();
 	universeNode(const universeNode& u);
+	universeNode& operator=(const universeNode& n);
 	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
 	metaBlock& getBlock(const point3Di &pos);
 	metaBlock& getTheoreticalBlock(const point3Di &pos);
+
+	void updateCamera(fdd c);
 
 	void setBlock(metaBlock b, const point3Di &pos);
 	void updateChunks(const fdd& playerPos, universeNode* u);
@@ -54,13 +60,12 @@ public:
 	std::string getName();
 	nodeType getType();
 	std::vector<universeNode*> getChildren();
-	void addChild(universeNode u);
-	universeNode* calculateBestParent(fdd pos);
+	void addChild(universeNode& u);
+	universeNode* calculateBestParent(fdd pos, unsigned ID);
 	void removeChild(unsigned ID);
 	void updatePositions(double dt);
 	void applyThrusters(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
-	universeNode& operator=(const universeNode& n);
 	void updateThrusters(double dt);
 
 
@@ -103,7 +108,7 @@ public:
 		universeNode& operator*();
 		universeNode& operator->();
 		universeNodeIterator& operator++();
-		universeNodeIterator operator++(int devnull);
+		universeNodeIterator operator++(int);
 	    private:
 		universeNode* p=nullptr;
 		std::queue<universeNode*> q;
@@ -120,6 +125,7 @@ public:
 	point3Di getClosestInteractablePos(fdd pos);
 
 	std::shared_ptr<thrustSystem> getThrustSystem();
+
 private:
 
 	bool shouldDraw(fdd f);
@@ -141,7 +147,7 @@ private:
 	fdd _velocity;
 	std::optional<fdd> _artificialGravity;
 
-	std::vector<terrainChunk> _chunks; // So big, should be on the heap. So fat, too much for the stack.
+	std::vector<terrainChunk> _chunks;
 
 	std::vector<std::unique_ptr<interactable>> _interactables;
 
@@ -151,12 +157,17 @@ private:
 	std::unique_ptr<nodeGenerator> _generator;
 	unsigned int _depth;
 	unsigned int _ID;
-	rp3d::CollisionBody* _collider;
-	rp3d::CollisionShape* _collisionShape;
+	std::shared_ptr<rp3d::CollisionBody> _collider = nullptr;
+	std::shared_ptr<rp3d::CollisionShape> _collisionShape = nullptr;
 
 	HI2::Color _mainColor = HI2::Color::White;
 
 	std::shared_ptr<thrustSystem> _thrustSystem = std::make_shared<thrustSystem>();
+
+	std::shared_ptr<fdd> _CL_cameraPosition = nullptr;
+	std::shared_ptr<std::thread> _CL_chunkloader = nullptr;
+	std::shared_ptr<std::mutex> _CL_mutex = nullptr;
+	void _CL_chunkloaderFunc();
 };
 
 

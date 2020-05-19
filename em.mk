@@ -1,7 +1,7 @@
 APPNAME := Z5
 BINDIR	:= bin
 PLATFORM := emscripten
-SOURCES := source deps/HardwareInterface deps/HardwareInterface/Simple-SDL2-Audio/src deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets source/UI/customGadgets
+SOURCES := source deps/HardwareInterface deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets source/UI/customGadgets
 INCLUDE := include deps deps/reactPhysics3D/src deps/json/single_include/nlohmann deps/HardwareInterface deps/icecream-cpp deps/reactPhysics3D/src
 
 BUILDDIR := build

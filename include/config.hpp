@@ -11,7 +11,7 @@ namespace config {
 	                                = 20;
 #endif
 
-	constexpr int chunkSize = 4;
+	constexpr int chunkSize = 8;
 	extern int cameraDepth;
 	constexpr int spriteSize = 16;
 	extern double zoom;

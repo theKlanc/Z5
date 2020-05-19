@@ -45,8 +45,14 @@ XX rotacions de layers
 #crear gui pel nodeController
 #implementar portes
 #afegir efectes visuals als thrusters (almenys encendre/apagar)
-~afegir so a les portes i als thrusters (aparcat el soroll dels motors, quan fem tot el sistema de so
-crear nau petita + estacio espacial
+~afegir so a les portes i als thrusters (aparcat el soroll dels motors, quan fem tot el sistema de so ja es fara)
+~crear nau petita + estacio espacial
+refer el chunkloader
+refer la visibilitat
+aplicar el reparentitzat
+
+small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
+
 canviar el univers default
 
 implementar spawners de nodes

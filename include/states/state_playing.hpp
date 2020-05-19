@@ -50,7 +50,6 @@ namespace State {
 		int selectedBlock = 7;
 		blockRotation selectedRotation = blockRotation::UP;
 		bool selectedFlip = false;
-		universeNode _universeBase;
 		entt::registry _enttRegistry;
 
 		static std::filesystem::path _savePath;
@@ -67,14 +66,9 @@ namespace State {
 
 
 		physicsEngine _physicsEngine;
-		std::unique_ptr<std::thread> _chunkLoaderThread;
 
+		universeNode _universeBase;
 		HI2::Font _standardFont;
-
-		static std::mutex _chunkLoaderMutex;
-		static void _chunkLoaderFunc();
-		static universeNode* _chunkLoaderUniverseBase;
-		static position* _chunkLoaderPlayerPosition;
 
 		bool _debug = false;
 

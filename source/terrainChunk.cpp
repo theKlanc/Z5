@@ -8,7 +8,7 @@
 
 terrainChunk::~terrainChunk()
 {
-	//if (_collisionBody != nullptr) 
+	//if (_collisionBody != nullptr)
 	//{
 	//	Services::physicsMutex.lock();
 	//	Services::collisionWorld->destroyCollisionBody(_collisionBody);

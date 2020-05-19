@@ -10,12 +10,11 @@
 #include "nodeGenerators/nullGenerator.hpp"
 #include "jsonTools.hpp"
 
-
-void universeNode::clean()
+universeNode::~universeNode()
 {
-	Services::physicsMutex.lock();
-	delete _collisionShape;
-	Services::physicsMutex.unlock();
+	_CL_cameraPosition = nullptr;
+	while(!_CL_chunkloader->joinable()){IC(_ID);}
+	_CL_chunkloader->join();
 
 	for (terrainChunk& chunk : _chunks)
 	{
@@ -24,13 +23,9 @@ void universeNode::clean()
 			chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
 		}
 	}
-	for (universeNode& child : _children)
-	{
-		child.clean();
-	}
 }
 
-universeNode::universeNode(const universeNode& u)
+universeNode::universeNode(const universeNode &u)
 {
 	*this = u;
 }
@@ -55,6 +50,10 @@ universeNode::universeNode(std::string name, double mass, double diameter, fdd p
 	_chunks = std::vector<terrainChunk>(config::chunkLoadDiameter * config::chunkLoadDiameter * config::chunkLoadDiameter);
 	connectGenerator({ {"type","null"} });
 	populateColliders();
+
+	_CL_cameraPosition = std::make_shared<fdd>();
+	_CL_chunkloader = std::make_shared<std::thread>(std::bind(&universeNode::_CL_chunkloaderFunc, this));
+	_CL_mutex = std::make_shared<std::mutex>();
 }
 
 baseBlock& universeNode::getTopBlock(const point2D& pos)
@@ -81,6 +80,11 @@ metaBlock &universeNode::getTheoreticalBlock(const point3Di &pos)
 	return getBlock(pos);
 }
 
+void universeNode::updateCamera(fdd c)
+{
+	*_CL_cameraPosition=c;
+}
+
 void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 	if (!chunkAt(pos).loaded())
 	{
@@ -91,13 +95,12 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 }
 
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
+	_CL_mutex->lock();
 	fdd localCameraPos = getLocalPos(cameraPos, u);
 	if (localCameraPos.distance2D({ 0,0,0,0 }) < (_diameter / 2 + 100)) {
 		iUpdateChunks(chunkFromPos(localCameraPos));
 	}
-	for (universeNode& child : _children) {
-		child.updateChunks(cameraPos, u);
-	}
+	_CL_mutex->unlock();
 }
 
 bool universeNode::shouldDraw(fdd f) {
@@ -228,6 +231,29 @@ point3Di universeNode::getClosestInteractablePos(fdd pos)
 std::shared_ptr<thrustSystem> universeNode::getThrustSystem()
 {
 	return _thrustSystem;
+}
+
+void universeNode::_CL_chunkloaderFunc()
+{
+	fdd lastPos;
+	while(_CL_cameraPosition){
+		fdd pos = *_CL_cameraPosition;
+		if(!_CL_cameraPosition)
+			break;
+		if(lastPos!=pos){
+			updateChunks(pos,this);
+			lastPos = pos;
+		}
+		else{
+			if(pos.magnitude() > 1.5*_diameter){
+				int t = pos.magnitude()/_diameter * 100;
+				if(t > 2000)
+					t=2000;
+				std::this_thread::sleep_for(std::chrono::milliseconds(t));//will not work when TPing
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+	}
 }
 
 void universeNode::iUpdateChunks(const point3Di& localChunk) {
@@ -410,7 +436,7 @@ std::vector<universeNode*> universeNode::getChildren()
 	return result;
 }
 
-void universeNode::addChild(universeNode u)
+void universeNode::addChild(universeNode& u)
 {
 	u._depth = _depth+1;
 	if(u._parent!=this && u._parent != nullptr){
@@ -420,7 +446,7 @@ void universeNode::addChild(universeNode u)
 	_children.push_back(u);
 }
 
-universeNode *universeNode::calculateBestParent(fdd pos)
+universeNode *universeNode::calculateBestParent(fdd pos, unsigned ID)
 {
 	std::vector<universeNode*> candidates;
 	if(_parent!=nullptr)
@@ -432,8 +458,10 @@ universeNode *universeNode::calculateBestParent(fdd pos)
 	else{
 		candidates.push_back(this);
 	}
-	const auto& choldren = getChildren();
-	candidates.insert(candidates.end(),choldren.begin(),choldren.end());
+	for(auto& child : getChildren()){
+		if(child->getID() != ID)
+			candidates.push_back(child);
+	}
 	// is first < second ?
 	return *std::max_element(candidates.begin(),candidates.end(),[pos, this](universeNode* a, universeNode* b){
 		bool isInsideA = a->getTheoreticalBlock(pos.getPoint3Di()) == metaBlock::nullBlock;
@@ -458,8 +486,10 @@ universeNode *universeNode::calculateBestParent(fdd pos)
 void universeNode::removeChild(unsigned ID)
 {
 	auto iter = std::find_if(_children.begin(),_children.end(),[ID](universeNode& n){return ID == n._ID;});
-	std::optional<universeNode> copy = *iter;
-	_children.erase(iter);
+	universeNode node;
+	if(iter != _children.end()){
+		_children.erase(iter);
+	}
 }
 
 void universeNode::updatePositions(double dt)
@@ -504,40 +534,6 @@ fdd universeNode::getGravityAcceleration(fdd localPosition)
 	}
 
 	return magicGravity * magicFactor + realGravity * (1 - magicFactor);
-}
-
-universeNode& universeNode::operator=(const universeNode& u)
-{
-	_position = u._position;
-	_ID = u._ID;
-	_centerOfMass = u._centerOfMass;
-	_children = u._children;
-	_chunks = u._chunks;
-	_collider = u._collider;
-	_collisionShape = u._collisionShape;
-	_depth = u._depth;
-	_diameter = u._diameter;
-	_type = u._type;
-	_velocity = u._velocity;
-	_parent = u._parent;
-	_mass = u._mass;
-	_name = u._name;
-	_mainColor = u._mainColor;
-	_thrustSystem = u._thrustSystem;
-	_thrustSystem->setParent(this);
-	_artificialGravity = u._artificialGravity;
-
-	for(auto& i : u._interactables){
-		_interactables.push_back(getInteractableFromJson(i->getJson()));
-		_interactables.back()->setParent(this);
-	}
-
-	physicsData = u.physicsData;
-
-	nlohmann::json jTemp;
-	to_json(jTemp, *u._generator.get());
-	connectGenerator(jTemp);
-	return *this;
 }
 
 void universeNode::updateThrusters(double dt)
@@ -588,7 +584,7 @@ unsigned int universeNode::getHeight(const point2D& pos)
 
 rp3d::CollisionBody* universeNode::getNodeCollider()
 {
-	return _collider;
+	return &*_collider;
 }
 
 std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3Dd& size, universeNode* parent)
@@ -637,14 +633,15 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 void universeNode::populateColliders()
 {
 	Services::physicsMutex.lock();
-	_collider = Services::collisionWorld->createCollisionBody(rp3d::Transform::identity());
+	_collider = std::shared_ptr<rp3d::CollisionBody>(Services::collisionWorld->createCollisionBody(rp3d::Transform::identity()),[=](rp3d::CollisionBody* cb){
+		Services::physicsMutex.lock();
+		Services::collisionWorld->destroyCollisionBody(cb);
+		Services::physicsMutex.unlock();
+	});
 
-	_collisionShape = new rp3d::BoxShape(rp3d::Vector3{ (rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
-	_collider->addCollisionShape(_collisionShape, rp3d::Transform::identity());
+	_collisionShape = std::make_shared<rp3d::BoxShape>(rp3d::Vector3{(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
+	_collider->addCollisionShape(&*_collisionShape, rp3d::Transform::identity());
 	Services::physicsMutex.unlock();
-	for (universeNode& u : _children) {
-		u.populateColliders();
-	}
 }
 
 
@@ -696,7 +693,7 @@ universeNode::universeNodeIterator& universeNode::universeNodeIterator::operator
 	return *this;
 }
 
-universeNode::universeNodeIterator universeNode::universeNodeIterator::operator++(int devnull)
+universeNode::universeNodeIterator universeNode::universeNodeIterator::operator++(int)
 {
 	universeNodeIterator old(*this);
 	operator++();
@@ -740,11 +737,11 @@ void from_json(const json& j, universeNode& f) {
 	f._velocity = j.at("velocity").get<fdd>();
 	f._children = std::vector<universeNode>();
 	for (const nlohmann::json& element : j.at("children")) {
-		f._children.push_back(element.get<universeNode>());
+		f._children.emplace_back(element.get<universeNode>());
 	}
 	if(j.contains("interactables")){
 	   for (const nlohmann::json& element : j.at("interactables")) {
-		   f._interactables.push_back(std::move(getInteractableFromJson(element)));
+		   f._interactables.push_back(getInteractableFromJson(element));
 		   f._interactables.back()->setParent(&f);
 	   }
 	}
@@ -797,4 +794,45 @@ void from_json(const json& j, universeNode& f) {
 	    ts->setParent(&f);
 		f._thrustSystem = ts;
 	}
+    f._CL_cameraPosition = std::make_shared<fdd>();
+	f._CL_chunkloader = std::make_shared<std::thread>(std::bind(&universeNode::_CL_chunkloaderFunc, &f));
+	f._CL_mutex = std::make_shared<std::mutex>();
+}
+
+universeNode& universeNode::operator=(const universeNode& u)
+{
+	_position = u._position;
+	_ID = u._ID;
+	_centerOfMass = u._centerOfMass;
+	_children = u._children;
+	_chunks = u._chunks;
+	_collider = u._collider;
+	_collisionShape = u._collisionShape;
+	_depth = u._depth;
+	_diameter = u._diameter;
+	_type = u._type;
+	_velocity = u._velocity;
+	_parent = u._parent;
+	_mass = u._mass;
+	_name = u._name;
+	_mainColor = u._mainColor;
+	_thrustSystem = u._thrustSystem;
+	_thrustSystem->setParent(this);
+	_artificialGravity = u._artificialGravity;
+
+	for(auto& i : u._interactables){
+		_interactables.push_back(getInteractableFromJson(i->getJson()));
+		_interactables.back()->setParent(this);
+	}
+
+	physicsData = u.physicsData;
+
+    _CL_cameraPosition = std::make_shared<fdd>();
+    _CL_chunkloader = std::make_shared<std::thread>(std::bind(&universeNode::_CL_chunkloaderFunc, this));
+	_CL_mutex = std::make_shared<std::mutex>();
+
+	nlohmann::json jTemp;
+	to_json(jTemp, *u._generator.get());
+	connectGenerator(jTemp);
+	return *this;
 }

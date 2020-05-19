@@ -27,18 +27,8 @@
 #include "fuel.hpp"
 #include "icecream.hpp"
 
-universeNode* State::Playing::_chunkLoaderUniverseBase;
-position* State::Playing::_chunkLoaderPlayerPosition;
-std::mutex State::Playing::_chunkLoaderMutex;
-
 State::Playing::~Playing() {
-
-
-	_chunkLoaderPlayerPosition = nullptr;
-	_chunkLoaderThread->join();
-
 	saveGame();
-	_universeBase.clean();
 }
 
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
@@ -82,21 +72,22 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	universeNode* playerParent;
 	for (auto entity : playerView) {															   //
 		_player = entity;
-		playerParent = _enttRegistry.get<position>(entity).parent;															   //
-		_chunkLoaderPlayerPosition = new position(_enttRegistry.get<position>(entity));		   //
+		playerParent = _enttRegistry.get<position>(entity).parent;							   //
 	}																						   //
 	auto cameraView = _enttRegistry.view<entt::tag<"CAMERA"_hs>>();					   //
 	for (auto entity : cameraView) {															   //
 		_camera = entity;																	   //
 	}																						   //
 
-	//start chunkloader
-	_universeBase.updateChunks(_chunkLoaderPlayerPosition->pos, _chunkLoaderPlayerPosition->parent);
-	_chunkLoaderUniverseBase = &_universeBase;
-	_chunkLoaderThread = std::make_unique<std::thread>(_chunkLoaderFunc);
 	_starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
 	_starmap->toggle();
 	_scene.addGadget(_starmap);
+
+	position& cameraPosition = _enttRegistry.get<position>(_camera);
+	for(auto& node : _universeBase){
+		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
+		node.updateChunks(cameraPosition.pos,cameraPosition.parent);
+	}
 }
 
 void State::Playing::input(double dt)
@@ -160,7 +151,6 @@ void State::Playing::update(double dt) {
 	_physicsEngine.updatePhysics(_universeBase, _enttRegistry, dt);
 
 	position& playerPosition = _enttRegistry.get<position>(_player);
-	(*_chunkLoaderPlayerPosition) = playerPosition; // update chunkloader's player pos
 
 	//std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
 
@@ -170,25 +160,40 @@ void State::Playing::update(double dt) {
 	cameraPosition.pos.x = playerPosition.pos.x;
 	cameraPosition.pos.y = playerPosition.pos.y;
 	cameraPosition.pos.z = playerPosition.pos.z + 0.01;
+	std::vector<universeNode*> cameraCollisionNodes;
+
+	cameraCollisionNodes.push_back(cameraPosition.parent);
+	if(cameraPosition.parent->getParent())
+		cameraCollisionNodes.push_back(cameraPosition.parent->getParent());
 
 	if (_enttRegistry.has<body>(_player))
 	{
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
-		int h = 0;
-		for (int i = 0; i < config::cameraHeight; i++)
-		{
-			fdd newCameraPos = cameraPosition.pos;
-			newCameraPos.z = newCameraPos.z + h;
-			if (!cameraPosition.parent->getBlock(newCameraPos.getPoint3Di()).base->opaque)
+		int minH = config::cameraHeight;
+		for(universeNode* nd : cameraCollisionNodes){
+			fdd localCameraPos = nd->getLocalPos(cameraPosition.pos,cameraPosition.parent);
+			int h = 0;
+			for (int i = 0; i < config::cameraHeight; i++)
 			{
-				h++;
+				fdd newCameraPos = localCameraPos;
+				newCameraPos.z = newCameraPos.z + h;
+				if (!nd->getBlock(newCameraPos.getPoint3Di()).base->opaque)
+				{
+					h++;
+				}
+				else
+				{
+					break;
+				}
 			}
-			else
-			{
-				break;
-			}
+			if(h < minH)
+				minH = h;
 		}
-		cameraPosition.pos.z += h;
+		cameraPosition.pos.z += minH;
+	}
+
+	for(auto& node : _universeBase){
+		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
 	}
 }
 
@@ -563,7 +568,7 @@ void State::Playing::createEntities()
 
 	universeNode spaceShip("test_plat", 100000, 128, { sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
 	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("Roc"));
-	result->addChild(std::move(spaceShip));
+	result->addChild(spaceShip);
 	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
@@ -784,21 +789,6 @@ void State::Playing::fixEntities()
 	}
 }
 
-void State::Playing::_chunkLoaderFunc()
-{
-	position* positionCopy = _chunkLoaderPlayerPosition;
-	while (positionCopy != nullptr) {
-		_chunkLoaderMutex.lock();
-		position p(*positionCopy);
-		if (positionCopy != nullptr)
-		{
-			_chunkLoaderUniverseBase->updateChunks(p.pos, p.parent);
-		}
-		positionCopy = _chunkLoaderPlayerPosition;
-		_chunkLoaderMutex.unlock();
-	}
-}
-
 std::filesystem::path State::Playing::_savePath;
 
 std::filesystem::path State::Playing::savePath() {
@@ -968,10 +958,10 @@ void State::Playing::debugConsoleExec(std::string input)
 		ss >> argument;
 		debugConsoleExec("setParent " + argument);
 		debugConsoleExec("tp 0 0");
-		position pos = _enttRegistry.get<position>(_player);
-		_chunkLoaderMutex.lock();
-		_universeBase.updateChunks(pos.pos,pos.parent);
-		_chunkLoaderMutex.unlock();
+		//position pos = _enttRegistry.get<position>(_player);
+		//_chunkLoaderMutex.lock();
+		//_universeBase.updateChunks(pos.pos,pos.parent);
+		//_chunkLoaderMutex.unlock();
 	}
 	else if (command == "setNullBlock") { // Y THO
 		std::string argument;
@@ -980,7 +970,7 @@ void State::Playing::debugConsoleExec(std::string input)
 			metaBlock::nullBlock.base = &baseBlock::terrainTable[std::strtol(argument.c_str(), nullptr, 10)];
 		}
 	}
-	else if (command == "awaken") { // Y THO
+	else if (command == "awaken") {
 		std::string argument;
 		ss >> argument;
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);

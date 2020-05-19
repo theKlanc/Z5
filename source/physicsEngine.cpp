@@ -47,7 +47,7 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 			}
 			applyThrusters(universeBase,_timeStep);
 			universeBase.updatePositions(_timeStep*config::orbitDebugMultiplier);
-			//reparentizeChildren(universeBase);
+			reparentizeChildren(universeBase);
 
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);
@@ -649,13 +649,13 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 
 void physicsEngine::reparentizeChildren(universeNode &base)
 {
-	for(auto & child : base){
-		auto bestP = child.getParent()->calculateBestParent(child.getPosition());
-		if(bestP != child.getParent())
+	for(auto & child : base.getChildren()){
+		auto bestP = child->getParent()->calculateBestParent(child->getPosition(),child->getID());
+		if(bestP != child->getParent())
 		{
-			auto oldParent = child.getParent();
-			bestP->addChild(child);
-			oldParent->removeChild(child.getID());
+			auto oldParent = child->getParent();
+			bestP->addChild(*child);
+			oldParent->removeChild(child->getID());
 		}
 	}
 }
