@@ -55,7 +55,7 @@ bool fuelContainer::operator==(const fuelContainer &fc) const
 void from_json(const nlohmann::json &j, fuelContainer &c)
 {
 	unsigned fueltofind = j.at("fuelID").get<unsigned>();
-	c._fuelType = std::find_if(fuel::fuelList.begin(),fuel::fuelList.end(),[fueltofind](const fuel& f) { return f.ID == fueltofind;}).base();
+	c._fuelType = &*std::find_if(fuel::fuelList.begin(),fuel::fuelList.end(),[fueltofind](const fuel& f) { return f.ID == fueltofind;});
 	c._content = j.at("content").get<double>();
 	c._capacity = j.at("capacity").get<double>();
 	c._pos = j.at("position").get<point3Di>();

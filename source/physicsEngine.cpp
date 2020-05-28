@@ -649,13 +649,17 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 
 void physicsEngine::reparentizeChildren(universeNode &base)
 {
-	for(auto & child : base.getChildren()){
-		auto bestP = child->getParent()->calculateBestParent(child->getPosition(),child->getID());
-		if(bestP != child->getParent())
+	for(auto & child : base){
+		if(child.getID()==0)
+			continue;
+		auto bestP = child.getParent()->calculateBestParent(child.getPosition(),child.getID());
+		if(bestP != child.getParent())
 		{
-			auto oldParent = child->getParent();
-			bestP->addChild(*child);
-			oldParent->removeChild(child->getID());
+			auto oldParent = child.getParent();
+			//dry run
+			IC("reparentize " + child.getName() + " from parent " + oldParent->getName() + " to " + bestP->getName());
+			//bestP->addChild(child);
+			//oldParent->removeChild(child.getID());
 		}
 	}
 }

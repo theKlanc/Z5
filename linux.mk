@@ -16,7 +16,7 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng 
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 ifeq ($(PRECISE_DEBUG), 1)
-FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -O0 -fstack-protector-all
+FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -D_GLIBCXX_DEBUG -ggdb3 -O0 -fstack-protector-all
 BUILDTYPE := Debug
 else ifeq ($(DEBUG), 1)
 FLAGS := $(FLAGS) -D_DEBUG -DDEBUG -ggdb3 -Og -fstack-protector-all

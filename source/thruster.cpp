@@ -100,7 +100,7 @@ void from_json(const nlohmann::json &j, thruster &t)
 {
 	unsigned fueltofind = j.at("fuelID").get<unsigned>();
 	t._position = j.at("position").get<point3Dd>();
-	t._fuelType = std::find_if(fuel::fuelList.begin(),fuel::fuelList.end(),[fueltofind](const fuel& f) { return f.ID == fueltofind;}).base();
+	t._fuelType = &*std::find_if(fuel::fuelList.begin(),fuel::fuelList.end(),[fueltofind](const fuel& f) { return f.ID == fueltofind;});
 	t._targetThrustPercent = j.at("target").get<double>();
 	t._currentThrustPercent = j.at("current").get<double>();
 	t._maxThrust = j.at("maxThrust").get<double>();
