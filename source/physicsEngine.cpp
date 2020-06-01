@@ -649,6 +649,7 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 
 void physicsEngine::reparentizeChildren(universeNode &base)
 {
+	return;
 	for(auto & child : base){
 		if(child.getID()==0)
 			continue;

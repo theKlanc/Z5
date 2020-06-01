@@ -817,8 +817,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "zoom zoomLevel" << std::endl;
 		std::cout << "goto ID" << std::endl;
 		std::cout << "refill ID" << std::endl;
-
-
+		std::cout << "adoptNode childID newParentID" << std::endl;
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
@@ -872,6 +871,23 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::string argument;
 		ss >> argument;
 		config::zoom = std::stoi(argument);
+	}
+	else if (command == "adoptNode" && ss.tellg() != -1) {
+		std::string argument;
+		ss >> argument;
+		unsigned childID = std::stoi(argument);
+		ss >> argument;
+		unsigned newParentID = std::stoi(argument);
+		universeNode *child, *newParent;
+		if(_universeBase.findNodeByID(childID, child)){
+			if(_universeBase.findNodeByID(newParentID, newParent)){
+				universeNode newChild = *child;
+				child->getParent()->removeChild(childID);
+				newParent->addChild(newChild);
+			}
+		}
+
+
 	}
 	else if (command == "setNodePos" && ss.tellg() != -1) {
 		std::string argument;

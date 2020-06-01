@@ -13,7 +13,6 @@
 universeNode::~universeNode()
 {
 	_CL_cameraPosition = nullptr;
-	while(!_CL_chunkloader->joinable()){IC(_ID);}
 	_CL_chunkloader->join();
 
 	for (terrainChunk& chunk : _chunks)
@@ -249,9 +248,9 @@ void universeNode::_CL_chunkloaderFunc()
 				int t = pos.magnitude()/_diameter * 100;
 				if(t > 2000)
 					t=2000;
-				std::this_thread::sleep_for(std::chrono::milliseconds(t));//will not work when TPing
+				std::this_thread::sleep_for(std::chrono::milliseconds(t + rand()%300));//will not work when TPing
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100 + rand()%30));
 		}
 	}
 }
@@ -804,8 +803,8 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_position = u._position;
 	_ID = u._ID;
 	_centerOfMass = u._centerOfMass;
-	_children = u._children;
-	_chunks = u._chunks;
+	_children = std::move(u._children);
+	_chunks = std::move(u._chunks);
 	_collider = u._collider;
 	_collisionShape = u._collisionShape;
 	_depth = u._depth;
