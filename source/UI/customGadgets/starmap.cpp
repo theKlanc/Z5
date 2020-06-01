@@ -21,12 +21,12 @@ void starmap::_draw_internal()
 
 	if(_hovered){
 		//We should probably cull the orbit lines, but it doesn't matter in the slightest
-		HI2::drawLines(calculateOrbit(_hovered,config::orbitDebugMultiplier,10000),HI2::Color::Red);
+		HI2::drawLines(calculateOrbit(_hovered,1.0F/config::physicsHz,10000),HI2::Color::Red);
 		drawNodeRing(_hovered,HI2::Color::White);
 		drawInfo(_hovered,true);
 	}
 	else{
-		HI2::drawLines(calculateOrbit(_selected,config::orbitDebugMultiplier,10000),HI2::Color::Red);
+		HI2::drawLines(calculateOrbit(_selected,1.0F/config::physicsHz,10000),HI2::Color::Red);
 		drawNodeRing(_selected,flashingCycle>0.5?HI2::Color::Green:HI2::Color::LightGrey);
 		drawInfo(_selected,true);
 	}
@@ -125,7 +125,7 @@ point2D starmap::translateToDisplayCoord(fdd position, universeNode *parent) con
 std::vector<point2D> starmap::calculateOrbit(universeNode *node, double timeStep, int stepCount) const
 {
 	std::vector<point2D> points;
-
+	//timeStep = 600000;
 	if(node->getParent()){
 		points.push_back(translateToDisplayCoord(node->getPosition(),node->getParent()));
 		point2D* lastPoint = &points[0];
