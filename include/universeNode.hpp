@@ -70,6 +70,8 @@ public:
 	fdd getGravityAcceleration(fdd localPosition, double mass);
 	void updateThrusters(double dt);
 
+	void updateChunkVisibility(point3Di cID);
+	void updateBlockVisibility(point3Di b);
 
 	std::vector<terrainChunk>& getChunks();
 

@@ -33,15 +33,14 @@ namespace State {
 			universeNode* node;
 			int layerHeight;
 			std::vector<metaBlock> blocks;
-			std::vector<bool> visibility;
+			bool firstLayer = false;
 		};
 		struct renderLayer {
 			double depth;
 			std::variant<entt::entity, nodeLayer,point3Di> target;
 		};
 
-		nodeLayer generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos);
-		std::vector<bool> growVisibility(std::vector<bool> visibility);
+		nodeLayer generateNodeLayer(universeNode* node, double depth, fdd localCameraPos);
 		void drawLayer(const renderLayer& rl);
 		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
 

@@ -381,6 +381,7 @@ include/worldNode.hpp
 include/worldNode.hpp
 linux.mk
 main.cpp
+notes.txt
 source/UI/customGadgets/fddViewer.cpp
 source/UI/customGadgets/starmap.cpp
 source/UI/gadget.cpp

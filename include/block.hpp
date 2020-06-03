@@ -40,6 +40,9 @@ struct metaBlock
 	blockRotation rotation = blockRotation::UP;
 	bool flip = false;
 	bool saveMeta = false;
+
+	bool _render_visible = true; // is it (not) occluded by other blocks?
+
 	bool operator==(const metaBlock& right) const;
 
 	bool operator!=(const metaBlock& right) const

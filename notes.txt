@@ -1,0 +1,6 @@
+#Visibility improvements
+73 fps amb la visibilitat actual
+36 fps dibuixant tot sense visibilitat
+150 fps no dibuixant res, sense vis
+84 fps no dibuixant res, calculant visibilitat
+100 fps amb la nova visibilitat (amb algun lag spike?)
