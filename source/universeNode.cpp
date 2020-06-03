@@ -99,6 +99,11 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 		chunkAt(pos).setLoaded();
 	}
 	chunkAt(pos).setBlock(b, pos);
+	for(int x = -1; x <= 1; ++x){
+		for(int y = -1; y <= 1; ++y){
+			updateBlockVisibility({x+pos.x,y+pos.y,pos.z-1});
+		}
+	}
 }
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
 	_CL_mutex->lock();
@@ -271,7 +276,7 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 				z < localChunk.z + ceil(config::chunkLoadDiameter / 2); ++z) {
 				point3Di chunkPos{ x % config::chunkLoadDiameter, y % config::chunkLoadDiameter, z % config::chunkLoadDiameter };
 				terrainChunk& chunk = getChunk(chunkPos);
-				if (chunk != point3Di{ x,y,z } || !chunk.loaded()) {
+				if (!chunk.isValid({x*config::chunkSize,y*config::chunkSize,z*config::chunkSize})) {
 					if (chunk.loaded())
 					{
 						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
@@ -280,9 +285,11 @@ void universeNode::iUpdateChunks(const point3Di& localChunk) {
 					if (std::filesystem::exists(newChunkPath))//if file already exists, load
 					{
 						chunk.load(newChunkPath, { x,y,z });
+						updateChunkVisibility({x,y,z});
 					}
 					else {
 						chunk = _generator->getChunk(point3Di{ x,y,z });
+						updateChunkVisibility({x,y,z});
 					}
 				}
 			}
@@ -530,9 +537,9 @@ void universeNode::updatePosition(double dt)
 {
 	if (!physicsData.sleeping)
 	{
-		//assert(!std::isnan(dt));
-		//assert(!std::isnan(_velocity.x));
-		//assert(!std::isnan(_position.x));
+		assert(!std::isnan(dt));
+		assert(!std::isnan(_velocity.x));
+		assert(!std::isnan(_position.x));
 		physicsData.deltaPos += _velocity*dt;
 		//physicsData.deltaTest++;
 		if( std::abs(log2(_position.magnitude()) - log2(physicsData.deltaPos.magnitude())) < std::numeric_limits<double>::digits-30){
@@ -577,8 +584,63 @@ fdd universeNode::getGravityAcceleration(fdd localPosition, double mass)
 
 void universeNode::updateThrusters(double dt)
 {
-    if(_thrustSystem)
+    if(_thrustSystem){
 		_thrustSystem->update(dt);
+	}
+}
+
+void universeNode::updateChunkVisibility(point3Di cID)
+{
+	point3Di startingBlock = {cID.x * config::chunkSize -1,cID.y * config::chunkSize -1,cID.z * config::chunkSize-1};
+	for(int x = 0; x <= config::chunkSize + 1; x++){
+		for(int y = 0; y <= config::chunkSize + 1; y++){
+			for(int z = 0; z <= config::chunkSize; z++){
+				updateBlockVisibility(startingBlock + point3Di{x,y,z});
+			}
+		}
+	}
+}
+
+void universeNode::updateBlockVisibility(point3Di b)
+{
+	if(getBlock({b.x,b.y,b.z}) == metaBlock::nullBlock)
+	{
+		return;
+	}
+
+
+
+	bool vis = false;
+	if(auto& bloc = getBlock({b.x-1,b.y-1,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	else if(auto& bloc = getBlock({b.x,b.y-1,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	else if(auto& bloc = getBlock({b.x+1,b.y-1,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+
+	else if(auto& bloc = getBlock({b.x-1,b.y,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	else if(auto& bloc = getBlock({b.x,b.y,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	else if(auto& bloc = getBlock({b.x+1,b.y,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+
+	else if(auto& bloc = getBlock({b.x-1,b.y+1,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	else if(auto& bloc = getBlock({b.x,b.y+1,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	else if(auto& bloc = getBlock({b.x+1,b.y+1,b.z+1});!bloc.base->opaque){
+		vis = true;
+	}
+	getBlock(b)._render_visible = vis;
 }
 
 std::vector<terrainChunk>& universeNode::getChunks()

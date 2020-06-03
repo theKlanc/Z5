@@ -231,7 +231,7 @@ void State::Playing::draw(double dt) {
 				if(depth < 0.2)
 					continue;
 				depth +=0.5;
-				nodeLayer nLayer = generateNodeLayer(node, depth, visibility, localCameraPos);
+				nodeLayer nLayer = generateNodeLayer(node, depth, localCameraPos);
 				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
 
 				if(interactableInRange && node == playerPos.parent && iblePos.z == layer){
@@ -270,7 +270,7 @@ void State::Playing::draw(double dt) {
 	}
 	auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
 	if (_debug) {
-		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Black);
+		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Orange);
 		HI2::drawText(_standardFont, "Parent: " + playerPos.parent->getName() + " (" + std::to_string(playerPos.parent->getID()) + ")", { 0,30 }, 30, HI2::Color::Orange);
 		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
 		HI2::drawText(_standardFont, "Y: " + std::to_string(playerPos.pos.y), { 0,90 }, 30, HI2::Color::Green);
@@ -365,22 +365,20 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 				for (int y = 0; y < colSize; ++y)
 				{
-					if (node.visibility[(y * rowSize) + x]) {
-						const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
-						if (finalYdrawPos + config::spriteSize * zoom < 0)
-							continue;
-						else if (finalYdrawPos > HI2::getScreenHeight())
-							break;
+					const int finalYdrawPos = (int)(drawPos.y) + (y * zoom * config::spriteSize);
+					if (finalYdrawPos + config::spriteSize * zoom < 0)
+						continue;
+					else if (finalYdrawPos > HI2::getScreenHeight())
+						break;
 
-						metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
-						if (b.base->ID != 0 && b.base->visible) {
-							if (config::drawDepthShadows) {
-								//mask anira de 255 a 150
-								HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
-							}
-							//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
-							HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
+					metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
+					if (b.base->visible && (b._render_visible || node.firstLayer)) {
+						if (config::drawDepthShadows) {
+							//mask anira de 255 a 150
+							HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 						}
+						//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
+						HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 					}
 				}
 			}
@@ -396,12 +394,12 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 	visitor v;
 	v.registry = &_enttRegistry;
 	v.cameraPos = _enttRegistry.get<position>(_camera);
-	v.zoom = (((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale - config::minScale)) + config::minScale) * config::zoom;
+	v.zoom = pow(((config::cameraDepth - rl.depth) / config::cameraDepth * (config::depthScale - config::minScale)) + config::minScale,1) * config::zoom;
 	if (v.zoom > 0)
 		std::visit(v, rl.target);
 }
 
-State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, double depth, std::vector<bool>& visibility, fdd localCameraPos)
+State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, double depth, fdd localCameraPos)
 {
 	fdd firstBlock = localCameraPos;
 	firstBlock.z = floor(localCameraPos.z);
@@ -412,9 +410,9 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 	const int layerHeight = floor(localCameraPos.z);
 
 	nodeLayer result;
+	result.firstLayer = depth < 2.0f;
 	result.node = node;
 	result.layerHeight = layerHeight;
-	result.visibility = visibility;
 	int i = 0;
 	for (int y = 0; y < floor(HI2::getScreenHeight() / config::spriteSize); ++y)
 	{
@@ -422,50 +420,11 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 		{
 			metaBlock b = node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,layerHeight });
 			result.blocks.push_back(b);
-			visibility[i] = (b.base->ID == 0 ? true : !b.base->opaque);
 			i++;
 		}
 	}
-	visibility = growVisibility(visibility);
-	visibility = growVisibility(visibility);
 
 	return result;
-}
-
-std::vector<bool> State::Playing::growVisibility(std::vector<bool> visibility)
-{
-	std::vector<bool> newVis(visibility);
-	int rowSize = HI2::getScreenWidth() / config::spriteSize;
-	int colSize = HI2::getScreenHeight() / config::spriteSize;
-
-	for (int y = 0; y < colSize; ++y)
-	{
-		for (int x = 0; x < rowSize; ++x)
-		{
-			int index = x + (y * rowSize);
-			//visibility[index] = true;
-			if (visibility[index])
-			{
-				if (x > 0 && y > 0)//UL
-					newVis[index - rowSize - 1] = true;
-				if (y > 0) //UP
-					newVis[index - rowSize] = true;
-				if (y > 0 && x < rowSize - 1)//UR
-					newVis[index - rowSize + 1] = true;
-				if (x > 0) //LEFT
-					newVis[index - 1] = true;
-				if (x < rowSize - 1) //RIGHT
-					newVis[index + 1] = true;
-				if (y < colSize - 1 && x > 0)//DL
-					newVis[index - 1 + rowSize] = true;
-				if (y < colSize - 1) //DOWN
-					newVis[index + rowSize] = true;
-				if (x < rowSize - 1 && y < colSize - 1) //DR
-					newVis[index + rowSize + 1] = true;
-			}
-		}
-	}
-	return newVis;
 }
 
 point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)

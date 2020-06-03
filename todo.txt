@@ -47,11 +47,12 @@ XX rotacions de layers
 #afegir efectes visuals als thrusters (almenys encendre/apagar)
 -afegir so a les portes i als thrusters (aparcat el soroll dels motors, quan fem tot el sistema de so ja es fara)
 -crear nau petita + estacio espacial
--refer el chunkloader
 #aplicar el reparentitzat
 
-arreglar orbites
-refer la visibilitat
+#arreglar orbites
+#refer la visibilitat
+-refer el chunkloader
+
 aplicar el reparentitzat a entitats
 dormir entitats quan calgui
 descarregar i diferenciar entre entitats permanents
