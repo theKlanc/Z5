@@ -45,11 +45,18 @@ XX rotacions de layers
 #crear gui pel nodeController
 #implementar portes
 #afegir efectes visuals als thrusters (almenys encendre/apagar)
-~afegir so a les portes i als thrusters (aparcat el soroll dels motors, quan fem tot el sistema de so ja es fara)
-~crear nau petita + estacio espacial
-refer el chunkloader
+-afegir so a les portes i als thrusters (aparcat el soroll dels motors, quan fem tot el sistema de so ja es fara)
+-crear nau petita + estacio espacial
+-refer el chunkloader
+#aplicar el reparentitzat
+
+arreglar orbites
 refer la visibilitat
-aplicar el reparentitzat
+aplicar el reparentitzat a entitats
+dormir entitats quan calgui
+descarregar i diferenciar entre entitats permanents
+terrain mesh simplification (greedy meshing) per les colisions
+
 
 small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
 
@@ -83,7 +90,6 @@ projectiles
 crear inventari
 
 
-descarregar i diferenciar entre entitats permanents
 {CHUNKLOADER REWORK
 passar universeNodes a non-copyable
 refer sistema de chunkloaders, amb un chunkloader per node,
@@ -100,7 +106,6 @@ portals
 
 crear enemics i npcs
 
-arreglar orbites
 planificadors de vol
 autopilot
 
@@ -117,6 +122,7 @@ crear biomeGenerator
 crear observer
 crear soundObserver
 lighting
+openGL renderer fuck it lmao
 
 ~~ crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
 ~~ fog

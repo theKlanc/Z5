@@ -5,10 +5,10 @@
 using nlohmann::json;
 
 struct fdd { // Four DoF descriptor
-	double x;
-	double y;
-	double z;
-	double r;
+	double x = 0;
+	double y = 0;
+	double z = 0;
+	double r = 0;
 	fdd(double x=0, double y=0, double z=0, double r=0):x(x),y(y),z(z),r(r){}
 	fdd(const point3Di& p):x(p.x),y(p.y),z(p.z),r(0){}
 	fdd(rp3d::Vector3 v);

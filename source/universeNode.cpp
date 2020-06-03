@@ -526,18 +526,23 @@ std::shared_ptr<universeNode> universeNode::removeChild(unsigned ID)
 	return node;
 }
 
-void universeNode::updatePositions(double dt)
+void universeNode::updatePosition(double dt)
 {
 	if (!physicsData.sleeping)
 	{
-		assert(!std::isnan(dt));
-		assert(!std::isnan(_velocity.x));
-		assert(!std::isnan(_position.x));
-		_position += _velocity * dt;
-	}
-	for (auto& child : _children)
-	{
-		child->updatePositions(dt);
+		//assert(!std::isnan(dt));
+		//assert(!std::isnan(_velocity.x));
+		//assert(!std::isnan(_position.x));
+		physicsData.deltaPos += _velocity*dt;
+		//physicsData.deltaTest++;
+		if( std::abs(log2(_position.magnitude()) - log2(physicsData.deltaPos.magnitude())) < std::numeric_limits<double>::digits-30){
+			_position += physicsData.deltaPos;
+			physicsData.deltaPos = fdd();
+			//IC(_name + " updated on the " + std::to_string(physicsData.deltaTest));
+			//physicsData.deltaTest = 0;
+		}
+		else{
+		}
 	}
 }
 
@@ -549,13 +554,13 @@ void universeNode::applyThrusters(double dt)
 		physicsData.sleeping=false;
 }
 
-fdd universeNode::getGravityAcceleration(fdd localPosition)
+fdd universeNode::getGravityAcceleration(fdd localPosition, double mass)
 {
 	if(_artificialGravity)
 		return *_artificialGravity;
 
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
-	fdd realGravity = (_centerOfMass - localPosition).setMagnitude(G * (_mass / ((_diameter / 2) * (_diameter / 2))));
+	fdd realGravity = (_centerOfMass - localPosition).setMagnitude((G * ((_mass*mass) / (pow(_centerOfMass.distance(localPosition),2)))/mass));
 	double magicFactor = 1;
 	double distance = _centerOfMass.distance(localPosition);
 	if (distance > _diameter / 2)

@@ -46,7 +46,9 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 				applyDrag(universeBase, registry, _timeStep);
 			}
 			applyThrusters(universeBase,_timeStep);
-			universeBase.updatePositions(_timeStep);
+			for(auto& node : universeBase){
+				node.updatePosition(_timeStep);
+			}
 			reparentizeChildren(universeBase);
 
 			detectNodeNode(universeBase, _timeStep);
@@ -97,9 +99,9 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr && !node.physicsData.sleeping)
+		if (node.getParent() != nullptr && !node.physicsData.sleeping && node.physicsData.deltaPos == 0)//potser haurem de tenir un acumulador de dt perdut
 		{
-			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass()) * dt);
+			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass(),node.getMass()) * dt);
 			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
@@ -107,8 +109,12 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 	for (const entt::entity& entity : movableEntityView) {
 		velocity& vel = movableEntityView.get<velocity>(entity);
 		const position& pos = movableEntityView.get<position>(entity);
+		double mass = 1;
+		if(registry.has<body>(entity)){
+			mass = registry.get<body>(entity).mass;
+		}
 
-		vel.spd += (pos.parent->getGravityAcceleration(pos.pos) * dt);
+		vel.spd += (pos.parent->getGravityAcceleration(pos.pos,mass) * dt);
 	}
 }
 
@@ -129,7 +135,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z) });
 			if (block.base->ID == 0 || block.base->solid)
 				continue;
-			fdd buoyancy = node.getParent()->getGravityAcceleration(pos) * -1 * ((node.getDiameter() / 2) * (node.getDiameter() / 2) * 4 * M_PI) * block.base->mass;
+			fdd buoyancy = node.getParent()->getGravityAcceleration(pos,node.getMass()) * -1 * ((node.getDiameter() / 2) * (node.getDiameter() / 2) * 4 * M_PI) * block.base->mass;
 			//Bforce = p_fluidDensity * V * g_gravityAcceleration
 			node.setVelocity(node.getVelocity() + (buoyancy / node.getMass()) * dt);
 			assert(!std::isnan(node.getVelocity().x));
@@ -144,7 +150,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 		metaBlock block = pos.parent->getBlock({ (int)floor(pos.pos.x),(int)floor(pos.pos.y),(int)floor(pos.pos.z + bdy.height / 2) });
 		if (block.base->ID == 0 || block.base->solid)
 			continue;
-		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos) * -1 * (bdy.volume) * block.base->mass;
+		fdd buoyancy = pos.parent->getGravityAcceleration(pos.pos,bdy.mass) * -1 * (bdy.volume) * block.base->mass;
 		//Bforce = p_fluidDensity * V * g_gravityAcceleration
 		vel.spd += (buoyancy / bdy.mass) * dt;
 	}
@@ -272,7 +278,6 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 		{
 			auto oldParentTransform = node.getParent()->getNodeCollider()->getTransform();
 			node.getParent()->getNodeCollider()->setTransform(rp3d::Transform::identity());
-
 
 
 			if (node.getNodeCollider()->testAABBOverlap(node.getParent()->getNodeCollider()->getAABB()))

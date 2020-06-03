@@ -21,12 +21,13 @@ void starmap::_draw_internal()
 
 	if(_hovered){
 		//We should probably cull the orbit lines, but it doesn't matter in the slightest
-		HI2::drawLines(calculateOrbit(_hovered,1.0F/config::physicsHz,10000),HI2::Color::Red);
+		HI2::drawLines(calculateOrbit(_hovered,1.0F/config::physicsHz,100),HI2::Color::Red);
 		drawNodeRing(_hovered,HI2::Color::White);
 		drawInfo(_hovered,true);
 	}
+
 	else{
-		HI2::drawLines(calculateOrbit(_selected,1.0F/config::physicsHz,10000),HI2::Color::Red);
+		HI2::drawLines(calculateOrbit(_selected,1.0F/config::physicsHz,100),HI2::Color::Red);
 		drawNodeRing(_selected,flashingCycle>0.5?HI2::Color::Green:HI2::Color::LightGrey);
 		drawInfo(_selected,true);
 	}
@@ -122,20 +123,37 @@ point2D starmap::translateToDisplayCoord(fdd position, universeNode *parent) con
 	return point2D{(int)(mapOffset.x * _scale), (int)(mapOffset.y * _scale)} + relativePosition.getPoint2D() + (_size/2);
 }
 
-std::vector<point2D> starmap::calculateOrbit(universeNode *node, double timeStep, int stepCount) const
+std::vector<point2D> starmap::calculateOrbit(universeNode *node, double timeStep, int pointCount) const
 {
 	std::vector<point2D> points;
 	//timeStep = 600000;
+	timeStep *= 1000;
+	const int stepsPerPoint = 20000;
 	if(node->getParent()){
 		points.push_back(translateToDisplayCoord(node->getPosition(),node->getParent()));
 		point2D* lastPoint = &points[0];
 
 		fdd position = node->getPosition();
 		fdd velocity = node->getVelocity();
-		while(points.size()<stepCount){
-			position += velocity*timeStep;
-			velocity +=	node->getParent()->getGravityAcceleration(position);
-			points.push_back(translateToDisplayCoord(position,node->getParent()));
+		fdd deltaPos;
+		int steps = 0;
+		int asdf = 0;
+		while(points.size()<pointCount && steps < 10000){
+			deltaPos += velocity*timeStep;
+			steps++;
+			velocity +=	node->getParent()->getGravityAcceleration(position,node->getMass())*timeStep;
+			if( std::abs(log2(position.magnitude()) - log2(deltaPos.magnitude())) < std::numeric_limits<double>::digits-30){
+				position += deltaPos;
+				//points.push_back(translateToDisplayCoord(position,node->getParent()));
+				deltaPos = fdd();
+				//IC("steps for " + node->getName() + " " + std::to_string(steps));
+				steps = 0;
+				asdf++;
+				if(asdf >= stepsPerPoint){
+					points.push_back(translateToDisplayCoord(position,node->getParent()));
+					asdf = 0;
+				}
+			}
 		}
 	}
 	return points;

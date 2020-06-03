@@ -65,9 +65,9 @@ public:
 	universeNode* calculateBestParent();
 
 	std::shared_ptr<universeNode> removeChild(unsigned ID);
-	void updatePositions(double dt);
+	void updatePosition(double dt);
 	void applyThrusters(double dt);
-	fdd getGravityAcceleration(fdd localPosition);
+	fdd getGravityAcceleration(fdd localPosition, double mass);
 	void updateThrusters(double dt);
 
 
@@ -90,6 +90,9 @@ public:
 	private:
 		rp3d::Vector3 contactNormal;
 		double maxContactDepth = 0;
+
+		fdd deltaPos;
+		int deltaSteps = 0;
 		
 		friend class physicsEngine;
 		friend class universeNode;
