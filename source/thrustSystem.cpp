@@ -75,7 +75,7 @@ void thrustSystem::update(double dt)
 double thrustSystem::addFuel(const fuel *f, double kg)
 {
 	auto &fclist = _containers[f->ID];
-	if(fclist.currentContainerIndex!=-1)
+	if(fclist.currentContainerIndex!=-1 && !fclist.containers.empty())
 	{
 		while(kg > 0 && !fclist.containers[fclist.containers.size()-1]->isFull()){
 			kg = fclist.containers[fclist.currentContainerIndex]->fill(kg);

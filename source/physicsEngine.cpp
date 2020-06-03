@@ -46,7 +46,7 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 				applyDrag(universeBase, registry, _timeStep);
 			}
 			applyThrusters(universeBase,_timeStep);
-			universeBase.updatePositions(_timeStep*config::orbitDebugMultiplier);
+			universeBase.updatePositions(_timeStep);
 			reparentizeChildren(universeBase);
 
 			detectNodeNode(universeBase, _timeStep);
@@ -293,7 +293,7 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 						//brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
 						if (node.getNodeCollider()->testAABBOverlap(brotha->getNodeCollider()->getAABB()))
 						{
-							IC("BROOO");
+							//IC("BROOO");
 							testCollisionBetweenNodes(node, *brotha);
 						}
 					}
@@ -625,8 +625,9 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 		fatNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
 		slimNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
 	}
-	if(slimNode->getParent() != fatNode)
-		IC("collided " + fatNode->getName() + " with " + slimNode->getName());
+	if(slimNode->getParent() != fatNode){
+		//IC("collided " + fatNode->getName() + " with " + slimNode->getName());
+	}
 
 	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
 	while (contactManifold != nullptr)
@@ -650,16 +651,15 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 void physicsEngine::reparentizeChildren(universeNode &base)
 {
 	for(auto & child : base){
-		if(child.getID()==0)
-			continue;
-		auto bestP = child.getParent()->calculateBestParent(child.getPosition(),child.getID());
-		if(bestP != child.getParent())
-		{
-			auto oldParent = child.getParent();
-			//dry run
-			IC("reparentize " + child.getName() + " from parent " + oldParent->getName() + " to " + bestP->getName());
-			//bestP->addChild(child);
-			//oldParent->removeChild(child.getID());
+		if(!child.physicsData.sleeping){
+			auto bestP = child.calculateBestParent();
+			if(bestP != child.getParent())// no need to check for nullptr, only Sgr A* should have nullptr parent and then bestP == child.getParent for Sgr A*
+			{
+				auto oldParent = child.getParent();
+				//dry run
+				IC("reparentize " + child.getName() + " from parent " + oldParent->getName() + " to " + bestP->getName());
+				bestP->addChild(oldParent->removeChild(child.getID()));
+			}
 		}
 	}
 }

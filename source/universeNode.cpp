@@ -13,7 +13,6 @@
 universeNode::~universeNode()
 {
 	_CL_cameraPosition = nullptr;
-	while(!_CL_chunkloader->joinable()){IC(_ID);}
 	_CL_chunkloader->join();
 
 	for (terrainChunk& chunk : _chunks)
@@ -80,6 +79,14 @@ metaBlock &universeNode::getTheoreticalBlock(const point3Di &pos)
 	return getBlock(pos);
 }
 
+double universeNode::getSOI()
+{
+	//a*(m/M)^(2/5)
+	if(_parent)
+		return _position.magnitude()*(std::pow((_mass/_parent->getMass()),2.0f/5.0f));
+	return std::numeric_limits<double>::infinity();
+}
+
 void universeNode::updateCamera(fdd c)
 {
 	*_CL_cameraPosition=c;
@@ -93,7 +100,6 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 	}
 	chunkAt(pos).setBlock(b, pos);
 }
-
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
 	_CL_mutex->lock();
 	fdd localCameraPos = getLocalPos(cameraPos, u);
@@ -114,8 +120,8 @@ std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
 	}
-	for (universeNode& child : _children) {
-		std::vector<universeNode*> temp = child.nodesToDraw(f, u);
+	for (auto& child : _children) {
+		std::vector<universeNode*> temp = child->nodesToDraw(f, u);
 		result.insert(result.end(), temp.begin(), temp.end());
 	}
 	return result;
@@ -127,8 +133,8 @@ bool universeNode::findNodeByID(const unsigned int& id, universeNode*& result)
 		result = this;
 		return true;
 	}
-	for (universeNode& u : _children) {
-		if (u.findNodeByID(id, result))
+	for (auto& u : _children) {
+		if (u->findNodeByID(id, result))
 			return true;
 	}
 	result = nullptr;
@@ -249,9 +255,9 @@ void universeNode::_CL_chunkloaderFunc()
 				int t = pos.magnitude()/_diameter * 100;
 				if(t > 2000)
 					t=2000;
-				std::this_thread::sleep_for(std::chrono::milliseconds(t));//will not work when TPing
+				std::this_thread::sleep_for(std::chrono::milliseconds(t + rand()%300));//will not work when TPing
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100 + rand()%30));
 		}
 	}
 }
@@ -333,9 +339,9 @@ void universeNode::linkChildren() {
 	else {
 		_depth = _parent->_depth + 1;
 	}
-	for (universeNode& u : _children) {
-		u._parent = this;
-		u.linkChildren();
+	for (auto& u : _children) {
+		u->_parent = this;
+		u->linkChildren();
 	}
 }
 
@@ -429,67 +435,95 @@ unsigned universeNode::getID()
 std::vector<universeNode*> universeNode::getChildren()
 {
 	std::vector<universeNode*> result;
-	for (universeNode& u : _children)
+	for (auto& u : _children)
 	{
-		result.push_back(&u);
+		result.push_back(&*u);
 	}
 	return result;
 }
 
-void universeNode::addChild(universeNode& u)
+void universeNode::addChild(std::shared_ptr<universeNode> u)
 {
-	u._depth = _depth+1;
-	if(u._parent!=this && u._parent != nullptr){
-		u._position = getLocalPos(u._position,u._parent);
-		u._velocity = getLocalVel(u._velocity,u._parent);
+	u->_depth = _depth+1;
+	if(u->_parent!=this && u->_parent != nullptr){
+		u->_position = getLocalPos(u->_position,u->_parent);
+		u->_velocity = getLocalVel(u->_velocity,u->_parent);
+		u->_parent = this;
 	}
 	_children.push_back(u);
 }
 
-universeNode *universeNode::calculateBestParent(fdd pos, unsigned ID)
+universeNode *universeNode::calculateBestParent()
 {
 	std::vector<universeNode*> candidates;
-	if(_parent!=nullptr)
+	if(!_parent)
 	{
-		candidates.push_back(_parent);
-		const auto& brethren = _parent->getChildren();
-		candidates.insert(candidates.end(),brethren.begin(),brethren.end());
+		return nullptr;
 	}
-	else{
-		candidates.push_back(this);
+
+	candidates.push_back(_parent);
+	const auto& brethren = _parent->getChildren();
+	for(auto& brotha : brethren){
+		if(brotha->getID() != getID())
+			candidates.push_back(brotha);
 	}
-	for(auto& child : getChildren()){
-		if(child->getID() != ID)
-			candidates.push_back(child);
+	if(_parent->getParent()){
+		candidates.push_back(_parent->getParent());
+		//candidates.insert(candidates.end(),_parent->getParent()->getChildren().begin(),_parent->getParent()->getChildren().end());
 	}
+
 	// is first < second ?
-	return *std::max_element(candidates.begin(),candidates.end(),[pos, this](universeNode* a, universeNode* b){
-		bool isInsideA = a->getTheoreticalBlock(pos.getPoint3Di()) == metaBlock::nullBlock;
-		bool isInsideB = b->getTheoreticalBlock(pos.getPoint3Di()) == metaBlock::nullBlock;
-		if(isInsideA && !isInsideB)
+	//IC("calculating parent for node " + _name);
+	return *std::max_element(candidates.begin(),candidates.end(),[this](universeNode* a, universeNode* b){
+		fdd posOnA = a->getLocalPos(_position,_parent);
+		fdd posOnB = b->getLocalPos(_position,_parent);
+
+		bool isInsideA = a->getTheoreticalBlock(posOnA.getPoint3Di()) != metaBlock::nullBlock;
+		bool isInsideB = b->getTheoreticalBlock(posOnB.getPoint3Di()) != metaBlock::nullBlock;
+		if(isInsideA && !isInsideB){
+			//IC("	is inside " +a->getName() + " but NOT inside " + b->getName());
 			return false;
-		else if(!isInsideA && isInsideB)
+		}
+		else if(!isInsideA && isInsideB){
+			//IC("	is inside " +b->getName() + " but NOT inside " + a->getName());
 			return true;
+		}
 		else{
-			if(isInsideA){
-				return a->getDiameter() > b->getDiameter();
+			if(isInsideA){//is inside both
+				//IC("	is inside BOTH " +a->getName() + " AND " + b->getName());
+				return a->getDiameter() > b->getDiameter(); //if a is bigger, then b is a better parent
 			}
-			//else
-			fdd accA = a->getGravityAcceleration(a->getLocalPos(pos,this));
-			fdd accB = b->getGravityAcceleration(b->getLocalPos(pos,this));
-			return accB.magnitude()>accA.magnitude();
+			double ASOI = a->getSOI();
+			double BSOI = b->getSOI();
+			if(ASOI > posOnA.magnitude() && BSOI > posOnB.magnitude()){//is inside both sois
+				//IC("	is inside BOTH SOIS OF " +a->getName() + " AND " + b->getName());
+				return BSOI < ASOI;
+			}
+			else if(ASOI > posOnA.magnitude()){ //is only inside A soi
+				//IC("	is inside SOI of " +a->getName());
+				return false;
+			}
+			else if(BSOI > posOnB.magnitude()){//is inside B SOI
+				//IC("	is inside SOI of " +b->getName());
+				return true;
+			}
+			//not inside any SOI
+			//IC("	is not inside any SOI of " +a->getName() + " NOR " + b->getName());
+			return posOnB.magnitude() < posOnA.magnitude();
 		}
 		;
 	});
 }
 
-void universeNode::removeChild(unsigned ID)
+std::shared_ptr<universeNode> universeNode::removeChild(unsigned ID)
 {
-	auto iter = std::find_if(_children.begin(),_children.end(),[ID](universeNode& n){return ID == n._ID;});
-	universeNode node;
+	auto iter = std::find_if(_children.begin(),_children.end(),[ID](std::shared_ptr<universeNode>& n){return ID == n->_ID;});
+	std::shared_ptr<universeNode> node;
 	if(iter != _children.end()){
+		node = *iter;
 		_children.erase(iter);
 	}
+	return node;
 }
 
 void universeNode::updatePositions(double dt)
@@ -501,9 +535,9 @@ void universeNode::updatePositions(double dt)
 		assert(!std::isnan(_position.x));
 		_position += _velocity * dt;
 	}
-	for (universeNode& child : _children)
+	for (auto& child : _children)
 	{
-		child.updatePositions(dt);
+		child->updatePositions(dt);
 	}
 }
 
@@ -706,10 +740,14 @@ void to_json(nlohmann::json& j, const universeNode& f) {
     for(auto& i : f._interactables){
         interactablesJson.push_back(i->getJson());
     }
+    json jj;
+    for(auto& u : f._children){
+		jj.push_back(*u);
+    }
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
-			 {"children", f._children},{"id",f._ID},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
+			 {"children", jj},{"id",f._ID},{"sleeping",f.physicsData.sleeping},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
 	if(f._artificialGravity)
 		j.emplace("artificial_gravity",*f._artificialGravity);
 }
@@ -735,9 +773,9 @@ void from_json(const json& j, universeNode& f) {
 		f._artificialGravity = j.at("artificial_gravity").get<fdd>();
 	}
 	f._velocity = j.at("velocity").get<fdd>();
-	f._children = std::vector<universeNode>();
+	f._children = std::vector<std::shared_ptr<universeNode>>();
 	for (const nlohmann::json& element : j.at("children")) {
-		f._children.emplace_back(element.get<universeNode>());
+		f._children.emplace_back(std::make_shared<universeNode>(element.get<universeNode>()));
 	}
 	if(j.contains("interactables")){
 	   for (const nlohmann::json& element : j.at("interactables")) {
@@ -797,6 +835,8 @@ void from_json(const json& j, universeNode& f) {
     f._CL_cameraPosition = std::make_shared<fdd>();
 	f._CL_chunkloader = std::make_shared<std::thread>(std::bind(&universeNode::_CL_chunkloaderFunc, &f));
 	f._CL_mutex = std::make_shared<std::mutex>();
+	if(j.contains("sleeping"))
+		f.physicsData.sleeping = j.at("sleeping").get<bool>();
 }
 
 universeNode& universeNode::operator=(const universeNode& u)
@@ -805,7 +845,7 @@ universeNode& universeNode::operator=(const universeNode& u)
 	_ID = u._ID;
 	_centerOfMass = u._centerOfMass;
 	_children = u._children;
-	_chunks = u._chunks;
+	_chunks = std::move(u._chunks);
 	_collider = u._collider;
 	_collisionShape = u._collisionShape;
 	_depth = u._depth;

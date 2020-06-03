@@ -27,7 +27,7 @@ namespace config {
 #elif __EMSCRIPTEN__
 	= 30;
 #else
-	                           = 120;
+	                           = 60;
 #endif
 
 	constexpr unsigned physicsSolverIterations = 5;

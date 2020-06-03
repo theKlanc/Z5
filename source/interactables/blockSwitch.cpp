@@ -10,10 +10,10 @@ blockSwitch::blockSwitch()
 
 void blockSwitch::interact(entt::entity e)
 {
-	IC(_sfx);
+	//IC(_sfx);
 	if(_sfx != nullptr){
 		HI2::playSound(*_sfx);
-		IC();
+		//IC();
 	}
 	std::vector<std::pair<metaBlock,point3Di>> newBlocks;
 	for(std::pair<metaBlock,point3Di> &m : _blocks){

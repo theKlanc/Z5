@@ -566,8 +566,8 @@ void State::Playing::createEntities()
 		distance = Services::lcg() % ((int)result->getDiameter() / 2);
 	}
 
-	universeNode spaceShip("test_plat", 100000, 128, { sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, { 2,2,0 }, { 0,0,0 }, nodeType::SPACESHIP, result, 200);
-	spaceShip.connectGenerator(std::make_unique<prefabGenerator>("Roc"));
+	std::shared_ptr<universeNode> spaceShip = std::make_shared<universeNode>("test_plat", 100000, 128, fdd{ sin(angle) * distance - 10.2,cos(angle) * distance + 0.2,(double)result->getHeight({(int)(sin(angle) * distance),(int)(cos(angle) * distance)}) + 20, 0 }, fdd{ 2,2,0 }, fdd{ 0,0,0 }, nodeType::SPACESHIP, result, 200);
+	spaceShip->connectGenerator(std::make_unique<prefabGenerator>("Roc"));
 	result->addChild(spaceShip);
 	//result = result->getChildren()[1];
 	{
@@ -817,7 +817,8 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "zoom zoomLevel" << std::endl;
 		std::cout << "goto ID" << std::endl;
 		std::cout << "refill ID" << std::endl;
-
+		std::cout << "adoptNode childID newParentID" << std::endl;
+		std::cout << "awaken nodeID" << std::endl;
 
 	}
 	else if (command == "pause") {
@@ -872,6 +873,20 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::string argument;
 		ss >> argument;
 		config::zoom = std::stoi(argument);
+	}
+	else if (command == "adoptNode" && ss.tellg() != -1) {
+		std::string argument;
+		ss >> argument;
+		unsigned childID = std::stoi(argument);
+		ss >> argument;
+		unsigned newParentID = std::stoi(argument);
+		universeNode *child, *newParent;
+		if(_universeBase.findNodeByID(childID, child)){
+			if(_universeBase.findNodeByID(newParentID, newParent)){
+				std::shared_ptr<universeNode> newChild = child->getParent()->removeChild(childID);
+				newParent->addChild(newChild);
+			}
+		}
 	}
 	else if (command == "setNodePos" && ss.tellg() != -1) {
 		std::string argument;

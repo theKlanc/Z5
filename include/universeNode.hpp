@@ -40,6 +40,7 @@ public:
 	baseBlock& getTopBlock(const point2D& pos);
 	metaBlock& getBlock(const point3Di &pos);
 	metaBlock& getTheoreticalBlock(const point3Di &pos);
+	double getSOI();
 
 	void updateCamera(fdd c);
 
@@ -60,9 +61,10 @@ public:
 	std::string getName();
 	nodeType getType();
 	std::vector<universeNode*> getChildren();
-	void addChild(universeNode& u);
-	universeNode* calculateBestParent(fdd pos, unsigned ID);
-	void removeChild(unsigned ID);
+	void addChild(std::shared_ptr<universeNode> u);
+	universeNode* calculateBestParent();
+
+	std::shared_ptr<universeNode> removeChild(unsigned ID);
 	void updatePositions(double dt);
 	void applyThrusters(double dt);
 	fdd getGravityAcceleration(fdd localPosition);
@@ -91,6 +93,8 @@ public:
 		
 		friend class physicsEngine;
 		friend class universeNode;
+		friend void to_json(nlohmann::json &j, const universeNode &f);
+		friend void from_json(const json& j, universeNode& f);
 	}physicsData;
 
 	bool operator!= (const universeNode& right)const;
@@ -152,7 +156,7 @@ private:
 	std::vector<std::unique_ptr<interactable>> _interactables;
 
 	nodeType _type;
-	std::vector<universeNode> _children;
+	std::vector<std::shared_ptr<universeNode>> _children;
 	universeNode* _parent;
 	std::unique_ptr<nodeGenerator> _generator;
 	unsigned int _depth;
