@@ -99,6 +99,11 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 		chunkAt(pos).setLoaded();
 	}
 	chunkAt(pos).setBlock(b, pos);
+	for(int x = -1; x <= 1; ++x){
+		for(int y = -1; y <= 1; ++y){
+			updateBlockVisibility({x+pos.x,y+pos.y,pos.z-1});
+		}
+	}
 }
 void universeNode::updateChunks(const fdd& cameraPos, universeNode* u) {
 	_CL_mutex->lock();
@@ -589,7 +594,7 @@ void universeNode::updateChunkVisibility(point3Di cID)
 	point3Di startingBlock = {cID.x * config::chunkSize -1,cID.y * config::chunkSize -1,cID.z * config::chunkSize-1};
 	for(int x = 0; x <= config::chunkSize + 1; x++){
 		for(int y = 0; y <= config::chunkSize + 1; y++){
-			for(int z = 0; z <= config::chunkSize + 1; z++){
+			for(int z = 0; z <= config::chunkSize; z++){
 				updateBlockVisibility(startingBlock + point3Di{x,y,z});
 			}
 		}
