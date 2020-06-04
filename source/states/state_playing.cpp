@@ -86,7 +86,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
-		node.updateChunks(cameraPosition.pos,cameraPosition.parent);
+		node.updateChunks(cameraPosition.pos,cameraPosition.parent,config::chunksContainerSize);
 	}
 }
 

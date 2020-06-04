@@ -32,7 +32,7 @@ enum class nodeType{
 
 class universeNode {
 public:
-	universeNode() :_chunks(config::chunkLoadDiameter* config::chunkLoadDiameter* config::chunkLoadDiameter){}
+	universeNode() :_chunks(config::chunksContainerSize* config::chunksContainerSize* config::chunksContainerSize){}
 	~universeNode();
 	universeNode(const universeNode& u);
 	universeNode& operator=(const universeNode& n);
@@ -45,7 +45,7 @@ public:
 	void updateCamera(fdd c);
 
 	void setBlock(metaBlock b, const point3Di &pos);
-	void updateChunks(const fdd& playerPos, universeNode* u);
+	void updateChunks(const fdd& cameraChunk, universeNode* u, int distance);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
 	fdd getLocalVel(fdd f,universeNode* u) const;
@@ -135,14 +135,15 @@ public:
 
 	std::shared_ptr<thrustSystem> getThrustSystem();
 
-private:
+	static point3Di chunkFromPos(const fdd& pos);
+	static point3Di chunkFromPos(const point3Di& pos);
 
+private:
 	bool shouldDraw(fdd f);
-	point3Di chunkFromPos(const fdd& pos);
-	point3Di chunkFromPos(const point3Di& pos);
+
 	void connectGenerator(const nlohmann::json& j);
 
-	void iUpdateChunks(const point3Di& localChunk);
+	void iUpdateChunks(const point3Di& localChunk, int chunkDistance);
 	terrainChunk& chunkAt(const point3Di &pos);
 	terrainChunk& getChunk(const point3Di &pos);
 	int chunkIndex(const point3Di &pos) const;
