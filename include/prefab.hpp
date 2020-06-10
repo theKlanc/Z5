@@ -13,6 +13,9 @@ public:
 	void save() const;
 	void load();
 
+	std::stringstream saveSS() const;
+	void loadSS(std::stringstream& ss);
+
 	const point3Di& getSize()const ;
 	metaBlock& operator[](int);
 	metaBlock& get(point3Di p);

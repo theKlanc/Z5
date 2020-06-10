@@ -49,6 +49,20 @@ void prefab::load()
 	}
 }
 
+std::stringstream prefab::saveSS() const
+{
+	std::stringstream output;
+	output << _size.x << ' ' << _size.y << ' ' << _size.z << std::endl;
+	output << _blocks;
+	return output;
+}
+
+void prefab::loadSS(std::stringstream& ss)
+{
+	ss >> _size.x >> _size.y >> _size.z;
+	ss >> _blocks;
+}
+
 const point3Di& prefab::getSize() const
 {
 	return _size;

@@ -279,20 +279,19 @@ void universeNode::iUpdateChunks(const point3Di& localChunk, int chunkDistance) 
 					point3Di chunkPos{ (localChunk.x + x) % config::chunksContainerSize, (localChunk.y + y) % config::chunksContainerSize, (localChunk.z + z) % config::chunksContainerSize };
 					terrainChunk& chunk = getChunk(chunkPos);
 					if (!chunk.isValid(localChunk+displacement)) {
-						if (chunk.loaded())
-						{
-							chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
-						}
-						std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(localChunk.x + x)).append(std::to_string(localChunk.y + y)).append(std::to_string(localChunk.z + z)).concat(".z5c"));
-						if (std::filesystem::exists(newChunkPath))//if file already exists, load
-						{
-							chunk.load(newChunkPath, localChunk + displacement);
-							updateChunkVisibility(localChunk + displacement);
-						}
-						else {
-							chunk = _generator->getChunk(localChunk + displacement);
-							updateChunkVisibility(localChunk + displacement);
-						}
+					if (chunk.loaded())
+					{
+						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+					}
+					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(localChunk.x + x)).append(std::to_string(localChunk.y + y)).append(std::to_string(localChunk.z + z)).concat(".z5c"));
+					if (std::filesystem::exists(newChunkPath))//if file already exists, load
+					{
+						chunk.load(newChunkPath, localChunk + displacement);
+						updateChunkVisibility(localChunk + displacement);
+					}
+					else {
+						chunk = _generator->getChunk(localChunk + displacement);
+						updateChunkVisibility(localChunk + displacement);
 					}
 				}
 			}
