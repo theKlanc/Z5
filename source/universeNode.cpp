@@ -9,6 +9,7 @@
 #include <cmath>
 #include "nodeGenerators/nullGenerator.hpp"
 #include "jsonTools.hpp"
+#include <cstdlib>
 
 universeNode::~universeNode()
 {
@@ -253,7 +254,7 @@ void universeNode::_CL_chunkloaderFunc()
 		fdd pos = *_CL_cameraPosition;
 		if(!_CL_cameraPosition)
 			break;
-		if(int distance = lastChunkPos.distance(chunkFromPos(pos)); distance > 0){
+		if(int distance = lastChunkPos.maxdist(chunkFromPos(pos)); distance > 0){
 			updateChunks(pos,this,distance);
 			lastChunkPos = chunkFromPos(pos);
 		}
@@ -275,23 +276,24 @@ void universeNode::iUpdateChunks(const point3Di& localChunk, int chunkDistance) 
 			for(int z = -config::chunkloadSphereRadius; z < config::chunkloadSphereRadius; ++z){
 				//IC(x,y,z);
 				point3Di displacement = {x,y,z};
-				if(displacement.magnitude()<=config::chunkloadSphereRadius && displacement.magnitude()>=config::chunkloadSphereRadius - chunkDistance - 1){
+				if(displacement.maxmag()<=config::chunkloadSphereRadius && displacement.maxmag()>=config::chunkloadSphereRadius - chunkDistance){
 					point3Di chunkPos{ (localChunk.x + x) % config::chunksContainerSize, (localChunk.y + y) % config::chunksContainerSize, (localChunk.z + z) % config::chunksContainerSize };
 					terrainChunk& chunk = getChunk(chunkPos);
-					if (!chunk.isValid(localChunk+displacement)) {
-					if (chunk.loaded())
-					{
-						chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
-					}
-					std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(localChunk.x + x)).append(std::to_string(localChunk.y + y)).append(std::to_string(localChunk.z + z)).concat(".z5c"));
-					if (std::filesystem::exists(newChunkPath))//if file already exists, load
-					{
-						chunk.load(newChunkPath, localChunk + displacement);
-						updateChunkVisibility(localChunk + displacement);
-					}
-					else {
-						chunk = _generator->getChunk(localChunk + displacement);
-						updateChunkVisibility(localChunk + displacement);
+					if (!chunk.isValid((localChunk+displacement)*config::chunkSize)) {
+						if (chunk.loaded())
+						{
+							chunk.unload(State::Playing::savePath().append("nodes").append(std::to_string(_ID)));
+						}
+						std::filesystem::path newChunkPath(State::Playing::savePath().append("nodes").append(std::to_string(_ID)).append(std::to_string(localChunk.x + x)).append(std::to_string(localChunk.y + y)).append(std::to_string(localChunk.z + z)).concat(".z5c"));
+						if (std::filesystem::exists(newChunkPath))//if file already exists, load
+						{
+							chunk.load(newChunkPath, localChunk + displacement);
+							updateChunkVisibility(localChunk + displacement);
+						}
+						else {
+							chunk = _generator->getChunk(localChunk + displacement);
+							updateChunkVisibility(localChunk + displacement);
+						}
 					}
 				}
 			}
