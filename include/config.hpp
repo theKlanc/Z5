@@ -2,15 +2,16 @@
 #include <string>
 
 namespace config {
-	constexpr int chunkLoadDiameter
+	constexpr int chunksContainerSize
 #ifdef __SWITCH__
 	                                = 10;
 #elif __EMSCRIPTEN__
 	= 10;
 #else
-	                                = 20;
+	                                = 18;
 #endif
 
+	constexpr int chunkloadSphereRadius = 8;
 	constexpr int chunkSize = 8;
 	extern int cameraDepth;
 	constexpr int spriteSize = 16;

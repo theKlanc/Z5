@@ -41,23 +41,25 @@ void State::PrefabEditor::input(double dt)
 			save();
 		_core->popState();
 	}
+	if (keysDown[HI2::BUTTON::KEY_CONSOLE])
+	{
+		reloadTerrainTable();
+	}
 	if (keysDown[HI2::BUTTON::KEY_DASH])
 	{
 		zoom /= 2;
-		if (zoom < 1)
-			zoom = 1;
 	}
 	if (keysDown[HI2::BUTTON::KEY_PLUS])
 	{
 		zoom *= 2;
 	}
-	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_DOWN] || keysDown[HI2::BUTTON::KEY_RIGHT])
+	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_UP] || keysDown[HI2::BUTTON::KEY_RIGHT])
 	{
 		_selectedToolbarPos++;
 		if (_selectedToolbarPos >= _toolbar.size())
 			_selectedToolbarPos = 0;
 	}
-	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_UP] || keysDown[HI2::BUTTON::KEY_LEFT])
+	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_DOWN] || keysDown[HI2::BUTTON::KEY_LEFT])
 	{
 		_selectedToolbarPos--;
 		if (_selectedToolbarPos < 0)
@@ -71,6 +73,16 @@ void State::PrefabEditor::input(double dt)
 		{
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[0];
 		}
+		if(_selectedToolbarPos == 0){
+			for(int i = _selectedToolbarPos+1;i<_toolbar.size();++i){
+				if (_toolbar[i]->ID != baseBlock::terrainTable.size() - 1)
+					_toolbar[i] = &baseBlock::terrainTable[_toolbar[i]->ID + 1];
+				else
+				{
+					_toolbar[i] = &baseBlock::terrainTable[0];
+				}
+			}
+		}
 	}
 	if (keysDown[HI2::BUTTON::KEY_DOWN])
 	{
@@ -79,6 +91,16 @@ void State::PrefabEditor::input(double dt)
 		else
 		{
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[baseBlock::terrainTable.size() - 1];
+		}
+		if(_selectedToolbarPos == 0){
+			for(int i = _selectedToolbarPos+1;i<_toolbar.size();++i){
+				if (_toolbar[i]->ID != 0)
+					_toolbar[i] = &baseBlock::terrainTable[_toolbar[i]->ID - 1];
+				else
+				{
+					_toolbar[i] = &baseBlock::terrainTable[baseBlock::terrainTable.size() - 1];
+				}
+			}
 		}
 	}
 	if (keysDown[HI2::BUTTON::KEY_O])
@@ -353,6 +375,21 @@ void State::PrefabEditor::save()
 void State::PrefabEditor::load()
 {
 	_prefab.load();
+}
+
+void State::PrefabEditor::reloadTerrainTable()
+{
+	std::vector<int> oldIDs;
+	for(auto& b : _toolbar){
+		oldIDs.push_back(b->ID);
+	}
+	std::stringstream pfb = _prefab.saveSS();
+	baseBlock::loadTerrainTable();
+	_prefab.loadSS(pfb);
+	for (int i = 0; i < _toolbar.size(); ++i)
+	{
+		_toolbar[i] = &baseBlock::terrainTable[oldIDs[i]];
+	}
 }
 
 void State::PrefabEditor::initToolbar()

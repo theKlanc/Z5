@@ -19,6 +19,7 @@ namespace State {
 		void save();
 		void load();
 
+		void reloadTerrainTable();
 		void initToolbar();
 		void drawBG();
 
@@ -38,7 +39,7 @@ namespace State {
 		bool _flip = false;
 		int _selectedToolbarPos = 0;
 		std::array<baseBlock*,9> _toolbar;
-		int zoom = 1;
+		double zoom = 1;
         bool _drawInvisible = false;
         unsigned _cameraDepth = 3;
 	};

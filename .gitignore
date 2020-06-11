@@ -33,3 +33,5 @@ suppressions.txt
 *.autosave
 
 Fast Testing Kappa/
+
+data/blockTable.json.bak
