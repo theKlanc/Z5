@@ -51,6 +51,10 @@ enum class AO_TYPE{
 	TRIPLE_L,
 	TRIPLE_D,
 	QUAD,
+	FAR_TR,
+	FAR_TL,
+	FAR_BR,
+	FAR_BL,
 };
 
 struct metaBlock

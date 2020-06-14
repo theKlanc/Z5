@@ -694,7 +694,11 @@ void universeNode::updateBlockAO(point3Di b)
 	{
 		return;
 	}
-	if(getBlock({b.x,b.y,b.z+1}).base->opaque){
+	if(getBlock({b.x,b.y,b.z+1}).base->visible){
+		getBlock(b)._AO = AO_TYPE::NONE;
+		return;
+	}
+	if(!getBlock(b).base->opaque){
 		getBlock(b)._AO = AO_TYPE::NONE;
 		return;
 	}
@@ -716,7 +720,29 @@ void universeNode::updateBlockAO(point3Di b)
 	switch(bitmask){
 	default:
 	case 0://____
-		getBlock(b)._AO = AO_TYPE::NONE;
+		{
+		bool tr, tl, bl, br;
+		tr = getBlock({b.x+1,b.y-1,b.z+1}).base->opaque;
+		tl = getBlock({b.x-1,b.y-1,b.z+1}).base->opaque;
+		br = getBlock({b.x+1,b.y+1,b.z+1}).base->opaque;
+		bl = getBlock({b.x-1,b.y+1,b.z+1}).base->opaque;
+		if(tr && !tl && !br && !bl){
+			getBlock(b)._AO = AO_TYPE::FAR_TR;
+			return;
+		}
+		if(!tr && tl && !br && !bl){
+			getBlock(b)._AO = AO_TYPE::FAR_TL;
+			return;
+		}
+		if(!tr && !tl && br && !bl){
+			getBlock(b)._AO = AO_TYPE::FAR_BR;
+			return;
+		}
+		if(!tr && !tl && !br && bl){
+			getBlock(b)._AO = AO_TYPE::FAR_BL;
+			return;
+		}
+		}
 		return;
 	case 1://___D
 		getBlock(b)._AO = AO_TYPE::SINGLE_D;

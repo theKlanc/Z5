@@ -56,6 +56,7 @@ namespace State {
 		static sprite* _AODOUBLEO;
 		static sprite* _AOTRIPLE;
 		static sprite* _AOQUAD;
+		static sprite* _AOFAR;
 
 		static std::filesystem::path _savePath;
 
