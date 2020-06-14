@@ -34,6 +34,25 @@ struct baseBlock { // A baseBlock represents a 1m³ cube of material
 	static void loadTerrainTable();
 };
 
+enum class AO_TYPE{
+	NONE,
+	SINGLE_R,
+	SINGLE_U,
+	SINGLE_L,
+	SINGLE_D,
+	DOUBLE_O_H,
+	DOUBLE_O_V,
+	DOUBLE_A_UR,
+	DOUBLE_A_LU,
+	DOUBLE_A_DL,
+	DOUBLE_A_RD,
+	TRIPLE_R,
+	TRIPLE_U,
+	TRIPLE_L,
+	TRIPLE_D,
+	QUAD,
+};
+
 struct metaBlock
 {
 	baseBlock* base;
@@ -42,6 +61,7 @@ struct metaBlock
 	bool saveMeta = false;
 
 	bool _render_visible = true; // is it (not) occluded by other blocks?
+	AO_TYPE _AO = AO_TYPE::NONE;
 
 	bool operator==(const metaBlock& right) const;
 

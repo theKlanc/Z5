@@ -36,6 +36,7 @@ namespace config {
 	extern unsigned short minShadow;
 	extern bool gravityEnabled;
 	extern bool dragEnabled;
+	extern bool AOEnabled;
 	const std::string spriteExtension = ".png";
 	const std::string audioExtension = ".mp3";
 	const std::string fontExtension = ".ttf";

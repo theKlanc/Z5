@@ -10,6 +10,7 @@
 #include "nodeGenerators/nullGenerator.hpp"
 #include "jsonTools.hpp"
 #include <cstdlib>
+#include <cstddef>
 
 universeNode::~universeNode()
 {
@@ -289,10 +290,12 @@ void universeNode::iUpdateChunks(const point3Di& localChunk, int chunkDistance) 
 						{
 							chunk.load(newChunkPath, localChunk + displacement);
 							updateChunkVisibility(localChunk + displacement);
+							updateChunkAO(localChunk + displacement);
 						}
 						else {
 							chunk = _generator->getChunk(localChunk + displacement);
 							updateChunkVisibility(localChunk + displacement);
+							updateChunkAO(localChunk + displacement);
 						}
 					}
 				}
@@ -640,9 +643,6 @@ void universeNode::updateBlockVisibility(point3Di b)
 	{
 		return;
 	}
-
-
-
 	bool vis = false;
 	if(auto& bloc = getBlock({b.x-1,b.y-1,b.z+1});!bloc.base->opaque){
 		vis = true;
@@ -674,6 +674,96 @@ void universeNode::updateBlockVisibility(point3Di b)
 		vis = true;
 	}
 	getBlock(b)._render_visible = vis;
+}
+
+void universeNode::updateChunkAO(point3Di cID)
+{
+	point3Di startingBlock = {cID.x * config::chunkSize -1,cID.y * config::chunkSize -1,cID.z * config::chunkSize-1};
+	for(int x = 0; x <= config::chunkSize + 1; x++){
+		for(int y = 0; y <= config::chunkSize + 1; y++){
+			for(int z = 0; z <= config::chunkSize; z++){
+				updateBlockAO(startingBlock + point3Di{x,y,z});
+			}
+		}
+	}
+}
+
+void universeNode::updateBlockAO(point3Di b)
+{
+	if(getBlock({b.x,b.y,b.z}) == metaBlock::nullBlock)
+	{
+		return;
+	}
+	if(getBlock({b.x,b.y,b.z+1}).base->opaque){
+		getBlock(b)._AO = AO_TYPE::NONE;
+		return;
+	}
+	bool up, down, left, right;
+	up = getBlock({b.x,b.y-1,b.z+1}).base->opaque;
+	down = getBlock({b.x,b.y+1,b.z+1}).base->opaque;
+	left = getBlock({b.x-1,b.y,b.z+1}).base->opaque;
+	right = getBlock({b.x+1,b.y,b.z+1}).base->opaque;
+	unsigned short bitmask = 0;
+	if(right)
+		bitmask +=8;
+	if(up)
+		bitmask +=4;
+	if(left)
+		bitmask +=2;
+	if(down)
+		bitmask +=1;
+	//RULD
+	switch(bitmask){
+	default:
+	case 0://____
+		getBlock(b)._AO = AO_TYPE::NONE;
+		return;
+	case 1://___D
+		getBlock(b)._AO = AO_TYPE::SINGLE_D;
+		return;
+	case 2://__L_
+		getBlock(b)._AO = AO_TYPE::SINGLE_L;
+		return;
+	case 3://__LD
+		getBlock(b)._AO = AO_TYPE::DOUBLE_A_DL;
+		return;
+	case 4://_U__
+		getBlock(b)._AO = AO_TYPE::SINGLE_U;
+		return;
+	case 5://_U_D
+		getBlock(b)._AO = AO_TYPE::DOUBLE_O_V;
+		return;
+	case 6://_UL_
+		getBlock(b)._AO = AO_TYPE::DOUBLE_A_LU;
+		return;
+	case 7://_ULD
+		getBlock(b)._AO = AO_TYPE::TRIPLE_L;
+		return;
+	case 8://R___
+		getBlock(b)._AO = AO_TYPE::SINGLE_R;
+		return;
+	case 9://R__D
+		getBlock(b)._AO = AO_TYPE::DOUBLE_A_RD;
+		return;
+	case 10://R_L_
+		getBlock(b)._AO = AO_TYPE::DOUBLE_O_H;
+		return;
+	case 11://R_LD
+		getBlock(b)._AO = AO_TYPE::TRIPLE_D;
+		return;
+	case 12://RU__
+		getBlock(b)._AO = AO_TYPE::DOUBLE_A_UR;
+		return;
+	case 13://RU_D
+		getBlock(b)._AO = AO_TYPE::TRIPLE_R;
+		return;
+	case 14://RUL_
+		getBlock(b)._AO = AO_TYPE::TRIPLE_U;
+		return;
+	case 15://RULD
+		getBlock(b)._AO = AO_TYPE::QUAD;
+		return;
+	}
 }
 
 std::vector<terrainChunk>& universeNode::getChunks()
