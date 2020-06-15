@@ -51,14 +51,23 @@ XX rotacions de layers
 
 #arreglar orbites
 #refer la visibilitat
--refer el chunkloader
+#refer el chunkloader
 
+-fake AO
+fix node sleeping
 aplicar el reparentitzat a entitats
 dormir entitats quan calgui
 descarregar i diferenciar entre entitats permanents
 terrain mesh simplification (greedy meshing) per les colisions
 
+--Juny!
 
+ROTACIONS DE NODES
+
+--Juny?
+
+reentry heating
+ship crashing
 small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
 
 canviar el univers default
@@ -67,6 +76,8 @@ implementar spawners de nodes
 crear spawners de entitats
 
 docking
+
+-- Agost?
 
 rework controls (mayb bindings més tard)
 
@@ -110,7 +121,6 @@ crear enemics i npcs
 planificadors de vol
 autopilot
 
-ROTACIONS DE NODES
 
 afegir creador de nodes
 afegir llunes de mart jupiter saturn i neptu

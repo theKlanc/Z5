@@ -73,6 +73,9 @@ public:
 	void updateChunkVisibility(point3Di cID);
 	void updateBlockVisibility(point3Di b);
 
+	void updateChunkAO(point3Di cID);
+	void updateBlockAO(point3Di b);
+
 	std::vector<terrainChunk>& getChunks();
 
 	universeNode* getParent();

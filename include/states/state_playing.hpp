@@ -51,6 +51,13 @@ namespace State {
 		bool selectedFlip = false;
 		entt::registry _enttRegistry;
 
+		static sprite* _AOSINGLE;
+		static sprite* _AODOUBLEA;
+		static sprite* _AODOUBLEO;
+		static sprite* _AOTRIPLE;
+		static sprite* _AOQUAD;
+		static sprite* _AOFAR;
+
 		static std::filesystem::path _savePath;
 
 		void createNewGame(std::string saveName, int seed);
