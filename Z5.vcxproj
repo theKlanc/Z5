@@ -30,6 +30,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{1A7A8F8E-6690-4922-9B8F-EAB738E9C09A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -106,8 +107,8 @@
     <IncludePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)include;$(ProjectDir)deps;C:\SDL2\include;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)deps\json\single_include\nlohmann;$(IncludePath)</IncludePath>
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(SourcePath)</SourcePath>
-    <IncludePath>C:\SDL2\include\SDL2;$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)deps\json\single_include\nlohmann;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(ProjectDir)deps\icecream-cpp;$(SourcePath)</SourcePath>
+    <IncludePath>C:\SDL2\include\SDL2;$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)deps\json\single_include\nlohmann;$(ProjectDir)include;$(ProjectDir)deps\icecream-cpp;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
@@ -213,6 +214,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="deps\FastNoise\FastNoise.cpp" />
     <ClCompile Include="deps\HardwareInterface\HardwareInterface3DS.cpp" />
@@ -288,6 +294,7 @@
     <ClCompile Include="deps\reactPhysics3D\src\utils\Profiler.cpp" />
     <ClCompile Include="source\audioManager.cpp" />
     <ClCompile Include="source\block.cpp" />
+    <ClCompile Include="source\colliderManager.cpp" />
     <ClCompile Include="source\components\astronautBrain.cpp" />
     <ClCompile Include="source\components\body_.cpp" />
     <ClCompile Include="source\components\brain.cpp" />
@@ -296,10 +303,16 @@
     <ClCompile Include="source\components\position.cpp" />
     <ClCompile Include="source\components\velocity.cpp" />
     <ClCompile Include="source\config.cpp" />
+    <ClCompile Include="source\controllable.cpp" />
     <ClCompile Include="source\fdd.cpp" />
     <ClCompile Include="source\fontManager.cpp" />
+    <ClCompile Include="source\fuel.cpp" />
+    <ClCompile Include="source\fuelContainer.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\graphicsManager.cpp" />
+    <ClCompile Include="source\interactable.cpp" />
+    <ClCompile Include="source\interactables\blockSwitch.cpp" />
+    <ClCompile Include="source\interactables\nodeController.cpp" />
     <ClCompile Include="source\jsonTools.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\nodeGenerator.cpp" />
@@ -315,6 +328,10 @@
     <ClCompile Include="source\states\state_playing.cpp" />
     <ClCompile Include="source\states\state_prefab_editor.cpp" />
     <ClCompile Include="source\terrainChunk.cpp" />
+    <ClCompile Include="source\thruster.cpp" />
+    <ClCompile Include="source\thrustSystem.cpp" />
+    <ClCompile Include="source\UI\customGadgets\fddViewer.cpp" />
+    <ClCompile Include="source\UI\customGadgets\starmap.cpp" />
     <ClCompile Include="source\UI\gadget.cpp" />
     <ClCompile Include="source\UI\gadgets\basicPanel.cpp" />
     <ClCompile Include="source\UI\gadgets\basicScrollablePanel.cpp" />
@@ -372,6 +389,8 @@
     <ClInclude Include="deps\entt\signal\sigh.hpp" />
     <ClInclude Include="deps\FastNoise\FastNoise.h" />
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp" />
+    <ClInclude Include="deps\icecream-cpp\catch.hpp" />
+    <ClInclude Include="deps\icecream-cpp\icecream.hpp" />
     <ClInclude Include="deps\json\single_include\nlohmann\json.hpp" />
     <ClInclude Include="deps\reactPhysics3D\src\body\Body.h" />
     <ClInclude Include="deps\reactPhysics3D\src\body\CollisionBody.h" />
@@ -460,6 +479,7 @@
     <ClInclude Include="deps\reactPhysics3D\src\utils\Logger.h" />
     <ClInclude Include="deps\reactPhysics3D\src\utils\Profiler.h" />
     <ClInclude Include="include\block.hpp" />
+    <ClInclude Include="include\colliderManager.hpp" />
     <ClInclude Include="include\components\astronautBrain.hpp" />
     <ClInclude Include="include\components\body.hpp" />
     <ClInclude Include="include\components\brain.hpp" />
@@ -468,10 +488,16 @@
     <ClInclude Include="include\components\position.hpp" />
     <ClInclude Include="include\components\velocity.hpp" />
     <ClInclude Include="include\config.hpp" />
+    <ClInclude Include="include\controllable.hpp" />
     <ClInclude Include="include\fdd.hpp" />
     <ClInclude Include="include\fontManager.hpp" />
+    <ClInclude Include="include\fuel.hpp" />
+    <ClInclude Include="include\fuelContainer.hpp" />
     <ClInclude Include="include\gameCore.hpp" />
     <ClInclude Include="include\graphicsManager.hpp" />
+    <ClInclude Include="include\interactable.hpp" />
+    <ClInclude Include="include\interactables\blockSwitch.hpp" />
+    <ClInclude Include="include\interactables\nodeController.hpp" />
     <ClInclude Include="include\jsonTools.hpp" />
     <ClInclude Include="include\nodeGenerator.hpp" />
     <ClInclude Include="include\nodeGenerators\nullGenerator.hpp" />
@@ -487,7 +513,11 @@
     <ClInclude Include="include\states\state_playing.hpp" />
     <ClInclude Include="include\states\state_prefab_editor.hpp" />
     <ClInclude Include="include\terrainChunk.hpp" />
+    <ClInclude Include="include\thruster.hpp" />
+    <ClInclude Include="include\thrustSystem.hpp" />
     <ClInclude Include="include\ui.hpp" />
+    <ClInclude Include="include\UI\customGadgets\fddViewer.hpp" />
+    <ClInclude Include="include\UI\customGadgets\starmap.hpp" />
     <ClInclude Include="include\UI\gadget.hpp" />
     <ClInclude Include="include\UI\gadgets\basicPanel.hpp" />
     <ClInclude Include="include\UI\gadgets\basicScrollablePanel.hpp" />

@@ -163,7 +163,7 @@ void State::MainMenu::draw(double dt) {
 
 void State::MainMenu::editPrefabCallback(std::filesystem::path s)
 {
-	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,s));
+	_core->pushState(std::make_unique<State::PrefabEditor>(*_core,s.string()));
 }
 
 void State::MainMenu::newPrefabCallback()
@@ -354,7 +354,7 @@ void State::MainMenu::regeneratePrefabsVector()
 	int i = 0;
 	for (auto& s : std::filesystem::directory_iterator(HI2::getDataPath().append("prefabs"))) {
 		pfb prefabPanel;
-		prefabPanel.txt = std::make_shared<textView>(point2D{32,224+64*i},point2D{936 - 64 - 96,32},s.path().filename(),_standardFont,32,HI2::Color::Black);
+		prefabPanel.txt = std::make_shared<textView>(point2D{32,224+64*i},point2D{936 - 64 - 96,32},s.path().filename().string(),_standardFont,32,HI2::Color::Black);
 		prefabPanel.startButton = std::make_shared<imagePushButton>(point2D{936 - 64,224+64*i++},point2D{32,32},play_off,play_on);
 		prefabPanel.startButton->setClickCallback(std::bind(&State::MainMenu::editPrefabCallback, this, s.path().filename()));
 		_prefabPanel.p->addGadget(prefabPanel.txt);

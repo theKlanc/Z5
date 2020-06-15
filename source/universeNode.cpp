@@ -201,7 +201,7 @@ void universeNode::connectGenerator(const nlohmann::json& j)
 		}
 	}
 	else {
-		_generator = std::make_unique<terrainPainterGenerator>(_ID,_diameter);
+		_generator = std::make_unique<terrainPainterGenerator>(_ID,(unsigned)_diameter);
 	}
 }
 
@@ -404,7 +404,7 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 		const universeNode* transformLocal = this;
 
 		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
-			if (u->_depth > transformLocal->_depth) {//should move u
+			if (u && u->_depth > transformLocal->_depth) {//should move u
 				transform += u->_position;
 				u = u->_parent;
 			}
@@ -432,7 +432,7 @@ fdd universeNode::getLocalVel(fdd f, universeNode* u) const
 		const universeNode* transformLocal = this;
 
 		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
-			if (u->_depth > transformLocal->_depth) {//should move u
+			if (u && u->_depth > transformLocal->_depth) {//should move u
 				transform += u->_velocity;
 				u = u->_parent;
 			}

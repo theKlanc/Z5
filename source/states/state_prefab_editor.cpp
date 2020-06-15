@@ -314,14 +314,14 @@ void State::PrefabEditor::draw(double dt)
 						//TODO
 						//DRAW INVISIBLE BLOCKS
 						if (_drawInvisible) {
-							HI2::drawRectangle({ j * (zoom * config::spriteSize), i * (zoom * config::spriteSize) }, zoom * config::spriteSize, zoom * config::spriteSize, HI2::Color{ (unsigned char)(mb.base->ID == 0 ? 255 : 0),(unsigned char)(mb.base->ID == 1 ? 255 : 0),(unsigned char)(mb.base->ID == 2 ? 255 : 0),127 });
+							HI2::drawRectangle({ int(j * (zoom * config::spriteSize)), int(i * (zoom * config::spriteSize)) }, int(zoom * config::spriteSize), int(zoom * config::spriteSize), HI2::Color{ (unsigned char)(mb.base->ID == 0 ? 255 : 0),(unsigned char)(mb.base->ID == 1 ? 255 : 0),(unsigned char)(mb.base->ID == 2 ? 255 : 0),127 });
 						}
 					}
 				}
 				else
 				{
 					if (depth == 0)
-						HI2::drawRectangle({ j * (zoom * config::spriteSize), i * (zoom * config::spriteSize) }, zoom * config::spriteSize, zoom * config::spriteSize, HI2::Color{ 255,0,0,127 });
+						HI2::drawRectangle({ int(j * (zoom * config::spriteSize)), int(i * (zoom * config::spriteSize))}, int(zoom * config::spriteSize),int(zoom * config::spriteSize), HI2::Color{ 255,0,0,127 });
 				}
 			}
 		}

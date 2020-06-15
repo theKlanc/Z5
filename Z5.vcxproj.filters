@@ -60,6 +60,21 @@
     <Filter Include="source\UI\gadgets">
       <UniqueIdentifier>{d3ee89f9-1bc1-4bad-b670-36f8c6650d6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="deps\icecream-cpp">
+      <UniqueIdentifier>{e7a6bcab-7755-4a46-9554-f04ba7191ff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\interactables">
+      <UniqueIdentifier>{cd4b8808-eb7c-4b2b-bb1a-a032806465b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\UI\gadgets\customGadgets">
+      <UniqueIdentifier>{26907fe1-5d32-48af-8aed-92ae884a81fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\interactables">
+      <UniqueIdentifier>{04cdd0a1-47e9-4db4-ab05-3fbc3c4623e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\UI\gadgets\customGadgets">
+      <UniqueIdentifier>{7a7835d7-0fb5-4b20-82bb-2dd2a3de039c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\states\state_base.cpp">
@@ -296,9 +311,6 @@
     <ClCompile Include="source\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\nodeGenerator.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\terrainChunk.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -389,12 +401,6 @@
     <ClCompile Include="source\fontManager.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\nodeGenerators\nullGenerator.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\nodeGenerators\prefabGenerator.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\nodeGenerators\terrainPainterGenerator.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -412,6 +418,48 @@
     </ClCompile>
     <ClCompile Include="source\components\brain.cpp">
       <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\colliderManager.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\controllable.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\fuel.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\fuelContainer.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\interactable.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\thruster.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\thrustSystem.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerators\nullGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\nodeGenerators\prefabGenerator.cpp">
+      <Filter>source\nodeGenerators</Filter>
+    </ClCompile>
+    <ClCompile Include="source\interactables\nodeController.cpp">
+      <Filter>source\interactables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\interactables\blockSwitch.cpp">
+      <Filter>source\interactables</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\customGadgets\fddViewer.cpp">
+      <Filter>source\UI\gadgets\customGadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\customGadgets\starmap.cpp">
+      <Filter>source\UI\gadgets\customGadgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -817,9 +865,6 @@
     <ClInclude Include="include\gameCore.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\nodeGenerator.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\terrainChunk.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -901,12 +946,6 @@
     <ClInclude Include="include\fontManager.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\nodeGenerators\nullGenerator.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\nodeGenerators\prefabGenerator.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\nodeGenerators\terrainPainterGenerator.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -927,6 +966,54 @@
     </ClInclude>
     <ClInclude Include="include\components\brain.hpp">
       <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\icecream-cpp\catch.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\icecream-cpp\icecream.hpp">
+      <Filter>deps\icecream-cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="include\colliderManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\controllable.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fuel.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fuelContainer.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\interactable.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\thruster.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\thrustSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\interactables\blockSwitch.hpp">
+      <Filter>include\interactables</Filter>
+    </ClInclude>
+    <ClInclude Include="include\interactables\nodeController.hpp">
+      <Filter>include\interactables</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\customGadgets\fddViewer.hpp">
+      <Filter>include\UI\gadgets\customGadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\customGadgets\starmap.hpp">
+      <Filter>include\UI\gadgets\customGadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerators\nullGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\nodeGenerators\prefabGenerator.hpp">
+      <Filter>include\nodeGenerators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
