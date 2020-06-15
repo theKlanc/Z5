@@ -101,9 +101,12 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 		chunkAt(pos).setLoaded();
 	}
 	chunkAt(pos).setBlock(b, pos);
+	updateBlockVisibility(pos);
+	updateBlockAO(pos);
 	for(int x = -1; x <= 1; ++x){
 		for(int y = -1; y <= 1; ++y){
 			updateBlockVisibility({x+pos.x,y+pos.y,pos.z-1});
+			updateBlockAO({x+pos.x,y+pos.y,pos.z-1});
 		}
 	}
 }
@@ -690,6 +693,10 @@ void universeNode::updateChunkAO(point3Di cID)
 
 void universeNode::updateBlockAO(point3Di b)
 {
+	if(_type == nodeType::SPACESHIP || _type == nodeType::SPACE_STATION || _type == nodeType::SATELLITE_ARTIFICIAL)
+		return;
+
+
 	if(getBlock({b.x,b.y,b.z}) == metaBlock::nullBlock)
 	{
 		return;

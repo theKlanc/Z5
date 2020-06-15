@@ -396,7 +396,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 						}
 						//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
 						HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
-						if(config::AOEnabled){
+						if(config::AOEnabled && !node.firstLayer){
 							switch(b._AO){
 							default:
 							case AO_TYPE::NONE:
