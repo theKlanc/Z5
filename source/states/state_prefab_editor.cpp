@@ -53,6 +53,47 @@ void State::PrefabEditor::input(double dt)
 	{
 		zoom *= 2;
 	}
+	if (keysDown[HI2::BUTTON::KEY_0])
+	{
+		_selectedToolbarPos=9;
+	}
+	if (keysDown[HI2::BUTTON::KEY_1])
+	{
+		_selectedToolbarPos=0;
+	}
+	if (keysDown[HI2::BUTTON::KEY_2])
+	{
+		_selectedToolbarPos=1;
+	}
+	if (keysDown[HI2::BUTTON::KEY_3])
+	{
+		_selectedToolbarPos=2;
+	}
+	if (keysDown[HI2::BUTTON::KEY_4])
+	{
+		_selectedToolbarPos=3;
+	}
+	if (keysDown[HI2::BUTTON::KEY_5])
+	{
+		_selectedToolbarPos=4;
+	}
+	if (keysDown[HI2::BUTTON::KEY_6])
+	{
+		_selectedToolbarPos=5;
+	}
+	if (keysDown[HI2::BUTTON::KEY_7])
+	{
+		_selectedToolbarPos=6;
+	}
+	if (keysDown[HI2::BUTTON::KEY_8])
+	{
+		_selectedToolbarPos=7;
+	}
+	if (keysDown[HI2::BUTTON::KEY_9])
+	{
+		_selectedToolbarPos=8;
+	}
+
 	if (keysDown[HI2::BUTTON::KEY_MOUSEWHEEL_UP] || keysDown[HI2::BUTTON::KEY_RIGHT])
 	{
 		_selectedToolbarPos++;
@@ -167,9 +208,7 @@ void State::PrefabEditor::input(double dt)
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "u: toggle between drawing lower layers or not", { 0,220 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "Esc: Save and quit", { 0,240 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "Shift+Esc: Quit without saving", { 0,260 }, 20, HI2::Color::White);
-
-
-
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Console (º): Reload Spritesheet and terrain table", { 0,280 }, 20, HI2::Color::White);
 		HI2::endFrame();
 		_drawingHelp = true;
 	}
