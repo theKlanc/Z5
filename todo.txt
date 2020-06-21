@@ -59,6 +59,27 @@ aplicar el reparentitzat a entitats
 dormir entitats quan calgui
 #descarregar i diferenciar entre entitats permanents
 
+prefab editor overhaul
+  resizing the canvas (auto / manual)
+  selections
+    copy
+    paste
+    move
+  fill
+  pencil
+  [brushes]
+  [shapes]
+
+
+
+  [[
+  switch to items
+  switch from prefabs to premadeNodes
+  ability to fuse nodes
+  ability to add interactables
+  ]]
+
+
 moving node parts (ficar-los com a fills i evitar que s'els apliqui gravetat i tal, podrien tenir un interactable per moure's, o versions no interactuables amb una xarnera simple)
 small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
 

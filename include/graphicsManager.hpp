@@ -17,6 +17,7 @@ public:
 
 	std::string_view getTextureName();
 	HI2::Texture* getTexture();
+	void setTexture(HI2::Texture* t);
 	frame& getCurrentFrame();
 	void step(double s);
 	void step();
@@ -53,6 +54,7 @@ class graphicsManager {
 
 	bool isTextureLoaded(std::string textureFile) const;
 	HI2::Texture* loadTexture(std::string fileName);
+	HI2::Texture* reloadTexture(std::string fileName);
 	void freeTexture(std::string textureName);
 	HI2::Texture* getTexture(std::string textureName);
   private:

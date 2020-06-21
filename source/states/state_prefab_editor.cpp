@@ -385,9 +385,13 @@ void State::PrefabEditor::reloadTerrainTable()
 	}
 	std::stringstream pfb = _prefab.saveSS();
 	baseBlock::loadTerrainTable();
+	Services::graphics.reloadTexture("spritesheet");
 	_prefab.loadSS(pfb);
 	for (int i = 0; i < _toolbar.size(); ++i)
 	{
+		if(oldIDs[i]>=baseBlock::terrainTable.size())
+			_toolbar[i] = &baseBlock::terrainTable.back();
+
 		_toolbar[i] = &baseBlock::terrainTable[oldIDs[i]];
 	}
 }

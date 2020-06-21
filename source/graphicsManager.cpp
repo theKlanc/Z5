@@ -93,6 +93,22 @@ HI2::Texture* graphicsManager::loadTexture(std::string spriteName) { // load a t
 	return &(_texAtlas.find(spriteName)->second);
 }
 
+HI2::Texture *graphicsManager::reloadTexture(std::string fileName)
+{
+	std::filesystem::path fileNameWithoutExt = (HI2::getDataPath() /= "sprites") /= (fileName);
+	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".png";
+	if (_texAtlas.find(fileName) == _texAtlas.end()) {
+		return nullptr;
+	}
+	_texAtlas.find(fileName)->second = HI2::Texture(completeFileName);
+	for(auto& spr : _spriteAtlas){
+		if(spr.second.getTextureName() == fileName){
+			spr.second.setTexture(&_texAtlas.find(fileName)->second);
+		}
+	}
+	return &(_texAtlas.find(fileName)->second);
+}
+
 void graphicsManager::freeTexture(std::string spriteName) { // frees a texture from texTable[]
 	auto it = _texAtlas.find(spriteName);
 	if (it != _texAtlas.end()) {
@@ -137,6 +153,11 @@ std::string_view sprite::getTextureName()
 HI2::Texture *sprite::getTexture()
 {
 	return _texture;
+}
+
+void sprite::setTexture(HI2::Texture *t)
+{
+	_texture = t;
 }
 
 frame &sprite::getCurrentFrame()
