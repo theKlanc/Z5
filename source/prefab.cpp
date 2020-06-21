@@ -73,6 +73,11 @@ metaBlock& prefab::operator[](int i)
 	return _blocks[i];
 }
 
+metaBlock &prefab::operator[](point3Di p)
+{
+	return _blocks[p.z * _size.y * _size.x + p.y * _size.x + p.x];
+}
+
 metaBlock& prefab::get(point3Di p)
 {
 	if(p.x < _size.x && p.y < _size.y && p.z < _size.z)

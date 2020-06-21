@@ -18,6 +18,8 @@ public:
 
 	const point3Di& getSize()const ;
 	metaBlock& operator[](int);
+	metaBlock& operator[](point3Di);
+
 	metaBlock& get(point3Di p);
 	std::string getName() const;
 private:

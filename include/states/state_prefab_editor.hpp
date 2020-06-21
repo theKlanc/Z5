@@ -3,6 +3,8 @@
 #include "HI2.hpp"
 #include "block.hpp"
 #include "prefab.hpp"
+#include <deque>
+#include <set>
 
 namespace State {
 	class PrefabEditor : public State_Base {
@@ -23,16 +25,32 @@ namespace State {
 		void initToolbar();
 		void drawBG();
 
+		void applyTool(point3Di pos, bool rightClick);
+
+		void applyPencil(point3Di pos, bool rightClick);
+		void applyBucket(point3Di pos);
+		void applySelect(point3Di pos);
+
+		void floodFill(std::deque<point3Di>& pendingPositions, std::set<point3Di>& visited,baseBlock* targetBlock, baseBlock* newBlock);
+
+
 		int _bgType = 0;
 		bool _drawingHelp = false;
-		bool _drawStats = false;
-		enum symmetry
+		bool _drawStats = true;
+		enum class symmetry
 		{
 			NONE,
 			V,
 			H,
 			BOTH
-		}_symmetryMode = NONE;
+		}_symmetryMode = symmetry::NONE;
+		enum class tool
+		{
+			PENCIL,
+			BUCKET,
+			SELECT
+		}_currentTool = tool::PENCIL;
+
 		prefab _prefab;
 		point3Di _camera;
 		blockRotation _rotation = blockRotation::UP;

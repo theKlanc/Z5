@@ -3,6 +3,7 @@
 #include "gameCore.hpp"
 #include "services.hpp"
 #include <iostream>
+#include "icecream-cpp/icecream.hpp"
 
 State::PrefabEditor::PrefabEditor(gameCore& c, std::string name)
 {
@@ -45,6 +46,7 @@ void State::PrefabEditor::input(double dt)
 	{
 		reloadTerrainTable();
 	}
+
 	if (keysDown[HI2::BUTTON::KEY_DASH])
 	{
 		zoom /= 2;
@@ -114,7 +116,7 @@ void State::PrefabEditor::input(double dt)
 		{
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[0];
 		}
-		if(_selectedToolbarPos == 0){
+		if(keysHeld[HI2::BUTTON::KEY_CONTROL]){
 			for(int i = _selectedToolbarPos+1;i<_toolbar.size();++i){
 				if (_toolbar[i]->ID != baseBlock::terrainTable.size() - 1)
 					_toolbar[i] = &baseBlock::terrainTable[_toolbar[i]->ID + 1];
@@ -133,7 +135,7 @@ void State::PrefabEditor::input(double dt)
 		{
 			_toolbar[_selectedToolbarPos] = &baseBlock::terrainTable[baseBlock::terrainTable.size() - 1];
 		}
-		if(_selectedToolbarPos == 0){
+		if(keysHeld[HI2::BUTTON::KEY_CONTROL]){
 			for(int i = _selectedToolbarPos+1;i<_toolbar.size();++i){
 				if (_toolbar[i]->ID != 0)
 					_toolbar[i] = &baseBlock::terrainTable[_toolbar[i]->ID - 1];
@@ -186,31 +188,40 @@ void State::PrefabEditor::input(double dt)
 	}
 	if (keysDown[HI2::BUTTON::KEY_X])
 	{
-		_symmetryMode = (symmetry)((_symmetryMode + 1) % 4);
-		std::cout << "symmetry mode: " << (_symmetryMode == NONE ? "none" : _symmetryMode == V ? "vertical" : _symmetryMode == H ? "horizontal" : "both") << std::endl;
+		_symmetryMode = (symmetry)(((int)_symmetryMode + 1) % 4);
+		std::cout << "symmetry mode: " << (_symmetryMode == symmetry::NONE ? "none" : _symmetryMode == symmetry::V ? "vertical" : _symmetryMode == symmetry::H ? "horizontal" : "both") << std::endl;
 	}
 	if (keysHeld[HI2::BUTTON::KEY_H]) {
 		HI2::startFrame();
 
 		HI2::drawRectangle({}, HI2::getScreenWidth(), HI2::getScreenHeight(), HI2::Color::DarkGrey);
+		int comptador = 0;
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "wasd: movement", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "rf: move up and down", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "h: show this help", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "q: rotate block", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "e: flip block", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "scroll wheel / left-right: move toolbar selection", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "up-down: change selected block (hold Control to change all)", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "0-9: switch to toolbar position", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "t: switch between backgrounds", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "i: toggle between drawing invisible blocks or not", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "o: toggle between drawing info or not", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "u: toggle between drawing lower layers or not", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Esc: Save and quit", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Shift+Esc: Quit without saving", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Console (º): Reload Spritesheet and terrain table", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "b: Select brush", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "g: Select bucket", { 0,comptador++*20 }, 20, HI2::Color::White);
 
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "wasd: movement", { 0,0 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "rf: move up and down", { 0,20 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "h: show this help", { 0,40 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "q: rotate block", { 0,60 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "e: flip block", { 0,80 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "scroll wheel / left-right: move toolbar selection", { 0,100 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "up-down: change selected block", { 0,120 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "x: switch between symmetry modes", { 0,140 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "t: switch between backgrounds", { 0,160 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "i: toggle between drawing invisible blocks or not", { 0,180 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "o: toggle between drawing info or not", { 0,200 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "u: toggle between drawing lower layers or not", { 0,220 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "Esc: Save and quit", { 0,240 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "Shift+Esc: Quit without saving", { 0,260 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "Console (º): Reload Spritesheet and terrain table", { 0,280 }, 20, HI2::Color::White);
 		HI2::endFrame();
 		_drawingHelp = true;
+	}
+	if (keysDown[HI2::BUTTON::KEY_B]) {
+		_currentTool = tool::PENCIL;
+	}
+	if (keysDown[HI2::BUTTON::KEY_G]) {
+		_currentTool = tool::BUCKET;
 	}
 	if (keysDown[HI2::BUTTON::KEY_I]) {
 		_drawInvisible = !_drawInvisible;
@@ -227,50 +238,7 @@ void State::PrefabEditor::input(double dt)
 		point3Di blockPos = _camera;
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-		{
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = _rotation;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
-			
-		}
-		if (_symmetryMode == V || _symmetryMode == BOTH)
-		{
-			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
-			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-			{
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 - (int)_rotation) % 4);
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
-			}
-			blockPos.y = -(blockPos.y - _prefab.getSize().y + 1);
-		}
-		if (_symmetryMode == H || _symmetryMode == BOTH)
-		{
-			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
-			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-			{
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((4 - (int)_rotation) % 4);
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
-			}
-			blockPos.x = -(blockPos.x - _prefab.getSize().x + 1);
-		}
-		if (_symmetryMode == BOTH)
-		{
-			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
-			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
-			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-			{
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = _toolbar[_selectedToolbarPos];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 + (int)_rotation) % 4);
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
-			}
-		}
+		applyTool(blockPos,false);
 	}
 	if (keysHeld[HI2::BUTTON::KEY_RIGHTCLICK])
 	{
@@ -278,42 +246,7 @@ void State::PrefabEditor::input(double dt)
 		point3Di blockPos = _camera;
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-		{
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
-		}
-		if (_symmetryMode == V || _symmetryMode == BOTH)
-		{
-			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
-			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-			{
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
-			}
-			blockPos.y = -(blockPos.y - _prefab.getSize().y + 1);
-		}
-		if (_symmetryMode == H || _symmetryMode == BOTH)
-		{
-			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
-			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-			{
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
-			}
-			blockPos.x = -(blockPos.x - _prefab.getSize().x + 1);
-		}
-		if (_symmetryMode == BOTH)
-		{
-			blockPos.x = _prefab.getSize().x - blockPos.x - 1;
-			blockPos.y = _prefab.getSize().y - blockPos.y - 1;
-			if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
-			{
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = &baseBlock::terrainTable[0];
-				_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = false;
-			}
-
-		}
+		applyTool(blockPos,true);
 	}
 }
 
@@ -401,6 +334,8 @@ void State::PrefabEditor::draw(double dt)
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "      y:" + std::to_string(blockPos.y), { 0,100 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "      z:" + std::to_string(_camera.z), { 0,120 }, 20, HI2::Color::White);
 
+		HI2::drawText(*Services::fonts.loadFont("lemon"), _toolbar[_selectedToolbarPos]->name, { 0,HI2::getScreenHeight()-20 }, 20, HI2::Color::White);
+
 	}
 
 	HI2::endFrame();
@@ -463,5 +398,108 @@ void State::PrefabEditor::drawBG()
 		HI2::drawTexture(*Services::graphics.loadTexture("test"), 0, 0);
 		break;
 
+	}
+}
+
+void State::PrefabEditor::applyTool(point3Di pos, bool rightClick)
+{
+	switch(_currentTool){
+	case tool::PENCIL:
+		applyPencil(pos,rightClick);
+		break;
+	case tool::BUCKET:
+		applyBucket(pos);
+		break;
+	case tool::SELECT:
+		applySelect(pos);
+		break;
+
+	}
+}
+
+void State::PrefabEditor::applyPencil(point3Di blockPos, bool rightClick)
+{
+	baseBlock* targetBlock = rightClick? &baseBlock::terrainTable[0] :_toolbar[_selectedToolbarPos];
+	if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+	{
+		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
+		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = _rotation;
+		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
+		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+
+	}
+	if (_symmetryMode == symmetry::V || _symmetryMode == symmetry::BOTH)
+	{
+		blockPos.y = _prefab.getSize().y - blockPos.y - 1;
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		{
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 - (int)_rotation) % 4);
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+		}
+		blockPos.y = -(blockPos.y - _prefab.getSize().y + 1);
+	}
+	if (_symmetryMode == symmetry::H || _symmetryMode == symmetry::BOTH)
+	{
+		blockPos.x = _prefab.getSize().x - blockPos.x - 1;
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		{
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((4 - (int)_rotation) % 4);
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+		}
+		blockPos.x = -(blockPos.x - _prefab.getSize().x + 1);
+	}
+	if (_symmetryMode == symmetry::BOTH)
+	{
+		blockPos.x = _prefab.getSize().x - blockPos.x - 1;
+		blockPos.y = _prefab.getSize().y - blockPos.y - 1;
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		{
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 + (int)_rotation) % 4);
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
+			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+		}
+	}
+}
+
+void State::PrefabEditor::applyBucket(point3Di pos)
+{
+	std::deque<point3Di> pp{pos};
+	std::set<point3Di> v;
+	auto blocAntic = _prefab[pos].base;
+	while(!pp.empty())
+		floodFill(pp,v,blocAntic,_toolbar[_selectedToolbarPos]);
+}
+
+void State::PrefabEditor::applySelect(point3Di pos)
+{
+
+}
+
+void State::PrefabEditor::floodFill(std::deque<point3Di> &pendingPositions, std::set<point3Di> &visited, baseBlock *targetBlock, baseBlock *newBlock)
+{
+	point3Di pos = pendingPositions.front();
+	pendingPositions.pop_front();
+	if(pos.x>=0 && pos.y >= 0 && pos.z>= 0 && pos.x < _prefab.getSize().x&& pos.y < _prefab.getSize().y&& pos.z < _prefab.getSize().z){
+		if(visited.find(pos) == visited.end()){
+			visited.insert(pos);
+			if(_prefab[pos].base == targetBlock){
+				_prefab[pos].base = newBlock;
+				_prefab[pos].rotation = _rotation;
+				_prefab[pos].flip = _flip;
+				_prefab[pos].saveMeta = true;
+
+				pendingPositions.push_back(pos+point3Di{0,0,-1});
+				pendingPositions.push_back(pos+point3Di{0,0,+1});
+				pendingPositions.push_back(pos+point3Di{0,-1,0});
+				pendingPositions.push_back(pos+point3Di{0,+1,0});
+				pendingPositions.push_back(pos+point3Di{-1,0,0});
+				pendingPositions.push_back(pos+point3Di{+1,0,0});
+			}
+		}
 	}
 }
