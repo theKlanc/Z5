@@ -14,6 +14,9 @@
 void to_json(nlohmann::json& j, const entt::registry& registry)
 {
 	registry.each([&](auto entity) {
+		if (!registry.has<entt::tag<"PERMANENT"_hs>>(entity)){
+			return;
+		}
 		nlohmann::json j_tags;
 		if (registry.has<entt::tag<"PLAYER"_hs>>(entity))
 		{
@@ -63,6 +66,7 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 	for (const nlohmann::json& j_entity : j)
 	{
 		entt::entity e = registry.create();
+		registry.assign<entt::tag<"PERMANENT"_hs>>(e);
 		for (const nlohmann::json& j_tag : j_entity.at("tags"))
 		{
 			switch (j_tag.get<entityTag>())

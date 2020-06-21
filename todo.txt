@@ -57,7 +57,22 @@ XX rotacions de layers
 fix node sleeping
 aplicar el reparentitzat a entitats
 dormir entitats quan calgui
-descarregar i diferenciar entre entitats permanents
+#descarregar i diferenciar entre entitats permanents
+
+moving node parts (ficar-los com a fills i evitar que s'els apliqui gravetat i tal, podrien tenir un interactable per moure's, o versions no interactuables amb una xarnera simple)
+small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
+
+[
+health
+enemies
+projectiles
+respawning
+items
+inventory
+shooting
+placing and mining
+]
+
 terrain mesh simplification (greedy meshing) per les colisions
 
 --Juny!
@@ -68,7 +83,6 @@ ROTACIONS DE NODES
 
 reentry heating
 ship crashing
-small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
 
 canviar el univers default
 
@@ -132,7 +146,7 @@ biomes i diferents tipus de biomes per cada planeta, somehow
 crear biomeGenerator
 crear observer
 crear soundObserver
-lighting
+--lighting
 openGL renderer fuck it lmao
 
 ~~ crear generador procedural de galaxies -> sistemes solars -> llunes -> planetes
