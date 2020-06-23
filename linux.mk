@@ -10,7 +10,7 @@ SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/shapes
 
 FLAGS    := -D__LINUX__ -Werror=return-type `sdl2-config --cflags` `pkgconf --cflags freetype2`
 CCFLAGS  :=
-CXXFLAGS := -std=c++17
+CXXFLAGS := -std=c++20
 
 LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -ljpeg -lpng `pkgconf --libs freetype2` -lstdc++fs -lSDL2_mixer
 

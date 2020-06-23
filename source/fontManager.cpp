@@ -23,7 +23,8 @@ HI2::Font* fontManager::loadFont(string fontName) { // load a texture from a fil
 	std::filesystem::path completeFileName = fileNameWithoutExt.concat(config::fontExtension);
 	if (fontAtlas.find(fontName) == fontAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
-			fontAtlas.insert(make_pair(fontName, HI2::Font(completeFileName)));
+			HI2::Font tmp(completeFileName);
+			fontAtlas.emplace(fontName,(HI2::Font)tmp);
 		}
 		else {
 			std::cout << "Font at " << completeFileName << " not found"

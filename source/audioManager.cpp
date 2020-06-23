@@ -23,7 +23,8 @@ HI2::Audio* audioManager::loadAudio(string audioName) { // load a audio from a f
 	std::filesystem::path completeFileName = fileNameWithoutExt.concat(config::audioExtension);
 	if (audioAtlas.find(audioName) == audioAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
-			audioAtlas.insert(make_pair(audioName, HI2::Audio(completeFileName)));
+			HI2::Audio tmp(completeFileName);
+			audioAtlas.emplace(audioName,(HI2::Audio)tmp);
 		}
 		else {
 			std::cout << "Audio at " << completeFileName << " not found"

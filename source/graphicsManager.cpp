@@ -82,7 +82,9 @@ HI2::Texture* graphicsManager::loadTexture(std::string spriteName) { // load a t
 	std::filesystem::path completeFileName = fileNameWithoutExt.string() + ".png";
 	if (_texAtlas.find(spriteName) == _texAtlas.end()) {
 		if (std::filesystem::exists(completeFileName)) {
-			_texAtlas.insert(make_pair(spriteName, HI2::Texture(completeFileName)));
+			HI2::Texture tmp(completeFileName);
+			_texAtlas.emplace(spriteName,(HI2::Texture)tmp);
+			//REPORT GCC _texAtlas.insert(std::make_pair(spriteName,HI2::Texture(completeFileName)));
 		}
 		else {
 			std::cout << "Texture at " << completeFileName << " not found"

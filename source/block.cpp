@@ -48,6 +48,8 @@ reactphysics3d::Quaternion metaBlock::getRotationQuat() const
 
 bool metaBlock::operator==(const metaBlock& right) const
 {
+	if(base->ID == 0 && right.base->ID == 0)
+		return true;
 	if (saveMeta == false && saveMeta == false)
 		return base == right.base;
 	return base == right.base && rotation == right.rotation && flip == right.flip;
