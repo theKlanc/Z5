@@ -613,9 +613,9 @@ void State::Playing::createEntities()
 	//result = result->getChildren()[1];
 	{
 		_player = _enttRegistry.create();
-		_enttRegistry.assign<entt::tag<"PLAYER"_hs>>(_player);
+		_enttRegistry.emplace<entt::tag<"PLAYER"_hs>>(_player);
 
-		auto& playerSprite = _enttRegistry.assign<drawable>(_player);
+		auto& playerSprite = _enttRegistry.emplace<drawable>(_player);
 		std::vector<frame> playerFrames;
 		playerFrames.push_back({ {256,0},{16,16} });
 		playerFrames.push_back({ {256,16},{16,16} });
@@ -633,7 +633,7 @@ void State::Playing::createEntities()
 		playerSprite.name = "player3";
 
 
-		auto& playerPos = _enttRegistry.assign<position>(_player);
+		auto& playerPos = _enttRegistry.emplace<position>(_player);
 		playerPos.parent = result;
 		playerPos.parentID = result->getID();
 		playerPos.pos.x = sin(angle) * distance;
@@ -641,16 +641,16 @@ void State::Playing::createEntities()
 		playerPos.pos.z = result->getHeight(playerPos.pos.getPoint2D()) + 1;
 		playerPos.pos.r = 0;
 
-		auto& playerSpd = _enttRegistry.assign<velocity>(_player);
+		auto& playerSpd = _enttRegistry.emplace<velocity>(_player);
 		playerSpd.spd.x = 0;
 		playerSpd.spd.y = 0;
 		playerSpd.spd.z = 0;
 		playerSpd.spd.r = 0;
 
-		auto& playerName = _enttRegistry.assign<name>(_player);
+		auto& playerName = _enttRegistry.emplace<name>(_player);
 		playerName.nameString = "Captain Lewis";
 
-		auto& playerBody = _enttRegistry.assign<body>(_player);
+		auto& playerBody = _enttRegistry.emplace<body>(_player);
 		playerBody.height = 0.8;
 		playerBody.width = 0.8;
 		playerBody.mass = 65;
@@ -672,26 +672,26 @@ void State::Playing::createEntities()
 		playerBody.physicsData._collisionShape = Services::physicsCommon.createSphereShape(playerBody.width / 2);
 		playerBody.physicsData.collider->addCollider(playerBody.physicsData._collisionShape, transform);
 
-		_enttRegistry.assign<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
+		_enttRegistry.emplace<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
 	}
 
 	{
 		_camera = _enttRegistry.create();
-		_enttRegistry.assign<entt::tag<"CAMERA"_hs>>(_camera);
-		_enttRegistry.assign<position>(_camera);
+		_enttRegistry.emplace<entt::tag<"CAMERA"_hs>>(_camera);
+		_enttRegistry.emplace<position>(_camera);
 	}
 	bool constexpr skipExtraEntities = false;
 	if constexpr(!skipExtraEntities){
 		{
 			entt::entity dog = _enttRegistry.create();
 
-			auto& dogSprite = _enttRegistry.assign<drawable>(dog);
+			auto& dogSprite = _enttRegistry.emplace<drawable>(dog);
 			std::vector<frame> dogFrames;
 			dogFrames.push_back({ {0,32},{16,16} });
 			dogSprite.spr = Services::graphics.loadSprite("dog", "spritesheet", dogFrames);
 			dogSprite.name = "dog";
 
-			auto& dogPos = _enttRegistry.assign<position>(dog);
+			auto& dogPos = _enttRegistry.emplace<position>(dog);
 			dogPos.parent = result;
 			dogPos.parentID = result->getID();
 			dogPos.pos.x = 2 + sin(angle) * distance;
@@ -699,16 +699,16 @@ void State::Playing::createEntities()
 			dogPos.pos.z = result->getHeight(dogPos.pos.getPoint2D()) + 1;
 			dogPos.pos.r = 0;
 
-			auto& dogSpd = _enttRegistry.assign<velocity>(dog);
+			auto& dogSpd = _enttRegistry.emplace<velocity>(dog);
 			dogSpd.spd.x = 0;
 			dogSpd.spd.y = 0;
 			dogSpd.spd.z = 0;
 			dogSpd.spd.r = -0.1;
 
-			auto& dogName = _enttRegistry.assign<name>(dog);
+			auto& dogName = _enttRegistry.emplace<name>(dog);
 			dogName.nameString = "Lieutenant Gromit";
 
-			auto& dogBody = _enttRegistry.assign<body>(dog);
+			auto& dogBody = _enttRegistry.emplace<body>(dog);
 			dogBody.height = 0.4;
 			dogBody.width = 0.3;
 			dogBody.mass = 10;
@@ -735,7 +735,7 @@ void State::Playing::createEntities()
 			{
 				entt::entity ball = _enttRegistry.create();
 
-				auto& ballSprite = _enttRegistry.assign<drawable>(ball);
+				auto& ballSprite = _enttRegistry.emplace<drawable>(ball);
 				std::vector<frame> dogFrames;
 				if (Services::graphics.isSpriteLoaded("ball")) {
 					ballSprite.spr = Services::graphics.getSprite("ball");
@@ -749,7 +749,7 @@ void State::Playing::createEntities()
 
 				ballSprite.name = "ball";
 
-				auto& ballPos = _enttRegistry.assign<position>(ball);
+				auto& ballPos = _enttRegistry.emplace<position>(ball);
 				ballPos.parent = result;
 				ballPos.parentID = result->getID();
 				ballPos.pos.x = 4 + i + sin(angle) * distance;
@@ -757,13 +757,13 @@ void State::Playing::createEntities()
 				ballPos.pos.z = result->getHeight(ballPos.pos.getPoint2D()) + i + j + 4;
 				ballPos.pos.r = 0;
 
-				auto& ballSpd = _enttRegistry.assign<velocity>(ball);
+				auto& ballSpd = _enttRegistry.emplace<velocity>(ball);
 				ballSpd.spd.x = 0;
 				ballSpd.spd.y = 0;
 				ballSpd.spd.z = 0;
 				ballSpd.spd.r = -0.1;
 
-				auto& ballBody = _enttRegistry.assign<body>(ball);
+				auto& ballBody = _enttRegistry.emplace<body>(ball);
 				ballBody.height = 7.0f / 8.0f;
 				ballBody.width = 7.0f / 8.0f;
 				ballBody.mass = 1;
