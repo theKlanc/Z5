@@ -1,5 +1,5 @@
 #pragma once
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include "json.hpp"
 
 struct body

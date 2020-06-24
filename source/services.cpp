@@ -1,8 +1,9 @@
 #include "services.hpp"
 
 
+rp3d::PhysicsCommon Services::physicsCommon;
 entt::registry* Services::enttRegistry;
-rp3d::CollisionWorld* Services::collisionWorld;
+rp3d::PhysicsWorld* Services::physicsWorld;
 std::mutex Services::physicsMutex;
 
 graphicsManager Services::graphics;

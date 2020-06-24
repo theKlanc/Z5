@@ -14,7 +14,7 @@
 #include "jsonTools.hpp"
 #include "components/body.hpp"
 #include "components/name.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include "physicsEngine.hpp"
 #include "components/astronautBrain.hpp"
 #include <cmath>
@@ -57,7 +57,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 
 	Services::lcg.seed(seed);
 	Services::enttRegistry = &_enttRegistry;
-	Services::collisionWorld = _physicsEngine.getWorld();
+	Services::physicsWorld = _physicsEngine.getWorld();
 	_savePath = HI2::getSavesPath().append(saveName);
 
 	////DEBUG SECTION
@@ -669,8 +669,8 @@ void State::Playing::createEntities()
 		playerBody.physicsData.collider->setUserData((void*)playerResponse);
 		initPosition = rp3d::Vector3(0, 0, playerBody.width / 2);
 		transform.setPosition(initPosition);
-		playerBody.physicsData._collisionShape = new rp3d::SphereShape(playerBody.width / 2);
-		playerBody.physicsData.collider->addCollisionShape(playerBody.physicsData._collisionShape, transform);
+		playerBody.physicsData._collisionShape = Services::physicsCommon.createSphereShape(playerBody.width / 2);
+		playerBody.physicsData.collider->addCollider(playerBody.physicsData._collisionShape, transform);
 
 		_enttRegistry.assign<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
 	}
@@ -727,8 +727,8 @@ void State::Playing::createEntities()
 			dogBody.physicsData.collider->setUserData((void*)dogResponse);
 			initPosition.z += dogBody.width / 2;
 			transform.setPosition(initPosition);
-			dogBody.physicsData._collisionShape = new rp3d::SphereShape(dogBody.width / 2);
-			dogBody.physicsData.collider->addCollisionShape(dogBody.physicsData._collisionShape, transform);
+			dogBody.physicsData._collisionShape = Services::physicsCommon.createSphereShape(dogBody.width / 2);
+			dogBody.physicsData.collider->addCollider(dogBody.physicsData._collisionShape, transform);
 		}
 		for (int i = 0; i < 5; i++){
 			for (int j = 0; j < 5; j++)
@@ -781,10 +781,10 @@ void State::Playing::createEntities()
 				ballResponse->type = physicsType::ENTITY;
 				ballResponse->body.entity = ball;
 				ballBody.physicsData.collider->setUserData((void*)ballResponse);
-				ballBody.physicsData._collisionShape = new rp3d::SphereShape(0.4);
+				ballBody.physicsData._collisionShape = Services::physicsCommon.createSphereShape(0.4);
 				initPosition.z += ballBody.width / 2;
 				transform.setPosition(initPosition);
-				ballBody.physicsData.collider->addCollisionShape(ballBody.physicsData._collisionShape, transform);
+				ballBody.physicsData.collider->addCollider(ballBody.physicsData._collisionShape, transform);
 			}
 		}
 	}
@@ -823,10 +823,10 @@ void State::Playing::fixEntities()
 		bodyResponse->body.entity = entity;
 		b.physicsData.collider->setUserData((void*)bodyResponse);
 
-		b.physicsData._collisionShape = new rp3d::SphereShape(b.width / 2);
+		b.physicsData._collisionShape = Services::physicsCommon.createSphereShape(b.width / 2);
 		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
-		b.physicsData.collider->addCollisionShape(b.physicsData._collisionShape, transform);
+		b.physicsData.collider->addCollider(b.physicsData._collisionShape, transform);
 	}
 }
 

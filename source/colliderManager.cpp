@@ -1,7 +1,9 @@
 #include "colliderManager.hpp"
+#include "services.hpp"
 
 colliderManager::colliderManager()
 {
+	_boxShape = Services::physicsCommon.createBoxShape({0.5,0.5,0.5});
 	customCollider* temp = new customCollider({0.5,-0.5,-0.5,0.5,-0.5,0.5,0.5,0.5,0.5,0.5,0.5,-0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5},{  {2,3,0,1},{5,2,1,4},{3,5,4,0},{4,1,0},{5,3,2}   });
 	_colliders.insert(std::make_pair(colliderType::RAMP,temp));
 	temp = new customCollider({-0.5,-0.5,-0.5, 0.5,-0.5,-0.5, 0.5,0.5,-0.5,-0.5,0.5,-0.5,-0.5,-0.5,0, 0.5,-0.5,0, 0.5,0.5,0, -0.5,0.5,0},{  {0,1,2,3},{1,5,6,2},{3,2,6,7},{0,3,7,4},{4,5,1,0},{5,4,7,6}   });
@@ -15,9 +17,9 @@ colliderManager::~colliderManager()
 
 reactphysics3d::CollisionShape *colliderManager::getCollider(colliderType c)
 {
-	return &_boxShape;
+	return _boxShape;
 	if(c == colliderType::CUBE)
-		return &_boxShape;
+		return _boxShape;
 	else
 		return _colliders.at(c)->getCollider();
 }
@@ -35,8 +37,8 @@ customCollider::customCollider(std::vector<float> v, std::vector<std::vector<int
 		_faces[f].nbVertices = face.size();
 	}
 	_polyArray = new rp3d::PolygonVertexArray(_verts.size()/3, _verts.data(), 3*sizeof(float), _idx.data(),sizeof(int),i.size(),_faces, rp3d::PolygonVertexArray::VertexDataType::VERTEX_FLOAT_TYPE, rp3d::PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
-	_polyMesh = new rp3d::PolyhedronMesh(_polyArray);
-	_convexMesh = new rp3d::ConvexMeshShape(_polyMesh);
+	_polyMesh = Services::physicsCommon.createPolyhedronMesh(_polyArray);
+	_convexMesh = Services::physicsCommon.createConvexMeshShape(_polyMesh);
 }
 
 customCollider::~customCollider()

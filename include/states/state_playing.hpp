@@ -10,7 +10,7 @@
 #include <thread>
 #include "components/position.hpp"
 #include "UI/customGadgets/starmap.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include "physicsEngine.hpp"
 
 namespace State {

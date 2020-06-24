@@ -3,7 +3,7 @@
 #include <cmath>
 #include <math.h>
 #include "HI2.hpp"
-#include "reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 
 void to_json(nlohmann::json& j, const fdd& f)
 {

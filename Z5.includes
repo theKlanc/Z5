@@ -34,6 +34,7 @@ source/UI/gadgets
 source/UI
 include/UI
 include/UI/gadgets
+deps/reactPhysics3D/include/
 deps/reactPhysics3D/src/body
 deps/reactPhysics3D/src/containers
 deps/reactPhysics3D/src/collision/narrowphase/GJK

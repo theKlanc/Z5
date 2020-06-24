@@ -2,7 +2,7 @@
 #include <vector>
 #include "block.hpp"
 #include "config.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include "services.hpp"
 
 class terrainChunk
@@ -39,5 +39,5 @@ private:
 	bool _loaded = false;
 	rp3d::CollisionBody* _collisionBody = nullptr;
 	std::vector<metaBlock> _blocks;
-	std::vector<rp3d::ProxyShape*> _colliders;
+	std::vector<rp3d::Collider*> _colliders;
 };

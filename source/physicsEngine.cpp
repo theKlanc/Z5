@@ -1,9 +1,7 @@
 #include "physicsEngine.hpp"
 #include <iostream>
 #include "components/name.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
-#include "reactPhysics3D/src/collision/ContactManifold.h"
-#include "reactPhysics3D/src/constraint/ContactPoint.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include "entt/entity/fwd.hpp"
 #include "components/velocity.hpp"
 #include "components/body.hpp"
@@ -14,13 +12,13 @@
 physicsEngine::physicsEngine()
 {
 	//Create collision world
-	rp3d::WorldSettings collisionSettings;
+	rp3d::PhysicsWorld::WorldSettings collisionSettings;
 	collisionSettings.defaultVelocitySolverNbIterations = 5;
 	collisionSettings.defaultPositionSolverNbIterations = 3;
 	collisionSettings.isSleepingEnabled = false;
 	collisionSettings.worldName = "za warudo";
 
-	_zaWarudo = std::make_unique<rp3d::CollisionWorld>(collisionSettings);
+	_zaWarudo = std::make_unique<rp3d::PhysicsWorld>(collisionSettings);
 }
 
 physicsEngine::~physicsEngine()
@@ -71,11 +69,11 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 	Services::physicsMutex.unlock();
 }
 
-void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::onContact(const CollisionCallback::CallbackData& collisionCallbackInfo)
 {
-	if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
+	if (((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody2()->getUserData())->type)
 	{
-		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == physicsType::ENTITY)
+		if (((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->type == physicsType::ENTITY)
 		{
 			EntityEntityCallback(collisionCallbackInfo);
 		}
@@ -91,7 +89,7 @@ void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallback
 
 }
 
-rp3d::CollisionWorld* physicsEngine::getWorld() const
+rp3d::PhysicsWorld* physicsEngine::getWorld() const
 {
 	return _zaWarudo.get();
 }
@@ -244,7 +242,7 @@ void physicsEngine::testCollisionBetweenNodes(universeNode& left, universeNode& 
 					rightChunk->getCollider()->setTransform(rightChunkTransform);
 
 
-					if (_zaWarudo->testAABBOverlap(rightChunk->getCollider(), leftChunk.getCollider()))
+					if (rightChunk->getCollider()->testAABBOverlap(leftChunk.getCollider()->getAABB()))
 					{
 						collidedResponse cResponse;
 						cResponse.type = physicsType::NODE;
@@ -257,7 +255,7 @@ void physicsEngine::testCollisionBetweenNodes(universeNode& left, universeNode& 
 						cResponse2.body.node = &right;
 
 						rightChunk->getCollider()->setUserData(&cResponse2);
-						_zaWarudo->testCollision(leftChunk.getCollider(), rightChunk->getCollider(), this);
+						_zaWarudo->testCollision(leftChunk.getCollider(), rightChunk->getCollider(),*this);
 					}
 				}
 			}
@@ -362,8 +360,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 			entityBody.physicsData.collider->setTransform(entityTransform);
 			auto oldTransform = node->getNodeCollider()->getTransform();
 			node->getNodeCollider()->setTransform(rp3d::Transform::identity());
-
-			if (_zaWarudo->testAABBOverlap(entityBody.physicsData.collider, node->getNodeCollider()))
+			if (entityBody.physicsData.collider->testAABBOverlap(node->getNodeCollider()->getAABB()))
 			{
 				auto chunksToCheck = node->getCollidableChunks({ posRelativeToNode.x - entityBody.width / 2,
 																posRelativeToNode.y - entityBody.width / 2,
@@ -382,7 +379,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 					if (chunk->getCollider()->testAABBOverlap(entityBody.physicsData.collider->getAABB()));
 					{
 						chunk->getCollider()->setUserData((void*)&cResponse);
-						_zaWarudo->testCollision(entityBody.physicsData.collider, chunk->getCollider(), this);
+						_zaWarudo->testCollision(entityBody.physicsData.collider, chunk->getCollider(), *this);
 					}
 				}
 			}
@@ -525,7 +522,7 @@ void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 
 				rightBody.physicsData.collider->setUserData(&cResponse2);
 
-				_zaWarudo->testCollision(leftBody.physicsData.collider, rightBody.physicsData.collider, this);
+				_zaWarudo->testCollision(leftBody.physicsData.collider, rightBody.physicsData.collider, *this);
 			}
 		}
 	}
@@ -536,14 +533,14 @@ void physicsEngine::solveEntityEntity(entt::registry& registry, double dt)
 }
 
 
-void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
+void physicsEngine::EntityEntityCallback(const CollisionCallback::CallbackData& collisionCallbackInfo) // solve collision between two entities in t
 {
-	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
+	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->body.entity;
 	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
 	auto& positionLeft = Services::enttRegistry->get<position>(leftEntity);
 
 
-	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
+	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody2()->getUserData())->body.entity;
 	auto& velRight = Services::enttRegistry->get<velocity>(rightEntity);//falta passar posicio i velocitat de right al marc de referencia de left, i desfer al final
 	auto positionRight = Services::enttRegistry->get<position>(rightEntity);
 	positionLeft.pos = positionRight.parent->getLocalPos(positionLeft.pos, positionLeft.parent);
@@ -564,33 +561,33 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
 }
 
-void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeEntityCallback(const CollisionCallback::CallbackData& collisionCallbackInfo)
 {
 	//std::cout << "Node-Entity collision" << std::endl;
 	universeNode* oldParent;
 	entt::entity entity;
 	universeNode* node;
 	rp3d::CollisionBody* entityCollisionBody;
-	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == physicsType::ENTITY) { // BODY1 �s l entity
-		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
-		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
+	if (((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->type == physicsType::ENTITY) { // BODY1 �s l entity
+		entityCollisionBody = collisionCallbackInfo.getContactPair(0).getBody1();
+		node = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody2()->getUserData())->body.node;
 	}
 	else
 	{
-		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2();
-		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
+		entityCollisionBody = collisionCallbackInfo.getContactPair(0).getBody2();
+		node = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->body.node;
 	}
 	entity = ((collidedResponse*)entityCollisionBody->getUserData())->body.entity;
 
 	position& pos = Services::enttRegistry->get<position>(entity);
 	body& entityBody = Services::enttRegistry->get<body>(entity);
-	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
-	while (contactManifold != nullptr)
+	for(int i = 0; i < collisionCallbackInfo.getNbContactPairs();++i)
 	{
-		auto contactPoint = contactManifold->getContactPoints();
-		while (contactPoint != nullptr)
+		auto contactPair = collisionCallbackInfo.getContactPair(i);
+		for(int j = 0; j < contactPair.getNbContactPoints();j++)
 		{
-			if (entityBody.physicsData.maxContactDepth < contactPoint->getPenetrationDepth())
+			auto contactPoint = contactPair.getContactPoint(j);
+			if (entityBody.physicsData.maxContactDepth < contactPoint.getPenetrationDepth())
 			{
 				if (pos.parent != node)
 				{//convert to local
@@ -604,52 +601,48 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 					vel.spd = node->getLocalVel(vel.spd, oldParent);
 				}
 
-				entityBody.physicsData.maxContactDepth = contactPoint->getPenetrationDepth();
-				entityBody.physicsData.contactNormal = contactPoint->getNormal();
+				entityBody.physicsData.maxContactDepth = contactPoint.getPenetrationDepth();
+				entityBody.physicsData.contactNormal = contactPoint.getWorldNormal();
 			}
-			contactPoint = contactPoint->getNext();
 		}
-		contactManifold = contactManifold->getNext();
 	}
 }
 
-void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::NodeNodeCallback(const CollisionCallback::CallbackData& collisionCallbackInfo)
 {//TODO correctly handle cases where mass difference is not immense
 	universeNode* fatNode;
 	universeNode* slimNode;
 	bool invertNormal = false;
-	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node->getMass() > ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node->getMass())
+	if (((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->body.node->getMass() > ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody2()->getUserData())->body.node->getMass())
 	{
-		fatNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
-		slimNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
+		fatNode = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->body.node;
+		slimNode = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody2()->getUserData())->body.node;
 
 		invertNormal = true;
 	}
 	else
 	{
-		fatNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
-		slimNode = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
+		fatNode = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody2()->getUserData())->body.node;
+		slimNode = ((collidedResponse*)collisionCallbackInfo.getContactPair(0).getBody1()->getUserData())->body.node;
 	}
 	if(slimNode->getParent() != fatNode){
 		//IC("collided " + fatNode->getName() + " with " + slimNode->getName());
 	}
 
-	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
-	while (contactManifold != nullptr)
+	for(int i = 0; i < collisionCallbackInfo.getNbContactPairs();++i)
 	{
-		auto contactPoint = contactManifold->getContactPoints();
-		while (contactPoint != nullptr)
+		auto contactPair = collisionCallbackInfo.getContactPair(i);
+		for(int j = 0; j < contactPair.getNbContactPoints();j++)
 		{
-			if (slimNode->physicsData.maxContactDepth < contactPoint->getPenetrationDepth())
+			auto contactPoint = contactPair.getContactPoint(j);
+			if (slimNode->physicsData.maxContactDepth < contactPoint.getPenetrationDepth())
 			{
-				slimNode->physicsData.maxContactDepth = contactPoint->getPenetrationDepth();
-				slimNode->physicsData.contactNormal = contactPoint->getNormal();
+				slimNode->physicsData.maxContactDepth = contactPoint.getPenetrationDepth();
+				slimNode->physicsData.contactNormal = contactPoint.getWorldNormal();
 				if (invertNormal)
 					slimNode->physicsData.contactNormal *= -1;
 			}
-			contactPoint = contactPoint->getNext();
 		}
-		contactManifold = contactManifold->getNext();
 	}
 }
 

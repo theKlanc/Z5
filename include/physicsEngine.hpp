@@ -1,5 +1,5 @@
 #pragma once
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include "entt/entity/registry.hpp"
 #include "universeNode.hpp"
 
@@ -27,8 +27,8 @@ class physicsEngine : public rp3d::CollisionCallback
 	physicsEngine();
 	~physicsEngine() override;
 	void updatePhysics(universeNode& universeBase, entt::registry& registry, double dt);
-	void notifyContact(const CollisionCallbackInfo& collisionCallbackInfo) override;
-	rp3d::CollisionWorld* getWorld() const;
+	void onContact(const CollisionCallback::CallbackData& collisionCallbackInfo) override;
+	rp3d::PhysicsWorld* getWorld() const;
 private:
 	static constexpr double _timeStep = 1.0f/config::physicsHz;
 	static constexpr double _solverStep = _timeStep / config::physicsSolverIterations;
@@ -51,10 +51,10 @@ private:
 	void detectEntityEntity(entt::registry& registry, double dt);
 	void solveEntityEntity(entt::registry& registry, double dt);
 	
-	void EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
-	void NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
-	void NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo);
-	std::unique_ptr<rp3d::CollisionWorld> _zaWarudo;
+	void EntityEntityCallback(const CollisionCallback::CallbackData& collisionCallbackInfo);
+	void NodeEntityCallback(const CollisionCallback::CallbackData& collisionCallbackInfo);
+	void NodeNodeCallback(const CollisionCallback::CallbackData& collisionCallbackInfo);
+	std::unique_ptr<rp3d::PhysicsWorld> _zaWarudo;
 
 
 	void reparentizeChildren(universeNode& base);

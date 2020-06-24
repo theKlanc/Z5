@@ -1,6 +1,6 @@
 #pragma once
 #include "HI2.hpp"
-#include "reactPhysics3D/src/reactphysics3d.h"
+#include "reactphysics3d/reactphysics3d.h"
 #include <unordered_map>
 
 
@@ -33,6 +33,6 @@ class colliderManager {
 	rp3d::CollisionShape* getCollider(colliderType c);
 
   private:
-	rp3d::BoxShape _boxShape = rp3d::BoxShape({ 0.5,0.5,0.5 });
+	rp3d::BoxShape *_boxShape;//rp3d::BoxShape({ 0.5,0.5,0.5 });
 	std::unordered_map<colliderType, customCollider*> _colliders;
 };

@@ -890,14 +890,14 @@ std::vector<terrainChunk*> universeNode::getCollidableChunks(fdd p, const point3
 void universeNode::populateColliders()
 {
 	Services::physicsMutex.lock();
-	_collider = std::shared_ptr<rp3d::CollisionBody>(Services::collisionWorld->createCollisionBody(rp3d::Transform::identity()),[=](rp3d::CollisionBody* cb){
-		Services::physicsMutex.lock();
-		Services::collisionWorld->destroyCollisionBody(cb);
-		Services::physicsMutex.unlock();
-	});
+	//_collider = std::shared_ptr<rp3d::CollisionBody>(Services::physicsWorld->createCollisionBody(rp3d::Transform::identity()),[=](rp3d::CollisionBody* cb){
+	//	Services::physicsMutex.lock();
+	//	Services::physicsWorld->destroyCollisionBody(cb);
+	//	Services::physicsMutex.unlock();
+	//});
 
 	_collisionShape = std::make_shared<rp3d::BoxShape>(rp3d::Vector3{(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2),(rp3d::decimal)(_diameter / 2) });
-	_collider->addCollisionShape(&*_collisionShape, rp3d::Transform::identity());
+	_collider->addCollider(&*_collisionShape, rp3d::Transform::identity());
 	Services::physicsMutex.unlock();
 }
 
