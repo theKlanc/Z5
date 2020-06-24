@@ -66,19 +66,19 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 	for (const nlohmann::json& j_entity : j)
 	{
 		entt::entity e = registry.create();
-		registry.assign<entt::tag<"PERMANENT"_hs>>(e);
+		registry.emplace<entt::tag<"PERMANENT"_hs>>(e);
 		for (const nlohmann::json& j_tag : j_entity.at("tags"))
 		{
 			switch (j_tag.get<entityTag>())
 			{
 			case entityTag::PLAYER:
 			{
-				registry.assign<entt::tag<"PLAYER"_hs>>(e);
+				registry.emplace<entt::tag<"PLAYER"_hs>>(e);
 				break;
 			}
 			case entityTag::CAMERA:
 			{
-				registry.assign<entt::tag<"CAMERA"_hs>>(e);
+				registry.emplace<entt::tag<"CAMERA"_hs>>(e);
 				break;
 			}
 			default:
@@ -92,37 +92,37 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 			{
 			case componentType::NAME:
 			{
-				auto& comp = registry.assign<name>(e);
+				auto& comp = registry.emplace<name>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
 			case componentType::POSITION:
 			{
-				auto& comp = registry.assign<position>(e);
+				auto& comp = registry.emplace<position>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
 			case componentType::VELOCITY:
 			{
-				auto& comp = registry.assign<velocity>(e);
+				auto& comp = registry.emplace<velocity>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
 			case componentType::BODY:
 			{
-				auto& comp = registry.assign<body>(e);
+				auto& comp = registry.emplace<body>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
 			case componentType::DRAWABLE:
 			{
-				auto& comp = registry.assign<drawable>(e);
+				auto& comp = registry.emplace<drawable>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
 			case componentType::BRAIN:
 			{
-				auto& comp = registry.assign<std::unique_ptr<brain>>(e);
+				auto& comp = registry.emplace<std::unique_ptr<brain>>(e);
 				std::string type = j_component.at("content").at("type").get<std::string>();
 				if(type == "astronaut"){
 					comp = std::make_unique<astronautBrain>(j_component.at("content").at("brain"),e);

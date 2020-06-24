@@ -20,6 +20,10 @@ public:
 	metaBlock& operator[](int);
 	metaBlock& operator[](point3Di);
 
+	prefab& add(prefab& pfb, point3Di pos);
+	prefab& remove(point3Di pos, point3Di size);
+	prefab get(point3Di pos, point3Di size);
+
 	metaBlock& get(point3Di p);
 	std::string getName() const;
 private:

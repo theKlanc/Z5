@@ -61,12 +61,12 @@ dormir entitats quan calgui
 
 prefab editor overhaul
   resizing the canvas (auto / manual)
-  selections
-    copy
-    paste
-    move
-  fill
-  pencil
+  ==selections
+    ==copy
+    ==paste
+    ==move
+  #fill
+  #pencil
   [brushes]
   [shapes]
 
