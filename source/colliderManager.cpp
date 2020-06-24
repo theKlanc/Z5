@@ -12,7 +12,10 @@ colliderManager::colliderManager()
 
 colliderManager::~colliderManager()
 {
-
+	Services::physicsCommon.destroyBoxShape(_boxShape);
+	for(auto tmp :_colliders){
+		delete tmp.second;
+	}
 }
 
 reactphysics3d::CollisionShape *colliderManager::getCollider(colliderType c)
@@ -43,7 +46,10 @@ customCollider::customCollider(std::vector<float> v, std::vector<std::vector<int
 
 customCollider::~customCollider()
 {
-	//delete[] _faces;
+	Services::physicsCommon.destroyConvexMeshShape(_convexMesh);
+	Services::physicsCommon.destroyPolyhedronMesh(_polyMesh);
+	delete _polyArray;
+	delete _faces;
 }
 
 reactphysics3d::CollisionShape *customCollider::getCollider()

@@ -54,7 +54,7 @@ private:
 	void EntityEntityCallback(const CollisionCallback::CallbackData& collisionCallbackInfo);
 	void NodeEntityCallback(const CollisionCallback::CallbackData& collisionCallbackInfo);
 	void NodeNodeCallback(const CollisionCallback::CallbackData& collisionCallbackInfo);
-	std::unique_ptr<rp3d::PhysicsWorld> _zaWarudo;
+	std::shared_ptr<rp3d::PhysicsWorld> _zaWarudo;
 
 
 	void reparentizeChildren(universeNode& base);

@@ -18,7 +18,10 @@ physicsEngine::physicsEngine()
 	collisionSettings.isSleepingEnabled = false;
 	collisionSettings.worldName = "za warudo";
 
-	_zaWarudo = std::make_unique<rp3d::PhysicsWorld>(collisionSettings);
+
+	_zaWarudo = std::shared_ptr<rp3d::PhysicsWorld>(Services::physicsCommon.createPhysicsWorld(collisionSettings),[=](rp3d::PhysicsWorld* pw){
+		Services::physicsCommon.destroyPhysicsWorld(pw);
+	});
 }
 
 physicsEngine::~physicsEngine()
