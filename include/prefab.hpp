@@ -26,6 +26,9 @@ public:
 
 	metaBlock& get(point3Di p);
 	std::string getName() const;
+
+	bool operator==(const prefab& p);
+	bool operator!=(const prefab& p);
 private:
 	std::string _name;
 	std::filesystem::path _folder;

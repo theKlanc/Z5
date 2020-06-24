@@ -40,4 +40,5 @@ namespace config {
 	const std::string spriteExtension = ".png";
 	const std::string audioExtension = ".mp3";
 	const std::string fontExtension = ".ttf";
+	constexpr unsigned pfbEditorMaxCheckpoints = 100;
 };

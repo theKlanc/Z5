@@ -139,3 +139,13 @@ std::string prefab::getName() const
 {
 	return _name;
 }
+
+bool prefab::operator==(const prefab &p)
+{
+	return _size == p._size && _blocks == p._blocks;
+}
+
+bool prefab::operator!=(const prefab &p)
+{
+	return !(*this == p);
+}

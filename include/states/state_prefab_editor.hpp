@@ -5,6 +5,7 @@
 #include "prefab.hpp"
 #include <deque>
 #include <set>
+#include <list>
 
 namespace State {
 	class PrefabEditor : public State_Base {
@@ -63,5 +64,12 @@ namespace State {
 		double zoom = 1;
         bool _drawInvisible = false;
         unsigned _cameraDepth = 3;
+
+        void checkpoint();
+        void undo();
+        void redo();
+
+        std::list<prefab> _checkpoints;
+        std::list<prefab>::iterator _currentCheckpoint;
 	};
 }

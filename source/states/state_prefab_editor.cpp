@@ -14,6 +14,9 @@ State::PrefabEditor::PrefabEditor(gameCore& c, std::string name)
 	load();
 
 	initToolbar();
+
+	_checkpoints.push_back(_prefab);
+	_currentCheckpoint = _checkpoints.begin();
 }
 
 
@@ -34,8 +37,74 @@ State::PrefabEditor::~PrefabEditor()
 
 void State::PrefabEditor::input(double dt)
 {
+	checkpoint();
 	auto& keysDown = HI2::getKeysDown();
 	auto& keysHeld = HI2::getKeysHeld();
+	if (keysHeld[HI2::BUTTON::KEY_CONTROL] && keysDown[HI2::BUTTON::KEY_S])
+	{
+		save();
+	}
+	if (keysHeld[HI2::BUTTON::KEY_CONTROL] && keysDown[HI2::BUTTON::KEY_Z])
+	{
+		undo();
+	}
+	if (keysHeld[HI2::BUTTON::KEY_CONTROL] && keysDown[HI2::BUTTON::KEY_Y])
+	{
+		redo();
+	}
+	if(keysDown[HI2::BUTTON::KEY_X] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
+		if(selectionL && selectionR)
+		{
+			point3Di selStart;
+			selStart.x = std::min(selectionL->x,selectionR->x);
+			selStart.y = std::min(selectionL->y,selectionR->y);
+			selStart.z = std::min(selectionL->z,selectionR->z);
+
+			point3Di selEnd;
+			selEnd.x = std::max(selectionL->x,selectionR->x);
+			selEnd.y = std::max(selectionL->y,selectionR->y);
+			selEnd.z = std::max(selectionL->z,selectionR->z);
+
+			point3Di size = selEnd - selStart + point3Di{1,1,1};
+
+			prefab selPfb = _prefab.get(selStart,size);
+			_prefab.remove(selStart,size);
+			HI2::setClipboard(selPfb.saveSS().str());
+			checkpoint();
+		}
+	}
+	if(keysDown[HI2::BUTTON::KEY_C] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
+		if(selectionL && selectionR)
+		{
+			point3Di selStart;
+			selStart.x = std::min(selectionL->x,selectionR->x);
+			selStart.y = std::min(selectionL->y,selectionR->y);
+			selStart.z = std::min(selectionL->z,selectionR->z);
+
+			point3Di selEnd;
+			selEnd.x = std::max(selectionL->x,selectionR->x);
+			selEnd.y = std::max(selectionL->y,selectionR->y);
+			selEnd.z = std::max(selectionL->z,selectionR->z);
+
+			point3Di size = selEnd - selStart + point3Di{1,1,1};
+
+			prefab selPfb = _prefab.get(selStart,size);
+			HI2::setClipboard(selPfb.saveSS().str());
+		}
+	}
+	if(keysDown[HI2::BUTTON::KEY_V] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
+		prefab selPfb;
+		std::stringstream ss(HI2::getClipboard());
+		selPfb.loadSS(ss);
+
+		auto mouse = HI2::getTouchPos();
+		point3Di blockPos = _camera;
+		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
+		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
+
+		_prefab.add(selPfb,blockPos);
+		checkpoint();
+	}
 	if (keysDown[HI2::BUTTON::CANCEL])
 	{
 		if(!keysHeld[HI2::BUTTON::KEY_SHIFT])
@@ -215,6 +284,9 @@ void State::PrefabEditor::input(double dt)
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "Console (º): Reload Spritesheet and terrain table", { 0,comptador++*20 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "b: Select brush", { 0,comptador++*20 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "g: Select bucket", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "LClick/RClick: apply current tool", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Ctrl+{X,C,V}: Cut/Copy/Paste", { 0,comptador++*20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "Ctrl+S: Save", { 0,comptador++*20 }, 20, HI2::Color::White);
 
 		HI2::endFrame();
 		_drawingHelp = true;
@@ -242,58 +314,6 @@ void State::PrefabEditor::input(double dt)
 		selectionL.reset();
 		selectionR.reset();
 	}
-	if(keysDown[HI2::BUTTON::KEY_X] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
-		if(selectionL && selectionR)
-		{
-			point3Di selStart;
-			selStart.x = std::min(selectionL->x,selectionR->x);
-			selStart.y = std::min(selectionL->y,selectionR->y);
-			selStart.z = std::min(selectionL->z,selectionR->z);
-
-			point3Di selEnd;
-			selEnd.x = std::max(selectionL->x,selectionR->x);
-			selEnd.y = std::max(selectionL->y,selectionR->y);
-			selEnd.z = std::max(selectionL->z,selectionR->z);
-
-			point3Di size = selEnd - selStart + point3Di{1,1,1};
-
-			prefab selPfb = _prefab.get(selStart,size);
-			_prefab.remove(selStart,size);
-			HI2::setClipboard(selPfb.saveSS().str());
-		}
-	}
-	if(keysDown[HI2::BUTTON::KEY_C] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
-		if(selectionL && selectionR)
-		{
-			point3Di selStart;
-			selStart.x = std::min(selectionL->x,selectionR->x);
-			selStart.y = std::min(selectionL->y,selectionR->y);
-			selStart.z = std::min(selectionL->z,selectionR->z);
-
-			point3Di selEnd;
-			selEnd.x = std::max(selectionL->x,selectionR->x);
-			selEnd.y = std::max(selectionL->y,selectionR->y);
-			selEnd.z = std::max(selectionL->z,selectionR->z);
-
-			point3Di size = selEnd - selStart + point3Di{1,1,1};
-
-			prefab selPfb = _prefab.get(selStart,size);
-			HI2::setClipboard(selPfb.saveSS().str());
-		}
-	}
-	if(keysDown[HI2::BUTTON::KEY_V] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
-		prefab selPfb;
-		std::stringstream ss(HI2::getClipboard());
-		selPfb.loadSS(ss);
-
-		auto mouse = HI2::getTouchPos();
-		point3Di blockPos = _camera;
-		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
-		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
-
-		_prefab.add(selPfb,blockPos);
-	}
-
 	if (keysHeld[HI2::BUTTON::KEY_LEFTCLICK])
 	{
 		auto mouse = HI2::getTouchPos();
@@ -301,6 +321,7 @@ void State::PrefabEditor::input(double dt)
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
 		applyTool(blockPos,false);
+		checkpoint();
 	}
 	if (keysHeld[HI2::BUTTON::KEY_RIGHTCLICK])
 	{
@@ -309,6 +330,7 @@ void State::PrefabEditor::input(double dt)
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
 		applyTool(blockPos,true);
+		checkpoint();
 	}
 }
 
@@ -597,4 +619,38 @@ bool State::PrefabEditor::isInSelection(point3Di pos)
 	selEnd.z = std::max(selectionL->z,selectionR->z);
 
 	return pos.x>=selStart.x && pos.x<=selEnd.x &&pos.y>=selStart.y && pos.y<=selEnd.y &&pos.z>=selStart.z && pos.z<=selEnd.z;
+}
+
+void State::PrefabEditor::checkpoint()
+{
+	if(*_currentCheckpoint != _prefab){
+		auto it = _currentCheckpoint;
+		it++;
+		_checkpoints.erase(it,_checkpoints.end());
+		_checkpoints.push_back(_prefab);
+		_currentCheckpoint++;
+		while(_checkpoints.size() > config::pfbEditorMaxCheckpoints){
+			if(_currentCheckpoint != _checkpoints.begin())
+				_checkpoints.pop_front();
+			else
+				_checkpoints.pop_back();
+		}
+	}
+}
+
+void State::PrefabEditor::undo()
+{
+	if(_currentCheckpoint != _checkpoints.begin())
+	{
+		_currentCheckpoint--;
+		_prefab = *_currentCheckpoint;
+	}
+}
+
+void State::PrefabEditor::redo()
+{
+	if(_currentCheckpoint != --_checkpoints.end()){
+		_currentCheckpoint++;
+		_prefab = *_currentCheckpoint;
+	}
 }
