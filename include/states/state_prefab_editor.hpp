@@ -29,10 +29,13 @@ namespace State {
 
 		void applyPencil(point3Di pos, bool rightClick);
 		void applyBucket(point3Di pos);
-		void applySelect(point3Di pos);
+		void applySelect(point3Di pos, bool rightClick);
 
 		void floodFill(std::deque<point3Di>& pendingPositions, std::set<point3Di>& visited,baseBlock* targetBlock, baseBlock* newBlock);
 
+		bool isInSelection(point3Di pos);
+
+		std::optional<point3Di> selectionL, selectionR;
 
 		int _bgType = 0;
 		bool _drawingHelp = false;

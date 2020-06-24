@@ -49,10 +49,12 @@ void State::PrefabEditor::input(double dt)
 
 	if (keysDown[HI2::BUTTON::KEY_DASH])
 	{
+		_camera = _camera + point3Di{(int)(HI2::getScreenWidth()/(config::spriteSize*zoom))/2,(int)(HI2::getScreenHeight()/(config::spriteSize*zoom))/2,0} - point3Di{(int)(HI2::getScreenWidth()/(config::spriteSize*(zoom/2)))/2,(int)(HI2::getScreenHeight()/(config::spriteSize*(zoom/2)))/2,0};
 		zoom /= 2;
 	}
 	if (keysDown[HI2::BUTTON::KEY_PLUS])
 	{
+		_camera = _camera + point3Di{(int)(HI2::getScreenWidth()/(config::spriteSize*zoom))/2,(int)(HI2::getScreenHeight()/(config::spriteSize*zoom))/2,0} - point3Di{(int)(HI2::getScreenWidth()/(config::spriteSize*(zoom*2)))/2,(int)(HI2::getScreenHeight()/(config::spriteSize*(zoom*2)))/2,0};
 		zoom *= 2;
 	}
 	if (keysDown[HI2::BUTTON::KEY_0])
@@ -223,6 +225,10 @@ void State::PrefabEditor::input(double dt)
 	if (keysDown[HI2::BUTTON::KEY_G]) {
 		_currentTool = tool::BUCKET;
 	}
+	if (keysDown[HI2::BUTTON::KEY_M]) {
+		_currentTool = tool::SELECT;
+	}
+
 	if (keysDown[HI2::BUTTON::KEY_I]) {
 		_drawInvisible = !_drawInvisible;
 	}
@@ -232,6 +238,62 @@ void State::PrefabEditor::input(double dt)
 		else
 			_cameraDepth=1;
 	}
+	if(keysDown[HI2::BUTTON::KEY_BACKSPACE]){
+		selectionL.reset();
+		selectionR.reset();
+	}
+	if(keysDown[HI2::BUTTON::KEY_X] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
+		if(selectionL && selectionR)
+		{
+			point3Di selStart;
+			selStart.x = std::min(selectionL->x,selectionR->x);
+			selStart.y = std::min(selectionL->y,selectionR->y);
+			selStart.z = std::min(selectionL->z,selectionR->z);
+
+			point3Di selEnd;
+			selEnd.x = std::max(selectionL->x,selectionR->x);
+			selEnd.y = std::max(selectionL->y,selectionR->y);
+			selEnd.z = std::max(selectionL->z,selectionR->z);
+
+			point3Di size = selEnd - selStart + point3Di{1,1,1};
+
+			prefab selPfb = _prefab.get(selStart,size);
+			_prefab.remove(selStart,size);
+			HI2::setClipboard(selPfb.saveSS().str());
+		}
+	}
+	if(keysDown[HI2::BUTTON::KEY_C] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
+		if(selectionL && selectionR)
+		{
+			point3Di selStart;
+			selStart.x = std::min(selectionL->x,selectionR->x);
+			selStart.y = std::min(selectionL->y,selectionR->y);
+			selStart.z = std::min(selectionL->z,selectionR->z);
+
+			point3Di selEnd;
+			selEnd.x = std::max(selectionL->x,selectionR->x);
+			selEnd.y = std::max(selectionL->y,selectionR->y);
+			selEnd.z = std::max(selectionL->z,selectionR->z);
+
+			point3Di size = selEnd - selStart + point3Di{1,1,1};
+
+			prefab selPfb = _prefab.get(selStart,size);
+			HI2::setClipboard(selPfb.saveSS().str());
+		}
+	}
+	if(keysDown[HI2::BUTTON::KEY_V] && keysHeld[HI2::BUTTON::KEY_CONTROL]){
+		prefab selPfb;
+		std::stringstream ss(HI2::getClipboard());
+		selPfb.loadSS(ss);
+
+		auto mouse = HI2::getTouchPos();
+		point3Di blockPos = _camera;
+		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
+		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
+
+		_prefab.add(selPfb,blockPos);
+	}
+
 	if (keysHeld[HI2::BUTTON::KEY_LEFTCLICK])
 	{
 		auto mouse = HI2::getTouchPos();
@@ -275,7 +337,7 @@ void State::PrefabEditor::draw(double dt)
 				pos.z -= depth;
 				if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _prefab.getSize().x && pos.y < _prefab.getSize().y && pos.z < _prefab.getSize().z)
 				{
-					metaBlock& mb = _prefab[pos.z * _prefab.getSize().y * _prefab.getSize().x + pos.y * _prefab.getSize().x + pos.x];
+					metaBlock& mb = _prefab[pos];
 					if (mb.base->visible)
 					{
 						HI2::setTextureColorMod(*mb.base->spr->getTexture(), { (unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),255 });
@@ -289,6 +351,18 @@ void State::PrefabEditor::draw(double dt)
 							HI2::drawRectangle({ int(j * (zoom * config::spriteSize)), int(i * (zoom * config::spriteSize)) }, int(zoom * config::spriteSize), int(zoom * config::spriteSize), HI2::Color{ (unsigned char)(mb.base->ID == 0 ? 255 : 0),(unsigned char)(mb.base->ID == 1 ? 255 : 0),(unsigned char)(mb.base->ID == 2 ? 255 : 0),127 });
 						}
 					}
+					bool drawnSel = false;
+					if(selectionL && selectionL == pos){
+						HI2::drawRectangle({ int(j * (zoom * config::spriteSize)), int(i * (zoom * config::spriteSize)) }, int(zoom * config::spriteSize), int(zoom * config::spriteSize), HI2::Color{255,0,0,127});
+						drawnSel = true;
+					}
+					if(selectionR && selectionR == pos){
+						HI2::drawRectangle({ int(j * (zoom * config::spriteSize)), int(i * (zoom * config::spriteSize)) }, int(zoom * config::spriteSize), int(zoom * config::spriteSize), HI2::Color{0,0,255,127});
+						drawnSel = true;
+					}
+					if(!drawnSel && isInSelection(pos)){
+						HI2::drawRectangle({ int(j * (zoom * config::spriteSize)), int(i * (zoom * config::spriteSize)) }, int(zoom * config::spriteSize), int(zoom * config::spriteSize), HI2::Color{255,255,255,127});
+					}
 				}
 				else
 				{
@@ -301,7 +375,10 @@ void State::PrefabEditor::draw(double dt)
 
 	auto mousePos = HI2::getTouchPos();
 	//HI2::drawRectangle({((int)(mousePos.x/(config::spriteSize*zoom)))*config::spriteSize*zoom,((int)(mousePos.y/(config::spriteSize*zoom)))*config::spriteSize*zoom},zoom * config::spriteSize,zoom * config::spriteSize,{255,0,0,127});
-	if (_toolbar[_selectedToolbarPos]->visible)
+	if(_currentTool == tool::SELECT){
+		HI2::drawRectangle({(int)(((int)(mousePos.x / (config::spriteSize * zoom))) * config::spriteSize * zoom),(int)(((int)(mousePos.y / (config::spriteSize * zoom))) * config::spriteSize * zoom)},int(zoom * config::spriteSize), int(zoom * config::spriteSize), HI2::Color{255,255,255,127});
+	}
+	else if (_toolbar[_selectedToolbarPos]->visible)
 		HI2::drawTexture(*_toolbar[_selectedToolbarPos]->spr->getTexture(), ((int)(mousePos.x / (config::spriteSize * zoom))) * config::spriteSize * zoom, ((int)(mousePos.y / (config::spriteSize * zoom))) * config::spriteSize * zoom, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().size, _toolbar[_selectedToolbarPos]->spr->getCurrentFrame().startPos, zoom, ((double)(int)_rotation) * (M_PI / 2), _flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 
 
@@ -411,7 +488,7 @@ void State::PrefabEditor::applyTool(point3Di pos, bool rightClick)
 		applyBucket(pos);
 		break;
 	case tool::SELECT:
-		applySelect(pos);
+		applySelect(pos,rightClick);
 		break;
 
 	}
@@ -475,9 +552,9 @@ void State::PrefabEditor::applyBucket(point3Di pos)
 		floodFill(pp,v,blocAntic,_toolbar[_selectedToolbarPos]);
 }
 
-void State::PrefabEditor::applySelect(point3Di pos)
+void State::PrefabEditor::applySelect(point3Di pos, bool rightClick)
 {
-
+	(rightClick?selectionR:selectionL) = pos;
 }
 
 void State::PrefabEditor::floodFill(std::deque<point3Di> &pendingPositions, std::set<point3Di> &visited, baseBlock *targetBlock, baseBlock *newBlock)
@@ -502,4 +579,22 @@ void State::PrefabEditor::floodFill(std::deque<point3Di> &pendingPositions, std:
 			}
 		}
 	}
+}
+
+bool State::PrefabEditor::isInSelection(point3Di pos)
+{
+	if(!selectionL || !selectionR)
+		return false;
+
+	point3Di selStart;
+	selStart.x = std::min(selectionL->x,selectionR->x);
+	selStart.y = std::min(selectionL->y,selectionR->y);
+	selStart.z = std::min(selectionL->z,selectionR->z);
+
+	point3Di selEnd;
+	selEnd.x = std::max(selectionL->x,selectionR->x);
+	selEnd.y = std::max(selectionL->y,selectionR->y);
+	selEnd.z = std::max(selectionL->z,selectionR->z);
+
+	return pos.x>=selStart.x && pos.x<=selEnd.x &&pos.y>=selStart.y && pos.y<=selEnd.y &&pos.z>=selStart.z && pos.z<=selEnd.z;
 }
