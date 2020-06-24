@@ -13,3 +13,6 @@
 [submodule "deps/icecream-cpp"]
 	path = deps/icecream-cpp
 	url = https://github.com/renatoGarcia/icecream-cpp
+[submodule "deps/entt"]
+	path = deps/entt
+	url = https://github.com/skypjack/entt
