@@ -54,9 +54,9 @@ XX rotacions de layers
 #refer el chunkloader
 
 -fake AO
-extrapolation
+#extrapolation
 fix node sleeping
-aplicar el reparentitzat a entitats
+#aplicar el reparentitzat a entitats
 dormir entitats quan calgui
 #descarregar i diferenciar entre entitats permanents
 

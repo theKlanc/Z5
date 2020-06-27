@@ -35,26 +35,14 @@ struct baseBlock { // A baseBlock represents a 1m³ cube of material
 };
 
 enum class AO_TYPE{
-	NONE,
-	SINGLE_R,
-	SINGLE_U,
-	SINGLE_L,
-	SINGLE_D,
-	DOUBLE_O_H,
-	DOUBLE_O_V,
-	DOUBLE_A_UR,
-	DOUBLE_A_LU,
-	DOUBLE_A_DL,
-	DOUBLE_A_RD,
-	TRIPLE_R,
-	TRIPLE_U,
-	TRIPLE_L,
-	TRIPLE_D,
-	QUAD,
-	FAR_TR,
-	FAR_TL,
-	FAR_BR,
-	FAR_BL,
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	UR,
+	RD,
+	DL,
+	LU
 };
 
 struct metaBlock
@@ -65,7 +53,7 @@ struct metaBlock
 	bool saveMeta = false;
 
 	bool _render_visible = true; // is it (not) occluded by other blocks?
-	AO_TYPE _AO = AO_TYPE::NONE;
+	std::bitset<8> _AO = false;
 
 	bool operator==(const metaBlock& right) const;
 

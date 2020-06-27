@@ -768,107 +768,26 @@ void universeNode::updateBlockAO(point3Di b)
 	if(_type == nodeType::SPACESHIP || _type == nodeType::SPACE_STATION || _type == nodeType::SATELLITE_ARTIFICIAL)
 		return;
 
-
 	if(getBlock({b.x,b.y,b.z}) == metaBlock::nullBlock)
 	{
 		return;
 	}
 	if(getBlock({b.x,b.y,b.z+1}).base->visible){
-		getBlock(b)._AO = AO_TYPE::NONE;
+		getBlock(b)._AO = false;
 		return;
 	}
 	if(!getBlock(b).base->opaque){
-		getBlock(b)._AO = AO_TYPE::NONE;
+		getBlock(b)._AO = false;
 		return;
 	}
-	bool up, down, left, right;
-	up = getBlock({b.x,b.y-1,b.z+1}).base->opaque;
-	down = getBlock({b.x,b.y+1,b.z+1}).base->opaque;
-	left = getBlock({b.x-1,b.y,b.z+1}).base->opaque;
-	right = getBlock({b.x+1,b.y,b.z+1}).base->opaque;
-	unsigned short bitmask = 0;
-	if(right)
-		bitmask +=8;
-	if(up)
-		bitmask +=4;
-	if(left)
-		bitmask +=2;
-	if(down)
-		bitmask +=1;
-	//RULD
-	switch(bitmask){
-	default:
-	case 0://____
-		{
-		bool tr, tl, bl, br;
-		tr = getBlock({b.x+1,b.y-1,b.z+1}).base->opaque;
-		tl = getBlock({b.x-1,b.y-1,b.z+1}).base->opaque;
-		br = getBlock({b.x+1,b.y+1,b.z+1}).base->opaque;
-		bl = getBlock({b.x-1,b.y+1,b.z+1}).base->opaque;
-		if(tr && !tl && !br && !bl){
-			getBlock(b)._AO = AO_TYPE::FAR_TR;
-			return;
-		}
-		if(!tr && tl && !br && !bl){
-			getBlock(b)._AO = AO_TYPE::FAR_TL;
-			return;
-		}
-		if(!tr && !tl && br && !bl){
-			getBlock(b)._AO = AO_TYPE::FAR_BR;
-			return;
-		}
-		if(!tr && !tl && !br && bl){
-			getBlock(b)._AO = AO_TYPE::FAR_BL;
-			return;
-		}
-		}
-		return;
-	case 1://___D
-		getBlock(b)._AO = AO_TYPE::SINGLE_D;
-		return;
-	case 2://__L_
-		getBlock(b)._AO = AO_TYPE::SINGLE_L;
-		return;
-	case 3://__LD
-		getBlock(b)._AO = AO_TYPE::DOUBLE_A_DL;
-		return;
-	case 4://_U__
-		getBlock(b)._AO = AO_TYPE::SINGLE_U;
-		return;
-	case 5://_U_D
-		getBlock(b)._AO = AO_TYPE::DOUBLE_O_V;
-		return;
-	case 6://_UL_
-		getBlock(b)._AO = AO_TYPE::DOUBLE_A_LU;
-		return;
-	case 7://_ULD
-		getBlock(b)._AO = AO_TYPE::TRIPLE_L;
-		return;
-	case 8://R___
-		getBlock(b)._AO = AO_TYPE::SINGLE_R;
-		return;
-	case 9://R__D
-		getBlock(b)._AO = AO_TYPE::DOUBLE_A_RD;
-		return;
-	case 10://R_L_
-		getBlock(b)._AO = AO_TYPE::DOUBLE_O_H;
-		return;
-	case 11://R_LD
-		getBlock(b)._AO = AO_TYPE::TRIPLE_D;
-		return;
-	case 12://RU__
-		getBlock(b)._AO = AO_TYPE::DOUBLE_A_UR;
-		return;
-	case 13://RU_D
-		getBlock(b)._AO = AO_TYPE::TRIPLE_R;
-		return;
-	case 14://RUL_
-		getBlock(b)._AO = AO_TYPE::TRIPLE_U;
-		return;
-	case 15://RULD
-		getBlock(b)._AO = AO_TYPE::QUAD;
-		return;
-	}
+	getBlock(b)._AO[(unsigned)AO_TYPE::UP] = getBlock({b.x,b.y-1,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::DOWN] = getBlock({b.x,b.y+1,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::LEFT]  = getBlock({b.x-1,b.y,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::RIGHT]  = getBlock({b.x+1,b.y,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::UR]  = getBlock({b.x+1,b.y-1,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::RD]  = getBlock({b.x+1,b.y+1,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::DL]  = getBlock({b.x-1,b.y+1,b.z+1}).base->opaque;
+	getBlock(b)._AO[(unsigned)AO_TYPE::LU]  = getBlock({b.x-1,b.y-1,b.z+1}).base->opaque;
 }
 
 std::vector<terrainChunk>& universeNode::getChunks()

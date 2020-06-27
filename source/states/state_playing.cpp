@@ -27,13 +27,8 @@
 #include "fuel.hpp"
 #include "icecream.hpp"
 
-sprite* State::Playing::_AOSINGLE;
-sprite* State::Playing::_AODOUBLEA;
-sprite* State::Playing::_AODOUBLEO;
-sprite* State::Playing::_AOTRIPLE;
-sprite* State::Playing::_AOQUAD;
-sprite* State::Playing::_AOFAR;
-
+sprite* State::Playing::_AOSIDE;
+sprite* State::Playing::_AOCORNER;
 
 
 State::Playing::~Playing() {
@@ -47,12 +42,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	baseBlock::loadTerrainTable();
 	fuel::loadFuelList();
 	//load AO sprites
-	_AOSINGLE = Services::graphics.loadSprite("AOSINGLE","spritesheet",{{{336,0},{16,16}}});
-	_AODOUBLEO = Services::graphics.loadSprite("AODOUBLEO","spritesheet",{{{336,16},{16,16}}});
-	_AODOUBLEA = Services::graphics.loadSprite("AODOUBLEA","spritesheet",{{{336,32},{16,16}}});
-	_AOTRIPLE = Services::graphics.loadSprite("AOTRIPLE","spritesheet",{{{336,48},{16,16}}});
-	_AOQUAD = Services::graphics.loadSprite("AOQUAD","spritesheet",{{{336,64},{16,16}}});
-	_AOFAR = Services::graphics.loadSprite("AOFAR","spritesheet",{{{336,80},{16,16}}});
+	_AOSIDE = Services::graphics.loadSprite("AOSIDE","spritesheet",{{{336,0},{16,16}}});
+	_AOCORNER = Services::graphics.loadSprite("AOCORNER","spritesheet",{{{336,16},{16,16}}});
 
 
 	Services::lcg.seed(seed);
@@ -396,69 +387,33 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 						//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
 						HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
 						if(config::AOEnabled && !node.firstLayer){
-							switch(b._AO){
-							default:
-							case AO_TYPE::NONE:
-								break;
-							case AO_TYPE::QUAD:
-								HI2::drawTextureOverlap(*_AOQUAD->getTexture(), finalXdrawPos, finalYdrawPos, _AOQUAD->getCurrentFrame().size, _AOQUAD->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::SINGLE_D:
-								HI2::drawTextureOverlap(*_AOSINGLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSINGLE->getCurrentFrame().size, _AOSINGLE->getCurrentFrame().startPos, zoom, M_PI, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::SINGLE_L:
-								HI2::drawTextureOverlap(*_AOSINGLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSINGLE->getCurrentFrame().size, _AOSINGLE->getCurrentFrame().startPos, zoom, 1.5f*(double)M_PI, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::SINGLE_U:
-								HI2::drawTextureOverlap(*_AOSINGLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSINGLE->getCurrentFrame().size, _AOSINGLE->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::SINGLE_R:
-								HI2::drawTextureOverlap(*_AOSINGLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSINGLE->getCurrentFrame().size, _AOSINGLE->getCurrentFrame().startPos, zoom, (double)M_PI/2.0f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::DOUBLE_O_H:
-								HI2::drawTextureOverlap(*_AODOUBLEO->getTexture(), finalXdrawPos, finalYdrawPos, _AODOUBLEO->getCurrentFrame().size, _AODOUBLEO->getCurrentFrame().startPos, zoom, (double)M_PI/2.0f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::DOUBLE_O_V:
-								HI2::drawTextureOverlap(*_AODOUBLEO->getTexture(), finalXdrawPos, finalYdrawPos, _AODOUBLEO->getCurrentFrame().size, _AODOUBLEO->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::DOUBLE_A_DL:
-								HI2::drawTextureOverlap(*_AODOUBLEA->getTexture(), finalXdrawPos, finalYdrawPos, _AODOUBLEA->getCurrentFrame().size, _AODOUBLEA->getCurrentFrame().startPos, zoom, M_PI, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::DOUBLE_A_LU:
-								HI2::drawTextureOverlap(*_AODOUBLEA->getTexture(), finalXdrawPos, finalYdrawPos, _AODOUBLEA->getCurrentFrame().size, _AODOUBLEA->getCurrentFrame().startPos, zoom, M_PI*1.5f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::DOUBLE_A_RD:
-								HI2::drawTextureOverlap(*_AODOUBLEA->getTexture(), finalXdrawPos, finalYdrawPos, _AODOUBLEA->getCurrentFrame().size, _AODOUBLEA->getCurrentFrame().startPos, zoom, M_PI/2.0f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::DOUBLE_A_UR:
-								HI2::drawTextureOverlap(*_AODOUBLEA->getTexture(), finalXdrawPos, finalYdrawPos, _AODOUBLEA->getCurrentFrame().size, _AODOUBLEA->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::TRIPLE_D:
-								HI2::drawTextureOverlap(*_AOTRIPLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOTRIPLE->getCurrentFrame().size, _AOTRIPLE->getCurrentFrame().startPos, zoom, M_PI/2.0f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::TRIPLE_U:
-								HI2::drawTextureOverlap(*_AOTRIPLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOTRIPLE->getCurrentFrame().size, _AOTRIPLE->getCurrentFrame().startPos, zoom, M_PI*1.5f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::TRIPLE_L:
-								HI2::drawTextureOverlap(*_AOTRIPLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOTRIPLE->getCurrentFrame().size, _AOTRIPLE->getCurrentFrame().startPos, zoom, M_PI, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::TRIPLE_R:
-								HI2::drawTextureOverlap(*_AOTRIPLE->getTexture(), finalXdrawPos, finalYdrawPos, _AOTRIPLE->getCurrentFrame().size, _AOTRIPLE->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::FAR_TR:
-								HI2::drawTextureOverlap(*_AOFAR->getTexture(), finalXdrawPos, finalYdrawPos, _AOFAR->getCurrentFrame().size, _AOFAR->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::FAR_BR:
-								HI2::drawTextureOverlap(*_AOFAR->getTexture(), finalXdrawPos, finalYdrawPos, _AOFAR->getCurrentFrame().size, _AOFAR->getCurrentFrame().startPos, zoom, M_PI/2.0f, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::FAR_BL:
-								HI2::drawTextureOverlap(*_AOFAR->getTexture(), finalXdrawPos, finalYdrawPos, _AOFAR->getCurrentFrame().size, _AOFAR->getCurrentFrame().startPos, zoom, M_PI, HI2::FLIP::NONE);
-								break;
-							case AO_TYPE::FAR_TL:
-								HI2::drawTextureOverlap(*_AOFAR->getTexture(), finalXdrawPos, finalYdrawPos, _AOFAR->getCurrentFrame().size, _AOFAR->getCurrentFrame().startPos, zoom, M_PI*1.5f, HI2::FLIP::NONE);
-								break;
-
+							if(b._AO[(unsigned)AO_TYPE::UP]){
+								HI2::drawTextureOverlap(*_AOSIDE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSIDE->getCurrentFrame().size, _AOSIDE->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
 							}
+							if(b._AO[(unsigned)AO_TYPE::RIGHT]){
+								HI2::drawTextureOverlap(*_AOSIDE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSIDE->getCurrentFrame().size, _AOSIDE->getCurrentFrame().startPos, zoom, 0.5*M_PI, HI2::FLIP::NONE);
+							}
+							if(b._AO[(unsigned)AO_TYPE::DOWN]){
+								HI2::drawTextureOverlap(*_AOSIDE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSIDE->getCurrentFrame().size, _AOSIDE->getCurrentFrame().startPos, zoom, M_PI, HI2::FLIP::NONE);
+							}
+							if(b._AO[(unsigned)AO_TYPE::LEFT]){
+								HI2::drawTextureOverlap(*_AOSIDE->getTexture(), finalXdrawPos, finalYdrawPos, _AOSIDE->getCurrentFrame().size, _AOSIDE->getCurrentFrame().startPos, zoom, 1.5*M_PI, HI2::FLIP::NONE);
+							}
+							if(b._AO[(unsigned)AO_TYPE::UR] && !b._AO[(unsigned)AO_TYPE::UP] && !b._AO[(unsigned)AO_TYPE::RIGHT]){
+								HI2::drawTextureOverlap(*_AOCORNER->getTexture(), finalXdrawPos, finalYdrawPos, _AOCORNER->getCurrentFrame().size, _AOCORNER->getCurrentFrame().startPos, zoom, 0, HI2::FLIP::NONE);
+							}
+							if(b._AO[(unsigned)AO_TYPE::RD] && !b._AO[(unsigned)AO_TYPE::DOWN] && !b._AO[(unsigned)AO_TYPE::RIGHT]){
+								HI2::drawTextureOverlap(*_AOCORNER->getTexture(), finalXdrawPos, finalYdrawPos, _AOCORNER->getCurrentFrame().size, _AOCORNER->getCurrentFrame().startPos, zoom, 0.5*M_PI, HI2::FLIP::NONE);
+							}
+							if(b._AO[(unsigned)AO_TYPE::DL] && !b._AO[(unsigned)AO_TYPE::DOWN] && !b._AO[(unsigned)AO_TYPE::LEFT]){
+								HI2::drawTextureOverlap(*_AOCORNER->getTexture(), finalXdrawPos, finalYdrawPos, _AOCORNER->getCurrentFrame().size, _AOCORNER->getCurrentFrame().startPos, zoom, M_PI, HI2::FLIP::NONE);
+							}
+							if(b._AO[(unsigned)AO_TYPE::LU] && !b._AO[(unsigned)AO_TYPE::UP] && !b._AO[(unsigned)AO_TYPE::LEFT]){
+								HI2::drawTextureOverlap(*_AOCORNER->getTexture(), finalXdrawPos, finalYdrawPos, _AOCORNER->getCurrentFrame().size, _AOCORNER->getCurrentFrame().startPos, zoom, 1.5*M_PI, HI2::FLIP::NONE);
+							}
+
+
+
 						}
 					}
 				}
@@ -797,6 +752,7 @@ void State::Playing::fixEntities()
 		position& pos = _enttRegistry.get<position>(entity);
 		if (!_universeBase.findNodeByID(pos.parentID, pos.parent))
 		{
+			IC(pos.parentID);
 			throw "Node not found wtf";
 		}
 	}
