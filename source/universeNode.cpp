@@ -263,7 +263,7 @@ point3Di universeNode::getClosestInteractablePos(fdd pos)
 			for(auto& p : i->getPositions()){
 				if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(lpos); dist <= minDist){
 					minDist = dist;
-					inter = p.getPoint3Di();
+					inter = getLocalPos(p+fdd{0.2,0.2,0.2,0},_parent).getPoint3Di();
 				}
 			}
 		}
@@ -282,7 +282,7 @@ point3Di universeNode::getClosestInteractablePos(fdd pos)
 			for(auto& p : i->getPositions()){
 				if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(lpos); dist <= minDist){
 					minDist = dist;
-					inter = p.getPoint3Di();
+					inter = getLocalPos(p+fdd{0.2,0.2,0.2,0},child.get()).getPoint3Di();
 				}
 			}
 		}

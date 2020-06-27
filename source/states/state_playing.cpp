@@ -812,7 +812,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "setNullBlock ID" << std::endl;
 		std::cout << "zoom zoomLevel" << std::endl;
 		std::cout << "goto ID" << std::endl;
-		std::cout << "refill ID" << std::endl;
+		std::cout << "refill nID fID" << std::endl;
 		std::cout << "adoptNode childID newParentID" << std::endl;
 		std::cout << "awaken nodeID" << std::endl;
 		std::cout << "ao" << std::endl;

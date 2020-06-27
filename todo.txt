@@ -53,7 +53,7 @@ XX rotacions de layers
 #refer la visibilitat
 #refer el chunkloader
 
--fake AO
+#fake AO
 #extrapolation
 fix node sleeping
 #aplicar el reparentitzat a entitats
