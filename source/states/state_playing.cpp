@@ -174,9 +174,8 @@ void State::Playing::update(double dt) {
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	cameraPosition.parent = playerPosition.parent;
-	cameraPosition.pos.x = playerPosition.pos.x;
-	cameraPosition.pos.y = playerPosition.pos.y;
-	cameraPosition.pos.z = playerPosition.pos.z + 0.01;
+	cameraPosition.pos = playerPosition.getRPos();
+	cameraPosition.pos.z += 0.01;
 	std::vector<universeNode*> cameraCollisionNodes;
 
 	cameraCollisionNodes.push_back(cameraPosition.parent);
@@ -188,7 +187,7 @@ void State::Playing::update(double dt) {
 		cameraPosition.pos.z += _enttRegistry.get<body>(_player).height;
 		int minH = config::cameraHeight;
 		for(universeNode* nd : cameraCollisionNodes){
-			fdd localCameraPos = nd->getLocalPos(cameraPosition.pos,cameraPosition.parent);
+			fdd localCameraPos = nd->getLocalRPos(cameraPosition.pos,cameraPosition.parent);
 			int h = 0;
 			for (int i = 0; i < config::cameraHeight; i++)
 			{
@@ -210,7 +209,7 @@ void State::Playing::update(double dt) {
 	}
 
 	for(auto& node : _universeBase){
-		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
+		node.updateCamera(node.getLocalRPos(cameraPosition.pos,cameraPosition.parent));
 	}
 }
 
@@ -238,7 +237,7 @@ void State::Playing::draw(double dt) {
 				position currentCameraPos = cameraPos;
 				currentCameraPos.pos.z -= i;
 				//obtenir posicio de la camera al node
-				fdd localCameraPos = node->getLocalPos(currentCameraPos.pos, currentCameraPos.parent);
+				fdd localCameraPos = node->getLocalRPos(currentCameraPos.pos, currentCameraPos.parent);
 				//obtenir profunditat
 				int layer = floor(localCameraPos.z);
 
@@ -260,7 +259,7 @@ void State::Playing::draw(double dt) {
 		auto drawableEntityView = _enttRegistry.view<drawable, position>();
 		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
 			auto& pos = drawableEntityView.get<position>(entity);
-			double depth = cameraPos.pos.z - cameraPos.parent->getLocalPos(pos.pos, pos.parent).z;
+			double depth = cameraPos.pos.z - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent).z;
 			if (_enttRegistry.has<body>(entity))
 			{
 				depth -= _enttRegistry.get<body>(entity).height;
@@ -320,7 +319,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			short mask = shadowVal + config::minShadow;
 			const drawable& drw = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
-			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.pos, entityPosition.parent) - cameraPos.pos;
+			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.getRPos(), entityPosition.parent) - cameraPos.pos;
 			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
 			//late culling
 			if(drawPos.x <= HI2::getScreenWidth() && drawPos.y <= HI2::getScreenHeight() && (drawPos.x + zoom*drw.spr->getCurrentFrame().size.x>=0) && (drawPos.y + zoom*drw.spr->getCurrentFrame().size.y>=0))
@@ -347,7 +346,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			short mask = shadowVal + config::minShadow;
 
 
-			fdd firstBlock = node.node->getLocalPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
+			fdd firstBlock = node.node->getLocalRPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
 			firstBlock.z = node.layerHeight;
 
 			double tmp = fmod(firstBlock.x, 1);
@@ -861,6 +860,8 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "adoptNode childID newParentID" << std::endl;
 		std::cout << "awaken nodeID" << std::endl;
 		std::cout << "ao" << std::endl;
+		std::cout << "extrapolation" << std::endl;
+
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
@@ -1048,6 +1049,9 @@ void State::Playing::debugConsoleExec(std::string input)
 	}
 	else if (command == "ao") {
 		config::AOEnabled = !config::AOEnabled;
+	}
+	else if (command == "extrapolation") {
+		config::extrapolateRenderPositions = !config::extrapolateRenderPositions;
 	}
 
 	std::cout << input << std::endl;

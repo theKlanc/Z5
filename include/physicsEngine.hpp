@@ -40,6 +40,7 @@ private:
 	void applyDrag(universeNode& universeBase, entt::registry& registry, double dt);
 
 	void applyVelocity(universeNode& universeBase, entt::registry& registry, double dt);
+	void calculateRPositions(universeNode& universeBase, entt::registry& registry, double dt);
 
 	void testCollisionBetweenNodes(universeNode& left, universeNode& right);
 	void detectNodeNode(universeNode& universe, double dt);

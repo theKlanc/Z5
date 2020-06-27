@@ -28,11 +28,13 @@ namespace config {
 #elif __EMSCRIPTEN__
 	= 30;
 #else
-	                           = 60;
+	                           = 30;
 #endif
 
 	constexpr unsigned physicsSolverIterations = 5;
 	extern bool drawDepthShadows;
+	extern bool extrapolateRenderPositions;
+
 	extern unsigned short minShadow;
 	extern bool gravityEnabled;
 	extern bool dragEnabled;

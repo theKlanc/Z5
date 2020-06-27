@@ -15,7 +15,6 @@ colliderManager::~colliderManager()
 
 reactphysics3d::CollisionShape *colliderManager::getCollider(colliderType c)
 {
-	return &_boxShape;
 	if(c == colliderType::CUBE)
 		return &_boxShape;
 	else

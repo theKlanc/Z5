@@ -48,12 +48,15 @@ public:
 	void updateChunks(const fdd& cameraChunk, universeNode* u, int distance);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
+	fdd getLocalRPos(fdd f,universeNode* u) const;
 	fdd getLocalVel(fdd f,universeNode* u) const;
 	fdd getPosition();
+	fdd getRenderingPosition();
 	fdd getVelocity();
 	fdd getCenterOfMass();
 	void setVelocity(fdd v);
 	void setPosition(fdd p);
+	void setRenderPosition(fdd p);
 	unsigned int getID();
 	double getMass();
 	double getDiameter();
@@ -156,6 +159,8 @@ private:
 	double _mass; // mass in kg
 	double _diameter; // diameter in m
 	fdd _position;
+	fdd _rposition;
+
 	fdd _centerOfMass;
 	fdd _velocity;
 	std::optional<fdd> _artificialGravity;

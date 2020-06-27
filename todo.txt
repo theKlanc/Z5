@@ -54,6 +54,7 @@ XX rotacions de layers
 #refer el chunkloader
 
 -fake AO
+extrapolation
 fix node sleeping
 aplicar el reparentitzat a entitats
 dormir entitats quan calgui
@@ -61,10 +62,13 @@ dormir entitats quan calgui
 
 prefab editor overhaul
   resizing the canvas (auto / manual)
-  ==selections
-    ==copy
-    ==paste
-    ==move
+  GUI
+  space+lclick to drag
+
+  #selections
+    #copy
+    #paste
+    #move
   #fill
   #pencil
   [brushes]

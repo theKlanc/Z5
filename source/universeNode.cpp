@@ -128,7 +128,7 @@ bool universeNode::shouldDraw(fdd f) {
 std::vector<universeNode*> universeNode::nodesToDraw(fdd f, universeNode* u)
 {
 	std::vector<universeNode*> result;
-	fdd localPos = getLocalPos(f, u);
+	fdd localPos = getLocalRPos(f, u);
 	if (shouldDraw(localPos)) {
 		result.push_back(this);
 	}
@@ -413,8 +413,29 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		if(std::isnan(transform.x)){
-			getLocalPos(f,backUp);
+		return transform;
+	}
+}
+
+fdd universeNode::getLocalRPos(fdd f, universeNode *u) const
+{
+	universeNode* backUp = u;
+	if (u == this)
+		return f;
+	else
+	{
+		fdd transform = f;
+		const universeNode* transformLocal = this;
+
+		while (transformLocal != u) { // while transformLocal isn't f's parent (u)
+			if (u && u->_depth > transformLocal->_depth) {//should move u
+				transform += u->_rposition;
+				u = u->_parent;
+			}
+			else {// move transformLocal
+				transform -= transformLocal->_rposition;
+				transformLocal = transformLocal->_parent;
+			}
 		}
 		return transform;
 	}
@@ -441,9 +462,6 @@ fdd universeNode::getLocalVel(fdd f, universeNode* u) const
 				transformLocal = transformLocal->_parent;
 			}
 		}
-		if(std::isnan(transform.x)){
-			getLocalPos(f,backUp);
-		}
 		return transform;
 	}
 }
@@ -451,6 +469,11 @@ fdd universeNode::getLocalVel(fdd f, universeNode* u) const
 fdd universeNode::getPosition()
 {
 	return _position;
+}
+
+fdd universeNode::getRenderingPosition()
+{
+	return config::extrapolateRenderPositions ? _rposition : _position;
 }
 
 fdd universeNode::getVelocity()
@@ -471,6 +494,11 @@ void universeNode::setVelocity(fdd v)
 void universeNode::setPosition(fdd p)
 {
 	_position = p;
+}
+
+void universeNode::setRenderPosition(fdd p)
+{
+	_rposition = p;
 }
 
 unsigned universeNode::getID()

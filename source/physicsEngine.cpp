@@ -29,8 +29,8 @@ physicsEngine::~physicsEngine()
 void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	_remainingTime += dt;
-	if (_remainingTime > 2.0f)
-		_remainingTime = 2.0f;
+	if (_remainingTime > 0.5f)
+		_remainingTime = 0.5f;
 
 	Services::physicsMutex.lock();
 	{
@@ -67,6 +67,7 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 			}
 			_remainingTime -= _timeStep;
 		}
+		calculateRPositions(universeBase,registry,_remainingTime);
 	}
 	Services::physicsMutex.unlock();
 }
@@ -217,6 +218,19 @@ void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& re
 		pos.pos.r -= floor(pos.pos.r / (2 * M_PI)) * 2 * M_PI;
 		if (std::isnan(pos.pos.r))
 			pos.pos.r = 0;
+	}
+}
+
+void physicsEngine::calculateRPositions(universeNode &universeBase, entt::registry &registry, double dt)
+{
+	for(universeNode& node : universeBase){
+		node.setRenderPosition(node.getPosition() + node.getVelocity() * dt);
+	}
+	auto movableEntityView = registry.view<velocity, position>();
+	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
+		const velocity& vel = movableEntityView.get<velocity>(entity);
+		position& pos = movableEntityView.get<position>(entity);
+		pos.setRPos(pos.pos + vel.spd * dt);
 	}
 }
 
