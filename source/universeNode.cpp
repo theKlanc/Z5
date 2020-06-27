@@ -219,11 +219,33 @@ interactable* universeNode::getClosestInteractable(fdd pos)
 {
 	double minDist = config::interactableRadius;
 	interactable* inter = nullptr;
+	if(_parent){
+		fdd lpos = _parent->getLocalPos(pos,this);
+		for(auto& i : _parent->_interactables){
+			for(auto& p : i->getPositions()){
+				if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(lpos); dist <= minDist){
+					minDist = dist;
+					inter = i.get();
+				}
+			}
+		}
+	}
 	for(auto& i : _interactables){
 		for(auto& p : i->getPositions()){
 			if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(pos); dist <= minDist){
 				minDist = dist;
 				inter = i.get();
+			}
+		}
+	}
+	for(auto& child : _children){
+		fdd lpos = child->getLocalPos(pos,this);
+		for(auto& i : child->_interactables){
+			for(auto& p : i->getPositions()){
+				if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(lpos); dist <= minDist){
+					minDist = dist;
+					inter = i.get();
+				}
 			}
 		}
 	}
@@ -235,11 +257,33 @@ point3Di universeNode::getClosestInteractablePos(fdd pos)
 
 	double minDist = config::interactableRadius;
 	point3Di inter;
+	if(_parent){
+		fdd lpos = _parent->getLocalPos(pos,this);
+		for(auto& i : _parent->_interactables){
+			for(auto& p : i->getPositions()){
+				if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(lpos); dist <= minDist){
+					minDist = dist;
+					inter = p.getPoint3Di();
+				}
+			}
+		}
+	}
 	for(auto& i : _interactables){
 		for(auto& p : i->getPositions()){
 			if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(pos); dist <= minDist){
 				minDist = dist;
 				inter = p.getPoint3Di();
+			}
+		}
+	}
+	for(auto& child : _children){
+		fdd lpos = child->getLocalPos(pos,this);
+		for(auto& i : child->_interactables){
+			for(auto& p : i->getPositions()){
+				if(double dist = (p + fdd{0.5,0.5,0.5,0}).distance(lpos); dist <= minDist){
+					minDist = dist;
+					inter = p.getPoint3Di();
+				}
 			}
 		}
 	}

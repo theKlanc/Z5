@@ -49,7 +49,8 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 			for(auto& node : universeBase){
 				node.updatePosition(_timeStep);
 			}
-			reparentizeChildren(universeBase);
+			reparentizeNodes(universeBase);
+			reparentizeEntities(registry);
 
 			detectNodeNode(universeBase, _timeStep);
 			solveNodeNode(universeBase, _timeStep);
@@ -667,7 +668,7 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 	}
 }
 
-void physicsEngine::reparentizeChildren(universeNode &base)
+void physicsEngine::reparentizeNodes(universeNode &base)
 {
 	for(auto & child : base){
 		if(!child.physicsData.sleeping){
@@ -678,6 +679,23 @@ void physicsEngine::reparentizeChildren(universeNode &base)
 				//dry run
 				IC("reparentize " + child.getName() + " from parent " + oldParent->getName() + " to " + bestP->getName());
 				bestP->addChild(oldParent->removeChild(child.getID()));
+			}
+		}
+	}
+}
+
+void physicsEngine::reparentizeEntities(entt::registry &registry)
+{
+	auto movableEntityView = registry.view<position, body>();
+	for (const entt::entity& entity : movableEntityView) {
+		position& pos = movableEntityView.get<position>(entity);
+		if(universeNode* bestParent = pos.calculateBestParent(); bestParent != pos.parent){
+			if(registry.has<velocity>(entity)){
+				velocity& vel = registry.get<velocity>(entity);
+				vel.spd = bestParent->getLocalVel(vel.spd,pos.parent);
+				pos.pos = bestParent->getLocalPos(pos.pos,pos.parent);
+				pos.parent = bestParent;
+				pos.parentID = pos.parent->getID();
 			}
 		}
 	}

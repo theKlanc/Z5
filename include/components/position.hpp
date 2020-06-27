@@ -8,6 +8,7 @@ struct position {
 	unsigned int parentID;
 	fdd getRPos() const;
 	void setRPos(fdd p);
+	universeNode* calculateBestParent();
 private:
 	fdd rpos;
 };

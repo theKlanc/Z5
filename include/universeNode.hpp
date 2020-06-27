@@ -67,6 +67,7 @@ public:
 	void addChild(std::shared_ptr<universeNode> u);
 	universeNode* calculateBestParent();
 
+
 	std::shared_ptr<universeNode> removeChild(unsigned ID);
 	void updatePosition(double dt);
 	void applyThrusters(double dt);

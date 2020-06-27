@@ -58,5 +58,6 @@ private:
 	std::unique_ptr<rp3d::CollisionWorld> _zaWarudo;
 
 
-	void reparentizeChildren(universeNode& base);
+	void reparentizeNodes(universeNode& base);
+	void reparentizeEntities(entt::registry& registry);
 };
