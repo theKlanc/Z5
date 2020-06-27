@@ -2,7 +2,7 @@ APPNAME := Z5
 BINDIR	:= bin
 PLATFORM := emscripten
 SOURCES := source deps/HardwareInterface deps/FastNoise deps/reactPhysics3D/src source/UI/gadgets source/UI/customGadgets
-INCLUDE := include deps deps/entt/src deps/reactPhysics3D/src deps/json/single_include/nlohmann deps/HardwareInterface deps/icecream-cpp deps/reactPhysics3D/src deps/reactPhysics3D/include
+INCLUDE := include deps deps/entt/src deps/reactPhysics3D/src deps/json/single_include/nlohmann deps/HardwareInterface deps/icecream-cpp deps/reactPhysics3D/src deps/reactPhysics3D/include deps/entt/src
 
 BUILDDIR := build
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/broadphase deps/reactPhysics3D/src/collision/narrowphase
