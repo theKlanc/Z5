@@ -19,7 +19,7 @@ public:
 	void addContainer(fuelContainer fc);
 	fuelContainer removeContainer(const fuelContainer& fc);
 	void setParent(universeNode* u);
-
+	void fix(point3Di dist);
 	void update(double dt);
 
 	double addFuel(const fuel* f, double kg); //Returns the remainder

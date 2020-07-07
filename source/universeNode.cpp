@@ -26,6 +26,18 @@ universeNode::~universeNode()
 	}
 }
 
+void universeNode::fix()
+{
+	for(auto& i : _interactables){
+		if (prefabGenerator* pfbg = dynamic_cast<prefabGenerator*>(_generator.get())) {
+			i->fix(pfbg->_prefab.getSize()/-2);
+		}
+	}
+	if (prefabGenerator* pfbg = dynamic_cast<prefabGenerator*>(_generator.get())) {
+		_thrustSystem->fix(pfbg->_prefab.getSize()/-2);
+	}
+}
+
 universeNode::universeNode(const universeNode &u)
 {
 	*this = u;
@@ -37,7 +49,6 @@ universeNode::universeNode(std::string name, double mass, double diameter, fdd p
 	_mass = mass;
 	_diameter = diameter;
 	_position = pos;
-	_centerOfMass = com;
 	_velocity = vel;
 	_type = type;
 	_parent = parent;
@@ -81,6 +92,42 @@ metaBlock &universeNode::getTheoreticalBlock(const point3Di &pos)
 	return getBlock(pos);
 }
 
+void universeNode::updateActivity()
+{
+	if(_parent){
+		if(_position.magnitude() < _parent->_diameter + 400){
+		//si estem dins el planeta, faltaria potser millorar-ho per a naus molt grans
+			if(_CL_cameraPosition->magnitude()/config::chunkSize + 1 >= config::chunkloadSphereRadius)
+			{
+				_inactive = true; //si estem lluny de la camera -> dormir
+			}
+			else if(_CL_cameraPosition->magnitude()/config::chunkSize <= config::chunkloadSphereRadius / 2)
+			{
+				_inactive = false; //si estem a prop de la camera -> despertar
+			}
+		}
+	}
+	else
+		_inactive = false;
+}
+
+bool universeNode::calculateEntityActivity(fdd pos, bool oldValue)
+{
+	if(pos.magnitude() < _diameter + 400){
+		//si estem dins el planeta
+		if(pos.distance(*_CL_cameraPosition)/config::chunkSize + 2 >= config::chunkloadSphereRadius)
+		{
+			return false; //si estem lluny de la camera -> dormir
+		}
+		else if(pos.distance(*_CL_cameraPosition)/config::chunkSize + 1 <= config::chunkloadSphereRadius / 2)
+		{
+			return true; //si estem a prop de la camera -> despertar
+		}
+		return oldValue;
+	}
+	return true;
+}
+
 double universeNode::getSOI()
 {
 	//a*(m/M)^(2/5)
@@ -110,7 +157,7 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 		}
 	}
 }
-void universeNode::updateChunks(const fdd& cameraPos, universeNode* u, int distance) {
+void universeNode::updateChunks(const fdd& cameraPos, int distance) {
 	assert(_CL_mutex);
 	_CL_mutex->lock();
 	if (cameraPos.magnitude() < (_diameter / 2 + config::chunksContainerSize*config::chunkSize)) {
@@ -303,7 +350,7 @@ void universeNode::_CL_chunkloaderFunc()
 		if(!_CL_cameraPosition)
 			break;
 		if(int distance = lastChunkPos.maxdist(chunkFromPos(pos)); distance > 0){
-			updateChunks(pos,this,distance);
+			updateChunks(pos,distance);
 			lastChunkPos = chunkFromPos(pos);
 		}
 		else{
@@ -525,11 +572,6 @@ fdd universeNode::getVelocity()
 	return _velocity;
 }
 
-fdd universeNode::getCenterOfMass()
-{
-	return _centerOfMass;
-}
-
 void universeNode::setVelocity(fdd v)
 {
 	_velocity = v;
@@ -683,9 +725,10 @@ fdd universeNode::getGravityAcceleration(fdd localPosition, double mass)
 		return *_artificialGravity;
 
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
-	fdd realGravity = (_centerOfMass - localPosition).setMagnitude((G * ((_mass*mass) / (pow(_centerOfMass.distance(localPosition),2)))/mass));
+	fdd realGravity = localPosition;
+	realGravity.setMagnitude((G * ((_mass*mass) / (pow(localPosition.magnitude(),2)))/mass));
 	double magicFactor = 1;
-	double distance = _centerOfMass.distance(localPosition);
+	double distance = localPosition.magnitude();
 	if (distance > _diameter / 2)
 	{
 		magicFactor = distance - _diameter / 2;
@@ -965,7 +1008,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
     }
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
-			 {"position", f._position},{"CoM", f._centerOfMass}, {"velocity", f._velocity},
+			 {"position", f._position}, {"velocity", f._velocity},
 			 {"children", jj},{"id",f._ID},{"sleeping",f.physicsData.sleeping},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
 	if(f._artificialGravity)
 		j.emplace("artificial_gravity",*f._artificialGravity);
@@ -980,14 +1023,6 @@ void from_json(const json& j, universeNode& f) {
 	f._mass = j.at("mass").get<double>();
 	f._diameter = j.at("diameter").get<double>();
 	f._position = j.at("position").get<fdd>();
-	if (j.contains("CoM"))
-	{
-		f._centerOfMass = j.at("CoM").get<fdd>();
-	}
-	else
-	{
-		f._centerOfMass = { 0,0,0,0 };
-	}
 	if(j.contains("artificial_gravity")){
 		f._artificialGravity = j.at("artificial_gravity").get<fdd>();
 	}
@@ -1062,7 +1097,6 @@ universeNode& universeNode::operator=(const universeNode& u)
 {
 	_position = u._position;
 	_ID = u._ID;
-	_centerOfMass = u._centerOfMass;
 	_children = u._children;
 	_chunks = std::move(u._chunks);
 	_collider = u._collider;

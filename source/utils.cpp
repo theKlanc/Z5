@@ -82,6 +82,8 @@ char utils::getChar(HI2::BUTTON b)
 		return '9';
 	case HI2::KEY_DASH:
 		return '-';
+	case HI2::KEY_PLUS:
+		return '+';
 	default:
 		return '\0';
 	}
@@ -101,7 +103,7 @@ std::string utils::getString(const std::bitset<HI2::BUTTON_SIZE>& buttons,bool c
 			else{
 				char c = getChar((HI2::BUTTON)i);
 				if(c!='\0')
-					str+=caps?toupper(c):c;
+					str+=caps?c=='-'?'_':toupper(c):c;
 			}
 		}
 	}

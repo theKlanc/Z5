@@ -103,11 +103,11 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 	for (universeNode& node : universeBase) {
 		if (node.getParent() != nullptr && node.isActive() && node.physicsData.deltaPos == 0)//potser haurem de tenir un acumulador de dt perdut
 		{
-			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass(),node.getMass()) * dt);
+			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition(),node.getMass()) * dt);
 			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
-	auto movableEntityView = registry.view<velocity, position>();
+	auto movableEntityView = registry.view<velocity, position,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& entity : movableEntityView) {
 		velocity& vel = movableEntityView.get<velocity>(entity);
 		const position& pos = movableEntityView.get<position>(entity);
@@ -132,8 +132,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 	for (universeNode& node : universeBase) {
 		if (node.getParent() != nullptr && node.isActive())
 		{
-			fdd pos = node.getCenterOfMass();
-			pos+=node.getPosition();
+			fdd pos = node.getPosition();
 			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z) });
 			if (block == metaBlock::nullBlock || block.base->solid)
 				continue;
@@ -143,7 +142,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
-	auto movableEntityView = registry.view<velocity, position, body>();
+	auto movableEntityView = registry.view<velocity, position, body,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& entity : movableEntityView) {
 		velocity& vel = movableEntityView.get<velocity>(entity);
 		const position& pos = movableEntityView.get<position>(entity);
@@ -163,8 +162,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 	for (universeNode& node : universeBase) {
 		if (node.getParent() != nullptr && node.isActive())
 		{
-			fdd pos = node.getCenterOfMass();
-			pos+=node.getPosition();
+			fdd pos = node.getPosition();
 			fdd vel = node.getVelocity();
 			metaBlock block = node.getParent()->getBlock({ (int)floor(pos.x),(int)floor(pos.y),(int)floor(pos.z) });
 			if (block == metaBlock::nullBlock)
@@ -184,7 +182,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 			assert(!std::isnan(node.getVelocity().x));
 		}
 	}
-	auto movableEntityView = registry.view<velocity, position, body>();
+	auto movableEntityView = registry.view<velocity, position, body,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& entity : movableEntityView) {
 		velocity& vel = movableEntityView.get<velocity>(entity);
 		const position& pos = movableEntityView.get<position>(entity);
@@ -211,7 +209,7 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 
 void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	auto movableEntityView = registry.view<velocity, position>();
+	auto movableEntityView = registry.view<velocity, position,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		const velocity& vel = movableEntityView.get<velocity>(entity);
 		position& pos = movableEntityView.get<position>(entity);
@@ -227,7 +225,7 @@ void physicsEngine::calculateRPositions(universeNode &universeBase, entt::regist
 	for(universeNode& node : universeBase){
 		node.setRenderPosition(node.getPosition() + node.getVelocity() * dt);
 	}
-	auto movableEntityView = registry.view<velocity, position>();
+	auto movableEntityView = registry.view<velocity, position>();//entt::tag<"ACTIVE"_hs>
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
 		const velocity& vel = movableEntityView.get<velocity>(entity);
 		position& pos = movableEntityView.get<position>(entity);
@@ -308,7 +306,7 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 			{
 				if (*brotha != node)
 				{
-					if (true || brotha->isActive() || brotha->getID() < node.getID())
+					if (brotha->isActive() || brotha->getID() < node.getID())
 					{
 						//node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
 						//brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
@@ -329,7 +327,7 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 
 void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	auto bodyEntitiesView = registry.view<body>();
+	auto bodyEntitiesView = registry.view<body,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 		position entityPos = registry.get<position>(left);
 		body& entityBody = registry.get<body>(left);
@@ -410,7 +408,7 @@ void physicsEngine::detectNodeEntity(universeNode& universeBase, entt::registry&
 
 void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& registry, double dt)
 {
-	auto bodyView = registry.view<body, position, velocity>();
+	auto bodyView = registry.view<body, position, velocity,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& entity : bodyView)
 	{
 		body& bdy = bodyView.get<body>(entity);
@@ -490,7 +488,8 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		vel.z = result.z;
 
 		//apply new velocity from surface
-		pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude())) * 0.5;
+		if(vel != fdd())
+			pos += vel * dt * (node.physicsData.maxContactDepth / ((oldSpeed * dt).magnitude())) * 0.5;
 
 		assert(!std::isnan(pos.x));
 		assert(!std::isnan(vel.x));
@@ -508,7 +507,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 
 void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 {
-	auto bodyEntitiesView = registry.view<body>();
+	auto bodyEntitiesView = registry.view<body,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
 		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
 			if (left > right)
@@ -613,12 +612,12 @@ void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCal
 				{//convert to local
 				//TODO avoid this if possible
 
-					oldParent = pos.parent;
-					pos.pos = node->getLocalPos(pos.pos, oldParent);
-					pos.parent = node;
-
-					velocity& vel = Services::enttRegistry->get<velocity>(entity);
-					vel.spd = node->getLocalVel(vel.spd, oldParent);
+					//oldParent = pos.parent;
+					//pos.pos = node->getLocalPos(pos.pos, oldParent);
+					//pos.parent = node;
+					//
+					//velocity& vel = Services::enttRegistry->get<velocity>(entity);
+					//vel.spd = node->getLocalVel(vel.spd, oldParent);
 				}
 
 				entityBody.physicsData.maxContactDepth = contactPoint->getPenetrationDepth();
@@ -688,7 +687,7 @@ void physicsEngine::reparentizeNodes(universeNode &base)
 
 void physicsEngine::reparentizeEntities(entt::registry &registry)
 {
-	auto movableEntityView = registry.view<position, body>();
+	auto movableEntityView = registry.view<position, body,entt::tag<"ACTIVE"_hs>>();
 	for (const entt::entity& entity : movableEntityView) {
 		position& pos = movableEntityView.get<position>(entity);
 		if(universeNode* bestParent = pos.calculateBestParent(); bestParent != pos.parent){

@@ -34,18 +34,21 @@ class universeNode {
 public:
 	universeNode() :_chunks(config::chunksContainerSize* config::chunksContainerSize* config::chunksContainerSize){}
 	~universeNode();
+	void fix();
 	universeNode(const universeNode& u);
 	universeNode& operator=(const universeNode& n);
 	universeNode(std::string name, double mass, double diameter, fdd pos, fdd com, fdd vel, nodeType type,universeNode* parent, unsigned int id);
 	baseBlock& getTopBlock(const point2D& pos);
 	metaBlock& getBlock(const point3Di &pos);
 	metaBlock& getTheoreticalBlock(const point3Di &pos);
+	void updateActivity();
+	bool calculateEntityActivity(fdd pos, bool oldValue);
 	double getSOI();
 
 	void updateCamera(fdd c);
 
 	void setBlock(metaBlock b, const point3Di &pos);
-	void updateChunks(const fdd& cameraChunk, universeNode* u, int distance);
+	void updateChunks(const fdd& cameraChunk, int distance);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
 	fdd getLocalRPos(fdd f,universeNode* u) const;
@@ -53,7 +56,6 @@ public:
 	fdd getPosition();
 	fdd getRenderingPosition();
 	fdd getVelocity();
-	fdd getCenterOfMass();
 	void setVelocity(fdd v);
 	void setPosition(fdd p);
 	void setRenderPosition(fdd p);
@@ -168,7 +170,6 @@ private:
 
 	bool _inactive = false; //if the node is too far but close to parent it'll get deactivated;
 
-	fdd _centerOfMass;
 	fdd _velocity;
 	std::optional<fdd> _artificialGravity;
 

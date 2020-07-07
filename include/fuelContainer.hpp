@@ -12,6 +12,7 @@ public:
 	bool isEmpty() const;
 	bool isFull() const;
 	const fuel* getFuelType() const;
+	void fix(point3Di dist);
 	bool operator==(const fuelContainer& fc) const;
 private:
 	const fuel *_fuelType = nullptr;

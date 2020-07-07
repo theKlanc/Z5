@@ -47,6 +47,11 @@ const fuel *fuelContainer::getFuelType() const
 	return _fuelType;
 }
 
+void fuelContainer::fix(point3Di dist)
+{
+	_pos = _pos + dist;
+}
+
 bool fuelContainer::operator==(const fuelContainer &fc) const
 {
 	return _pos == fc._pos; //According to the Pauli exclusion principle, two containers cannot coexist in the same exact position, therefore we only need to check for equal positions when comparing

@@ -64,6 +64,18 @@ void thrustSystem::setParent(universeNode *u)
 	}
 }
 
+void thrustSystem::fix(point3Di dist)
+{
+	for(auto& ft : _containers){
+		for(auto& container : ft.second.containers){
+			container->fix(dist);
+		}
+	}
+	for(auto& thruster : _thrusters){
+		thruster->fix(dist);
+	}
+}
+
 void thrustSystem::update(double dt)
 {
 	for(auto& t : _thrusters){

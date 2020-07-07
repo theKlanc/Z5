@@ -8,6 +8,11 @@ blockSwitch::blockSwitch()
 
 }
 
+blockSwitch::~blockSwitch()
+{
+
+}
+
 void blockSwitch::interact(entt::entity e)
 {
 	//IC(_sfx);
@@ -33,6 +38,16 @@ nlohmann::json blockSwitch::getJson() const
 	if(_sfx != nullptr)
 		result.at("interactable").emplace("sfx",_sfxname);
 	return result;
+}
+
+void blockSwitch::fix(point3Di dist)
+{
+	for(fdd& pos : _positions){
+		pos+=fdd(dist);
+	}
+	for(auto& peir : _blocks){
+		peir.second = peir.second + dist;
+	}
 }
 
 void from_json(const nlohmann::json &j, blockSwitch &bs)

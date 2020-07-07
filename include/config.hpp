@@ -8,10 +8,10 @@ namespace config {
 #elif __EMSCRIPTEN__
 	= 10;
 #else
-	                                = 12;
+	                                = 14;
 #endif
 
-	constexpr int chunkloadSphereRadius = 5;
+	constexpr int chunkloadSphereRadius = 6;
 	constexpr int chunkSize = 8;
 	extern int cameraDepth;
 	constexpr int spriteSize = 16;
@@ -21,6 +21,7 @@ namespace config {
 	extern int cameraHeight;
 	extern int orbitDebugMultiplier;
 	constexpr double interactableRadius = 1.5;
+	constexpr double destroyDistance = 5000;
 
 	constexpr double physicsHz
 #ifdef __SWITCH__

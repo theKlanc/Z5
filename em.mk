@@ -17,7 +17,7 @@ LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -lfreetype -l
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 BUILDTYPE := Release
-FLAGS := $(FLAGS) -O3 -flto
+FLAGS := $(FLAGS) -O3 --llvm-lto 3
 CCFLAGS := $(FLAGS) $(CCFLAGS)
 CXXFLAGS := $(FLAGS) $(CXXFLAGS)
 

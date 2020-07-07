@@ -8,10 +8,13 @@ class interactable
 {
 public:
 	interactable();
+	virtual ~interactable();
 
 	virtual void interact(entt::entity e) = 0;
 
 	virtual json getJson() const = 0;
+
+	virtual void fix(point3Di dist) = 0;
 
 	std::vector<fdd> getPositions() const;
 	void setPositions(std::vector<fdd> f);

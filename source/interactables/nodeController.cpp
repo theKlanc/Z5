@@ -17,6 +17,11 @@ nodeController::nodeController()
 	_scene.addGadget(_spdViewer);
 }
 
+nodeController::~nodeController()
+{
+
+}
+
 void nodeController::interact(entt::entity e)
 {
 	Services::enttRegistry->get<std::unique_ptr<brain>>(e)->setControlling(this);
@@ -28,7 +33,14 @@ nlohmann::json nodeController::getJson() const
 {
 	return nlohmann::json{{"type",interactableType::NODE_CONTROLLER},{"interactable",{
 	{"positions",_positions},{"thrustTarget",_thrustTarget}
-	}}};
+			}}};
+}
+
+void nodeController::fix(point3Di dist)
+{
+	for(fdd& pos : _positions){
+		pos+=fdd(dist);
+	}
 }
 
 void nodeController::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down, const std::bitset<HI2::BUTTON_SIZE> &up, const std::bitset<HI2::BUTTON_SIZE> &held)

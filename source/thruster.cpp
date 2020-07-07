@@ -46,6 +46,14 @@ point3Dd thruster::getThrustDirection() const
 	return _thrustDirection;
 }
 
+void thruster::fix(point3Di dist)
+{
+	for(auto& b : _blocks){
+		b.second = b.second + dist;
+	}
+	_position += dist;
+}
+
 void thruster::setTargetThrust(double p)
 {
 	if(p<0)

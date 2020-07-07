@@ -26,6 +26,11 @@ void to_json(nlohmann::json& j, const entt::registry& registry)
 		{
 			j_tags.push_back("CAMERA");
 		}
+		if (registry.has<entt::tag<"ACTIVE"_hs>>(entity))
+		{
+			j_tags.push_back("ACTIVE");
+		}
+
 		nlohmann::json j_components;
 		if (registry.has<name>(entity))
 		{
@@ -81,6 +86,12 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 				registry.emplace<entt::tag<"CAMERA"_hs>>(e);
 				break;
 			}
+			case entityTag::ACTIVE:
+			{
+				registry.emplace<entt::tag<"ACTIVE"_hs>>(e);
+				break;
+			}
+
 			default:
 				throw "Unknown tag type";
 			}

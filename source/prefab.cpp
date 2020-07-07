@@ -130,7 +130,7 @@ prefab prefab::get(point3Di pos, point3Di size)
 
 metaBlock& prefab::get(point3Di p)
 {
-	if(p.x < _size.x && p.y < _size.y && p.z < _size.z)
+	if(p.x < _size.x && p.y < _size.y && p.z < _size.z && p.x >= 0 && p.y >= 0 && p.z >= 0)
 		return _blocks[p.z * _size.y * _size.x + p.y * _size.x + p.x];
 	return metaBlock::nullBlock;
 }

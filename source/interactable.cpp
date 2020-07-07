@@ -5,6 +5,8 @@ interactable::interactable()
 
 }
 
+interactable::~interactable(){}
+
 void interactable::setPositions(std::vector<fdd> f)
 {
 	_positions = f;

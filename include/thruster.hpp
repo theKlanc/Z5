@@ -21,6 +21,7 @@ public:
 	bool operator==(const thruster &right) const;
 	const fuel* getFuelType() const;
 	point3Dd getThrustDirection() const;
+	void fix(point3Di dist);
 
 private:
 	const fuel *_fuelType = nullptr;

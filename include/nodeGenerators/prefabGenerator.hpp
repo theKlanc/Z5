@@ -14,7 +14,6 @@ class prefabGenerator : public nodeGenerator{
 
 	friend void from_json(const json& j, prefabGenerator &pg);
 
-private:
 	prefab _prefab;
 };
 

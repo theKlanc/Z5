@@ -106,7 +106,7 @@ void starmap::drawInfo(universeNode *node, bool fullInfo) const
 		HI2::drawText(font,"pos: " + std::to_string(node->getPosition().x) + " " +std::to_string(node->getPosition().y) + " " +std::to_string(node->getPosition().z),point2D{0,60},30,HI2::Color::White);
 		HI2::drawText(font,"vel: " + std::to_string(node->getVelocity().x) + " " +std::to_string(node->getVelocity().y) + " " +std::to_string(node->getVelocity().z),point2D{0,90},30,HI2::Color::White);
 		HI2::drawText(font,"velMagnitude: " + std::to_string(node->getVelocity().magnitude()),point2D{0,120},30,HI2::Color::White);
-		HI2::drawText(font,(node->isActive()?"zZZzZ":"O.O"),point2D{0,150},30,HI2::Color::White);
+		HI2::drawText(font,(node->isActive()?"O.O":"zZZzZ"),point2D{0,150},30,HI2::Color::White);
 	}
 }
 

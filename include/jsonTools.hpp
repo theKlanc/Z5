@@ -38,11 +38,13 @@ NLOHMANN_JSON_SERIALIZE_ENUM( interactableType, {
 enum class entityTag{
 	PLAYER,
 	CAMERA,
+	ACTIVE,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( entityTag, {
 	{entityTag::PLAYER,"PLAYER"},
 	{entityTag::CAMERA,"CAMERA"},
+	{entityTag::ACTIVE,"ACTIVE"},
 })
 
 namespace HI2{

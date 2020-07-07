@@ -85,7 +85,8 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	auto cameraView = _enttRegistry.view<entt::tag<"CAMERA"_hs>>();					   //
 	for (auto entity : cameraView) {															   //
 		_camera = entity;																	   //
-	}																						   //
+	}
+																				   //
 
 	_starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
 	_starmap->toggle();
@@ -94,7 +95,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
-		node.updateChunks(cameraPosition.pos,cameraPosition.parent,config::chunksContainerSize);
+		node.updateChunks(node.getLocalPos(cameraPosition.pos,cameraPosition.parent),config::chunksContainerSize);
 	}
 }
 
@@ -102,8 +103,6 @@ void State::Playing::input(double dt)
 {
 	_step = false;
 
-	auto& playerSpd = _enttRegistry.get<velocity>(_player);
-	auto& playerPos = _enttRegistry.get<position>(_player);
 	const std::bitset<HI2::BUTTON_SIZE>& held = HI2::getKeysHeld();
 	std::bitset<HI2::BUTTON_SIZE> down = HI2::getKeysDown();
 	const std::bitset<HI2::BUTTON_SIZE>& up = HI2::getKeysUp();
@@ -135,11 +134,15 @@ void State::Playing::input(double dt)
 		}
 	}
 	_scene.update(down, up, held, mouse, dt);
-	_enttRegistry.get<std::unique_ptr<brain>>(_player)->update(dt,down,up,held);
+	if(_enttRegistry.has<entt::tag<"ACTIVE"_hs>>(_player) && _enttRegistry.has<std::unique_ptr<brain>>(_player))
+		_enttRegistry.get<std::unique_ptr<brain>>(_player)->update(dt,down,up,held);
 }
 
 void State::Playing::updateCamera()
 {
+	if(_player == _camera){
+		return;
+	}
 	position& playerPosition = _enttRegistry.get<position>(_player);
 
 	//Update camera to follow the player;
@@ -178,10 +181,6 @@ void State::Playing::updateCamera()
 		}
 		cameraPosition.pos.z += minH;
 	}
-
-	for(auto& node : _universeBase){
-		node.updateCamera(node.getLocalRPos(cameraPosition.pos,cameraPosition.parent));
-	}
 }
 
 void State::Playing::update(double dt) {
@@ -190,7 +189,7 @@ void State::Playing::update(double dt) {
 	if (_step)
 		dt = 1.0f / config::physicsHz;
 	//update enemies
-	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
+	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>,entt::tag<"ACTIVE"_hs>>();
 	for (auto entity : brainEntities) {
 		if(entity != _player)
 			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
@@ -199,12 +198,44 @@ void State::Playing::update(double dt) {
 	//Update thrusters
 	for(auto& node : _universeBase){
 		node.updateThrusters(dt);
+		node.updateActivity();
+	}
+
+	//delete entities
+	auto cameraPos = _enttRegistry.get<position>(_camera);
+	auto temporaryEntities = _enttRegistry.view<position>(entt::exclude<entt::tag<"PERMANENT"_hs>>);
+	for(auto& e : temporaryEntities){
+		auto pos = temporaryEntities.get<position>(e);
+		if(cameraPos.parent->getLocalPos(pos.pos,pos.parent).distance(cameraPos.pos) > config::destroyDistance){
+			_enttRegistry.destroy(e);
+		}
+	}
+
+	//sleep entities
+	auto positionEntities = _enttRegistry.view<position>();
+	for(auto& e : positionEntities){
+		auto pos = positionEntities.get<position>(e);
+		bool oldActivity = _enttRegistry.has<entt::tag<"ACTIVE"_hs>>(e);
+		bool activity = pos.parent->calculateEntityActivity(pos.pos,oldActivity);
+		if(oldActivity != activity){
+			if(activity){
+				_enttRegistry.emplace<entt::tag<"ACTIVE"_hs>>(e);
+			}
+			else{
+				_enttRegistry.remove<entt::tag<"ACTIVE"_hs>>(e);
+			}
+		}
 	}
 
 	//TODO update nodes positions
 	_physicsEngine.updatePhysics(_universeBase, _enttRegistry, dt);
 
 	updateCamera();
+
+	cameraPos = _enttRegistry.get<position>(_camera);
+	for(auto& node : _universeBase){
+		node.updateCamera(node.getLocalRPos(cameraPos.pos,cameraPos.parent));
+	}
 }
 
 void State::Playing::draw(double dt) {
@@ -216,7 +247,10 @@ void State::Playing::draw(double dt) {
 	Services::graphics.stepAnimations(dt);
 	
 	position playerPos = _enttRegistry.get<position>(_player);
-	velocity playerVel = _enttRegistry.get<velocity>(_player);
+	velocity playerVel;
+
+	if(_enttRegistry.has<velocity>(_player))
+		playerVel = _enttRegistry.get<velocity>(_player);
 
 	bool interactableInRange = playerPos.parent->getClosestInteractable(playerPos.pos) != nullptr;
 	point3Di iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
@@ -236,6 +270,8 @@ void State::Playing::draw(double dt) {
 				int layer = floor(localCameraPos.z);
 
 				double partFraccional = fmod(localCameraPos.z, 1);
+				if(partFraccional < 0)
+					partFraccional+=1;
 				double depth = i + partFraccional - 1;
 
 				if(depth < 0.2)
@@ -278,7 +314,7 @@ void State::Playing::draw(double dt) {
 		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
 		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2), selectedFlip ? HI2::FLIP::H : HI2::FLIP::NONE);
 	}
-	auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
+
 	if (_debug) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Orange);
 		HI2::drawText(_standardFont, "Parent: " + playerPos.parent->getName() + " (" + std::to_string(playerPos.parent->getID()) + ")", { 0,30 }, 30, HI2::Color::Orange);
@@ -290,12 +326,15 @@ void State::Playing::draw(double dt) {
 		HI2::drawText(_standardFont, "vy: " + std::to_string(playerVel.spd.y), { 0,210 }, 30, HI2::Color::Green);
 		HI2::drawText(_standardFont, "vz: " + std::to_string(playerVel.spd.z), { 0,240 }, 30, HI2::Color::Blue);
 		HI2::drawText(_standardFont, "vr: " + std::to_string(playerVel.spd.r), { 0,270 }, 30, HI2::Color::Pink);
-		HI2::drawText(_standardFont, "Thoughts: " + br->getThoughts(), { 0,300 }, 30, HI2::Color::Black);
-		
+		if(_enttRegistry.has<std::unique_ptr<brain>>(_player)){
+			auto& br = _enttRegistry.get<std::unique_ptr<brain>>(_player);
+			HI2::drawText(_standardFont, "Thoughts: " + br->getThoughts(), { 0,300 }, 30, HI2::Color::Black);
+		}
 		//HI2::drawText(_standardFont, "insideBlock: " + std::to_string(playerPos.parent->getBlock({(int)floor(playerPos.pos.x),(int)floor(playerPos.pos.y),(int)floor(playerPos.pos.z + 0.3)}).base->ID), { 0,300 }, 30, HI2::Color::Black);
 	}
 	_scene.draw();
-	_enttRegistry.get<std::unique_ptr<brain>>(_player)->drawUI();
+	if(_enttRegistry.has<std::unique_ptr<brain>>(_player))
+		_enttRegistry.get<std::unique_ptr<brain>>(_player)->drawUI();
 	HI2::endFrame();
 }
 
@@ -820,10 +859,49 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "awaken nodeID" << std::endl;
 		std::cout << "ao" << std::endl;
 		std::cout << "extrapolation" << std::endl;
-
+		std::cout << "activateallentities" << std::endl;
+		std::cout << "listEntities" << std::endl;
+		std::cout << "controlEntity ID" << std::endl;
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
+	}
+	else if (command == "activateallentities") {
+		_enttRegistry.each([&](auto entity) {
+			if (!_enttRegistry.has<entt::tag<"ACTIVE"_hs>>(entity)){
+				_enttRegistry.emplace<entt::tag<"ACTIVE"_hs>>(entity);
+			}
+		});
+	}
+	else if (command == "listEntities") {
+		_enttRegistry.each([&](auto entity) {
+			std::cout << (unsigned)entity << ":"<<std::endl;
+			if (_enttRegistry.has<name>(entity)){
+				std::cout << "	name: " << _enttRegistry.get<name>(entity).nameString << std::endl;
+			}
+			if (_enttRegistry.has<entt::tag<"ACTIVE"_hs>>(entity)){
+				std::cout << "	ACTIVE" << std::endl;
+			}
+			if (_enttRegistry.has<entt::tag<"CAMERA"_hs>>(entity)){
+				std::cout << "	CAMERA" << std::endl;
+			}
+			if (_enttRegistry.has<position>(entity)){
+				auto pos = _enttRegistry.get<position>(entity);
+				std::cout << "	pos: " << pos.pos << std::endl;
+			}
+		});
+	}
+	else if (command == "control") {
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
+		if(_enttRegistry.valid(entt::entity(id))){
+			_enttRegistry.remove<entt::tag<"PLAYER"_hs>>(_player);
+
+			_enttRegistry.emplace<entt::tag<"PLAYER"_hs>>(entt::entity(id));
+			_player = entt::entity(id);
+
+		}
 	}
 	else if (command == "step") {
 		_step = true;
@@ -895,20 +973,52 @@ void State::Playing::debugConsoleExec(std::string input)
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
 		if (_universeBase.findNodeByID(id, node)) {
-			fdd pos;
+			fdd pos = node->getPosition();
 			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.x = std::strtol(argument.c_str(), nullptr, 10);
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.x -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.x += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.x = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
 			}
 			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.y = std::strtol(argument.c_str(), nullptr, 10);
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.y -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.y += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.y = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
 			}
 			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.z = std::strtol(argument.c_str(), nullptr, 10);
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.z -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.z += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.z = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
 			}
 			node->setPosition(pos);
+			node->setVelocity(fdd());
+			node->physicsData.sleeping=false;
 		}
 	}
 	else if (command == "setNodeVel" && ss.tellg() != -1) {
@@ -917,18 +1027,48 @@ void State::Playing::debugConsoleExec(std::string input)
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
 		if (_universeBase.findNodeByID(id, node)) {
-			fdd pos;
+			fdd pos = node->getVelocity();
 			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.x = std::strtol(argument.c_str(), nullptr, 10);
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.x -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.x += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.x = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
 			}
 			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.y = std::strtol(argument.c_str(), nullptr, 10);
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.y -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.y += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.y = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
 			}
 			if (ss.tellg() != -1) {
 				ss >> argument;
-				pos.z = std::strtol(argument.c_str(), nullptr, 10);
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.z -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.z += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.z = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
 			}
 			node->setVelocity(pos);
 			node->physicsData.sleeping = false;
@@ -940,34 +1080,69 @@ void State::Playing::debugConsoleExec(std::string input)
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
 		if (_universeBase.findNodeByID(id, node)) {
-			velocity& vel = _enttRegistry.get<velocity>(_player);
 			position& pos = _enttRegistry.get<position>(_player);
-			vel.spd = node->getLocalVel(vel.spd, pos.parent);
+			if(_enttRegistry.has<velocity>(_player)){
+				velocity& vel = _enttRegistry.get<velocity>(_player);
+				vel.spd = node->getLocalVel(vel.spd, pos.parent);
+			}
 			pos.pos = node->getLocalPos(pos.pos, pos.parent);
 			pos.parent = node;
 			pos.parentID = node->getID();
 		}
 	}
 	else if (command == "tp") {
-		velocity& vel = _enttRegistry.get<velocity>(_player);
-		vel.spd = fdd();
+		if(_enttRegistry.has<velocity>(_player)){
+			velocity& vel = _enttRegistry.get<velocity>(_player);
+			vel.spd = fdd();
+		}
 		position& pos = _enttRegistry.get<position>(_player);
 		std::string argument;
 		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.x = std::strtol(argument.c_str(), nullptr, 10);
+			if(argument == "_")
+			{}
+			else if(argument[0] == '-'){
+				pos.pos.x -= std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
+			else if(argument[0] == '+'){
+				pos.pos.x += std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
+			else{
+				pos.pos.x = std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
 		}
 		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.y = std::strtol(argument.c_str(), nullptr, 10);
+			if(argument == "_")
+			{}
+			else if(argument[0] == '-'){
+				pos.pos.y -= std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
+			else if(argument[0] == '+'){
+				pos.pos.y += std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
+			else{
+				pos.pos.y = std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
 		}
 		if (ss.tellg() != -1) {
 			ss >> argument;
-			pos.pos.z = std::strtol(argument.c_str(), nullptr, 10);
+			if(argument == "_")
+			{}
+			else if(argument[0] == '-'){
+				pos.pos.z -= std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
+			else if(argument[0] == '+'){
+				pos.pos.z += std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
+			else{
+				pos.pos.z = std::strtol(&argument.c_str()[1], nullptr, 10);
+			}
 		}
 		else {
 			pos.pos.z = 1 + pos.parent->getHeight({ (int)pos.pos.x,(int)pos.pos.y });
 		}
+		pos.parent->updateChunks(pos.pos,999);
 	}
 	else if (command == "goto" && ss.tellg() != -1){
 		std::string argument;
@@ -978,6 +1153,15 @@ void State::Playing::debugConsoleExec(std::string input)
 		//_chunkLoaderMutex.lock();
 		//_universeBase.updateChunks(pos.pos,pos.parent);
 		//_chunkLoaderMutex.unlock();
+	}
+	else if (command == "fixNode" && ss.tellg() != -1){
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* node;
+		if (_universeBase.findNodeByID(id, node)) {
+			node->fix();
+		}
 	}
 	else if (command == "setNullBlock") { // Y THO
 		std::string argument;
