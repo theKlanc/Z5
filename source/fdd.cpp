@@ -26,6 +26,12 @@ fdd::fdd(rp3d::Vector3 v)
 	r = 0;
 }
 
+double fdd::angle(const fdd &r) const
+{
+	double d = dot(r);
+	return std::acos(d/(magnitude()*r.magnitude()));
+}
+
 fdd fdd::setMagnitude(double mag)
 {
 	*this *= (mag / magnitude());
@@ -54,7 +60,7 @@ double fdd::distance2D(const fdd& r) const
 	return sqrt(pow(r.x - x, 2) + pow(r.y - y, 2));
 }
 
-bool fdd::sameDirection(const fdd& r) const
+bool fdd::sameDirection(const fdd& r, double slackAngle) const
 {
 	fdd rNorm = r;
 	rNorm.setMagnitude(1);
@@ -63,7 +69,7 @@ bool fdd::sameDirection(const fdd& r) const
 	copy.setMagnitude(1);
 	fdd result = copy - rNorm;
 
-	return result.x < std::numeric_limits<double>::epsilon() && result.x > -std::numeric_limits<double>::epsilon() && result.y < std::numeric_limits<double>::epsilon() && result.y > -std::numeric_limits<double>::epsilon() && result.z < std::numeric_limits<double>::epsilon() && result.z > -std::numeric_limits<double>::epsilon();
+	return angle(r) < slackAngle;
 }
 
 bool fdd::operator==(const fdd& f)const

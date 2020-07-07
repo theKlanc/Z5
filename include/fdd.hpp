@@ -12,12 +12,13 @@ struct fdd { // Four DoF descriptor
 	fdd(double x=0, double y=0, double z=0, double r=0):x(x),y(y),z(z),r(r){}
 	fdd(const point3Di& p):x(p.x),y(p.y),z(p.z),r(0){}
 	fdd(rp3d::Vector3 v);
+	double angle(const fdd& r) const;
 	fdd setMagnitude(double mag);
 	fdd normalized() const;
 	double magnitude()const;
 	double distance(const fdd& r)const;
 	double distance2D(const fdd& r)const;
-	bool sameDirection(const fdd& r)const;
+	bool sameDirection(const fdd& r, double slackAngle = std::numeric_limits<double>::epsilon())const;
 	bool operator==(const fdd& f)const;
 	bool operator!=(const fdd& f)const;
 	fdd operator+(const fdd& f)const;

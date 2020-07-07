@@ -138,29 +138,9 @@ void State::Playing::input(double dt)
 	_enttRegistry.get<std::unique_ptr<brain>>(_player)->update(dt,down,up,held);
 }
 
-void State::Playing::update(double dt) {
-	if (_paused)
-		dt = 0;
-	if (_step)
-		dt = 1.0f / config::physicsHz;
-	//update enemies
-	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
-	for (auto entity : brainEntities) {
-		if(entity != _player)
-			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
-	}
-
-	//Update thrusters
-	for(auto& node : _universeBase){
-		node.updateThrusters(dt);
-	}
-
-	//TODO update nodes positions
-	_physicsEngine.updatePhysics(_universeBase, _enttRegistry, dt);
-
+void State::Playing::updateCamera()
+{
 	position& playerPosition = _enttRegistry.get<position>(_player);
-
-	//std::cout << std::fixed << std::setprecision(2) << "playerPos: " << std::setw(10) << playerPosition.pos.x << "x " << std::setw(10) << playerPosition.pos.y << "y " << std::setw(10) << playerPosition.pos.z << "z" << std::endl;
 
 	//Update camera to follow the player;
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
@@ -202,6 +182,29 @@ void State::Playing::update(double dt) {
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalRPos(cameraPosition.pos,cameraPosition.parent));
 	}
+}
+
+void State::Playing::update(double dt) {
+	if (_paused)
+		dt = 0;
+	if (_step)
+		dt = 1.0f / config::physicsHz;
+	//update enemies
+	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>>();
+	for (auto entity : brainEntities) {
+		if(entity != _player)
+			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
+	}
+
+	//Update thrusters
+	for(auto& node : _universeBase){
+		node.updateThrusters(dt);
+	}
+
+	//TODO update nodes positions
+	_physicsEngine.updatePhysics(_universeBase, _enttRegistry, dt);
+
+	updateCamera();
 }
 
 void State::Playing::draw(double dt) {

@@ -84,6 +84,7 @@ namespace State {
 
 		scene _uiScene;
 
-	};
+		void updateCamera();
+        };
 
 } // namespace State

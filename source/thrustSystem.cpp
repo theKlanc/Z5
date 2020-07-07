@@ -100,7 +100,7 @@ double thrustSystem::getFuel(const fuel *f, double kg)
 	return kg;
 }
 
-std::tuple<point3Dd, point3Dd> thrustSystem::getThrust(double dt)
+fdd thrustSystem::getThrust(double dt)
 {
 	//TODO rigidbody calculation
 	std::unordered_map<unsigned,double> massRequired;
@@ -122,15 +122,14 @@ std::tuple<point3Dd, point3Dd> thrustSystem::getThrust(double dt)
 	}
 
 	//TODO real rigidbody calculation
-	point3Dd totalThrust;
+	fdd totalThrust;
 	for(auto &t : _thrusters){
 		auto [thrust, position] = t->getThrustVector(t->getConsumption()*dt*fuelPercent[t->getFuelType()->ID],dt);
 		totalThrust+=thrust;
-
 	}
 
 	assert(!std::isnan(totalThrust.x));
-	return std::make_tuple(totalThrust,point3Dd());
+	return totalThrust;
 }
 
 void thrustSystem::setThrustTarget(point3Dd target)

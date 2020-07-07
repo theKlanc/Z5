@@ -633,6 +633,11 @@ universeNode *universeNode::calculateBestParent()
 	});
 }
 
+bool universeNode::isActive()
+{
+	return !physicsData.sleeping && !_inactive;
+}
+
 std::shared_ptr<universeNode> universeNode::removeChild(unsigned ID)
 {
 	auto iter = std::find_if(_children.begin(),_children.end(),[ID](std::shared_ptr<universeNode>& n){return ID == n->_ID;});
@@ -646,7 +651,7 @@ std::shared_ptr<universeNode> universeNode::removeChild(unsigned ID)
 
 void universeNode::updatePosition(double dt)
 {
-	if (!physicsData.sleeping)
+	if (isActive())
 	{
 		assert(!std::isnan(dt));
 		assert(!std::isnan(_velocity.x));
@@ -666,9 +671,9 @@ void universeNode::updatePosition(double dt)
 
 void universeNode::applyThrusters(double dt)
 {
-	auto [thrust, position] = _thrustSystem->getThrust(dt);
+	fdd thrust = _thrustSystem->getThrust(dt);
 	_velocity+=(thrust/_mass)*dt;
-	if(_velocity.magnitude()> 0.1)
+	if(thrust.magnitude()> 0.00001)
 		physicsData.sleeping=false;
 }
 

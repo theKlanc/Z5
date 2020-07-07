@@ -25,9 +25,10 @@ public:
 	double addFuel(const fuel* f, double kg); //Returns the remainder
 	double getFuel(const fuel* f, double kg); //Returns the remainder
 
-	std::tuple<point3Dd,point3Dd> getThrust(double dt);
+	fdd getThrust(double dt);
 
 	void setThrustTarget(point3Dd target = {});
+
 private:
 	std::unordered_map<unsigned,fuelTypeContainers> _containers;
 	std::vector<std::unique_ptr<thruster>> _thrusters;

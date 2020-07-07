@@ -67,6 +67,7 @@ public:
 	void addChild(std::shared_ptr<universeNode> u);
 	universeNode* calculateBestParent();
 
+	bool isActive();
 
 	std::shared_ptr<universeNode> removeChild(unsigned ID);
 	void updatePosition(double dt);
@@ -102,6 +103,9 @@ public:
 
 		fdd deltaPos;
 		int deltaSteps = 0;
+
+
+		unsigned ticksSinceContact = 999; // might be problematic on play sessions longer than 39768 hours
 		
 		friend class physicsEngine;
 		friend class universeNode;
@@ -161,6 +165,8 @@ private:
 	double _diameter; // diameter in m
 	fdd _position;
 	fdd _rposition;
+
+	bool _inactive = false; //if the node is too far but close to parent it'll get deactivated;
 
 	fdd _centerOfMass;
 	fdd _velocity;

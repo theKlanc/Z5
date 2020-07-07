@@ -101,7 +101,7 @@ rp3d::CollisionWorld* physicsEngine::getWorld() const
 void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr && !node.physicsData.sleeping && node.physicsData.deltaPos == 0)//potser haurem de tenir un acumulador de dt perdut
+		if (node.getParent() != nullptr && node.isActive() && node.physicsData.deltaPos == 0)//potser haurem de tenir un acumulador de dt perdut
 		{
 			node.setVelocity(node.getVelocity() + node.getParent()->getGravityAcceleration(node.getPosition() + node.getCenterOfMass(),node.getMass()) * dt);
 			assert(!std::isnan(node.getVelocity().x));
@@ -130,7 +130,7 @@ void physicsEngine::applyThrusters(universeNode &universeBase, double dt)
 void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr && !node.physicsData.sleeping)
+		if (node.getParent() != nullptr && node.isActive())
 		{
 			fdd pos = node.getCenterOfMass();
 			pos+=node.getPosition();
@@ -161,7 +161,7 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& registry, double dt)
 {
 	for (universeNode& node : universeBase) {
-		if (node.getParent() != nullptr && !node.physicsData.sleeping)
+		if (node.getParent() != nullptr && node.isActive())
 		{
 			fdd pos = node.getCenterOfMass();
 			pos+=node.getPosition();
@@ -283,13 +283,14 @@ void physicsEngine::testCollisionBetweenNodes(universeNode& left, universeNode& 
 void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 {
 	for (universeNode& node : universe) {
+		node.physicsData.ticksSinceContact++;
 		node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
 	}
 	for (universeNode& node : universe) {
 		node.physicsData.maxContactDepth = 0;
 		node.physicsData.contactNormal = rp3d::Vector3();
 
-		if (node.getParent() != nullptr && !node.physicsData.sleeping)
+		if (node.getParent() != nullptr && node.isActive())
 		{
 			auto oldParentTransform = node.getParent()->getNodeCollider()->getTransform();
 			node.getParent()->getNodeCollider()->setTransform(rp3d::Transform::identity());
@@ -307,7 +308,7 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 			{
 				if (*brotha != node)
 				{
-					if (true || !brotha->physicsData.sleeping || brotha->getID() < node.getID())
+					if (true || brotha->isActive() || brotha->getID() < node.getID())
 					{
 						//node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
 						//brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
@@ -463,6 +464,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 	{
 		if (node.physicsData.maxContactDepth == 0)
 			continue;
+		IC(node.getName(),node.physicsData.ticksSinceContact);
 		fdd oldSpeed = node.getVelocity();
 		fdd pos = node.getPosition();
 		fdd vel = node.getVelocity();
@@ -494,13 +496,13 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 		assert(!std::isnan(vel.x));
 		node.setPosition(pos);
 		node.setVelocity(vel);
-
-		if (vel.magnitude() < 0.1)
+		if (node.physicsData.ticksSinceContact == 1 && normal.sameDirection(node.getParent()->getGravityAcceleration(node.getPosition(),node.getMass()),0.1f*M_PI))
 		{
 			node.physicsData.sleeping = true;
 			node.setVelocity({});
 			std::cout << "putting " << node.getName() << " to sleep" << std::endl;
 		}
+		node.physicsData.ticksSinceContact = 0;
 	}
 }
 
@@ -671,7 +673,7 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 void physicsEngine::reparentizeNodes(universeNode &base)
 {
 	for(auto & child : base){
-		if(!child.physicsData.sleeping){
+		if(child.isActive()){
 			auto bestP = child.calculateBestParent();
 			if(bestP != child.getParent())// no need to check for nullptr, only Sgr A* should have nullptr parent and then bestP == child.getParent for Sgr A*
 			{
