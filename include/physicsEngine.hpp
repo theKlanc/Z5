@@ -6,6 +6,7 @@
 enum class physicsType
 {
 	ENTITY,
+	PROJECTILE,
 	NODE,
 };
 
@@ -53,7 +54,8 @@ private:
 	void solveEntityEntity(entt::registry& registry, double dt);
 	
 	void EntityEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
-	void NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo);
+	void EntityProjectileCallback(const CollisionCallbackInfo& collisionCallbackInfo);
+	void EntityNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo);
 	void NodeNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo);
 	std::unique_ptr<rp3d::CollisionWorld> _zaWarudo;
 

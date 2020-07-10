@@ -44,6 +44,18 @@ void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down
 				i->interact(_entity);
 			}
 		}
+		if(held[HI2::BUTTON::KEY_E]){
+			auto& entityVel = Services::enttRegistry->get<velocity>(_entity);
+			if(entityVel.spd.r > -2){
+				entityVel.spd.r -= dt;
+			}
+		}
+		if(held[HI2::BUTTON::KEY_Q]){
+			auto& entityVel = Services::enttRegistry->get<velocity>(_entity);
+			if(entityVel.spd.r < 2){
+				entityVel.spd.r += dt;
+			}
+		}
 		//if(held[HI2::BUTTON::KEY_P]){
 		//	auto& entityPos = Services::enttRegistry->get<position>(_entity);
 		//	entityPos.parent->setBlock(metaBlock{&baseBlock::terrainTable[20]},entityPos.pos.getPoint3Di()+point3Di{0,-2,0});

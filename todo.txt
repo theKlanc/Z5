@@ -55,9 +55,9 @@ XX rotacions de layers
 
 #fake AO
 #extrapolation
-fix node sleeping
+#fix node sleeping
 #aplicar el reparentitzat a entitats
-dormir entitats quan calgui
+#dormir entitats quan calgui
 #descarregar i diferenciar entre entitats permanents
 
 prefab editor overhaul

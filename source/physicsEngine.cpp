@@ -8,8 +8,9 @@
 #include "components/velocity.hpp"
 #include "components/body.hpp"
 #include "components/position.hpp"
-#include "icecream.hpp"
+#include "components/projectile.hpp"
 
+#include "icecream.hpp"
 
 physicsEngine::physicsEngine()
 {
@@ -75,11 +76,15 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 
 void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallbackInfo)
 {
-	if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type)
+	physicsType leftType = ((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type;
+	physicsType rightType = ((collidedResponse*)collisionCallbackInfo.body2->getUserData())->type;
+
+
+	if (leftType == physicsType::NODE)
 	{
-		if (((collidedResponse*)collisionCallbackInfo.body1->getUserData())->type == physicsType::ENTITY)
+		if (rightType == physicsType::ENTITY || rightType == physicsType::PROJECTILE)
 		{
-			EntityEntityCallback(collisionCallbackInfo);
+			EntityNodeCallback(collisionCallbackInfo);
 		}
 		else
 		{
@@ -88,7 +93,15 @@ void physicsEngine::notifyContact(const CollisionCallbackInfo& collisionCallback
 	}
 	else
 	{
-		NodeEntityCallback(collisionCallbackInfo);
+		if(rightType == physicsType::PROJECTILE){
+			EntityProjectileCallback(collisionCallbackInfo);
+		}
+		else if(rightType == physicsType::NODE){
+			EntityNodeCallback(collisionCallbackInfo);
+		}
+		else{
+			EntityEntityCallback(collisionCallbackInfo);
+		}
 	}
 
 }
@@ -217,6 +230,12 @@ void physicsEngine::applyVelocity(universeNode& universeBase, entt::registry& re
 		pos.pos.r -= floor(pos.pos.r / (2 * M_PI)) * 2 * M_PI;
 		if (std::isnan(pos.pos.r))
 			pos.pos.r = 0;
+		if(registry.has<projectile>(entity)){
+			fdd mock = {vel.spd.x,vel.spd.y,0,0};
+			pos.pos.r = mock.angle({1,0,0,0});
+			if(vel.spd.y > 0)
+				pos.pos.r *=-1;
+		}
 	}
 }
 
@@ -508,9 +527,12 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 {
 	auto bodyEntitiesView = registry.view<body,entt::tag<"ACTIVE"_hs>>();
-	for (const entt::entity& left : bodyEntitiesView) { //Update entities' positions
+	auto nonProjectiles = registry.view<body,entt::tag<"ACTIVE"_hs>>(entt::exclude<projectile>);
+
+	for (const entt::entity& left : nonProjectiles) { //Update entities' positions
 		for (const entt::entity& right : bodyEntitiesView) { //Update entities' positions
-			if (left > right)
+			bool rightProjectile = registry.has<projectile>(right);
+			if (rightProjectile || left > right)
 			{
 				position pL = registry.get<position>(left);
 				position pR = registry.get<position>(right);
@@ -536,7 +558,7 @@ void physicsEngine::detectEntityEntity(entt::registry& registry, double dt)
 				rightBody.physicsData.collider->setTransform(rightTransform);
 
 				collidedResponse cResponse2;
-				cResponse2.type = physicsType::ENTITY;
+				cResponse2.type = rightProjectile? physicsType::PROJECTILE : physicsType::ENTITY;
 				cResponse2.body.entity = right;
 
 				rightBody.physicsData.collider->setUserData(&cResponse2);
@@ -580,23 +602,41 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
 }
 
-void physicsEngine::NodeEntityCallback(const CollisionCallbackInfo& collisionCallbackInfo)
+void physicsEngine::EntityProjectileCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
+	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
+	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
+	auto& positionLeft = Services::enttRegistry->get<position>(leftEntity);
+
+
+	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
+	auto& velRight = Services::enttRegistry->get<velocity>(rightEntity);//falta passar posicio i velocitat de right al marc de referencia de left, i desfer al final
+	auto positionRight = Services::enttRegistry->get<position>(rightEntity);
+	positionLeft.pos = positionRight.parent->getLocalPos(positionLeft.pos, positionLeft.parent);
+
+	velLeft.spd = positionRight.parent->getLocalVel(velLeft.spd, positionLeft.parent);
+	positionLeft.parent = positionRight.parent;
+
+	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * _solverStep)).distance(positionRight.pos + (velRight.spd * _solverStep)))//s allunyaven
+	{
+		return;
+	}
+	auto& bodyLeft = Services::enttRegistry->get<body>(leftEntity);
+	double leftMass = bodyLeft.mass;
+	auto& bodyRight = Services::enttRegistry->get<body>(rightEntity);
+	double rightMass = bodyRight.mass;
+	fdd oldRightVel = velRight.spd;
+	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass)) * 0.95;
+	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
+}
+
+void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
+{//MUST ALWAYS BE ENTITY  -  NODE IN THAT ORDER
 	//std::cout << "Node-Entity collision" << std::endl;
 	universeNode* oldParent;
-	entt::entity entity;
-	universeNode* node;
-	rp3d::CollisionBody* entityCollisionBody;
-	if (((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->type == physicsType::ENTITY) { // BODY1 �s l entity
-		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
-		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
-	}
-	else
-	{
-		entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2();
-		node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.node;
-	}
-	entity = ((collidedResponse*)entityCollisionBody->getUserData())->body.entity;
+	rp3d::CollisionBody* entityCollisionBody = collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1();
+	universeNode* node = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.node;
+	entt::entity entity = ((collidedResponse*)entityCollisionBody->getUserData())->body.entity;
 
 	position& pos = Services::enttRegistry->get<position>(entity);
 	body& entityBody = Services::enttRegistry->get<body>(entity);

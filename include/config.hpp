@@ -11,6 +11,7 @@ namespace config {
 	                                = 14;
 #endif
 
+	extern bool render;
 	constexpr int chunkloadSphereRadius = 6;
 	constexpr int chunkSize = 8;
 	extern int cameraDepth;

@@ -9,6 +9,7 @@ double config::zoom =
 	                            2;
 #endif
 
+bool config::render = true;
 bool config::extrapolateRenderPositions = true;
 bool config::AOEnabled = true;
 bool config::gravityEnabled = true;

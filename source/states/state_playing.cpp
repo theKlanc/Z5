@@ -23,6 +23,9 @@
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "components/brain.hpp"
 #include "UI/customGadgets/starmap.hpp"
+#include "components/health.hpp"
+#include "components/projectile.hpp"
+
 #include <memory>
 #include "fuel.hpp"
 #include "icecream.hpp"
@@ -149,6 +152,7 @@ void State::Playing::updateCamera()
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos = playerPosition.getRPos();
+	cameraPosition.pos.r = 0;
 	cameraPosition.pos.z += 0.01;
 	std::vector<universeNode*> cameraCollisionNodes;
 
@@ -193,6 +197,17 @@ void State::Playing::update(double dt) {
 	for (auto entity : brainEntities) {
 		if(entity != _player)
 			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
+	}
+
+	auto healthEntities = _enttRegistry.view<health>();
+	for(auto entity	 : healthEntities){
+		health h = _enttRegistry.get<health>(entity);
+		if(!h.alive()){
+			if(entity == _player)
+				_player = _camera;
+			else
+				_enttRegistry.destroy(entity);
+		}
 	}
 
 	//Update thrusters
@@ -255,58 +270,61 @@ void State::Playing::draw(double dt) {
 	bool interactableInRange = playerPos.parent->getClosestInteractable(playerPos.pos) != nullptr;
 	point3Di iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
 
-	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));{
-		position cameraPos = _enttRegistry.get<position>(_camera);
-		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
-		for (universeNode*& node : sortedDrawingNodes) {
-			std::vector<bool> visibility(((int)(HI2::getScreenWidth() / config::spriteSize)) * ((int)(HI2::getScreenHeight() / config::spriteSize)), true);
-			for (int i = 0; i <= config::cameraDepth; ++i) {//for depth afegim cada capa dels DrawingNodes
-				position currentCameraPos = cameraPos;
-				currentCameraPos.pos.z -= i;
-				//obtenir posicio de la camera al node
-				fdd localCameraPos = node->getLocalRPos(currentCameraPos.pos, currentCameraPos.parent);
-				//obtenir profunditat
-				int layer = floor(localCameraPos.z);
+	HI2::startFrame();
+	if(config::render){
+		std::vector<renderLayer> renderOrders;
+		HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
+		{
+			position cameraPos = _enttRegistry.get<position>(_camera);
+			std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
+			for (universeNode*& node : sortedDrawingNodes) {
+				std::vector<bool> visibility(((int)(HI2::getScreenWidth() / config::spriteSize)) * ((int)(HI2::getScreenHeight() / config::spriteSize)), true);
+				for (int i = 0; i <= config::cameraDepth; ++i) {//for depth afegim cada capa dels DrawingNodes
+					position currentCameraPos = cameraPos;
+					currentCameraPos.pos.z -= i;
+					//obtenir posicio de la camera al node
+					fdd localCameraPos = node->getLocalRPos(currentCameraPos.pos, currentCameraPos.parent);
+					//obtenir profunditat
+					int layer = floor(localCameraPos.z);
 
-				double partFraccional = fmod(localCameraPos.z, 1);
-				if(partFraccional < 0)
-					partFraccional+=1;
-				double depth = i + partFraccional - 1;
+					double partFraccional = fmod(localCameraPos.z, 1);
+					if(partFraccional < 0)
+						partFraccional+=1;
+					double depth = i + partFraccional - 1;
 
-				if(depth < 0.2)
-					continue;
-				depth +=0.5;
-				nodeLayer nLayer = generateNodeLayer(node, depth, localCameraPos);
-				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
+					if(depth < 0.2)
+						continue;
+					depth +=0.5;
+					nodeLayer nLayer = generateNodeLayer(node, depth, localCameraPos);
+					renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
 
-				if(interactableInRange && node == playerPos.parent && iblePos.z == layer){
-					renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(iblePos)});
+					if(interactableInRange && node == playerPos.parent && iblePos.z == layer){
+						renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(iblePos)});
+					}
 				}
 			}
-		}
 
-		auto drawableEntityView = _enttRegistry.view<drawable, position>();
-		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
-			auto& pos = drawableEntityView.get<position>(entity);
-			double depth = cameraPos.pos.z - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent).z;
-			if (_enttRegistry.has<body>(entity))
-			{
-				depth -= _enttRegistry.get<body>(entity).height;
+			auto drawableEntityView = _enttRegistry.view<drawable, position>();
+			for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
+				auto& pos = drawableEntityView.get<position>(entity);
+				double depth = cameraPos.pos.z - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent).z;
+				if (_enttRegistry.has<body>(entity))
+				{
+					depth -= _enttRegistry.get<body>(entity).height;
+				}
+				if (depth > 0 && depth < config::cameraDepth)
+					renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
 			}
-			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
+
 		}
+		//ordenem per profunditat
+		std::sort(renderOrders.begin(), renderOrders.end(), [](renderLayer& l, renderLayer& r) {
+			return l.depth > r.depth;
+		});
 
-	}
-	//ordenem per profunditat
-	std::sort(renderOrders.begin(), renderOrders.end(), [](renderLayer& l, renderLayer& r) {
-		return l.depth > r.depth;
-	});
-
-	HI2::startFrame();
-	for (renderLayer& rl : renderOrders) {
-		drawLayer(rl);
+		for (renderLayer& rl : renderOrders) {
+			drawLayer(rl);
+		}
 	}
 	if (baseBlock::terrainTable[selectedBlock].visible)
 	{
@@ -360,7 +378,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				if (config::drawDepthShadows) {
 					HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 				}
-				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r, HI2::FLIP::NONE);
+				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, -localPos.r, HI2::FLIP::NONE);
 				//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 			}
 		}
@@ -862,6 +880,9 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "activateallentities" << std::endl;
 		std::cout << "listEntities" << std::endl;
 		std::cout << "controlEntity ID" << std::endl;
+		std::cout << "shoot {N}" << std::endl;
+		std::cout << "render" << std::endl;
+
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
@@ -1195,6 +1216,80 @@ void State::Playing::debugConsoleExec(std::string input)
 	}
 	else if (command == "extrapolation") {
 		config::extrapolateRenderPositions = !config::extrapolateRenderPositions;
+	}
+	else if (command == "shoot"){
+		int n = 1;
+		if (ss.tellg() != -1) {
+			std::string argument;
+			ss >> argument;
+			n = std::strtol(argument.c_str(), nullptr, 10);
+		}
+		for(int i = 0; i < n;++i){
+			auto bullet = _enttRegistry.create();
+			//eqebody
+			{
+				body& bulletBody = _enttRegistry.emplace<body>(bullet);
+				bulletBody.mass = 0.1;
+				bulletBody.width = 0.5;
+				bulletBody.height = 0.5;
+				bulletBody.volume = 0.0001;
+				bulletBody.elasticity = 0.5;
+
+				// Initial position and orientation of the collision body
+				rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform transform(initPosition, initOrientation);
+
+				bulletBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+				collidedResponse* playerResponse = new collidedResponse();
+				playerResponse->type = physicsType::ENTITY;
+				playerResponse->body.entity = _player;
+				bulletBody.physicsData.collider->setUserData((void*)playerResponse);
+				initPosition = rp3d::Vector3(0, 0, bulletBody.width / 2);
+				transform.setPosition(initPosition);
+				bulletBody.physicsData._collisionShape = new rp3d::SphereShape(bulletBody.width / 2);
+				bulletBody.physicsData.collider->addCollisionShape(bulletBody.physicsData._collisionShape, transform);
+			}
+			//projectile
+			{
+				projectile& p = _enttRegistry.emplace<projectile>(bullet);
+				p._damage = 5;
+			}
+			//position
+			{
+				position& pos = _enttRegistry.emplace<position>(bullet);
+				pos = _enttRegistry.get<position>(_player);
+				point2Dd displacement = point2Dd::fromDirection(pos.pos.r+0.5*M_PI,1);
+				pos.pos += fdd{displacement.x,displacement.y,0.5,0.5*M_PI};
+			}
+			//velocity
+			{
+				velocity& vel = _enttRegistry.emplace<velocity>(bullet);
+
+				point2Dd displacement = point2Dd::fromDirection(_enttRegistry.get<position>(_player).pos.r+0.5*M_PI,1);
+				vel = _enttRegistry.get<velocity>(_player);
+				vel.spd.r = 0;
+				vel.spd += fdd{displacement.x*3,displacement.y*3,0,0};
+			}
+			//drawable
+			{
+				auto& bulletSprite = _enttRegistry.emplace<drawable>(bullet);
+				std::vector<frame> dogFrames;
+				if (Services::graphics.isSpriteLoaded("bullet")) {
+					bulletSprite.spr = Services::graphics.getSprite("bullet");
+				}
+				else {
+					std::vector<frame> bulletFrames;
+					bulletFrames.push_back({ {336,32},{16,16} });
+					bulletSprite.spr = Services::graphics.loadSprite("bullet", "spritesheet", bulletFrames);
+					bulletSprite.spr = Services::graphics.loadSprite("bullet");
+				}
+				bulletSprite.name = "bullet";
+			}
+		}
+	}
+	else if(command == "render"){
+		config::render = !config::render;
 	}
 
 	std::cout << input << std::endl;

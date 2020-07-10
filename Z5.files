@@ -257,6 +257,7 @@ include/components/body.hpp
 include/components/brain.hpp
 include/components/drawable.hpp
 include/components/drawable.hpp
+include/components/health.hpp
 include/components/name.hpp
 include/components/name.hpp
 include/components/position.hpp
@@ -264,6 +265,7 @@ include/components/position.hpp
 include/components/position.hpp
 include/components/position.hpp
 include/components/position.hpp
+include/components/projectile.hpp
 include/components/velocity.hpp
 include/components/velocity.hpp
 include/config.hpp
@@ -380,6 +382,7 @@ include/utils.hpp
 include/worldNode.hpp
 include/worldNode.hpp
 linux.mk
+linuxclang.mk
 main.cpp
 notes.txt
 source/UI/customGadgets/fddViewer.cpp
@@ -417,8 +420,10 @@ source/components/astronautBrain.cpp
 source/components/body_.cpp
 source/components/brain.cpp
 source/components/drawable.cpp
+source/components/health.cpp
 source/components/name.cpp
 source/components/position.cpp
+source/components/projectile.cpp
 source/components/velocity.cpp
 source/config.cpp
 source/config.cpp
