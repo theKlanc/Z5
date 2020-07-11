@@ -9,6 +9,7 @@
 #include "components/body.hpp"
 #include "components/position.hpp"
 #include "components/projectile.hpp"
+#include "observer.hpp"
 
 #include "icecream.hpp"
 
@@ -481,7 +482,7 @@ void physicsEngine::solveNodeNode(universeNode& universe, double dt)
 	{
 		if (node.physicsData.maxContactDepth == 0)
 			continue;
-		IC(node.getName(),node.physicsData.ticksSinceContact);
+		//IC(node.getName(),node.physicsData.ticksSinceContact);
 		fdd oldSpeed = node.getVelocity();
 		fdd pos = node.getPosition();
 		fdd vel = node.getVelocity();
@@ -597,14 +598,48 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 	double leftMass = bodyLeft.mass;
 	auto& bodyRight = Services::enttRegistry->get<body>(rightEntity);
 	double rightMass = bodyRight.mass;
+
+	{
+		double maxDepth = 0;
+		fdd normal;
+		auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
+		while (contactManifold != nullptr)
+		{
+			auto contactPoint = contactManifold->getContactPoints();
+			while (contactPoint != nullptr)
+			{
+				if (maxDepth < contactPoint->getPenetrationDepth())
+				{
+					maxDepth = contactPoint->getPenetrationDepth();
+					normal = contactPoint->getNormal();
+				}
+				contactPoint = contactPoint->getNext();
+			}
+			contactManifold = contactManifold->getNext();
+		}
+		auto v1 = normal.project(velLeft.spd).magnitude();
+		auto v2 = normal.project(velRight.spd).magnitude();
+
+		observer::sendEvent(eventType::COLLISION_EE,std::tuple<entt::entity,entt::entity, double>(leftEntity,rightEntity,v1 + v2));
+	}
+
 	fdd oldRightVel = velRight.spd;
 	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass)) * 0.95;
-	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
+	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;	
 }
 
 void physicsEngine::EntityProjectileCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
+	auto b1 = (collidedResponse*)collisionCallbackInfo.body1->getUserData();
+	auto b2 = (collidedResponse*)collisionCallbackInfo.body2->getUserData();
 
+	auto entity = b1->body.entity;
+	auto proj   = b2->body.entity;
+
+	if(Services::enttRegistry->has<projectile>(entity))
+		std::swap(entity,proj);
+
+	observer::sendEvent(eventType::PROJECTILEHIT,std::tuple<entt::entity,entt::entity, double>(entity,proj,0));
 }
 
 void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
@@ -616,6 +651,7 @@ void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCal
 	entt::entity entity = ((collidedResponse*)entityCollisionBody->getUserData())->body.entity;
 
 	position& pos = Services::enttRegistry->get<position>(entity);
+
 	body& entityBody = Services::enttRegistry->get<body>(entity);
 	auto contactManifold = collisionCallbackInfo.contactManifoldElements->getContactManifold();
 	while (contactManifold != nullptr)
@@ -639,6 +675,12 @@ void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCal
 
 				entityBody.physicsData.maxContactDepth = contactPoint->getPenetrationDepth();
 				entityBody.physicsData.contactNormal = contactPoint->getNormal();
+
+
+				velocity& vel = Services::enttRegistry->get<velocity>(entity);
+				fdd normal(contactPoint->getNormal());
+				observer::sendEvent(eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>(node,entity,normal.project(vel.spd).magnitude()));
+
 			}
 			contactPoint = contactPoint->getNext();
 		}
@@ -684,6 +726,8 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 		}
 		contactManifold = contactManifold->getNext();
 	}
+
+	observer::sendEvent(eventType::COLLISION_NN,std::tuple<universeNode*, universeNode*, double>(fatNode,slimNode,0));
 }
 
 void physicsEngine::reparentizeNodes(universeNode &base)

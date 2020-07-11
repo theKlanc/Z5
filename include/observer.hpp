@@ -42,10 +42,10 @@ constexpr std::array<size_t,(size_t)eventType::_SIZE> _eventLUT = _observertypet
 
 class observer {
 public:
-	void registerObserver(eventType t, std::function<void()> f, void* owner);
-	void deleteObserver(eventType t, void* owner);
-	void sendEvent(eventType t, eventArgs args);
+	static void registerObserver(eventType t, std::function<void(eventArgs args)> f, void* owner);
+	static void deleteObserver(eventType t, void* owner);
+	static void sendEvent(eventType t, eventArgs args);
 
 private:
-	std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(int)eventType::_SIZE> _subscribers;
+	static std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(int)eventType::_SIZE> _subscribers;
 };

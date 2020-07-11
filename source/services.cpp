@@ -11,5 +11,3 @@ audioManager Services::audio;
 colliderManager Services::colliders;
 
 std::minstd_rand Services::lcg;
-
-observer Services::obsvr;

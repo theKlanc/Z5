@@ -1,6 +1,8 @@
 #include "observer.hpp"
 
-void observer::registerObserver(eventType t, std::function<void ()> f, void *owner)
+std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(int)eventType::_SIZE> observer::_subscribers;
+
+void observer::registerObserver(eventType t, std::function<void(eventArgs args)> f, void *owner)
 {
 	if(!_subscribers[(unsigned)t].contains(owner))
 		_subscribers[(unsigned)t].emplace(owner,f);
