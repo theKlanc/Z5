@@ -620,7 +620,7 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 		auto v1 = normal.project(velLeft.spd).magnitude();
 		auto v2 = normal.project(velRight.spd).magnitude();
 
-		observer::sendEvent(eventType::COLLISION_EE,std::tuple<entt::entity,entt::entity, double>(leftEntity,rightEntity,v1 + v2));
+		observer::sendEvent<eventType::COLLISION_EE,std::tuple<entt::entity,entt::entity, double>>(std::tuple<entt::entity,entt::entity, double>(leftEntity,rightEntity,v1 + v2));
 	}
 
 	fdd oldRightVel = velRight.spd;
@@ -639,7 +639,7 @@ void physicsEngine::EntityProjectileCallback(const CollisionCallbackInfo& collis
 	if(Services::enttRegistry->has<projectile>(entity))
 		std::swap(entity,proj);
 
-	observer::sendEvent(eventType::PROJECTILEHIT,std::tuple<entt::entity,entt::entity, double>(entity,proj,0));
+	observer::sendEvent<eventType::PROJECTILEHIT,std::tuple<entt::entity,entt::entity, double>>(std::tuple<entt::entity,entt::entity, double>(entity,proj,0));
 }
 
 void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)
@@ -679,7 +679,7 @@ void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCal
 
 				velocity& vel = Services::enttRegistry->get<velocity>(entity);
 				fdd normal(contactPoint->getNormal());
-				observer::sendEvent(eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>(node,entity,normal.project(vel.spd).magnitude()));
+				observer::sendEvent<eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>>(std::tuple<universeNode*,entt::entity, double>(node,entity,normal.project(vel.spd).magnitude()));
 
 			}
 			contactPoint = contactPoint->getNext();
@@ -727,7 +727,7 @@ void physicsEngine::NodeNodeCallback(const CollisionCallbackInfo& collisionCallb
 		contactManifold = contactManifold->getNext();
 	}
 
-	observer::sendEvent(eventType::COLLISION_NN,std::tuple<universeNode*, universeNode*, double>(fatNode,slimNode,0));
+	observer::sendEvent<eventType::COLLISION_NN,std::tuple<universeNode*, universeNode*, double>>(std::tuple<universeNode*, universeNode*, double>(fatNode,slimNode,0));
 }
 
 void physicsEngine::reparentizeNodes(universeNode &base)

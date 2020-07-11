@@ -44,7 +44,15 @@ class observer {
 public:
 	static void registerObserver(eventType t, std::function<void(eventArgs args)> f, void* owner);
 	static void deleteObserver(eventType t, void* owner);
-	static void sendEvent(eventType t, eventArgs args);
+
+	template <eventType E,typename T>
+	static void sendEvent(T args)
+	{
+		static_assert(eventArgs(T()).index()==_eventLUT[(unsigned)E]);
+		for(auto& sub : _subscribers[(unsigned)E]){
+			sub.second(eventArgs(args));
+		}
+	}
 
 private:
 	static std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(int)eventType::_SIZE> _subscribers;
