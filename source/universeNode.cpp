@@ -115,11 +115,11 @@ bool universeNode::calculateEntityActivity(fdd pos, bool oldValue)
 {
 	if(pos.magnitude() < _diameter + 400){
 		//si estem dins el planeta
-		if(pos.distance(*_CL_cameraPosition)/config::chunkSize + 2 >= config::chunkloadSphereRadius)
+		if(pos.distance(*_CL_cameraPosition) >= (config::chunkloadSphereRadius-2)*config::chunkSize)
 		{
 			return false; //si estem lluny de la camera -> dormir
 		}
-		else if(pos.distance(*_CL_cameraPosition)/config::chunkSize + 1 <= config::chunkloadSphereRadius / 2)
+		else if(pos.distance(*_CL_cameraPosition) <= (config::chunkloadSphereRadius / 2 - 1)*config::chunkSize)
 		{
 			return true; //si estem a prop de la camera -> despertar
 		}

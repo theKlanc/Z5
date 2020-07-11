@@ -604,30 +604,7 @@ void physicsEngine::EntityEntityCallback(const CollisionCallbackInfo& collisionC
 
 void physicsEngine::EntityProjectileCallback(const CollisionCallbackInfo& collisionCallbackInfo) // solve collision between two entities in t
 {
-	entt::entity leftEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody1()->getUserData())->body.entity;
-	auto& velLeft = Services::enttRegistry->get<velocity>(leftEntity);
-	auto& positionLeft = Services::enttRegistry->get<position>(leftEntity);
 
-
-	entt::entity rightEntity = ((collidedResponse*)collisionCallbackInfo.contactManifoldElements->getContactManifold()->getBody2()->getUserData())->body.entity;
-	auto& velRight = Services::enttRegistry->get<velocity>(rightEntity);//falta passar posicio i velocitat de right al marc de referencia de left, i desfer al final
-	auto positionRight = Services::enttRegistry->get<position>(rightEntity);
-	positionLeft.pos = positionRight.parent->getLocalPos(positionLeft.pos, positionLeft.parent);
-
-	velLeft.spd = positionRight.parent->getLocalVel(velLeft.spd, positionLeft.parent);
-	positionLeft.parent = positionRight.parent;
-
-	if (positionLeft.pos.distance(positionRight.pos) < (positionLeft.pos + (velLeft.spd * _solverStep)).distance(positionRight.pos + (velRight.spd * _solverStep)))//s allunyaven
-	{
-		return;
-	}
-	auto& bodyLeft = Services::enttRegistry->get<body>(leftEntity);
-	double leftMass = bodyLeft.mass;
-	auto& bodyRight = Services::enttRegistry->get<body>(rightEntity);
-	double rightMass = bodyRight.mass;
-	fdd oldRightVel = velRight.spd;
-	velRight.spd = (((velLeft.spd * 2 * leftMass) - (velRight.spd * leftMass) + (velRight.spd * rightMass)) / (leftMass + rightMass)) * 0.95;
-	velLeft.spd = (oldRightVel + velRight.spd - velLeft.spd) * 0.95;
 }
 
 void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCallbackInfo)

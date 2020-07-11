@@ -321,6 +321,7 @@ include/nodeGenerators/spaceStationGenerator.hpp
 include/nodeGenerators/spaceshipGenerator.hpp
 include/nodeGenerators/starGenerator.hpp
 include/nodeGenerators/terrainPainterGenerator.hpp
+include/observer.hpp
 include/physicsEngine.hpp
 include/prefab.hpp
 include/services.hpp
@@ -490,6 +491,7 @@ source/nodeGenerators/spaceStationGenerator.cpp
 source/nodeGenerators/spaceshipGenerator.cpp
 source/nodeGenerators/starGenerator.cpp
 source/nodeGenerators/terrainPainterGenerator.cpp
+source/observer.cpp
 source/physicsEngine.cpp
 source/prefab.cpp
 source/services.cpp

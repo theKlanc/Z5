@@ -8,6 +8,7 @@
 #include "fontManager.hpp"
 #include "audioManager.hpp"
 #include "colliderManager.hpp"
+#include "observer.hpp"
 
 struct Services
 {
@@ -21,4 +22,5 @@ struct Services
 	static std::minstd_rand lcg;
 
 	static colliderManager colliders;
+	static observer obsvr;
 };
