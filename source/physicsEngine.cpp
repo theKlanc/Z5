@@ -458,6 +458,9 @@ void physicsEngine::solveNodeEntity(universeNode& universeBase, entt::registry& 
 			fdd projectedFriction = normal.project(vel.spd);
 			projectedFriction *= (1 - bdy.elasticity);
 
+			if(!bdy.applyPhysics)
+				projectedFriction = fdd();
+
 			result.x += projectedFriction.x;
 			result.y += projectedFriction.y;
 			result.z += projectedFriction.z;
@@ -681,11 +684,14 @@ void physicsEngine::EntityNodeCallback(const CollisionCallbackInfo& collisionCal
 				entityBody.physicsData.maxContactDepth = contactPoint->getPenetrationDepth();
 				entityBody.physicsData.contactNormal = contactPoint->getNormal();
 
-
-				velocity& vel = Services::enttRegistry->get<velocity>(entity);
-				fdd normal(contactPoint->getNormal());
-				observer::sendEvent<eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>>(std::tuple<universeNode*,entt::entity, double>(node,entity,normal.project(vel.spd).magnitude()));
-
+				if(Services::enttRegistry->has<projectile>(entity)){
+					observer::sendEvent<eventType::PROJECTILEBOUNCE,entt::entity>(entity);
+				}
+				else{
+					velocity& vel = Services::enttRegistry->get<velocity>(entity);
+					fdd normal(contactPoint->getNormal());
+					observer::sendEvent<eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>>(std::tuple<universeNode*,entt::entity, double>(node,entity,normal.project(vel.spd).magnitude()));
+				}
 			}
 			contactPoint = contactPoint->getNext();
 		}

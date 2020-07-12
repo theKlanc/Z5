@@ -29,6 +29,7 @@
 #include <memory>
 #include "fuel.hpp"
 #include "icecream.hpp"
+#include "systems.hpp"
 
 #include <functional>
 
@@ -41,7 +42,8 @@ State::Playing::~Playing() {
 }
 
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
-	observer::registerObserver(eventType::PROJECTILEHIT,std::bind(&State::Playing::projectileDamageCallback,this,std::placeholders::_1),this);
+	observer::registerObserver(eventType::PROJECTILEHIT,systems::projectileDamage,this);
+	observer::registerObserver(eventType::PROJECTILEBOUNCE,systems::projectileBounce,this);
 
 	_debug = debug;
 
@@ -196,6 +198,7 @@ void State::Playing::update(double dt) {
 		dt = 0;
 	if (_step)
 		dt = 1.0f / config::physicsHz;
+
 	//update enemies
 	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>,entt::tag<"ACTIVE"_hs>>();
 	for (auto entity : brainEntities) {
@@ -256,6 +259,8 @@ void State::Playing::update(double dt) {
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalRPos(cameraPos.pos,cameraPos.parent));
 	}
+
+	observer::processQueue();
 }
 
 void State::Playing::draw(double dt) {
@@ -850,23 +855,6 @@ void State::Playing::fixEntities()
 	}
 }
 
-void State::Playing::projectileDamageCallback(eventArgs args)
-{
-	auto [entity, proj, ms] = std::get<std::tuple<entt::entity, entt::entity, double>>(args);
-	if(!_enttRegistry.has<health>(entity))
-		return;
-	auto& hlth = _enttRegistry.get<health>(entity);
-	auto& prj = _enttRegistry.get<projectile>(proj);
-
-	if(prj.lastCollision.has_value() && *prj.lastCollision == entity)
-		return;
-	hlth.damage(prj._damage);
-	prj.lastCollision = entity;
-	prj._remainingPenetration--;
-	if(prj._remainingPenetration < 0)
-		_enttRegistry.destroy(proj);
-}
-
 std::filesystem::path State::Playing::_savePath;
 
 std::filesystem::path State::Playing::savePath() {
@@ -1276,7 +1264,7 @@ void State::Playing::debugConsoleExec(std::string input)
 			//projectile
 			{
 				projectile& p = _enttRegistry.emplace<projectile>(bullet);
-				p._damage = 5;
+				p._damage = 2;
 				p._remainingPenetration = 0;
 				//p.lastCollision = _player;
 			}
@@ -1284,14 +1272,14 @@ void State::Playing::debugConsoleExec(std::string input)
 			{
 				position& pos = _enttRegistry.emplace<position>(bullet);
 				pos = _enttRegistry.get<position>(_player);
-				point2Dd displacement = point2Dd::fromDirection(pos.pos.r+0.5*M_PI,1);
+				point2Dd displacement = point2Dd::fromDirection(-pos.pos.r+0.5*M_PI + M_PI,1);
 				pos.pos += fdd{displacement.x,displacement.y,0.5,0.5*M_PI};
 			}
 			//velocity
 			{
 				velocity& vel = _enttRegistry.emplace<velocity>(bullet);
 
-				point2Dd displacement = point2Dd::fromDirection(_enttRegistry.get<position>(_player).pos.r+0.5*M_PI,1);
+				point2Dd displacement = point2Dd::fromDirection(-_enttRegistry.get<position>(_player).pos.r+0.5*M_PI + M_PI,1);
 				vel = _enttRegistry.get<velocity>(_player);
 				vel.spd.r = 0;
 				vel.spd += fdd{displacement.x*3,displacement.y*3,0,0};

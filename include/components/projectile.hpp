@@ -8,7 +8,7 @@ struct projectile
 
 	unsigned _damage = 5;
 	int _remainingPenetration = 0;
-	int remainingBounces = 1;
+	int _remainingBounces = 1;
 
 	std::optional<entt::entity> lastCollision;
 };

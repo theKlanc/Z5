@@ -11,7 +11,8 @@
 using eventArgs = std::variant<
 	std::tuple<entt::entity, entt::entity, double>, //e, e, m/s
 	std::tuple<universeNode*, entt::entity, double>,
-	std::tuple<universeNode*, universeNode*, double>
+	std::tuple<universeNode*, universeNode*, double>,
+	entt::entity
 >;
 
 enum class eventType{
@@ -19,6 +20,7 @@ enum class eventType{
 	COLLISION_NE,
 	COLLISION_NN,
 	PROJECTILEHIT,
+	PROJECTILEBOUNCE,
 	_SIZE,
 };
 
@@ -36,24 +38,27 @@ constexpr std::array<size_t,(unsigned)eventType::_SIZE> _eventLUT = _observertyp
 	std::make_pair(eventType::COLLISION_EE,std::tuple<entt::entity,entt::entity, double>()),
 	std::make_pair(eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>()),
 	std::make_pair(eventType::COLLISION_NN,std::tuple<universeNode*,universeNode*, double>()),
-	std::make_pair(eventType::PROJECTILEHIT,std::tuple<entt::entity,entt::entity, double>())
+	std::make_pair(eventType::PROJECTILEHIT,std::tuple<entt::entity,entt::entity, double>()),
+	std::make_pair(eventType::PROJECTILEBOUNCE,entt::entity())
 });
-
 
 class observer {
 public:
 	static void registerObserver(eventType t, std::function<void(eventArgs args)> f, void* owner);
 	static void deleteObserver(eventType t, void* owner);
+	static void processQueue();
+
 
 	template <eventType E,typename T>
 	static void sendEvent(T args)
 	{
 		static_assert(eventArgs(T()).index()==_eventLUT[(unsigned)E]);
 		for(auto& sub : _subscribers[(unsigned)E]){
-			sub.second(eventArgs(args));
+			_queue.push(std::bind(sub.second,eventArgs(args)));
 		}
 	}
 
 private:
 	static std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(unsigned)eventType::_SIZE> _subscribers;
+	static std::queue<std::function<void()>> _queue;
 };

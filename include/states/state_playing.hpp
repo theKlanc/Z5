@@ -67,9 +67,6 @@ namespace State {
 		void createEntities();
 		void fixEntities();
 
-		void projectileDamageCallback(eventArgs args);
-		//void projectileDamageCallback(entt::entity entity, entt::entity proj, double spd);
-
 		physicsEngine _physicsEngine;
 
 		universeNode _universeBase;

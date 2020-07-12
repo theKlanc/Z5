@@ -360,6 +360,7 @@ include/states/state_playing.hpp
 include/states/state_playing.hpp
 include/states/state_playing.hpp
 include/states/state_prefab_editor.hpp
+include/systems.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
 include/terrainChunk.hpp
@@ -532,6 +533,7 @@ source/states/state_playing.cpp
 source/states/state_playing.cpp
 source/states/state_playing.cpp
 source/states/state_prefab_editor.cpp
+source/systems.cpp
 source/terrainChunk.cpp
 source/terrainChunk.cpp
 source/terrainChunk.cpp
