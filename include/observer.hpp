@@ -23,8 +23,8 @@ enum class eventType{
 };
 
 namespace {
-	constexpr const std::array<size_t,(size_t)eventType::_SIZE> _observertypetable(std::array<std::pair<eventType,eventArgs>,(size_t)eventType::_SIZE> args){
-		std::array<size_t,(size_t)eventType::_SIZE> result;
+	constexpr const std::array<size_t,(unsigned)eventType::_SIZE> _observertypetable(std::array<std::pair<eventType,eventArgs>,(unsigned)eventType::_SIZE> args){
+		std::array<size_t,(unsigned)eventType::_SIZE> result;
 		for(auto& val : args){
 			result[(unsigned)val.first] = val.second.index();
 		}
@@ -32,7 +32,7 @@ namespace {
 	}
 }
 
-constexpr std::array<size_t,(size_t)eventType::_SIZE> _eventLUT = _observertypetable(std::array<std::pair<eventType,eventArgs>,(size_t)eventType::_SIZE>{
+constexpr std::array<size_t,(unsigned)eventType::_SIZE> _eventLUT = _observertypetable(std::array<std::pair<eventType,eventArgs>,(unsigned)eventType::_SIZE>{
 	std::make_pair(eventType::COLLISION_EE,std::tuple<entt::entity,entt::entity, double>()),
 	std::make_pair(eventType::COLLISION_NE,std::tuple<universeNode*,entt::entity, double>()),
 	std::make_pair(eventType::COLLISION_NN,std::tuple<universeNode*,universeNode*, double>()),
@@ -55,5 +55,5 @@ public:
 	}
 
 private:
-	static std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(int)eventType::_SIZE> _subscribers;
+	static std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(unsigned)eventType::_SIZE> _subscribers;
 };

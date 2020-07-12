@@ -30,6 +30,8 @@
 #include "fuel.hpp"
 #include "icecream.hpp"
 
+#include <functional>
+
 sprite* State::Playing::_AOSIDE;
 sprite* State::Playing::_AOCORNER;
 
@@ -39,6 +41,8 @@ State::Playing::~Playing() {
 }
 
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
+	observer::registerObserver(eventType::PROJECTILEHIT,std::bind(&State::Playing::projectileDamageCallback,this,std::placeholders::_1),this);
+
 	_debug = debug;
 
 	//load json tables
@@ -199,6 +203,7 @@ void State::Playing::update(double dt) {
 			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
 	}
 
+	//update health
 	auto healthEntities = _enttRegistry.view<health>();
 	for(auto entity	 : healthEntities){
 		health h = _enttRegistry.get<health>(entity);
@@ -845,6 +850,23 @@ void State::Playing::fixEntities()
 	}
 }
 
+void State::Playing::projectileDamageCallback(eventArgs args)
+{
+	auto [entity, proj, ms] = std::get<std::tuple<entt::entity, entt::entity, double>>(args);
+	if(!_enttRegistry.has<health>(entity))
+		return;
+	auto& hlth = _enttRegistry.get<health>(entity);
+	auto& prj = _enttRegistry.get<projectile>(proj);
+
+	if(prj.lastCollision.has_value() && *prj.lastCollision == entity)
+		return;
+	hlth.damage(prj._damage);
+	prj.lastCollision = entity;
+	prj._remainingPenetration--;
+	if(prj._remainingPenetration < 0)
+		_enttRegistry.destroy(proj);
+}
+
 std::filesystem::path State::Playing::_savePath;
 
 std::filesystem::path State::Playing::savePath() {
@@ -1234,6 +1256,7 @@ void State::Playing::debugConsoleExec(std::string input)
 				bulletBody.height = 0.5;
 				bulletBody.volume = 0.0001;
 				bulletBody.elasticity = 0.5;
+				bulletBody.applyPhysics = false;
 
 				// Initial position and orientation of the collision body
 				rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
@@ -1254,6 +1277,8 @@ void State::Playing::debugConsoleExec(std::string input)
 			{
 				projectile& p = _enttRegistry.emplace<projectile>(bullet);
 				p._damage = 5;
+				p._remainingPenetration = 0;
+				//p.lastCollision = _player;
 			}
 			//position
 			{
@@ -1290,6 +1315,9 @@ void State::Playing::debugConsoleExec(std::string input)
 	}
 	else if(command == "render"){
 		config::render = !config::render;
+	}
+	else if(command == "fix"){
+		_enttRegistry.emplace<health>(_player);
 	}
 
 	std::cout << input << std::endl;

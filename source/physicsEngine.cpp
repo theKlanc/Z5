@@ -128,6 +128,8 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 		double mass = 1;
 		if(registry.has<body>(entity)){
 			mass = registry.get<body>(entity).mass;
+			if(!registry.get<body>(entity).applyPhysics)
+				return;
 		}
 
 		vel.spd += (pos.parent->getGravityAcceleration(pos.pos,mass) * dt);
@@ -161,7 +163,8 @@ void physicsEngine::applyBuoyancy(universeNode& universeBase, entt::registry& re
 		velocity& vel = movableEntityView.get<velocity>(entity);
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
-
+		if(!registry.get<body>(entity).applyPhysics)
+			return;
 		metaBlock block = pos.parent->getBlock({ (int)floor(pos.pos.x),(int)floor(pos.pos.y),(int)floor(pos.pos.z + bdy.height / 2) });
 		if (block == metaBlock::nullBlock || block.base->solid)
 			continue;
@@ -201,6 +204,8 @@ void physicsEngine::applyDrag(universeNode& universeBase, entt::registry& regist
 		velocity& vel = movableEntityView.get<velocity>(entity);
 		const position& pos = movableEntityView.get<position>(entity);
 		const body& bdy = movableEntityView.get<body>(entity);
+		if(!registry.get<body>(entity).applyPhysics)
+			return;
 		//F=(1/2)*(densityOfFluid)*(velocity^2)*(Area)*(DragCoefficient)
 		metaBlock block = pos.parent->getBlock({ (int)floor(pos.pos.x),(int)floor(pos.pos.y),(int)floor(pos.pos.z + bdy.height / 2) });
 		if (block == metaBlock::nullBlock)

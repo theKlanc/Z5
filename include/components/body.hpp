@@ -18,6 +18,7 @@ struct body
 
 	double volume = 1;
 	double elasticity = 0;
+	bool applyPhysics = true;
 };
 
 void to_json(nlohmann::json& j, const body& n);

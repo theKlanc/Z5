@@ -1,6 +1,6 @@
 #include "observer.hpp"
 
-std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(int)eventType::_SIZE> observer::_subscribers;
+std::array<std::unordered_map<void*,std::function<void(eventArgs args)>>,(unsigned)eventType::_SIZE> observer::_subscribers;
 
 void observer::registerObserver(eventType t, std::function<void(eventArgs args)> f, void *owner)
 {

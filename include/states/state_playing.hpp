@@ -12,6 +12,7 @@
 #include "UI/customGadgets/starmap.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include "observer.hpp"
 
 namespace State {
 	class Playing : public virtual State_Base {
@@ -66,6 +67,8 @@ namespace State {
 		void createEntities();
 		void fixEntities();
 
+		void projectileDamageCallback(eventArgs args);
+		//void projectileDamageCallback(entt::entity entity, entt::entity proj, double spd);
 
 		physicsEngine _physicsEngine;
 

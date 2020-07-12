@@ -8,6 +8,9 @@
 #include "components/body.hpp"
 #include "components/brain.hpp"
 #include "components/astronautBrain.hpp"
+#include "components/projectile.hpp"
+#include "components/health.hpp"
+
 #include "interactables/nodeController.hpp"
 #include "interactables/blockSwitch.hpp"
 
@@ -60,6 +63,16 @@ void to_json(nlohmann::json& j, const entt::registry& registry)
 		if (registry.has<std::unique_ptr<brain>>(entity))
 		{
 			nlohmann::json j_component = nlohmann::json{ {"type","BRAIN"},{ "content",*registry.get<std::unique_ptr<brain>>(entity) } };
+			j_components.push_back(j_component);
+		}
+		if (registry.has<projectile>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","PROJECTILE"},{ "content",registry.get<projectile>(entity) } };
+			j_components.push_back(j_component);
+		}
+		if (registry.has<health>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","HEALTH"},{ "content",registry.get<health>(entity) } };
 			j_components.push_back(j_component);
 		}
 		j.push_back(nlohmann::json{ {"tags",j_tags},{"components",j_components} });
@@ -128,6 +141,18 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 			case componentType::DRAWABLE:
 			{
 				auto& comp = registry.emplace<drawable>(e);
+				j_component.at("content").get_to(comp);
+				break;
+			}
+			case componentType::PROJECTILE:
+			{
+				auto& comp = registry.emplace<projectile>(e);
+				j_component.at("content").get_to(comp);
+				break;
+			}
+			case componentType::HEALTH:
+			{
+				auto& comp = registry.emplace<health>(e);
 				j_component.at("content").get_to(comp);
 				break;
 			}
