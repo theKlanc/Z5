@@ -129,7 +129,7 @@ void physicsEngine::applyGravity(universeNode& universeBase, entt::registry& reg
 		if(registry.has<body>(entity)){
 			mass = registry.get<body>(entity).mass;
 			if(!registry.get<body>(entity).applyPhysics)
-				return;
+			 	continue;
 		}
 
 		vel.spd += (pos.parent->getGravityAcceleration(pos.pos,mass) * dt);

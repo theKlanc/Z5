@@ -425,6 +425,7 @@ source/components/body_.cpp
 source/components/brain.cpp
 source/components/drawable.cpp
 source/components/health.cpp
+source/components/item.hpp
 source/components/name.cpp
 source/components/position.cpp
 source/components/projectile.cpp

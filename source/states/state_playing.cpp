@@ -229,7 +229,7 @@ void State::Playing::update(double dt) {
 		node.updateActivity();
 	}
 
-	//delete entities
+	//cleanup entities
 	auto cameraPos = _enttRegistry.get<position>(_camera);
 	auto temporaryEntities = _enttRegistry.view<position>(entt::exclude<entt::tag<"PERMANENT"_hs>>);
 	for(auto& e : temporaryEntities){
@@ -1248,10 +1248,10 @@ void State::Playing::debugConsoleExec(std::string input)
 				Services::physicsMutex.lock();
 				{
 					bulletBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-					collidedResponse* playerResponse = new collidedResponse();
-					playerResponse->type = physicsType::ENTITY;
-					playerResponse->body.entity = _player;
-					bulletBody.physicsData.collider->setUserData((void*)playerResponse);
+					collidedResponse* bulletResponse = new collidedResponse();
+					bulletResponse->type = physicsType::ENTITY;
+					bulletResponse->body.entity = bullet;
+					bulletBody.physicsData.collider->setUserData((void*)bulletResponse);
 					initPosition = rp3d::Vector3(0, 0, bulletBody.width / 2);
 					transform.setPosition(initPosition);
 					bulletBody.physicsData._collisionShape = new rp3d::SphereShape(bulletBody.width / 2);
@@ -1264,12 +1264,15 @@ void State::Playing::debugConsoleExec(std::string input)
 				projectile& p = _enttRegistry.emplace<projectile>(bullet);
 				p._damage = 2;
 				p._remainingPenetration = 0;
+				p._remainingBounces = 1;
 				//p.lastCollision = _player;
 			}
 			//position
 			{
 				position& pos = _enttRegistry.emplace<position>(bullet);
-				pos = _enttRegistry.get<position>(_player);
+				pos.pos = _enttRegistry.get<position>(_player).pos;
+				pos.parent = _enttRegistry.get<position>(_player).parent;
+				pos.parentID = pos.parent->getID();
 				point2Dd displacement = point2Dd::fromDirection(-pos.pos.r+0.5*M_PI + M_PI,1);
 				pos.pos += fdd{displacement.x,displacement.y,0.5,0.5*M_PI};
 			}
@@ -1278,7 +1281,7 @@ void State::Playing::debugConsoleExec(std::string input)
 				velocity& vel = _enttRegistry.emplace<velocity>(bullet);
 
 				point2Dd displacement = point2Dd::fromDirection(-_enttRegistry.get<position>(_player).pos.r+0.5*M_PI + M_PI,1);
-				vel = _enttRegistry.get<velocity>(_player);
+				vel.spd = _enttRegistry.get<velocity>(_player).spd;
 				vel.spd.r = 0;
 				vel.spd += fdd{displacement.x*3,displacement.y*3,0,0};
 			}

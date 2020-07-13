@@ -27,9 +27,7 @@ void systems::projectileBounce(eventArgs args)
 	auto entity = std::get<entt::entity>(args);
 	if(Services::enttRegistry->valid(entity)){
 		projectile& proj = Services::enttRegistry->get<projectile>(entity);
-
-		proj._remainingBounces--;
-		if(proj._remainingBounces<0){
+		if(--proj._remainingBounces<0){
 			Services::enttRegistry->destroy(entity);
 		}
 	}

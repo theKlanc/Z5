@@ -18,7 +18,7 @@ void observer::deleteObserver(eventType t, void *owner)
 void observer::processQueue()
 {
 	while(!_queue.empty()){
-		_queue.back()();
+		_queue.front()();
 		_queue.pop();
 	}
 }
