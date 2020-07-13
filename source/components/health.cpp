@@ -28,6 +28,16 @@ void health::damage(unsigned damage){
 		_currentHealth-=damage;
 }
 
+unsigned health::getCurrentHealth() const
+{
+	return _currentHealth;
+}
+
+unsigned health::getMaxHealth() const
+{
+	return _maxHealth;
+}
+
 void to_json(nlohmann::json &j, const health &n){
 	j=nlohmann::json{{"max",n._maxHealth},{"current",n._currentHealth}};
 }

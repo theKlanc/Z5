@@ -10,6 +10,7 @@
 #include <thread>
 #include "components/position.hpp"
 #include "UI/customGadgets/starmap.hpp"
+#include "UI/customGadgets/healthDisplay.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
 #include "observer.hpp"
@@ -28,7 +29,7 @@ namespace State {
 
 		void debugConsoleExec(std::string command);
 	private:
-
+		void control(entt::entity);
 
 		struct nodeLayer {
 			universeNode* node;
@@ -47,9 +48,6 @@ namespace State {
 
 		entt::entity _player;
 		entt::entity _camera;
-		int selectedBlock = 7;
-		blockRotation selectedRotation = blockRotation::UP;
-		bool selectedFlip = false;
 		entt::registry _enttRegistry;
 
 		static sprite* _AOSIDE;
@@ -75,8 +73,14 @@ namespace State {
 		bool _debug = false;
 
 		scene _scene;
-		std::shared_ptr<basicTextEntry> _console;
-		std::shared_ptr<starmap> _starmap;
+
+		struct {
+			std::shared_ptr<healthDisplay> _hDisplay;
+			std::shared_ptr<basicTextEntry> _console;
+			std::shared_ptr<starmap> _starmap;
+		}_sceneElements;
+
+
 
 		bool _paused = false;
 		bool _step = false;

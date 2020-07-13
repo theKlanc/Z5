@@ -78,12 +78,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		loadGame();
 	}
 
-	if (_debug) {
-		_console = std::make_shared<basicTextEntry>(point2D{ 0,0 }, point2D{ HI2::getScreenWidth(),40 }, _standardFont, 35, "", "Enter a command here", HI2::Color(0, 0, 0, 127), HI2::Color(255, 255, 255, 255));
-		_console->toggle();
-		_console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
-		_scene.addGadget(_console);
-	}
+
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
 	universeNode* playerParent;
@@ -97,14 +92,24 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 	}
 																				   //
 
-	_starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
-	_starmap->toggle();
-	_scene.addGadget(_starmap);
+	_sceneElements._starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
+	_sceneElements._starmap->toggle();
+	_scene.addGadget(_sceneElements._starmap);
+
+	_sceneElements._hDisplay = std::make_shared<healthDisplay>(point2D{0,HI2::getScreenHeight()-32},(_enttRegistry.has<health>(_player)?&_enttRegistry.get<health>(_player):nullptr),1,2);
+	_scene.addGadget(_sceneElements._hDisplay);
 
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
 		node.updateChunks(node.getLocalPos(cameraPosition.pos,cameraPosition.parent),config::chunksContainerSize);
+	}
+
+	if (_debug) {
+		_sceneElements._console = std::make_shared<basicTextEntry>(point2D{ 0,0 }, point2D{ HI2::getScreenWidth(),40 }, _standardFont, 35, "", "Enter a command here", HI2::Color(0, 0, 0, 127), HI2::Color(255, 255, 255, 255));
+		_sceneElements._console->toggle();
+		_sceneElements._console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
+		_scene.addGadget(_sceneElements._console);
 	}
 }
 
@@ -118,18 +123,18 @@ void State::Playing::input(double dt)
 	const point2D& mouse = HI2::getTouchPos();
 
 	if (_debug && down[HI2::BUTTON::KEY_CONSOLE]) {
-		_console->toggle();
+		_sceneElements._console->toggle();
 	}
-	if(_console->isActive()){
-		_scene.select(_console);
+	if(_sceneElements._console->isActive()){
+		_scene.select(_sceneElements._console);
 	}
 	else {
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
 		if (down[HI2::BUTTON::KEY_M] || down[HI2::BUTTON::BUTTON_RSTICK]) {
-			_starmap->toggle();
-			_scene.select(_starmap);
+			_sceneElements._starmap->toggle();
+			_scene.select(_sceneElements._starmap);
 		}
 		// Exit
 		if (held[HI2::BUTTON::CANCEL])
@@ -199,7 +204,7 @@ void State::Playing::update(double dt) {
 	if (_step)
 		dt = 1.0f / config::physicsHz;
 
-	//update enemies
+	//update brains
 	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>,entt::tag<"ACTIVE"_hs>>();
 	for (auto entity : brainEntities) {
 		if(entity != _player)
@@ -212,7 +217,7 @@ void State::Playing::update(double dt) {
 		health h = _enttRegistry.get<health>(entity);
 		if(!h.alive()){
 			if(entity == _player)
-				_player = _camera;
+				control(_camera);
 			else
 				_enttRegistry.destroy(entity);
 		}
@@ -335,12 +340,6 @@ void State::Playing::draw(double dt) {
 		for (renderLayer& rl : renderOrders) {
 			drawLayer(rl);
 		}
-	}
-	if (baseBlock::terrainTable[selectedBlock].visible)
-	{
-		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
-		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2), selectedFlip ? HI2::FLIP::H : HI2::FLIP::NONE);
 	}
 
 	if (_debug) {
@@ -927,11 +926,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		ss >> argument;
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		if(_enttRegistry.valid(entt::entity(id))){
-			_enttRegistry.remove<entt::tag<"PLAYER"_hs>>(_player);
-
-			_enttRegistry.emplace<entt::tag<"PLAYER"_hs>>(entt::entity(id));
-			_player = entt::entity(id);
-
+			control(entt::entity(id));
 		}
 	}
 	else if (command == "step") {
@@ -1250,16 +1245,19 @@ void State::Playing::debugConsoleExec(std::string input)
 				rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
 				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
 				rp3d::Transform transform(initPosition, initOrientation);
-
-				bulletBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
-				collidedResponse* playerResponse = new collidedResponse();
-				playerResponse->type = physicsType::ENTITY;
-				playerResponse->body.entity = _player;
-				bulletBody.physicsData.collider->setUserData((void*)playerResponse);
-				initPosition = rp3d::Vector3(0, 0, bulletBody.width / 2);
-				transform.setPosition(initPosition);
-				bulletBody.physicsData._collisionShape = new rp3d::SphereShape(bulletBody.width / 2);
-				bulletBody.physicsData.collider->addCollisionShape(bulletBody.physicsData._collisionShape, transform);
+				Services::physicsMutex.lock();
+				{
+					bulletBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+					collidedResponse* playerResponse = new collidedResponse();
+					playerResponse->type = physicsType::ENTITY;
+					playerResponse->body.entity = _player;
+					bulletBody.physicsData.collider->setUserData((void*)playerResponse);
+					initPosition = rp3d::Vector3(0, 0, bulletBody.width / 2);
+					transform.setPosition(initPosition);
+					bulletBody.physicsData._collisionShape = new rp3d::SphereShape(bulletBody.width / 2);
+					bulletBody.physicsData.collider->addCollisionShape(bulletBody.physicsData._collisionShape, transform);
+				}
+				Services::physicsMutex.unlock();
 			}
 			//projectile
 			{
@@ -1309,4 +1307,14 @@ void State::Playing::debugConsoleExec(std::string input)
 	}
 
 	std::cout << input << std::endl;
+}
+
+void State::Playing::control(entt::entity e)
+{
+	_enttRegistry.remove<entt::tag<"PLAYER"_hs>>(_player);
+	_enttRegistry.emplace<entt::tag<"PLAYER"_hs>>(e);
+	_player = e;
+
+	_sceneElements._hDisplay->setHealth(_enttRegistry.has<health>(_player)?&_enttRegistry.get<health>(_player):nullptr);
+
 }

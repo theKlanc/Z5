@@ -8,11 +8,11 @@
 
 nodeController::nodeController()
 {
-	_thrustViewer = std::make_shared<fddViewer>(fddViewer({},240,{},{-1,-1,-1,-1},{1,1,1,1},5,5,10));
+	_thrustViewer = std::make_shared<fddDisplay>(fddDisplay({},240,{},{-1,-1,-1,-1},{1,1,1,1},5,5,10));
 	_thrustViewer->setPosition({HI2::getScreenWidth()-_thrustViewer->getSize().x,0});
 	_scene.addGadget(_thrustViewer);
 
-	_spdViewer = std::make_shared<fddViewer>(fddViewer({0,HI2::getScreenHeight()-240},240,{},{-1,-1,-1,-1},{1,1,1,1},5,5,10));
+	_spdViewer = std::make_shared<fddDisplay>(fddDisplay({0,HI2::getScreenHeight()-240},240,{},{-1,-1,-1,-1},{1,1,1,1},5,5,10));
 	_spdViewer->setPosition({HI2::getScreenWidth()-_spdViewer->getSize().x,HI2::getScreenHeight()-240});
 	_scene.addGadget(_spdViewer);
 }

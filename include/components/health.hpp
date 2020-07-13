@@ -3,11 +3,14 @@
 
 struct health
 {
-	health(unsigned max = 20, unsigned current = 20);
+	health(unsigned max = 10, unsigned current = 10);
 	bool alive();
 	bool fullHealth();
 	void heal(unsigned healing);
 	void damage(unsigned damage);
+
+	unsigned getCurrentHealth() const;
+	unsigned getMaxHealth() const;
 private:
 	unsigned _maxHealth;
 	unsigned _currentHealth;
