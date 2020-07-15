@@ -6,6 +6,7 @@
 struct drawable{
 	std::string name;
 	sprite* spr;
+	double zoom = 1;
 };
 
 void to_json(nlohmann::json& j, const drawable& n);

@@ -157,6 +157,14 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 		}
 	}
 }
+
+void universeNode::removeBlock(const point3Di &pos)
+{
+	metaBlock m;
+	m.base = &_generator->getEmptyBlock();
+	m.saveMeta = false;
+	setBlock(m,pos);
+}
 void universeNode::updateChunks(const fdd& cameraPos, int distance) {
 	assert(_CL_mutex);
 	_CL_mutex->lock();

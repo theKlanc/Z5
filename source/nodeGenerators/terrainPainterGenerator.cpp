@@ -402,6 +402,11 @@ nlohmann::json terrainPainterGenerator::getJson() const
 {
 	return json{{"type","terrainPainter"},{"generator",{ {"diameter", _diameter},			{"liquidLevel", _liquidLevel},
 			 {"liquidID", _liquidID}, {"emptyBlockID", _emptyBlockID},
-			 {"seed", _seed},{"terrainPainter", _terrainPainter} }}};
+				{"seed", _seed},{"terrainPainter", _terrainPainter} }}};
+}
+
+baseBlock &terrainPainterGenerator::getEmptyBlock()
+{
+	return baseBlock::terrainTable[_emptyBlockID];
 }
 

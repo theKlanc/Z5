@@ -14,6 +14,11 @@ nodeGenerator::nodeGenerator(unsigned int s)
 	_noiseGenerator.SetSeed(_seed);
 }
 
+baseBlock &nodeGenerator::getEmptyBlock()
+{
+	return *metaBlock::nullBlock.base;
+}
+
 nodeGenerator::~nodeGenerator() {}
 
 double nodeGenerator::getNoise(point2D p) const

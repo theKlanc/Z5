@@ -44,7 +44,7 @@ namespace State {
 
 		nodeLayer generateNodeLayer(universeNode* node, double depth, fdd localCameraPos);
 		void drawLayer(const renderLayer& rl);
-		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
+		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom, const double& spriteZoom = 1); //translates a position relative to the camera, to a position relative to the display ready to draw
 
 		entt::entity _player;
 		entt::entity _camera;

@@ -48,6 +48,8 @@ public:
 	void updateCamera(fdd c);
 
 	void setBlock(metaBlock b, const point3Di &pos);
+	void removeBlock(const point3Di &pos);
+
 	void updateChunks(const fdd& cameraChunk, int distance);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;

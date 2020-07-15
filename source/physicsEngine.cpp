@@ -250,11 +250,14 @@ void physicsEngine::calculateRPositions(universeNode &universeBase, entt::regist
 	for(universeNode& node : universeBase){
 		node.setRenderPosition(node.getPosition() + node.getVelocity() * dt);
 	}
-	auto movableEntityView = registry.view<velocity, position>();//entt::tag<"ACTIVE"_hs>
+	auto movableEntityView = registry.view<position>();//entt::tag<"ACTIVE"_hs>
 	for (const entt::entity& entity : movableEntityView) { //Update entities' positions
-		const velocity& vel = movableEntityView.get<velocity>(entity);
 		position& pos = movableEntityView.get<position>(entity);
-		pos.setRPos(pos.pos + vel.spd * dt);
+		if(Services::enttRegistry->has<velocity>(entity)){
+			const velocity& vel = Services::enttRegistry->get<velocity>(entity);
+			pos.setRPos(pos.pos + vel.spd * dt);
+		}
+		pos.setRPos(pos.pos);
 	}
 }
 

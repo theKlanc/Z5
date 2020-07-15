@@ -11,6 +11,7 @@ public:
 	virtual terrainChunk getChunk(const point3Di& p) = 0;
 	virtual baseBlock& getTopBlock(const point2D& p) = 0;
 	virtual int getHeight(const point2D& p) = 0;
+	virtual baseBlock& getEmptyBlock();
 
 	friend void to_json(nlohmann::json &j, const nodeGenerator &ng);
 protected:

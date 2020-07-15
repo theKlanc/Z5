@@ -23,7 +23,6 @@ namespace config {
 	extern int orbitDebugMultiplier;
 	constexpr double interactableRadius = 1.5;
 	constexpr double destroyDistance = 5000;
-
 	constexpr double physicsHz
 #ifdef __SWITCH__
 	                           = 30;

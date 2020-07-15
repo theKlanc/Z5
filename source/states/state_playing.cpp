@@ -1,4 +1,10 @@
 #include "components/brain.hpp"
+#include "components/item.hpp"
+#include "components/inventory.hpp"
+#include "components/hand.hpp"
+#include "components/resourceHarvester.hpp"
+
+
 #include "states/state_playing.hpp"
 #include <fstream>
 #include <iostream>
@@ -223,6 +229,64 @@ void State::Playing::update(double dt) {
 		}
 	}
 
+	//rotate dropped items
+	auto rotatingItems = _enttRegistry.view<std::unique_ptr<item>,position,entt::tag<"ACTIVE"_hs>>();
+	for(auto entity	 : rotatingItems){
+		rotatingItems.get<position>(entity).pos.r += dt;
+	}
+
+	//update items in hands and their positions
+	auto hands = _enttRegistry.view<hand,position>();
+	for(auto entity	 : hands){
+		if(_enttRegistry.has<inventory>(entity)){
+			//assegurem que la ma tingui el item del inventari que toca
+			auto inventari = _enttRegistry.get<inventory>(entity);
+			auto& hnd = _enttRegistry.get<hand>(entity);
+			int pendents = hnd.index;
+			for(auto it = inventari.begin(); it != inventari.end(); ++it){
+				if(pendents == 0){
+					if(*it != hnd._item){
+						if(hnd._item){
+							//drop
+							if(_enttRegistry.has<position>(*hnd._item))
+								_enttRegistry.remove<position>(*hnd._item);
+							hnd._item.reset();
+						}
+						hnd._item = *it;
+						if(*it){
+							//grab
+							if(!_enttRegistry.has<position>(*hnd._item))
+								_enttRegistry.emplace<position>(*hnd._item);
+						}
+					}
+					break;
+				}
+				else
+					pendents--;
+			}
+		}
+		position& ownerPos = _enttRegistry.get<position>(entity);
+		if(_enttRegistry.get<hand>(entity)._item){
+			fdd expectedPos = ownerPos.pos;
+			point2Dd displacement = point2Dd::fromDirection(ownerPos.pos.r,0.7);
+			expectedPos.x += displacement.x;
+			expectedPos.y += displacement.y;
+			if(_enttRegistry.has<position>(*_enttRegistry.get<hand>(entity)._item)){
+				auto& pos = _enttRegistry.get<position>(*_enttRegistry.get<hand>(entity)._item);
+				pos.pos = expectedPos;
+				pos.parent = ownerPos.parent;
+				pos.parentID = ownerPos.parentID;
+			}
+			else{
+				auto& pos = _enttRegistry.emplace<position>(*_enttRegistry.get<hand>(entity)._item);
+				pos.pos = expectedPos;
+				pos.parent = ownerPos.parent;
+				pos.parentID = ownerPos.parentID;
+			}
+		}
+	}
+
+
 	//Update thrusters
 	for(auto& node : _universeBase){
 		node.updateThrusters(dt);
@@ -380,14 +444,14 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const drawable& drw = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.getRPos(), entityPosition.parent) - cameraPos.pos;
-			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
+			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom, drw.zoom);
 			//late culling
 			if(drawPos.x <= HI2::getScreenWidth() && drawPos.y <= HI2::getScreenHeight() && (drawPos.x + zoom*drw.spr->getCurrentFrame().size.x>=0) && (drawPos.y + zoom*drw.spr->getCurrentFrame().size.y>=0))
 			{
 				if (config::drawDepthShadows) {
 					HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 				}
-				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, -localPos.r, HI2::FLIP::NONE);
+				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom * drw.zoom, -localPos.r, HI2::FLIP::NONE);
 				//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 			}
 		}
@@ -532,19 +596,19 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 	return result;
 }
 
-point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)
+point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& depthZoom, const double& spriteZoom)
 {
-	pos.x *= config::spriteSize * zoom; // passem de coordenades del mon a coordenades de pantalla
-	pos.y *= config::spriteSize * zoom;
+	pos.x *= config::spriteSize * depthZoom; // passem de coordenades del mon a coordenades de pantalla
+	pos.y *= config::spriteSize * depthZoom;
 
-	pos.x += (HI2::getScreenWidth() * zoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
-	pos.y += (HI2::getScreenHeight() * zoom) / 2;
+	pos.x += (HI2::getScreenWidth() * depthZoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
+	pos.y += (HI2::getScreenHeight() * depthZoom) / 2;
 
-	pos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
-	pos.y -= (config::spriteSize * zoom) / 2;
+	pos.x -= (config::spriteSize * depthZoom * spriteZoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+	pos.y -= (config::spriteSize * depthZoom * spriteZoom) / 2;
 
-	pos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth()) / 2;
-	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight()) / 2;
+	pos.x -= ((HI2::getScreenWidth() * depthZoom) - HI2::getScreenWidth()) / 2;
+	pos.y -= ((HI2::getScreenHeight() * depthZoom) - HI2::getScreenHeight()) / 2;
 
 	return pos;
 }
@@ -767,7 +831,6 @@ void State::Playing::createEntities()
 					std::vector<frame> ballFrames;
 					ballFrames.push_back({ {240,0},{16,16} });
 					ballSprite.spr = Services::graphics.loadSprite("ball", "spritesheet", ballFrames);
-					ballSprite.spr = Services::graphics.loadSprite("ball");
 				}
 
 				ballSprite.name = "ball";
@@ -851,6 +914,18 @@ void State::Playing::fixEntities()
 		initPosition = rp3d::Vector3(0, 0, b.width / 2);
 		transform.setPosition(initPosition);
 		b.physicsData.collider->addCollisionShape(b.physicsData._collisionShape, transform);
+	}
+
+	//inventories
+	auto inventories = _enttRegistry.view<inventory>();
+	for (const entt::entity& entity : inventories) {
+		inventories.get<inventory>(entity).fix();
+	}
+
+	//hands
+	auto hands = _enttRegistry.view<hand>();
+	for (const entt::entity& entity : hands) {
+		hands.get<hand>(entity).select(_enttRegistry.get<inventory>(entity));
 	}
 }
 
@@ -1273,14 +1348,14 @@ void State::Playing::debugConsoleExec(std::string input)
 				pos.pos = _enttRegistry.get<position>(_player).pos;
 				pos.parent = _enttRegistry.get<position>(_player).parent;
 				pos.parentID = pos.parent->getID();
-				point2Dd displacement = point2Dd::fromDirection(-pos.pos.r+0.5*M_PI + M_PI,1);
-				pos.pos += fdd{displacement.x,displacement.y,0.5,0.5*M_PI};
+				point2Dd displacement = point2Dd::fromDirection(pos.pos.r,1);
+				pos.pos += fdd{displacement.x,displacement.y,0.5};
 			}
 			//velocity
 			{
 				velocity& vel = _enttRegistry.emplace<velocity>(bullet);
 
-				point2Dd displacement = point2Dd::fromDirection(-_enttRegistry.get<position>(_player).pos.r+0.5*M_PI + M_PI,1);
+				point2Dd displacement = point2Dd::fromDirection(_enttRegistry.get<position>(_player).pos.r,1);
 				vel.spd = _enttRegistry.get<velocity>(_player).spd;
 				vel.spd.r = 0;
 				vel.spd += fdd{displacement.x*3,displacement.y*3,0,0};
@@ -1306,7 +1381,28 @@ void State::Playing::debugConsoleExec(std::string input)
 		config::render = !config::render;
 	}
 	else if(command == "fix"){
-		_enttRegistry.emplace<health>(_player);
+		auto& inv = _enttRegistry.emplace<inventory>(_player,10);
+		auto& hnd = _enttRegistry.emplace<hand>(_player);
+
+		auto resHarv = _enttRegistry.create();
+		{
+			 auto& drw = _enttRegistry.emplace<drawable>(resHarv);
+			 drw.zoom = 0.5;
+			 drw.name = "multitool";
+			 std::vector<frame> frames;
+			 frames.push_back({ {320,64},{16,16} });
+			 drw.spr = Services::graphics.loadSprite("multitool","spritesheet",frames);
+
+			 auto& rh = _enttRegistry.emplace<std::unique_ptr<item>>(resHarv);
+			 rh = std::make_unique<resourceHarvester>();
+
+			 auto& rhname = _enttRegistry.emplace<name>(resHarv);
+			 rhname.nameString = "multitool";
+
+			 _enttRegistry.emplace<entt::tag<"PERMANENT"_hs>>(resHarv);
+		}
+		inv.add(resHarv);
+		hnd._item = resHarv;
 	}
 
 	std::cout << input << std::endl;
