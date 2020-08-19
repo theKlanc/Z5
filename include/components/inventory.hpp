@@ -1,6 +1,7 @@
 #pragma once
 #include "entt/entity/registry.hpp"
 #include "json.hpp"
+#include <optional>
 
 struct inventory{
 	inventory(){}

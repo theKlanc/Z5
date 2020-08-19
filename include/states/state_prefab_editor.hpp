@@ -6,6 +6,7 @@
 #include <deque>
 #include <set>
 #include <list>
+#include <optional>
 
 namespace State {
 	class PrefabEditor : public State_Base {

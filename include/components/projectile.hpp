@@ -1,6 +1,7 @@
 #pragma once
 #include "json.hpp"
 #include "entt/entity/registry.hpp"
+#include <optional>
 
 struct projectile
 {

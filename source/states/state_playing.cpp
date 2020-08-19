@@ -966,7 +966,13 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "controlEntity ID" << std::endl;
 		std::cout << "shoot {N}" << std::endl;
 		std::cout << "render" << std::endl;
+		std::cout << "reload" << std::endl;
+		std::cout << "fix (debug command)" << std::endl;
+		
 
+	}
+	else if (command == "reload") {
+		Services::graphics.reloadTexture("spritesheet");
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
