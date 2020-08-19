@@ -4,7 +4,7 @@ double config::zoom =
 #ifdef __SWITCH__
 	                            3;
 #elif __EMSCRIPTEN__
-	 3;
+	 2.5;
 #else
 	                            2;
 #endif

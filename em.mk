@@ -11,9 +11,9 @@ SOURCES := $(SOURCES) deps/reactPhysics3D/src/collision/shapes
 FLAGS    := -D__LINUX__ -Werror=return-type -s ALLOW_MEMORY_GROWTH=1 -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_PTHREADS=1 -s WASM_MEM_MAX=256MB -DMUSIC_MP3_MAD
 # -s SDL2_IMAGE_FORMATS='["bmp","png"]'
 CCFLAGS  := `sdl2-config --cflags` `pkgconf --cflags freetype2`
-CXXFLAGS := -std=c++17
+CXXFLAGS := -std=c++20
 
-LIBS    :=  -lpthread `sdl2-config --libs` -lSDL2_image -lSDL2_ttf -lfreetype -lSDL2_mixer
+LIBS    :=  -lpthread `sdl2-config --libs`
 
 #YOU SHOULDN'T NEED TO MODIFY ANYTHING PAST THIS POINT
 BUILDTYPE := Release

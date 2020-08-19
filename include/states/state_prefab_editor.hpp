@@ -55,7 +55,7 @@ namespace State {
 			SELECT
 		}_currentTool = tool::PENCIL;
 
-		prefab _prefab;
+		std::unique_ptr<prefab> _prefab;
 		point3Di _camera;
 		blockRotation _rotation = blockRotation::UP;
 		bool _flip = false;
@@ -69,7 +69,7 @@ namespace State {
         void undo();
         void redo();
 
-        std::list<prefab> _checkpoints;
-        std::list<prefab>::iterator _currentCheckpoint;
+        std::list<std::unique_ptr<prefab>> _checkpoints;
+        std::list<std::unique_ptr<prefab>>::iterator _currentCheckpoint;
 	};
 }

@@ -32,7 +32,7 @@ void physicsEngine::updatePhysics(universeNode& universeBase, entt::registry& re
 {
 	_remainingTime += dt;
 	if (_remainingTime > 0.5f)
-		_remainingTime = 0.5f;
+		_remainingTime = 0.0f;
 
 	Services::physicsMutex.lock();
 	{

@@ -12,7 +12,7 @@ namespace config {
 #endif
 
 	extern bool render;
-	constexpr int chunkloadSphereRadius = 6;
+	constexpr int chunkloadSphereRadius = 4;
 	constexpr int chunkSize = 8;
 	extern int cameraDepth;
 	constexpr int spriteSize = 16;
