@@ -733,7 +733,7 @@ fdd universeNode::getGravityAcceleration(fdd localPosition, double mass)
 		return *_artificialGravity;
 
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
-	fdd realGravity = localPosition;
+	fdd realGravity = -localPosition;
 	realGravity.setMagnitude((G * ((_mass*mass) / (pow(localPosition.magnitude(),2)))/mass));
 	double magicFactor = 1;
 	double distance = localPosition.magnitude();
