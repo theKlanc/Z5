@@ -10,9 +10,10 @@ namespace config {
 #else
 	                                = 14;
 #endif
-
+	extern bool fogEnabled;
+	constexpr int fogLayers = 20;
 	extern bool render;
-	constexpr int chunkloadSphereRadius = 4;
+	constexpr int chunkloadSphereRadius = 6;
 	constexpr int chunkSize = 8;
 	extern int cameraDepth;
 	constexpr int spriteSize = 16;

@@ -12,6 +12,10 @@
 #include "UI/gadgets/scrollablePanel.hpp"
 #include "UI/gadgets/textEntry.hpp"
 #include "UI/gadgets/textView.hpp"
+#include "UI/gadgets/toggleButton.hpp"
+#include "UI/customGadgets/fddDisplay.hpp"
+#include "UI/customGadgets/healthDisplay.hpp"
+#include "UI/customGadgets/starmap.hpp"
 
 
 

@@ -37,9 +37,10 @@ namespace State {
 			std::vector<metaBlock> blocks;
 			bool firstLayer = false;
 		};
+
 		struct renderLayer {
 			double depth;
-			std::variant<entt::entity, nodeLayer,point3Di> target;
+			std::variant<entt::entity, nodeLayer,point3Dd,HI2::Color> target;
 		};
 
 		nodeLayer generateNodeLayer(universeNode* node, double depth, fdd localCameraPos);
@@ -85,10 +86,7 @@ namespace State {
 		bool _paused = false;
 		bool _step = false;
 
-
-		scene _uiScene;
-
 		void updateCamera();
-        };
+    };
 
 } // namespace State

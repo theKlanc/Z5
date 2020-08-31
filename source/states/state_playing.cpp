@@ -347,13 +347,19 @@ void State::Playing::draw(double dt) {
 		playerVel = _enttRegistry.get<velocity>(_player);
 
 	bool interactableInRange = playerPos.parent->getClosestInteractable(playerPos.pos) != nullptr;
-	point3Di iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
+	point3Dd iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
 
 	HI2::startFrame();
 	if(config::render){
 		std::vector<renderLayer> renderOrders;
 		HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 		{
+			if(config::fogEnabled){
+				renderOrders.push_back(renderLayer{config::cameraDepth-1.1f,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(255,255,255,255))});
+				for(int i = 1; i < config::fogLayers;++i){
+					renderOrders.push_back(renderLayer{config::cameraDepth-1.1f - i,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(255,255,255,255/config::fogLayers))});
+				}
+			}
 			position cameraPos = _enttRegistry.get<position>(_camera);
 			std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
 			for (universeNode*& node : sortedDrawingNodes) {
@@ -375,10 +381,10 @@ void State::Playing::draw(double dt) {
 						continue;
 					depth +=0.5;
 					nodeLayer nLayer = generateNodeLayer(node, depth, localCameraPos);
-					renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
+					renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(nLayer) });
 
-					if(interactableInRange && node == playerPos.parent && iblePos.z == layer){
-						renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(iblePos)});
+					if(interactableInRange && node == playerPos.parent && (int)iblePos.z == layer){
+						renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(iblePos)});
 					}
 				}
 			}
@@ -386,13 +392,14 @@ void State::Playing::draw(double dt) {
 			auto drawableEntityView = _enttRegistry.view<drawable, position>();
 			for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
 				auto& pos = drawableEntityView.get<position>(entity);
-				double depth = cameraPos.pos.z - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent).z;
+				fdd relativePos = cameraPos.pos - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent);
+				double depth = relativePos.z;
 				if (_enttRegistry.has<body>(entity))
 				{
 					depth -= _enttRegistry.get<body>(entity).height;
 				}
-				if (depth > 0 && depth < config::cameraDepth)
-					renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
+				if (depth > 0 && depth < config::cameraDepth && relativePos.magnitude() < 200)
+					renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(entity) });
 			}
 
 		}
@@ -432,6 +439,9 @@ void State::Playing::draw(double dt) {
 void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
+		void operator()(const HI2::Color& color) const{
+			HI2::drawRectangle({},HI2::getScreenWidth(),HI2::getScreenHeight(),color);
+		}
 		void operator()(const entt::entity& entity) const {
 
 			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
@@ -468,7 +478,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
-
+			bool maskApplied = false;
 
 			fdd firstBlock = node.node->getLocalRPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
 			firstBlock.z = node.layerHeight;
@@ -486,7 +496,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				tmp = 1.0f - std::abs(tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
-			fdd localPos = firstBlock - cameraPos.pos;
 
 			int rowSize = (HI2::getScreenWidth() / config::spriteSize);
 			int colSize = (HI2::getScreenHeight() / config::spriteSize);
@@ -513,9 +522,10 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 					metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b.base->visible && (b._render_visible || node.firstLayer)) {
-						if (config::drawDepthShadows) {
+						if (config::drawDepthShadows && !maskApplied) {
 							//mask anira de 255 a 150
 							HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
+							maskApplied = true;
 						}
 						//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
 						HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
@@ -552,7 +562,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				}
 			}
 		}
-		void operator()(const point3Di& p) const {
+		void operator()(const point3Dd& p) const {
 			point2Dd drawPos = translatePositionToDisplay({p.x-cameraPos.pos.x+0.5,p.y-cameraPos.pos.y+0.5}, zoom);
 			HI2::drawEmptyRectangle({(int)drawPos.x,(int)drawPos.y},16*zoom,16*zoom,3,HI2::getKeysHeld()[HI2::BUTTON::KEY_ENTER]?HI2::Color::Green : HI2::Color::White);
 		}
@@ -967,6 +977,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "shoot {N}" << std::endl;
 		std::cout << "render" << std::endl;
 		std::cout << "reload" << std::endl;
+		std::cout << "toggleFog" << std::endl;
 		std::cout << "fix (debug command)" << std::endl;
 		
 
@@ -1385,6 +1396,9 @@ void State::Playing::debugConsoleExec(std::string input)
 	}
 	else if(command == "render"){
 		config::render = !config::render;
+	}
+	else if(command == "toggleFog"){
+		config::fogEnabled = !config::fogEnabled;
 	}
 	else if(command == "fix"){
 		auto& inv = _enttRegistry.emplace<inventory>(_player,10);

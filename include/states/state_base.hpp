@@ -18,7 +18,7 @@ namespace State {
 		virtual void update(double dt) = 0;
 		virtual void draw(double dt) = 0;
 
-	  protected: // aqui puc posar variables que els estats hagin de compartir
+	  protected:
 		gameCore* _core;
 	};
 } // namespace State

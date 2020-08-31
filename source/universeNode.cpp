@@ -307,11 +307,11 @@ interactable* universeNode::getClosestInteractable(fdd pos)
 	return inter;
 }
 
-point3Di universeNode::getClosestInteractablePos(fdd pos)
+point3Dd universeNode::getClosestInteractablePos(fdd pos)
 {
 
 	double minDist = config::interactableRadius;
-	point3Di inter;
+	point3Dd inter;
 	if(_parent){
 		fdd lpos = _parent->getLocalPos(pos,this);
 		for(auto& i : _parent->_interactables){
@@ -1017,7 +1017,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position}, {"velocity", f._velocity},
-			 {"children", jj},{"id",f._ID},{"sleeping",f.physicsData.sleeping},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
+			 {"children", jj},{"id",f._ID},{"sleeping",f.physicsData.sleeping},{"deltaPos",f.physicsData.deltaPos},{"deltaSteps",f.physicsData.deltaSteps},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
 	if(f._artificialGravity)
 		j.emplace("artificial_gravity",*f._artificialGravity);
 }
@@ -1099,6 +1099,11 @@ void from_json(const json& j, universeNode& f) {
 	f._CL_mutex = std::make_shared<std::mutex>();
 	if(j.contains("sleeping"))
 		f.physicsData.sleeping = j.at("sleeping").get<bool>();
+	if(j.contains("deltaPos"))
+		f.physicsData.deltaPos = j.at("deltaPos").get<fdd>();
+	if(j.contains("deltaSteps"))
+		f.physicsData.deltaSteps = j.at("deltaSteps").get<int>();
+
 }
 
 universeNode& universeNode::operator=(const universeNode& u)

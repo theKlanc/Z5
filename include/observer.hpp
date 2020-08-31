@@ -25,7 +25,7 @@ enum class eventType{
 };
 
 namespace {
-	constexpr const std::array<size_t,(unsigned)eventType::_SIZE> _observertypetable(std::array<std::pair<eventType,eventArgs>,(unsigned)eventType::_SIZE> args){
+	consteval std::array<size_t,(unsigned)eventType::_SIZE> _observertypetable(std::array<std::pair<eventType,eventArgs>,(unsigned)eventType::_SIZE> args){
 		std::array<size_t,(unsigned)eventType::_SIZE> result;
 		for(auto& val : args){
 			result[(unsigned)val.first] = val.second.index();
