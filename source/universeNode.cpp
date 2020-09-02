@@ -494,7 +494,6 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 								  // relative to our local node (*this)
 {
 	assert(!std::isnan(_position.x));
-	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
@@ -518,7 +517,6 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 
 fdd universeNode::getLocalRPos(fdd f, universeNode *u) const
 {
-	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else

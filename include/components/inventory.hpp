@@ -10,6 +10,7 @@ struct inventory{
 	std::vector<std::optional<entt::entity>>::iterator begin();
 	std::vector<std::optional<entt::entity>>::iterator end();
 
+	//bool has();
 	bool add(entt::entity obj);
 	bool add(entt::entity obj, std::vector<std::optional<entt::entity>>::iterator position);
 

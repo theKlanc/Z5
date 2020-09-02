@@ -10,7 +10,7 @@ panel::panel(point2D pos, point2D size, std::string s)
 void panel::_draw_internal()
 {
 	for (std::shared_ptr<gadget> g : _gadgets) {
-		if (g->isVisible() && true || g->isCompletelyRenderable({ 0,0 }, _size))
+		if (g->isVisible() && g->isRenderable({ 0,0 }, _size))
 		{
 			g->draw();
 		}

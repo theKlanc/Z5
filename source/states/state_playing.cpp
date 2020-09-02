@@ -355,9 +355,9 @@ void State::Playing::draw(double dt) {
 		HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
 		{
 			if(config::fogEnabled){
-				renderOrders.push_back(renderLayer{config::cameraDepth-1.1f,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(255,255,255,255))});
+				renderOrders.push_back(renderLayer{config::cameraDepth-1.1f,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(170,170,170,255))});
 				for(int i = 1; i < config::fogLayers;++i){
-					renderOrders.push_back(renderLayer{config::cameraDepth-1.1f - i,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(255,255,255,255/config::fogLayers))});
+					renderOrders.push_back(renderLayer{config::cameraDepth-1.1f - i,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(255,255,255,2*255/config::fogLayers))});
 				}
 			}
 			position cameraPos = _enttRegistry.get<position>(_camera);
@@ -770,12 +770,17 @@ void State::Playing::createEntities()
 		playerBody.physicsData.collider->addCollisionShape(playerBody.physicsData._collisionShape, transform);
 
 		_enttRegistry.emplace<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
+
+		auto& playerHealth = _enttRegistry.emplace<health>(_player);
+		_enttRegistry.emplace<entt::tag<"PERMANENT"_hs>>(_player);
 	}
 
 	{
 		_camera = _enttRegistry.create();
 		_enttRegistry.emplace<entt::tag<"CAMERA"_hs>>(_camera);
-		_enttRegistry.emplace<position>(_camera);
+		_enttRegistry.emplace<entt::tag<"PERMANENT"_hs>>(_camera);
+		auto& pos = _enttRegistry.emplace<position>(_camera);
+		pos = _enttRegistry.get<position>(_player);
 	}
 	bool constexpr skipExtraEntities = false;
 	if constexpr(!skipExtraEntities){

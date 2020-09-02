@@ -334,7 +334,7 @@ void physicsEngine::detectNodeNode(universeNode& universe, double dt)
 			{
 				if (*brotha != node)
 				{
-					if (brotha->isActive() || brotha->getID() < node.getID())
+					if (!brotha->isActive() || brotha->getID() < node.getID())
 					{
 						//node.getNodeCollider()->setTransform({ node.getPosition().getVector3(),rp3d::Quaternion::identity() });
 						//brotha->getNodeCollider()->setTransform({ brotha->getPosition().getVector3(),rp3d::Quaternion::identity() });
