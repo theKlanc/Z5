@@ -24,6 +24,7 @@ enum class eventType{
 	_SIZE,
 };
 
+#ifndef WIN32
 namespace {
 	consteval std::array<size_t,(unsigned)eventType::_SIZE> _observertypetable(std::array<std::pair<eventType,eventArgs>,(unsigned)eventType::_SIZE> args){
 		std::array<size_t,(unsigned)eventType::_SIZE> result;
@@ -41,6 +42,7 @@ constexpr std::array<size_t,(unsigned)eventType::_SIZE> _eventLUT = _observertyp
 	std::make_pair(eventType::PROJECTILEHIT,std::tuple<entt::entity,entt::entity, double>()),
 	std::make_pair(eventType::PROJECTILEBOUNCE,entt::entity())
 });
+#endif
 
 class observer {
 public:
@@ -52,7 +54,9 @@ public:
 	template <eventType E,typename T>
 	static void sendEvent(T args)
 	{
+#ifndef WIN32
 		static_assert(eventArgs(T()).index()==_eventLUT[(unsigned)E]);
+#endif
 		for(auto& sub : _subscribers[(unsigned)E]){
 			_queue.push(std::bind(sub.second,eventArgs(args)));
 		}
