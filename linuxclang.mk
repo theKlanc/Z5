@@ -35,8 +35,6 @@ TOPDIR ?= $(CURDIR)
 
 CFILES		:=	$(foreach dir,$(SOURCES),$(wildcard $(dir)/**/*.c)) $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.c))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(wildcard $(dir)/**/*.cpp)) $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.cpp))
-MODULEFILES :=  $(foreach dir,$(SOURCES),$(wildcard $(dir)/**/*.cc)) $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.cc))
-
 
 $(info $(CFILES))
 $(info $(CPPFILES))
@@ -50,8 +48,8 @@ OFILES := $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(OFILES))
 
 $(info $(OFILES))
 
-CC   := gcc
-CXX  := g++
+CC   := clang
+CXX  := clang++
 
 
 INCLUDE := $(addprefix -I,$(INCLUDE))
@@ -68,7 +66,6 @@ include $(foreach dir,$(INCLUDE),$(wildcard $(dir)/**/*.h)) $(foreach dir,$(INCL
 pre:
 	mkdir -p $(BINDIR)/$(PLATFORM)/$(BUILDTYPE)/
 	mkdir -p $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(dir $(CFILES))) $(addprefix $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/,$(dir $(CPPFILES)))
-#	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $(MODULEFILES)
 
 $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/%.o: %.c
 	$(CC) $(CCFLAGS) $(INCLUDE) $(LIBS) -c $< -o $@
@@ -84,4 +81,3 @@ all: pre $(OFILES)
 clean:
 	rm -rf $(BUILDDIR)/$(PLATFORM)/$(BUILDTYPE)/
 	rm -f $(APPNAME)
-#	rm -rf gcm.cache

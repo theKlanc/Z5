@@ -1,8 +1,8 @@
-#include "UI/customGadgets/fddViewer.hpp"
+#include "UI/customGadgets/fddDisplay.hpp"
 #include "services.hpp"
 #include "icecream.hpp"
 
-fddViewer::fddViewer(point2D pos, int height, fdd f, fdd lowerBound, fdd upperBound, int marginSize, int puckSize, int textSize, std::string s)
+fddDisplay::fddDisplay(point2D pos, int height, fdd f, fdd lowerBound, fdd upperBound, int marginSize, int puckSize, int textSize, std::string s)
 {
 	_fdd=f;
 	_name = s;
@@ -17,17 +17,17 @@ fddViewer::fddViewer(point2D pos, int height, fdd f, fdd lowerBound, fdd upperBo
 	_upperBound=upperBound;
 }
 
-void fddViewer::update(const double &dt)
+void fddDisplay::update(const double &dt)
 {
 
 }
 
-void fddViewer::setFdd(fdd f)
+void fddDisplay::setFdd(fdd f)
 {
 	_fdd = f;
 }
 
-void fddViewer::_draw_internal()
+void fddDisplay::_draw_internal()
 {
 	fdd value = _fdd;
 

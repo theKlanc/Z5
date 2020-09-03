@@ -2,13 +2,13 @@
 #include "UI/gadget.hpp"
 #include "fdd.hpp"
 
-class fddViewer : public gadget
+class fddDisplay : public gadget
 {
 public:
-	fddViewer(point2D pos, int height, fdd f, fdd lowerBound, fdd upperBound, int marginSize, int puckSize, int textSize, std::string s = "");
+	fddDisplay(point2D pos, int height, fdd f, fdd lowerBound, fdd upperBound, int marginSize, int puckSize, int textSize, std::string s = "");
 	void update(const double& dt) override;
 	void setFdd(fdd f = {});
-	~fddViewer(){}
+	~fddDisplay(){}
 	// gadget interface
 protected:
 	void _draw_internal() override;

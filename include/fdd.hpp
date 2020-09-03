@@ -47,6 +47,7 @@ struct fdd { // Four DoF descriptor
 	point3Di getPoint3Di()const;
 	point3Dd getPoint3Dd()const;
 	point3Dl getPoint3Dl()const;
+	operator const point3Di(){return getPoint3Di();}
 	rp3d::Vector3 getVector3() const;
 };
 

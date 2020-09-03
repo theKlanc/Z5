@@ -2,7 +2,7 @@
 #include "interactable.hpp"
 #include "controllable.hpp"
 #include "UI/scene.hpp"
-#include "UI/customGadgets/fddViewer.hpp"
+#include "UI/customGadgets/fddDisplay.hpp"
 #include "HI2.hpp"
 
 class nodeController : public interactable, public controllable{
@@ -18,8 +18,8 @@ private:
 	point3Dd _thrustTarget = {};
 	double agility = 0.5;
 
-	std::shared_ptr<fddViewer> _thrustViewer;
-	std::shared_ptr<fddViewer> _spdViewer;
+	std::shared_ptr<fddDisplay> _thrustViewer;
+	std::shared_ptr<fddDisplay> _spdViewer;
 	scene _scene;
 	friend void from_json(const json& j, nodeController& nc);
 

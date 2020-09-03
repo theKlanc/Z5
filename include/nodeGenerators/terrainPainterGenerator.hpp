@@ -50,6 +50,7 @@ public:
 	int getHeight(const point2D &p) override;
 	baseBlock& getTopBlock(const point2D& p) override;
 	nlohmann::json getJson() const override;
+	baseBlock& getEmptyBlock() override;
 
 	friend void from_json(const json& j, terrainPainterGenerator &tpg);
 private:

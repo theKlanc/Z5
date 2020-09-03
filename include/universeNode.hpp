@@ -48,6 +48,8 @@ public:
 	void updateCamera(fdd c);
 
 	void setBlock(metaBlock b, const point3Di &pos);
+	void removeBlock(const point3Di &pos);
+
 	void updateChunks(const fdd& cameraChunk, int distance);
 	std::vector<universeNode*> nodesToDraw(fdd f,universeNode* u);
 	fdd getLocalPos(fdd f,universeNode* u) const;
@@ -66,6 +68,7 @@ public:
 	std::string getName();
 	nodeType getType();
 	std::vector<universeNode*> getChildren();
+	void adoptNode(universeNode* u);
 	void addChild(std::shared_ptr<universeNode> u);
 	universeNode* calculateBestParent();
 
@@ -144,7 +147,7 @@ public:
 	HI2::Color getMainColor();
 
 	interactable* getClosestInteractable(fdd pos);
-	point3Di getClosestInteractablePos(fdd pos);
+	point3Dd getClosestInteractablePos(fdd pos);
 
 	std::shared_ptr<thrustSystem> getThrustSystem();
 
@@ -152,6 +155,8 @@ public:
 	static point3Di chunkFromPos(const point3Di& pos);
 
 private:
+	void recalculateDepth();
+
 	bool shouldDraw(fdd f);
 
 	void connectGenerator(const nlohmann::json& j);

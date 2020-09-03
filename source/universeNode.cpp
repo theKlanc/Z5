@@ -115,11 +115,11 @@ bool universeNode::calculateEntityActivity(fdd pos, bool oldValue)
 {
 	if(pos.magnitude() < _diameter + 400){
 		//si estem dins el planeta
-		if(pos.distance(*_CL_cameraPosition)/config::chunkSize + 2 >= config::chunkloadSphereRadius)
+		if(pos.distance(*_CL_cameraPosition) >= (config::chunkloadSphereRadius-2)*config::chunkSize)
 		{
 			return false; //si estem lluny de la camera -> dormir
 		}
-		else if(pos.distance(*_CL_cameraPosition)/config::chunkSize + 1 <= config::chunkloadSphereRadius / 2)
+		else if(pos.distance(*_CL_cameraPosition) <= (config::chunkloadSphereRadius / 2 - 1)*config::chunkSize)
 		{
 			return true; //si estem a prop de la camera -> despertar
 		}
@@ -156,6 +156,14 @@ void universeNode::setBlock(metaBlock b, const point3Di& pos) {
 			updateBlockAO({x+pos.x,y+pos.y,pos.z-1});
 		}
 	}
+}
+
+void universeNode::removeBlock(const point3Di &pos)
+{
+	metaBlock m;
+	m.base = &_generator->getEmptyBlock();
+	m.saveMeta = false;
+	setBlock(m,pos);
 }
 void universeNode::updateChunks(const fdd& cameraPos, int distance) {
 	assert(_CL_mutex);
@@ -233,6 +241,18 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 				(int)floor((double)pos.z / config::chunkSize) };
 }
 
+void universeNode::recalculateDepth()
+{
+	if(!_parent)
+		_depth = 0;
+	else{
+		_depth = _parent->_depth+1;
+		for(auto& node : _children){
+			node->recalculateDepth();
+		}
+	}
+}
+
 void universeNode::connectGenerator(const nlohmann::json& j)
 {
 	if (j.contains("type")) {
@@ -299,11 +319,11 @@ interactable* universeNode::getClosestInteractable(fdd pos)
 	return inter;
 }
 
-point3Di universeNode::getClosestInteractablePos(fdd pos)
+point3Dd universeNode::getClosestInteractablePos(fdd pos)
 {
 
 	double minDist = config::interactableRadius;
-	point3Di inter;
+	point3Dd inter;
 	if(_parent){
 		fdd lpos = _parent->getLocalPos(pos,this);
 		for(auto& i : _parent->_interactables){
@@ -486,7 +506,6 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 								  // relative to our local node (*this)
 {
 	assert(!std::isnan(_position.x));
-	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
@@ -510,7 +529,6 @@ fdd universeNode::getLocalPos(fdd f, universeNode* u) const // returns the fdd(p
 
 fdd universeNode::getLocalRPos(fdd f, universeNode *u) const
 {
-	universeNode* backUp = u;
 	if (u == this)
 		return f;
 	else
@@ -602,15 +620,32 @@ std::vector<universeNode*> universeNode::getChildren()
 	return result;
 }
 
-void universeNode::addChild(std::shared_ptr<universeNode> u)
+void universeNode::adoptNode(universeNode *u)
 {
-	u->_depth = _depth+1;
-	if(u->_parent!=this && u->_parent != nullptr){
+	auto iter = std::find_if(u->_parent->_children.begin(),u->_parent->_children.end(),[u](std::shared_ptr<universeNode>& n){return u->_ID == n->_ID;});
+	std::shared_ptr<universeNode> node;
+	if(iter != u->_parent->_children.end() && u->_parent!=this && u->_parent != nullptr){
+		node = *iter;
+		u->_parent->_children.erase(iter);
 		u->_position = getLocalPos(u->_position,u->_parent);
+		u->_rposition = u->_position;
 		u->_velocity = getLocalVel(u->_velocity,u->_parent);
 		u->_parent = this;
+		_children.push_back(node);
+		u->recalculateDepth();
 	}
-	_children.push_back(u);
+}
+
+void universeNode::addChild(std::shared_ptr<universeNode> u)
+{
+	if(u->_parent!=this && u->_parent != nullptr){
+		u->_position = getLocalPos(u->_position,u->_parent);
+		u->_rposition = u->_position;
+		u->_velocity = getLocalVel(u->_velocity,u->_parent);
+		u->_parent = this;
+		_children.push_back(u);
+		u->recalculateDepth();
+	}
 }
 
 universeNode *universeNode::calculateBestParent()
@@ -725,7 +760,7 @@ fdd universeNode::getGravityAcceleration(fdd localPosition, double mass)
 		return *_artificialGravity;
 
 	fdd magicGravity = { 0,0,(localPosition.z > 0 ? -1 : 1)* (G * (_mass / ((_diameter / 2) * (_diameter / 2)))),0 };
-	fdd realGravity = localPosition;
+	fdd realGravity = -localPosition;
 	realGravity.setMagnitude((G * ((_mass*mass) / (pow(localPosition.magnitude(),2)))/mass));
 	double magicFactor = 1;
 	double distance = localPosition.magnitude();
@@ -1009,7 +1044,7 @@ void to_json(nlohmann::json& j, const universeNode& f) {
 	j = json{ {"name", f._name},			{"mass", f._mass},
 			 {"diameter", f._diameter}, {"type", f._type},
 			 {"position", f._position}, {"velocity", f._velocity},
-			 {"children", jj},{"id",f._ID},{"sleeping",f.physicsData.sleeping},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
+			 {"children", jj},{"id",f._ID},{"sleeping",f.physicsData.sleeping},{"deltaPos",f.physicsData.deltaPos},{"deltaSteps",f.physicsData.deltaSteps},{"generator",*f._generator.get()},{"color",f._mainColor},{"thrustSystem",*f._thrustSystem},{"interactables",interactablesJson}};
 	if(f._artificialGravity)
 		j.emplace("artificial_gravity",*f._artificialGravity);
 }
@@ -1091,6 +1126,11 @@ void from_json(const json& j, universeNode& f) {
 	f._CL_mutex = std::make_shared<std::mutex>();
 	if(j.contains("sleeping"))
 		f.physicsData.sleeping = j.at("sleeping").get<bool>();
+	if(j.contains("deltaPos"))
+		f.physicsData.deltaPos = j.at("deltaPos").get<fdd>();
+	if(j.contains("deltaSteps"))
+		f.physicsData.deltaSteps = j.at("deltaSteps").get<int>();
+
 }
 
 universeNode& universeNode::operator=(const universeNode& u)

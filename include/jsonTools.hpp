@@ -14,6 +14,11 @@ enum class componentType{
 	BODY,
 	DRAWABLE,
 	BRAIN,
+	PROJECTILE,
+	HEALTH,
+	ITEM,
+	HAND,
+	INVENTORY
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
@@ -23,6 +28,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM( componentType, {
 	{componentType::BODY,"BODY"},
 	{componentType::DRAWABLE,"DRAWABLE"},
 	{componentType::BRAIN,"BRAIN"},
+	{componentType::PROJECTILE,"PROJECTILE"},
+	{componentType::HEALTH,"HEALTH"},
+	{componentType::ITEM,"ITEM"},
+	{componentType::HAND,"HAND"},
+	{componentType::INVENTORY,"INVENTORY"},
+
 })
 
 enum class interactableType{

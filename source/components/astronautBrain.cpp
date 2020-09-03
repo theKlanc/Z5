@@ -1,6 +1,12 @@
 #include "components/astronautBrain.hpp"
 #include "components/position.hpp"
 #include "components/velocity.hpp"
+#include "components/hand.hpp"
+#include "components/item.hpp"
+#include "components/inventory.hpp"
+
+
+
 #include <iostream>
 #include <optional>
 
@@ -43,6 +49,45 @@ void astronautBrain::update(double dt, const std::bitset<HI2::BUTTON_SIZE> &down
 			if(interactable* i = entityPos.parent->getClosestInteractable(entityPos.pos); i){
 				i->interact(_entity);
 			}
+		}
+		if(down[HI2::BUTTON::KEY_F] || down[HI2::BUTTON::KEY_LEFTCLICK]){
+			if(Services::enttRegistry->has<hand>(_entity))
+			{
+				auto& h = Services::enttRegistry->get<hand>(_entity);
+				if(h._item)
+				{
+					entt::entity itemEntity = *h._item;
+					if(Services::enttRegistry->has<std::unique_ptr<item>>(itemEntity)){
+						Services::enttRegistry->get<std::unique_ptr<item>>(itemEntity)->use(_entity,itemEntity);
+					}
+					else{
+						throw "tenim a la mà algo que no és un item lmao";
+					}
+				}
+			}
+		}
+		if(down[HI2::BUTTON::KEY_MOUSEWHEEL_UP]){
+			if(Services::enttRegistry->has<hand>(_entity))
+			{
+				auto& h = Services::enttRegistry->get<hand>(_entity);
+				h.nextItem(Services::enttRegistry->get<inventory>(_entity));
+			}
+		}
+		if(down[HI2::BUTTON::KEY_MOUSEWHEEL_DOWN]){
+			if(Services::enttRegistry->has<hand>(_entity))
+			{
+				auto& h = Services::enttRegistry->get<hand>(_entity);
+				h.previousItem(Services::enttRegistry->get<inventory>(_entity));
+			}
+		}
+
+		if(held[HI2::BUTTON::KEY_E]){
+			auto& entityPos = Services::enttRegistry->get<position>(_entity);
+			entityPos.pos.r-=dt;
+		}
+		if(held[HI2::BUTTON::KEY_Q]){
+			auto& entityPos = Services::enttRegistry->get<position>(_entity);
+			entityPos.pos.r+=dt;
 		}
 		//if(held[HI2::BUTTON::KEY_P]){
 		//	auto& entityPos = Services::enttRegistry->get<position>(_entity);

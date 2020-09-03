@@ -10,8 +10,10 @@
 #include <thread>
 #include "components/position.hpp"
 #include "UI/customGadgets/starmap.hpp"
+#include "UI/customGadgets/healthDisplay.hpp"
 #include "reactPhysics3D/src/reactphysics3d.h"
 #include "physicsEngine.hpp"
+#include "observer.hpp"
 
 namespace State {
 	class Playing : public virtual State_Base {
@@ -27,7 +29,7 @@ namespace State {
 
 		void debugConsoleExec(std::string command);
 	private:
-
+		void control(entt::entity);
 
 		struct nodeLayer {
 			universeNode* node;
@@ -35,21 +37,21 @@ namespace State {
 			std::vector<metaBlock> blocks;
 			bool firstLayer = false;
 		};
+
 		struct renderLayer {
 			double depth;
-			std::variant<entt::entity, nodeLayer,point3Di> target;
+			std::variant<entt::entity, nodeLayer,point3Dd,HI2::Color> target;
 		};
 
 		nodeLayer generateNodeLayer(universeNode* node, double depth, fdd localCameraPos);
 		void drawLayer(const renderLayer& rl);
-		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom); //translates a position relative to the camera, to a position relative to the display ready to draw
+		static point2Dd translatePositionToDisplay(point2Dd pos, const double& zoom, const double& spriteZoom = 1); //translates a position relative to the camera, to a position relative to the display ready to draw
 
 		entt::entity _player;
 		entt::entity _camera;
-		int selectedBlock = 7;
-		blockRotation selectedRotation = blockRotation::UP;
-		bool selectedFlip = false;
 		entt::registry _enttRegistry;
+
+		bool _drawDebugInfo = true;
 
 		static sprite* _AOSIDE;
 		static sprite* _AOCORNER;
@@ -66,7 +68,6 @@ namespace State {
 		void createEntities();
 		void fixEntities();
 
-
 		physicsEngine _physicsEngine;
 
 		universeNode _universeBase;
@@ -75,16 +76,19 @@ namespace State {
 		bool _debug = false;
 
 		scene _scene;
-		std::shared_ptr<basicTextEntry> _console;
-		std::shared_ptr<starmap> _starmap;
+
+		struct {
+			std::shared_ptr<healthDisplay> _hDisplay;
+			std::shared_ptr<basicTextEntry> _console;
+			std::shared_ptr<starmap> _starmap;
+		}_sceneElements;
+
+
 
 		bool _paused = false;
 		bool _step = false;
 
-
-		scene _uiScene;
-
 		void updateCamera();
-        };
+    };
 
 } // namespace State

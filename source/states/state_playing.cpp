@@ -1,4 +1,10 @@
 #include "components/brain.hpp"
+#include "components/item.hpp"
+#include "components/inventory.hpp"
+#include "components/hand.hpp"
+#include "components/resourceHarvester.hpp"
+
+
 #include "states/state_playing.hpp"
 #include <fstream>
 #include <iostream>
@@ -23,9 +29,15 @@
 #include "nodeGenerators/prefabGenerator.hpp"
 #include "components/brain.hpp"
 #include "UI/customGadgets/starmap.hpp"
+#include "components/health.hpp"
+#include "components/projectile.hpp"
+
 #include <memory>
 #include "fuel.hpp"
 #include "icecream.hpp"
+#include "systems.hpp"
+
+#include <functional>
 
 sprite* State::Playing::_AOSIDE;
 sprite* State::Playing::_AOCORNER;
@@ -36,6 +48,9 @@ State::Playing::~Playing() {
 }
 
 State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug) :State_Base(gc), _standardFont(*Services::fonts.loadFont("lemon")) {
+	observer::registerObserver(eventType::PROJECTILEHIT,systems::projectileDamage,this);
+	observer::registerObserver(eventType::PROJECTILEBOUNCE,systems::projectileBounce,this);
+
 	_debug = debug;
 
 	//load json tables
@@ -69,12 +84,7 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		loadGame();
 	}
 
-	if (_debug) {
-		_console = std::make_shared<basicTextEntry>(point2D{ 0,0 }, point2D{ HI2::getScreenWidth(),40 }, _standardFont, 35, "", "Enter a command here", HI2::Color(0, 0, 0, 127), HI2::Color(255, 255, 255, 255));
-		_console->toggle();
-		_console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
-		_scene.addGadget(_console);
-	}
+
 
 	auto playerView = _enttRegistry.view<entt::tag<"PLAYER"_hs>>();					   // Get camera and player
 	universeNode* playerParent;
@@ -87,15 +97,24 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		_camera = entity;																	   //
 	}
 																				   //
+	_sceneElements._starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
+	_sceneElements._starmap->toggle();
+	_scene.addGadget(_sceneElements._starmap);
 
-	_starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
-	_starmap->toggle();
-	_scene.addGadget(_starmap);
+	_sceneElements._hDisplay = std::make_shared<healthDisplay>(point2D{0,HI2::getScreenHeight()-32},(_enttRegistry.has<health>(_player)?&_enttRegistry.get<health>(_player):nullptr),1,2);
+	_scene.addGadget(_sceneElements._hDisplay);
 
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalPos(cameraPosition.pos,cameraPosition.parent));
 		node.updateChunks(node.getLocalPos(cameraPosition.pos,cameraPosition.parent),config::chunksContainerSize);
+	}
+
+	if (_debug) {
+		_sceneElements._console = std::make_shared<basicTextEntry>(point2D{ 0,0 }, point2D{ HI2::getScreenWidth(),40 }, _standardFont, 35, "", "Enter a command here", HI2::Color(0, 0, 0, 127), HI2::Color(255, 255, 255, 255));
+		_sceneElements._console->toggle();
+		_sceneElements._console->setCallback(std::bind(&State::Playing::debugConsoleExec, this, std::placeholders::_1));
+		_scene.addGadget(_sceneElements._console);
 	}
 }
 
@@ -109,18 +128,18 @@ void State::Playing::input(double dt)
 	const point2D& mouse = HI2::getTouchPos();
 
 	if (_debug && down[HI2::BUTTON::KEY_CONSOLE]) {
-		_console->toggle();
+		_sceneElements._console->toggle();
 	}
-	if(_console->isActive()){
-		_scene.select(_console);
+	if(_sceneElements._console->isActive()){
+		_scene.select(_sceneElements._console);
 	}
 	else {
 		if (_debug && down[HI2::BUTTON::KEY_Z]) {
 			_step = true;
 		}
 		if (down[HI2::BUTTON::KEY_M] || down[HI2::BUTTON::BUTTON_RSTICK]) {
-			_starmap->toggle();
-			_scene.select(_starmap);
+			_sceneElements._starmap->toggle();
+			_scene.select(_sceneElements._starmap);
 		}
 		// Exit
 		if (held[HI2::BUTTON::CANCEL])
@@ -149,6 +168,7 @@ void State::Playing::updateCamera()
 	position& cameraPosition = _enttRegistry.get<position>(_camera);
 	cameraPosition.parent = playerPosition.parent;
 	cameraPosition.pos = playerPosition.getRPos();
+	cameraPosition.pos.r = 0;
 	cameraPosition.pos.z += 0.01;
 	std::vector<universeNode*> cameraCollisionNodes;
 
@@ -188,12 +208,83 @@ void State::Playing::update(double dt) {
 		dt = 0;
 	if (_step)
 		dt = 1.0f / config::physicsHz;
-	//update enemies
+
+	//update brains
 	auto brainEntities = _enttRegistry.view<std::unique_ptr<brain>,entt::tag<"ACTIVE"_hs>>();
 	for (auto entity : brainEntities) {
 		if(entity != _player)
 			brainEntities.get<std::unique_ptr<brain>>(entity)->update(dt);
 	}
+
+	//update health
+	auto healthEntities = _enttRegistry.view<health>();
+	for(auto entity	 : healthEntities){
+		health h = _enttRegistry.get<health>(entity);
+		if(!h.alive()){
+			if(entity == _player)
+				control(_camera);
+			else
+				_enttRegistry.destroy(entity);
+		}
+	}
+
+	//rotate dropped items
+	auto rotatingItems = _enttRegistry.view<std::unique_ptr<item>,position,entt::tag<"ACTIVE"_hs>>();
+	for(auto entity	 : rotatingItems){
+		rotatingItems.get<position>(entity).pos.r += dt;
+	}
+
+	//update items in hands and their positions
+	auto hands = _enttRegistry.view<hand,position>();
+	for(auto entity	 : hands){
+		if(_enttRegistry.has<inventory>(entity)){
+			//assegurem que la ma tingui el item del inventari que toca
+			auto inventari = _enttRegistry.get<inventory>(entity);
+			auto& hnd = _enttRegistry.get<hand>(entity);
+			int pendents = hnd.index;
+			for(auto it = inventari.begin(); it != inventari.end(); ++it){
+				if(pendents == 0){
+					if(*it != hnd._item){
+						if(hnd._item){
+							//drop
+							if(_enttRegistry.has<position>(*hnd._item))
+								_enttRegistry.remove<position>(*hnd._item);
+							hnd._item.reset();
+						}
+						hnd._item = *it;
+						if(*it){
+							//grab
+							if(!_enttRegistry.has<position>(*hnd._item))
+								_enttRegistry.emplace<position>(*hnd._item);
+						}
+					}
+					break;
+				}
+				else
+					pendents--;
+			}
+		}
+		position& ownerPos = _enttRegistry.get<position>(entity);
+		if(_enttRegistry.get<hand>(entity)._item){
+			fdd expectedPos = ownerPos.pos;
+			point2Dd displacement = point2Dd::fromDirection(ownerPos.pos.r,0.7);
+			expectedPos.x += displacement.x;
+			expectedPos.y += displacement.y;
+			if(_enttRegistry.has<position>(*_enttRegistry.get<hand>(entity)._item)){
+				auto& pos = _enttRegistry.get<position>(*_enttRegistry.get<hand>(entity)._item);
+				pos.pos = expectedPos;
+				pos.parent = ownerPos.parent;
+				pos.parentID = ownerPos.parentID;
+			}
+			else{
+				auto& pos = _enttRegistry.emplace<position>(*_enttRegistry.get<hand>(entity)._item);
+				pos.pos = expectedPos;
+				pos.parent = ownerPos.parent;
+				pos.parentID = ownerPos.parentID;
+			}
+		}
+	}
+
 
 	//Update thrusters
 	for(auto& node : _universeBase){
@@ -201,7 +292,7 @@ void State::Playing::update(double dt) {
 		node.updateActivity();
 	}
 
-	//delete entities
+	//cleanup entities
 	auto cameraPos = _enttRegistry.get<position>(_camera);
 	auto temporaryEntities = _enttRegistry.view<position>(entt::exclude<entt::tag<"PERMANENT"_hs>>);
 	for(auto& e : temporaryEntities){
@@ -236,6 +327,8 @@ void State::Playing::update(double dt) {
 	for(auto& node : _universeBase){
 		node.updateCamera(node.getLocalRPos(cameraPos.pos,cameraPos.parent));
 	}
+
+	observer::processQueue();
 }
 
 void State::Playing::draw(double dt) {
@@ -253,69 +346,73 @@ void State::Playing::draw(double dt) {
 		playerVel = _enttRegistry.get<velocity>(_player);
 
 	bool interactableInRange = playerPos.parent->getClosestInteractable(playerPos.pos) != nullptr;
-	point3Di iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
-
-	std::vector<renderLayer> renderOrders;
-	HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));{
-		position cameraPos = _enttRegistry.get<position>(_camera);
-		std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
-		for (universeNode*& node : sortedDrawingNodes) {
-			std::vector<bool> visibility(((int)(HI2::getScreenWidth() / config::spriteSize)) * ((int)(HI2::getScreenHeight() / config::spriteSize)), true);
-			for (int i = 0; i <= config::cameraDepth; ++i) {//for depth afegim cada capa dels DrawingNodes
-				position currentCameraPos = cameraPos;
-				currentCameraPos.pos.z -= i;
-				//obtenir posicio de la camera al node
-				fdd localCameraPos = node->getLocalRPos(currentCameraPos.pos, currentCameraPos.parent);
-				//obtenir profunditat
-				int layer = floor(localCameraPos.z);
-
-				double partFraccional = fmod(localCameraPos.z, 1);
-				if(partFraccional < 0)
-					partFraccional+=1;
-				double depth = i + partFraccional - 1;
-
-				if(depth < 0.2)
-					continue;
-				depth +=0.5;
-				nodeLayer nLayer = generateNodeLayer(node, depth, localCameraPos);
-				renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Di>(nLayer) });
-
-				if(interactableInRange && node == playerPos.parent && iblePos.z == layer){
-					renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Di>(iblePos)});
-				}
-			}
-		}
-
-		auto drawableEntityView = _enttRegistry.view<drawable, position>();
-		for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
-			auto& pos = drawableEntityView.get<position>(entity);
-			double depth = cameraPos.pos.z - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent).z;
-			if (_enttRegistry.has<body>(entity))
-			{
-				depth -= _enttRegistry.get<body>(entity).height;
-			}
-			if (depth > 0 && depth < config::cameraDepth)
-				renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Di>(entity) });
-		}
-
-	}
-	//ordenem per profunditat
-	std::sort(renderOrders.begin(), renderOrders.end(), [](renderLayer& l, renderLayer& r) {
-		return l.depth > r.depth;
-	});
+	point3Dd iblePos = playerPos.parent->getClosestInteractablePos(playerPos.pos);
 
 	HI2::startFrame();
-	for (renderLayer& rl : renderOrders) {
-		drawLayer(rl);
-	}
-	if (baseBlock::terrainTable[selectedBlock].visible)
-	{
-		sprite& s = *Services::graphics.getSprite(baseBlock::terrainTable[selectedBlock].name);
-		HI2::setTextureColorMod(*s.getTexture(), HI2::Color(255, 255, 255, 0));
-		HI2::drawTexture(*s.getTexture(), 0, HI2::getScreenHeight() - config::spriteSize * 4, s.getCurrentFrame().size, s.getCurrentFrame().startPos, 4, ((double)(int)selectedRotation) * (M_PI / 2), selectedFlip ? HI2::FLIP::H : HI2::FLIP::NONE);
+	if(config::render){
+		std::vector<renderLayer> renderOrders;
+		HI2::setBackgroundColor(HI2::Color(0, 0, 0, 255));
+		{
+			if(config::fogEnabled){
+				renderOrders.push_back(renderLayer{config::cameraDepth-1.1f,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(170,170,170,255))});
+				for(int i = 1; i < config::fogLayers;++i){
+					renderOrders.push_back(renderLayer{config::cameraDepth-1.1f - i,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(HI2::Color(255,255,255,2*255/config::fogLayers))});
+				}
+			}
+			position cameraPos = _enttRegistry.get<position>(_camera);
+			std::vector<universeNode*> sortedDrawingNodes = _universeBase.nodesToDraw(cameraPos.pos, cameraPos.parent);
+			for (universeNode*& node : sortedDrawingNodes) {
+				std::vector<bool> visibility(((int)(HI2::getScreenWidth() / config::spriteSize)) * ((int)(HI2::getScreenHeight() / config::spriteSize)), true);
+				for (int i = 0; i <= config::cameraDepth; ++i) {//for depth afegim cada capa dels DrawingNodes
+					position currentCameraPos = cameraPos;
+					currentCameraPos.pos.z -= i;
+					//obtenir posicio de la camera al node
+					fdd localCameraPos = node->getLocalRPos(currentCameraPos.pos, currentCameraPos.parent);
+					//obtenir profunditat
+					int layer = floor(localCameraPos.z);
+
+					double partFraccional = fmod(localCameraPos.z, 1);
+					if(partFraccional < 0)
+						partFraccional+=1;
+					double depth = i + partFraccional - 1;
+
+					if(depth < 0.2)
+						continue;
+					depth +=0.5;
+					nodeLayer nLayer = generateNodeLayer(node, depth, localCameraPos);
+					renderOrders.push_back(renderLayer{ depth,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(nLayer) });
+
+					if(interactableInRange && node == playerPos.parent && (int)iblePos.z == layer){
+						renderOrders.push_back(renderLayer{ depth-0.001,std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(iblePos)});
+					}
+				}
+			}
+
+			auto drawableEntityView = _enttRegistry.view<drawable, position>();
+			for (auto entity : drawableEntityView) { // afegim les entitats dibuixables
+				auto& pos = drawableEntityView.get<position>(entity);
+				fdd relativePos = cameraPos.pos - cameraPos.parent->getLocalRPos(pos.getRPos(), pos.parent);
+				double depth = relativePos.z;
+				if (_enttRegistry.has<body>(entity))
+				{
+					depth -= _enttRegistry.get<body>(entity).height;
+				}
+				if (depth > 0 && depth < config::cameraDepth && relativePos.magnitude() < 200)
+					renderOrders.push_back(renderLayer{ depth - 0.01,	std::variant<entt::entity,nodeLayer,point3Dd,HI2::Color>(entity) });
+			}
+
+		}
+		//ordenem per profunditat
+		std::sort(renderOrders.begin(), renderOrders.end(), [](renderLayer& l, renderLayer& r) {
+			return l.depth > r.depth;
+		});
+
+		for (renderLayer& rl : renderOrders) {
+			drawLayer(rl);
+		}
 	}
 
-	if (_debug) {
+	if (_debug && _drawDebugInfo) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Orange);
 		HI2::drawText(_standardFont, "Parent: " + playerPos.parent->getName() + " (" + std::to_string(playerPos.parent->getID()) + ")", { 0,30 }, 30, HI2::Color::Orange);
 		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
@@ -341,6 +438,9 @@ void State::Playing::draw(double dt) {
 void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 {
 	struct visitor {
+		void operator()(const HI2::Color& color) const{
+			HI2::drawRectangle({},HI2::getScreenWidth(),HI2::getScreenHeight(),color);
+		}
 		void operator()(const entt::entity& entity) const {
 
 			double depthFactor = ((zoom / config::zoom) - config::minScale) / (config::depthScale - config::minScale);
@@ -353,14 +453,14 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			const drawable& drw = registry->get<drawable>(entity);
 			const position& entityPosition = registry->get<position>(entity);
 			fdd localPos = cameraPos.parent->getLocalPos(entityPosition.getRPos(), entityPosition.parent) - cameraPos.pos;
-			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom);
+			point2Dd drawPos = translatePositionToDisplay({ localPos.x,localPos.y }, zoom, drw.zoom);
 			//late culling
 			if(drawPos.x <= HI2::getScreenWidth() && drawPos.y <= HI2::getScreenHeight() && (drawPos.x + zoom*drw.spr->getCurrentFrame().size.x>=0) && (drawPos.y + zoom*drw.spr->getCurrentFrame().size.y>=0))
 			{
 				if (config::drawDepthShadows) {
 					HI2::setTextureColorMod(*drw.spr->getTexture(), HI2::Color(mask, mask, mask, 0));
 				}
-				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom, localPos.r, HI2::FLIP::NONE);
+				HI2::drawTexture(*drw.spr->getTexture(), drawPos.x, drawPos.y, drw.spr->getCurrentFrame().size, drw.spr->getCurrentFrame().startPos, zoom * drw.zoom, -localPos.r, HI2::FLIP::NONE);
 				//HI2::drawRectangle({ (int)drawPos.x,(int)drawPos.y }, (int)config::spriteSize * zoom, (int)config::spriteSize * zoom, HI2::Color(0, 0, 0, 100));
 			}
 		}
@@ -377,7 +477,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 			int topVis = 255 - config::minShadow;
 			double shadowVal = depthFactor * topVis;
 			short mask = shadowVal + config::minShadow;
-
+			bool maskApplied = false;
 
 			fdd firstBlock = node.node->getLocalRPos(cameraPos.pos, cameraPos.parent); //bloc on esta la camera
 			firstBlock.z = node.layerHeight;
@@ -395,7 +495,6 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				tmp = 1.0f - std::abs(tmp);
 			double fraccionalY = 0.5 - tmp;
 			if (fraccionalY < 0)fraccionalY += 1;
-			fdd localPos = firstBlock - cameraPos.pos;
 
 			int rowSize = (HI2::getScreenWidth() / config::spriteSize);
 			int colSize = (HI2::getScreenHeight() / config::spriteSize);
@@ -422,9 +521,10 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 
 					metaBlock& b = node.node->getBlock({ (int)round(firstBlock.x) + x,(int)round(firstBlock.y) + y,node.layerHeight });
 					if (b.base->visible && (b._render_visible || node.firstLayer)) {
-						if (config::drawDepthShadows) {
+						if (config::drawDepthShadows && !maskApplied) {
 							//mask anira de 255 a 150
 							HI2::setTextureColorMod(*b.base->spr->getTexture(), HI2::Color(mask, mask, mask, 0));
+							maskApplied = true;
 						}
 						//HI2::drawRectangle({finalXdrawPos, finalYdrawPos},16.0*zoom,16.0*zoom,node.node->getMainColor());
 						HI2::drawTextureOverlap(*b.base->spr->getTexture(), finalXdrawPos, finalYdrawPos, b.base->spr->getCurrentFrame().size, b.base->spr->getCurrentFrame().startPos, zoom, ((double)(int)b.rotation) * (M_PI / 2), b.flip ? HI2::FLIP::H : HI2::FLIP::NONE);
@@ -461,7 +561,7 @@ void State::Playing::drawLayer(const State::Playing::renderLayer& rl)
 				}
 			}
 		}
-		void operator()(const point3Di& p) const {
+		void operator()(const point3Dd& p) const {
 			point2Dd drawPos = translatePositionToDisplay({p.x-cameraPos.pos.x+0.5,p.y-cameraPos.pos.y+0.5}, zoom);
 			HI2::drawEmptyRectangle({(int)drawPos.x,(int)drawPos.y},16*zoom,16*zoom,3,HI2::getKeysHeld()[HI2::BUTTON::KEY_ENTER]?HI2::Color::Green : HI2::Color::White);
 		}
@@ -505,19 +605,19 @@ State::Playing::nodeLayer State::Playing::generateNodeLayer(universeNode* node, 
 	return result;
 }
 
-point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& zoom)
+point2Dd State::Playing::translatePositionToDisplay(point2Dd pos, const double& depthZoom, const double& spriteZoom)
 {
-	pos.x *= config::spriteSize * zoom; // passem de coordenades del mon a coordenades de pantalla
-	pos.y *= config::spriteSize * zoom;
+	pos.x *= config::spriteSize * depthZoom; // passem de coordenades del mon a coordenades de pantalla
+	pos.y *= config::spriteSize * depthZoom;
 
-	pos.x += (HI2::getScreenWidth() * zoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
-	pos.y += (HI2::getScreenHeight() * zoom) / 2;
+	pos.x += (HI2::getScreenWidth() * depthZoom) / 2; //canviem el sistema de referencia respecte al centre (camera) a respecte el TL
+	pos.y += (HI2::getScreenHeight() * depthZoom) / 2;
 
-	pos.x -= (config::spriteSize * zoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
-	pos.y -= (config::spriteSize * zoom) / 2;
+	pos.x -= (config::spriteSize * depthZoom * spriteZoom) / 2; //dibuixem repecte el TL de la entitat, no pas la seva posicio (la  qual es el seu centre)
+	pos.y -= (config::spriteSize * depthZoom * spriteZoom) / 2;
 
-	pos.x -= ((HI2::getScreenWidth() * zoom) - HI2::getScreenWidth()) / 2;
-	pos.y -= ((HI2::getScreenHeight() * zoom) - HI2::getScreenHeight()) / 2;
+	pos.x -= ((HI2::getScreenWidth() * depthZoom) - HI2::getScreenWidth()) / 2;
+	pos.y -= ((HI2::getScreenHeight() * depthZoom) - HI2::getScreenHeight()) / 2;
 
 	return pos;
 }
@@ -669,12 +769,17 @@ void State::Playing::createEntities()
 		playerBody.physicsData.collider->addCollisionShape(playerBody.physicsData._collisionShape, transform);
 
 		_enttRegistry.emplace<std::unique_ptr<brain>>(_player) = std::make_unique<astronautBrain>(_player);
+
+		auto& playerHealth = _enttRegistry.emplace<health>(_player);
+		_enttRegistry.emplace<entt::tag<"PERMANENT"_hs>>(_player);
 	}
 
 	{
 		_camera = _enttRegistry.create();
 		_enttRegistry.emplace<entt::tag<"CAMERA"_hs>>(_camera);
-		_enttRegistry.emplace<position>(_camera);
+		_enttRegistry.emplace<entt::tag<"PERMANENT"_hs>>(_camera);
+		auto& pos = _enttRegistry.emplace<position>(_camera);
+		pos = _enttRegistry.get<position>(_player);
 	}
 	bool constexpr skipExtraEntities = false;
 	if constexpr(!skipExtraEntities){
@@ -740,7 +845,6 @@ void State::Playing::createEntities()
 					std::vector<frame> ballFrames;
 					ballFrames.push_back({ {240,0},{16,16} });
 					ballSprite.spr = Services::graphics.loadSprite("ball", "spritesheet", ballFrames);
-					ballSprite.spr = Services::graphics.loadSprite("ball");
 				}
 
 				ballSprite.name = "ball";
@@ -825,6 +929,18 @@ void State::Playing::fixEntities()
 		transform.setPosition(initPosition);
 		b.physicsData.collider->addCollisionShape(b.physicsData._collisionShape, transform);
 	}
+
+	//inventories
+	auto inventories = _enttRegistry.view<inventory>();
+	for (const entt::entity& entity : inventories) {
+		inventories.get<inventory>(entity).fix();
+	}
+
+	//hands
+	auto hands = _enttRegistry.view<hand>();
+	for (const entt::entity& entity : hands) {
+		hands.get<hand>(entity).select(_enttRegistry.get<inventory>(entity));
+	}
 }
 
 std::filesystem::path State::Playing::_savePath;
@@ -862,6 +978,16 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "activateallentities" << std::endl;
 		std::cout << "listEntities" << std::endl;
 		std::cout << "controlEntity ID" << std::endl;
+		std::cout << "shoot {N}" << std::endl;
+		std::cout << "render" << std::endl;
+		std::cout << "reload" << std::endl;
+		std::cout << "toggleFog" << std::endl;
+		std::cout << "fix (debug command)" << std::endl;
+		std::cout << "debug" << std::endl;
+
+	}
+	else if (command == "reload") {
+		Services::graphics.reloadTexture("spritesheet");
 	}
 	else if (command == "pause") {
 		_paused = !_paused;
@@ -896,11 +1022,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		ss >> argument;
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		if(_enttRegistry.valid(entt::entity(id))){
-			_enttRegistry.remove<entt::tag<"PLAYER"_hs>>(_player);
-
-			_enttRegistry.emplace<entt::tag<"PLAYER"_hs>>(entt::entity(id));
-			_player = entt::entity(id);
-
+			control(entt::entity(id));
 		}
 	}
 	else if (command == "step") {
@@ -929,6 +1051,7 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "name: " << node.getName() << std::endl;
 			std::cout << sep << "type: " << node.getType() << std::endl;
 			std::cout << sep << "pos: " << node.getPosition() << std::endl;
+			std::cout << sep << "pare: " << (node.getParent()?node.getParent()->getName():"")<<std::endl;
 
 		}
 	}
@@ -946,6 +1069,7 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "name: " << node->getName() << std::endl;
 			std::cout << sep << "type: " << node->getType() << std::endl;
 			std::cout << sep << "pos: " << node->getPosition() << std::endl;
+			std::cout << sep << "pare: " << (node->getParent()?node->getParent()->getName():"")<<std::endl;
 		}
 	}
 	else if (command == "setZoom" && ss.tellg() != -1) {
@@ -962,8 +1086,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		universeNode *child, *newParent;
 		if(_universeBase.findNodeByID(childID, child)){
 			if(_universeBase.findNodeByID(newParentID, newParent)){
-				std::shared_ptr<universeNode> newChild = child->getParent()->removeChild(childID);
-				newParent->addChild(newChild);
+				newParent->adoptNode(child);
 			}
 		}
 	}
@@ -973,6 +1096,67 @@ void State::Playing::debugConsoleExec(std::string input)
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
 		if (_universeBase.findNodeByID(id, node)) {
+			fdd pos = node->getPosition();
+			if (ss.tellg() != -1) {
+				ss >> argument;
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.x -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.x += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.x = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+			}
+			if (ss.tellg() != -1) {
+				ss >> argument;
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.y -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.y += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.y = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+			}
+			if (ss.tellg() != -1) {
+				ss >> argument;
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.z -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.z += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.z = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+			}
+			node->setPosition(pos);
+			node->setVelocity(fdd());
+			node->physicsData.sleeping=false;
+		}
+	}
+	else if (command == "nodeGoto" && ss.tellg() != -1) {
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* node;
+		ss >> argument;
+		unsigned nouPareID = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* nouPare;
+
+		if (_universeBase.findNodeByID(id, node) && _universeBase.findNodeByID(nouPareID, nouPare)) {
+			debugConsoleExec("listNodes");
+			nouPare->adoptNode(node);
+			debugConsoleExec("listNodes");
 			fdd pos = node->getPosition();
 			if (ss.tellg() != -1) {
 				ss >> argument;
@@ -1196,6 +1380,129 @@ void State::Playing::debugConsoleExec(std::string input)
 	else if (command == "extrapolation") {
 		config::extrapolateRenderPositions = !config::extrapolateRenderPositions;
 	}
+	else if (command == "shoot"){
+		int n = 1;
+		if (ss.tellg() != -1) {
+			std::string argument;
+			ss >> argument;
+			n = std::strtol(argument.c_str(), nullptr, 10);
+		}
+		for(int i = 0; i < n;++i){
+			auto bullet = _enttRegistry.create();
+			//eqebody
+			{
+				body& bulletBody = _enttRegistry.emplace<body>(bullet);
+				bulletBody.mass = 0.1;
+				bulletBody.width = 0.5;
+				bulletBody.height = 0.5;
+				bulletBody.volume = 0.0001;
+				bulletBody.elasticity = 0.5;
+				bulletBody.applyPhysics = false;
+
+				// Initial position and orientation of the collision body
+				rp3d::Vector3 initPosition(0.0, 0.0, 0.0);
+				rp3d::Quaternion initOrientation = rp3d::Quaternion::identity();
+				rp3d::Transform transform(initPosition, initOrientation);
+				Services::physicsMutex.lock();
+				{
+					bulletBody.physicsData.collider = _physicsEngine.getWorld()->createCollisionBody(transform);
+					collidedResponse* bulletResponse = new collidedResponse();
+					bulletResponse->type = physicsType::ENTITY;
+					bulletResponse->body.entity = bullet;
+					bulletBody.physicsData.collider->setUserData((void*)bulletResponse);
+					initPosition = rp3d::Vector3(0, 0, bulletBody.width / 2);
+					transform.setPosition(initPosition);
+					bulletBody.physicsData._collisionShape = new rp3d::SphereShape(bulletBody.width / 2);
+					bulletBody.physicsData.collider->addCollisionShape(bulletBody.physicsData._collisionShape, transform);
+				}
+				Services::physicsMutex.unlock();
+			}
+			//projectile
+			{
+				projectile& p = _enttRegistry.emplace<projectile>(bullet);
+				p._damage = 2;
+				p._remainingPenetration = 0;
+				p._remainingBounces = 1;
+				//p.lastCollision = _player;
+			}
+			//position
+			{
+				position& pos = _enttRegistry.emplace<position>(bullet);
+				pos.pos = _enttRegistry.get<position>(_player).pos;
+				pos.parent = _enttRegistry.get<position>(_player).parent;
+				pos.parentID = pos.parent->getID();
+				point2Dd displacement = point2Dd::fromDirection(pos.pos.r,1);
+				pos.pos += fdd{displacement.x,displacement.y,0.5};
+			}
+			//velocity
+			{
+				velocity& vel = _enttRegistry.emplace<velocity>(bullet);
+
+				point2Dd displacement = point2Dd::fromDirection(_enttRegistry.get<position>(_player).pos.r,1);
+				vel.spd = _enttRegistry.get<velocity>(_player).spd;
+				vel.spd.r = 0;
+				vel.spd += fdd{displacement.x*3,displacement.y*3,0,0};
+			}
+			//drawable
+			{
+				auto& bulletSprite = _enttRegistry.emplace<drawable>(bullet);
+				std::vector<frame> dogFrames;
+				if (Services::graphics.isSpriteLoaded("bullet")) {
+					bulletSprite.spr = Services::graphics.getSprite("bullet");
+				}
+				else {
+					std::vector<frame> bulletFrames;
+					bulletFrames.push_back({ {336,32},{16,16} });
+					bulletSprite.spr = Services::graphics.loadSprite("bullet", "spritesheet", bulletFrames);
+					bulletSprite.spr = Services::graphics.loadSprite("bullet");
+				}
+				bulletSprite.name = "bullet";
+			}
+		}
+	}
+	else if(command == "render"){
+		config::render = !config::render;
+	}
+	else if(command == "toggleFog"){
+		config::fogEnabled = !config::fogEnabled;
+	}
+	else if(command == "debug"){
+		_drawDebugInfo = !_drawDebugInfo;
+	}
+	else if(command == "fix"){
+		auto& inv = _enttRegistry.emplace<inventory>(_player,10);
+		auto& hnd = _enttRegistry.emplace<hand>(_player);
+
+		auto resHarv = _enttRegistry.create();
+		{
+			 auto& drw = _enttRegistry.emplace<drawable>(resHarv);
+			 drw.zoom = 0.5;
+			 drw.name = "multitool";
+			 std::vector<frame> frames;
+			 frames.push_back({ {320,64},{16,16} });
+			 drw.spr = Services::graphics.loadSprite("multitool","spritesheet",frames);
+
+			 auto& rh = _enttRegistry.emplace<std::unique_ptr<item>>(resHarv);
+			 rh = std::make_unique<resourceHarvester>();
+
+			 auto& rhname = _enttRegistry.emplace<name>(resHarv);
+			 rhname.nameString = "multitool";
+
+			 _enttRegistry.emplace<entt::tag<"PERMANENT"_hs>>(resHarv);
+		}
+		inv.add(resHarv);
+		hnd._item = resHarv;
+	}
 
 	std::cout << input << std::endl;
+}
+
+void State::Playing::control(entt::entity e)
+{
+	_enttRegistry.remove<entt::tag<"PLAYER"_hs>>(_player);
+	_enttRegistry.emplace<entt::tag<"PLAYER"_hs>>(e);
+	_player = e;
+
+	_sceneElements._hDisplay->setHealth(_enttRegistry.has<health>(_player)?&_enttRegistry.get<health>(_player):nullptr);
+
 }

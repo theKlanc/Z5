@@ -10,12 +10,12 @@ State::PrefabEditor::PrefabEditor(gameCore& c, std::string name)
 	_core = &c;
 	//load terrain table
 	baseBlock::loadTerrainTable();
-	_prefab = prefab(name);
+	_prefab = std::make_unique<prefab>(name);
 	load();
 
 	initToolbar();
 
-	_checkpoints.push_back(_prefab);
+	_checkpoints.push_back(std::make_unique<prefab>(*_prefab));
 	_currentCheckpoint = _checkpoints.begin();
 }
 
@@ -26,7 +26,7 @@ State::PrefabEditor::PrefabEditor(gameCore& c, std::string name, point3Di size)
 	_core = &c;
 	//load terrain table
 	baseBlock::loadTerrainTable();
-	_prefab = prefab(name, size);
+	_prefab = std::make_unique<prefab>(name, size);
 
 	initToolbar();
 }
@@ -67,8 +67,8 @@ void State::PrefabEditor::input(double dt)
 
 			point3Di size = selEnd - selStart + point3Di{1,1,1};
 
-			prefab selPfb = _prefab.get(selStart,size);
-			_prefab.remove(selStart,size);
+			prefab selPfb = _prefab->get(selStart,size);
+			_prefab->remove(selStart,size);
 			HI2::setClipboard(selPfb.saveSS().str());
 			checkpoint();
 		}
@@ -88,7 +88,7 @@ void State::PrefabEditor::input(double dt)
 
 			point3Di size = selEnd - selStart + point3Di{1,1,1};
 
-			prefab selPfb = _prefab.get(selStart,size);
+			prefab selPfb = _prefab->get(selStart,size);
 			HI2::setClipboard(selPfb.saveSS().str());
 		}
 	}
@@ -102,7 +102,7 @@ void State::PrefabEditor::input(double dt)
 		blockPos.x += (int)(mouse.x / (config::spriteSize * zoom));
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
 
-		_prefab.add(selPfb,blockPos);
+		_prefab->add(selPfb,blockPos);
 		checkpoint();
 	}
 	if (keysDown[HI2::BUTTON::CANCEL])
@@ -357,9 +357,9 @@ void State::PrefabEditor::draw(double dt)
 				pos.x += j;
 				pos.y += i;
 				pos.z -= depth;
-				if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _prefab.getSize().x && pos.y < _prefab.getSize().y && pos.z < _prefab.getSize().z)
+				if (pos.x >= 0 && pos.y >= 0 && pos.z >= 0 && pos.x < _prefab->getSize().x && pos.y < _prefab->getSize().y && pos.z < _prefab->getSize().z)
 				{
-					metaBlock& mb = _prefab[pos];
+					metaBlock& mb = (*_prefab)[pos];
 					if (mb.base->visible)
 					{
 						HI2::setTextureColorMod(*mb.base->spr->getTexture(), { (unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),(unsigned char)(255 - depth * 50),255 });
@@ -425,10 +425,10 @@ void State::PrefabEditor::draw(double dt)
 		blockPos.y += (int)(mouse.y / (config::spriteSize * zoom));
 
 
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "name: " + _prefab.getName(), { 0,0 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "size: x:" + std::to_string(_prefab.getSize().x), { 0,20 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "      y:" + std::to_string(_prefab.getSize().y), { 0,40 }, 20, HI2::Color::White);
-		HI2::drawText(*Services::fonts.loadFont("lemon"), "      z:" + std::to_string(_prefab.getSize().z), { 0,60 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "name: " + _prefab->getName(), { 0,0 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "size: x:" + std::to_string(_prefab->getSize().x), { 0,20 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "      y:" + std::to_string(_prefab->getSize().y), { 0,40 }, 20, HI2::Color::White);
+		HI2::drawText(*Services::fonts.loadFont("lemon"), "      z:" + std::to_string(_prefab->getSize().z), { 0,60 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "pos   x:" + std::to_string(blockPos.x), { 0,80 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "      y:" + std::to_string(blockPos.y), { 0,100 }, 20, HI2::Color::White);
 		HI2::drawText(*Services::fonts.loadFont("lemon"), "      z:" + std::to_string(_camera.z), { 0,120 }, 20, HI2::Color::White);
@@ -442,12 +442,12 @@ void State::PrefabEditor::draw(double dt)
 
 void State::PrefabEditor::save()
 {
-	_prefab.save();
+	_prefab->save();
 }
 
 void State::PrefabEditor::load()
 {
-	_prefab.load();
+	_prefab->load();
 }
 
 void State::PrefabEditor::reloadTerrainTable()
@@ -456,10 +456,10 @@ void State::PrefabEditor::reloadTerrainTable()
 	for(auto& b : _toolbar){
 		oldIDs.push_back(b->ID);
 	}
-	std::stringstream pfb = _prefab.saveSS();
+	std::stringstream pfb = _prefab->saveSS();
 	baseBlock::loadTerrainTable();
 	Services::graphics.reloadTexture("spritesheet");
-	_prefab.loadSS(pfb);
+	_prefab->loadSS(pfb);
 	for (int i = 0; i < _toolbar.size(); ++i)
 	{
 		if(oldIDs[i]>=baseBlock::terrainTable.size())
@@ -519,48 +519,48 @@ void State::PrefabEditor::applyTool(point3Di pos, bool rightClick)
 void State::PrefabEditor::applyPencil(point3Di blockPos, bool rightClick)
 {
 	baseBlock* targetBlock = rightClick? &baseBlock::terrainTable[0] :_toolbar[_selectedToolbarPos];
-	if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+	if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab->getSize().x && blockPos.y < _prefab->getSize().y && blockPos.z < _prefab->getSize().z)
 	{
-		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
-		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = _rotation;
-		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
-		_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+		(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].base = targetBlock;
+		(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].rotation = _rotation;
+		(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].flip = _flip;
+		(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].saveMeta = true;
 
 	}
 	if (_symmetryMode == symmetry::V || _symmetryMode == symmetry::BOTH)
 	{
-		blockPos.y = _prefab.getSize().y - blockPos.y - 1;
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		blockPos.y = _prefab->getSize().y - blockPos.y - 1;
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab->getSize().x && blockPos.y < _prefab->getSize().y && blockPos.z < _prefab->getSize().z)
 		{
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 - (int)_rotation) % 4);
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].base = targetBlock;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].rotation = blockRotation((2 - (int)_rotation) % 4);
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].flip = !_flip;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].saveMeta = true;
 		}
-		blockPos.y = -(blockPos.y - _prefab.getSize().y + 1);
+		blockPos.y = -(blockPos.y - _prefab->getSize().y + 1);
 	}
 	if (_symmetryMode == symmetry::H || _symmetryMode == symmetry::BOTH)
 	{
-		blockPos.x = _prefab.getSize().x - blockPos.x - 1;
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		blockPos.x = _prefab->getSize().x - blockPos.x - 1;
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab->getSize().x && blockPos.y < _prefab->getSize().y && blockPos.z < _prefab->getSize().z)
 		{
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((4 - (int)_rotation) % 4);
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = !_flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].base = targetBlock;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].rotation = blockRotation((4 - (int)_rotation) % 4);
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].flip = !_flip;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].saveMeta = true;
 		}
-		blockPos.x = -(blockPos.x - _prefab.getSize().x + 1);
+		blockPos.x = -(blockPos.x - _prefab->getSize().x + 1);
 	}
 	if (_symmetryMode == symmetry::BOTH)
 	{
-		blockPos.x = _prefab.getSize().x - blockPos.x - 1;
-		blockPos.y = _prefab.getSize().y - blockPos.y - 1;
-		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab.getSize().x && blockPos.y < _prefab.getSize().y && blockPos.z < _prefab.getSize().z)
+		blockPos.x = _prefab->getSize().x - blockPos.x - 1;
+		blockPos.y = _prefab->getSize().y - blockPos.y - 1;
+		if (blockPos.x >= 0 && blockPos.y >= 0 && blockPos.z >= 0 && blockPos.x < _prefab->getSize().x && blockPos.y < _prefab->getSize().y && blockPos.z < _prefab->getSize().z)
 		{
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].base = targetBlock;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].rotation = blockRotation((2 + (int)_rotation) % 4);
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].flip = _flip;
-			_prefab[blockPos.z * _prefab.getSize().y * _prefab.getSize().x + blockPos.y * _prefab.getSize().x + blockPos.x].saveMeta = true;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].base = targetBlock;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].rotation = blockRotation((2 + (int)_rotation) % 4);
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].flip = _flip;
+			(*_prefab)[blockPos.z * _prefab->getSize().y * _prefab->getSize().x + blockPos.y * _prefab->getSize().x + blockPos.x].saveMeta = true;
 		}
 	}
 }
@@ -569,7 +569,7 @@ void State::PrefabEditor::applyBucket(point3Di pos)
 {
 	std::deque<point3Di> pp{pos};
 	std::set<point3Di> v;
-	auto blocAntic = _prefab[pos].base;
+	auto blocAntic = (*_prefab)[pos].base;
 	while(!pp.empty())
 		floodFill(pp,v,blocAntic,_toolbar[_selectedToolbarPos]);
 }
@@ -583,14 +583,14 @@ void State::PrefabEditor::floodFill(std::deque<point3Di> &pendingPositions, std:
 {
 	point3Di pos = pendingPositions.front();
 	pendingPositions.pop_front();
-	if(pos.x>=0 && pos.y >= 0 && pos.z>= 0 && pos.x < _prefab.getSize().x&& pos.y < _prefab.getSize().y&& pos.z < _prefab.getSize().z){
+	if(pos.x>=0 && pos.y >= 0 && pos.z>= 0 && pos.x < _prefab->getSize().x&& pos.y < _prefab->getSize().y&& pos.z < _prefab->getSize().z){
 		if(visited.find(pos) == visited.end()){
 			visited.insert(pos);
-			if(_prefab[pos].base == targetBlock){
-				_prefab[pos].base = newBlock;
-				_prefab[pos].rotation = _rotation;
-				_prefab[pos].flip = _flip;
-				_prefab[pos].saveMeta = true;
+			if((*_prefab)[pos].base == targetBlock){
+				(*_prefab)[pos].base = newBlock;
+				(*_prefab)[pos].rotation = _rotation;
+				(*_prefab)[pos].flip = _flip;
+				(*_prefab)[pos].saveMeta = true;
 
 				pendingPositions.push_back(pos+point3Di{0,0,-1});
 				pendingPositions.push_back(pos+point3Di{0,0,+1});
@@ -623,11 +623,12 @@ bool State::PrefabEditor::isInSelection(point3Di pos)
 
 void State::PrefabEditor::checkpoint()
 {
-	if(*_currentCheckpoint != _prefab){
+	return;
+	if(!*_currentCheckpoint || **_currentCheckpoint != *_prefab){
 		auto it = _currentCheckpoint;
 		it++;
 		_checkpoints.erase(it,_checkpoints.end());
-		_checkpoints.push_back(_prefab);
+		_checkpoints.push_back(std::make_unique<prefab>(*_prefab));
 		_currentCheckpoint++;
 		while(_checkpoints.size() > config::pfbEditorMaxCheckpoints){
 			if(_currentCheckpoint != _checkpoints.begin())
@@ -643,7 +644,7 @@ void State::PrefabEditor::undo()
 	if(_currentCheckpoint != _checkpoints.begin())
 	{
 		_currentCheckpoint--;
-		_prefab = *_currentCheckpoint;
+		_prefab = std::make_unique<prefab>(**_currentCheckpoint);
 	}
 }
 
@@ -651,6 +652,6 @@ void State::PrefabEditor::redo()
 {
 	if(_currentCheckpoint != --_checkpoints.end()){
 		_currentCheckpoint++;
-		_prefab = *_currentCheckpoint;
+		_prefab = std::make_unique<prefab>(**_currentCheckpoint);
 	}
 }

@@ -53,7 +53,7 @@ struct metaBlock
 	bool saveMeta = false;
 
 	bool _render_visible = true; // is it (not) occluded by other blocks?
-	std::bitset<8> _AO = false;
+	std::bitset<8> _AO = false; 
 
 	bool operator==(const metaBlock& right) const;
 

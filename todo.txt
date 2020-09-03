@@ -55,9 +55,9 @@ XX rotacions de layers
 
 #fake AO
 #extrapolation
-fix node sleeping
+#fix node sleeping
 #aplicar el reparentitzat a entitats
-dormir entitats quan calgui
+#dormir entitats quan calgui
 #descarregar i diferenciar entre entitats permanents
 
 prefab editor overhaul
@@ -84,15 +84,16 @@ prefab editor overhaul
   ]]
 
 
+
 moving node parts (ficar-los com a fills i evitar que s'els apliqui gravetat i tal, podrien tenir un interactable per moure's, o versions no interactuables amb una xarnera simple)
 small node optimizations (deshabilitar el chunkloader a nodes que caben sencers)
 
 [
-health
+#health
 enemies
-projectiles
+#projectiles
 respawning
-items
+==items
 inventory
 shooting
 placing and mining

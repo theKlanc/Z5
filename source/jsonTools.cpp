@@ -8,6 +8,16 @@
 #include "components/body.hpp"
 #include "components/brain.hpp"
 #include "components/astronautBrain.hpp"
+#include "components/projectile.hpp"
+#include "components/health.hpp"
+#include "components/item.hpp"
+#include "components/inventory.hpp"
+#include "components/placeableBlock.hpp"
+#include "components/resourceHarvester.hpp"
+#include "components/hand.hpp"
+
+
+
 #include "interactables/nodeController.hpp"
 #include "interactables/blockSwitch.hpp"
 
@@ -60,6 +70,33 @@ void to_json(nlohmann::json& j, const entt::registry& registry)
 		if (registry.has<std::unique_ptr<brain>>(entity))
 		{
 			nlohmann::json j_component = nlohmann::json{ {"type","BRAIN"},{ "content",*registry.get<std::unique_ptr<brain>>(entity) } };
+			j_components.push_back(j_component);
+		}
+		if (registry.has<std::unique_ptr<item>>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","ITEM"},{ "content",registry.get<std::unique_ptr<item>>(entity)->getJson() } };
+			j_component.at("content").at("item").emplace("ID",(int)entity);
+			j_components.push_back(j_component);
+		}
+		if (registry.has<inventory>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","INVENTORY"},{ "content",registry.get<inventory>(entity) } };
+			j_components.push_back(j_component);
+		}
+		if (registry.has<hand>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","HAND"},{ "content",registry.get<hand>(entity) } };
+			j_components.push_back(j_component);
+		}
+
+		if (registry.has<projectile>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","PROJECTILE"},{ "content",registry.get<projectile>(entity) } };
+			j_components.push_back(j_component);
+		}
+		if (registry.has<health>(entity))
+		{
+			nlohmann::json j_component = nlohmann::json{ {"type","HEALTH"},{ "content",registry.get<health>(entity) } };
 			j_components.push_back(j_component);
 		}
 		j.push_back(nlohmann::json{ {"tags",j_tags},{"components",j_components} });
@@ -131,6 +168,18 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 				j_component.at("content").get_to(comp);
 				break;
 			}
+			case componentType::PROJECTILE:
+			{
+				auto& comp = registry.emplace<projectile>(e);
+				j_component.at("content").get_to(comp);
+				break;
+			}
+			case componentType::HEALTH:
+			{
+				auto& comp = registry.emplace<health>(e);
+				j_component.at("content").get_to(comp);
+				break;
+			}
 			case componentType::BRAIN:
 			{
 				auto& comp = registry.emplace<std::unique_ptr<brain>>(e);
@@ -138,6 +187,31 @@ void from_json(const nlohmann::json& j, entt::registry& registry)
 				if(type == "astronaut"){
 					comp = std::make_unique<astronautBrain>(j_component.at("content").at("brain"),e);
 				}
+				break;
+			}
+			case componentType::ITEM:
+			{
+				auto& comp = registry.emplace<std::unique_ptr<item>>(e);
+				std::string type = j_component.at("content").at("type").get<std::string>();
+				if(type == "resourceHarvester"){
+					comp = std::make_unique<resourceHarvester>(j_component.at("content").at("item").get<resourceHarvester>());
+				}
+				else if(type == "placeableBlock"){
+					comp = std::make_unique<placeableBlock>(j_component.at("content").at("item"));
+				}
+				item::_itemIDLUT.emplace(j_component.at("content").at("item").at("ID").get<int>(),e);
+				break;
+			}
+			case componentType::HAND:
+			{
+				auto& comp = registry.emplace<hand>(e);
+				j_component.at("content").get_to(comp);
+				break;
+			}
+			case componentType::INVENTORY:
+			{
+				auto& comp = registry.emplace<inventory>(e);
+				j_component.at("content").get_to(comp);
 				break;
 			}
 			default:

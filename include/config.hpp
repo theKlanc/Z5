@@ -10,7 +10,9 @@ namespace config {
 #else
 	                                = 14;
 #endif
-
+	extern bool fogEnabled;
+	constexpr int fogLayers = 20;
+	extern bool render;
 	constexpr int chunkloadSphereRadius = 6;
 	constexpr int chunkSize = 8;
 	extern int cameraDepth;
@@ -22,7 +24,6 @@ namespace config {
 	extern int orbitDebugMultiplier;
 	constexpr double interactableRadius = 1.5;
 	constexpr double destroyDistance = 5000;
-
 	constexpr double physicsHz
 #ifdef __SWITCH__
 	                           = 30;
