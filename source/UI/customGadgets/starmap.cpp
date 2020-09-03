@@ -10,7 +10,7 @@ starmap::starmap(point2D pos, point2D size, universeNode* universe, universeNode
 	_selectable = true;
 	_universe = universe;
 	_selected = parent;
-	_scale = 1/(_selected->getPosition().magnitude()/(sqrt(pow(_size.x,2)+pow(_size.x,2))));
+	_scale = 0.0000000005;//1/(_selected->getPosition().magnitude()/(sqrt(pow(_size.x,2)+pow(_size.x,2))));
 }
 
 void starmap::_draw_internal()
@@ -19,9 +19,12 @@ void starmap::_draw_internal()
 
 	drawNodes();
 
+	//for(auto& children : _selected->getChildren()){
+	//	HI2::drawLines(calculateOrbit(children,1.0F/config::physicsHz,100),children->getMainColor());
+	//}
 	if(_hovered){
 		//We should probably cull the orbit lines, but it doesn't matter in the slightest
-		HI2::drawLines(calculateOrbit(_hovered,1.0F/config::physicsHz,100),HI2::Color::Red);
+		HI2::drawLines(calculateOrbit(_hovered,1.0F/config::physicsHz,100),_hovered->getMainColor());
 		drawNodeRing(_hovered,HI2::Color::White);
 		drawInfo(_hovered,true);
 	}
@@ -142,7 +145,7 @@ std::vector<point2D> starmap::calculateOrbit(universeNode *node, double timeStep
 			deltaPos += velocity*timeStep;
 			steps++;
 			velocity +=	node->getParent()->getGravityAcceleration(position,node->getMass())*timeStep;
-			if( std::abs(log2(position.magnitude()) - log2(deltaPos.magnitude())) < std::numeric_limits<double>::digits-30){
+			if(std::abs(log2(position.magnitude()) - log2(deltaPos.magnitude())) < std::numeric_limits<double>::digits-30){
 				position += deltaPos;
 				//points.push_back(translateToDisplayCoord(position,node->getParent()));
 				deltaPos = fdd();

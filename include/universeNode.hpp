@@ -68,6 +68,7 @@ public:
 	std::string getName();
 	nodeType getType();
 	std::vector<universeNode*> getChildren();
+	void adoptNode(universeNode* u);
 	void addChild(std::shared_ptr<universeNode> u);
 	universeNode* calculateBestParent();
 
@@ -154,6 +155,8 @@ public:
 	static point3Di chunkFromPos(const point3Di& pos);
 
 private:
+	void recalculateDepth();
+
 	bool shouldDraw(fdd f);
 
 	void connectGenerator(const nlohmann::json& j);

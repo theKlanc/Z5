@@ -34,6 +34,7 @@ double fdd::angle(const fdd &r) const
 
 fdd fdd::setMagnitude(double mag)
 {
+	if(magnitude() != 0.0)
 	*this *= (mag / magnitude());
 	return *this;
 }

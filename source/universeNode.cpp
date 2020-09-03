@@ -241,6 +241,18 @@ point3Di universeNode::chunkFromPos(const point3Di& pos)
 				(int)floor((double)pos.z / config::chunkSize) };
 }
 
+void universeNode::recalculateDepth()
+{
+	if(!_parent)
+		_depth = 0;
+	else{
+		_depth = _parent->_depth+1;
+		for(auto& node : _children){
+			node->recalculateDepth();
+		}
+	}
+}
+
 void universeNode::connectGenerator(const nlohmann::json& j)
 {
 	if (j.contains("type")) {
@@ -608,15 +620,32 @@ std::vector<universeNode*> universeNode::getChildren()
 	return result;
 }
 
-void universeNode::addChild(std::shared_ptr<universeNode> u)
+void universeNode::adoptNode(universeNode *u)
 {
-	u->_depth = _depth+1;
-	if(u->_parent!=this && u->_parent != nullptr){
+	auto iter = std::find_if(u->_parent->_children.begin(),u->_parent->_children.end(),[u](std::shared_ptr<universeNode>& n){return u->_ID == n->_ID;});
+	std::shared_ptr<universeNode> node;
+	if(iter != u->_parent->_children.end() && u->_parent!=this && u->_parent != nullptr){
+		node = *iter;
+		u->_parent->_children.erase(iter);
 		u->_position = getLocalPos(u->_position,u->_parent);
+		u->_rposition = u->_position;
 		u->_velocity = getLocalVel(u->_velocity,u->_parent);
 		u->_parent = this;
+		_children.push_back(node);
+		u->recalculateDepth();
 	}
-	_children.push_back(u);
+}
+
+void universeNode::addChild(std::shared_ptr<universeNode> u)
+{
+	if(u->_parent!=this && u->_parent != nullptr){
+		u->_position = getLocalPos(u->_position,u->_parent);
+		u->_rposition = u->_position;
+		u->_velocity = getLocalVel(u->_velocity,u->_parent);
+		u->_parent = this;
+		_children.push_back(u);
+		u->recalculateDepth();
+	}
 }
 
 universeNode *universeNode::calculateBestParent()

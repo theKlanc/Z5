@@ -51,6 +51,8 @@ namespace State {
 		entt::entity _camera;
 		entt::registry _enttRegistry;
 
+		bool _drawDebugInfo = true;
+
 		static sprite* _AOSIDE;
 		static sprite* _AOCORNER;
 

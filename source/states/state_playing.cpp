@@ -97,7 +97,6 @@ State::Playing::Playing(gameCore& gc, std::string saveName, int seed, bool debug
 		_camera = entity;																	   //
 	}
 																				   //
-
 	_sceneElements._starmap = std::make_shared<starmap>(point2D{50,50},point2D{800,600},&_universeBase,playerParent);
 	_sceneElements._starmap->toggle();
 	_scene.addGadget(_sceneElements._starmap);
@@ -413,7 +412,7 @@ void State::Playing::draw(double dt) {
 		}
 	}
 
-	if (_debug) {
+	if (_debug && _drawDebugInfo) {
 		HI2::drawText(_standardFont, std::to_string(double(1.0f / dt)), { 0,0 }, 30, dt > (1.0f / 29.0f) ? HI2::Color::Red : HI2::Color::Orange);
 		HI2::drawText(_standardFont, "Parent: " + playerPos.parent->getName() + " (" + std::to_string(playerPos.parent->getID()) + ")", { 0,30 }, 30, HI2::Color::Orange);
 		HI2::drawText(_standardFont, "X: " + std::to_string(playerPos.pos.x), { 0,60 }, 30, HI2::Color::Pink);
@@ -984,7 +983,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		std::cout << "reload" << std::endl;
 		std::cout << "toggleFog" << std::endl;
 		std::cout << "fix (debug command)" << std::endl;
-		
+		std::cout << "debug" << std::endl;
 
 	}
 	else if (command == "reload") {
@@ -1052,6 +1051,7 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "name: " << node.getName() << std::endl;
 			std::cout << sep << "type: " << node.getType() << std::endl;
 			std::cout << sep << "pos: " << node.getPosition() << std::endl;
+			std::cout << sep << "pare: " << (node.getParent()?node.getParent()->getName():"")<<std::endl;
 
 		}
 	}
@@ -1069,6 +1069,7 @@ void State::Playing::debugConsoleExec(std::string input)
 			std::cout << sep << "name: " << node->getName() << std::endl;
 			std::cout << sep << "type: " << node->getType() << std::endl;
 			std::cout << sep << "pos: " << node->getPosition() << std::endl;
+			std::cout << sep << "pare: " << (node->getParent()?node->getParent()->getName():"")<<std::endl;
 		}
 	}
 	else if (command == "setZoom" && ss.tellg() != -1) {
@@ -1085,8 +1086,7 @@ void State::Playing::debugConsoleExec(std::string input)
 		universeNode *child, *newParent;
 		if(_universeBase.findNodeByID(childID, child)){
 			if(_universeBase.findNodeByID(newParentID, newParent)){
-				std::shared_ptr<universeNode> newChild = child->getParent()->removeChild(childID);
-				newParent->addChild(newChild);
+				newParent->adoptNode(child);
 			}
 		}
 	}
@@ -1096,6 +1096,67 @@ void State::Playing::debugConsoleExec(std::string input)
 		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
 		universeNode* node;
 		if (_universeBase.findNodeByID(id, node)) {
+			fdd pos = node->getPosition();
+			if (ss.tellg() != -1) {
+				ss >> argument;
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.x -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.x += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.x = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+			}
+			if (ss.tellg() != -1) {
+				ss >> argument;
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.y -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.y += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.y = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+			}
+			if (ss.tellg() != -1) {
+				ss >> argument;
+				if(argument == "_")
+				{}
+				else if(argument[0] == '-'){
+					pos.z -= std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else if(argument[0] == '+'){
+					pos.z += std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+				else{
+					pos.z = std::strtol(&argument.c_str()[1], nullptr, 10);
+				}
+			}
+			node->setPosition(pos);
+			node->setVelocity(fdd());
+			node->physicsData.sleeping=false;
+		}
+	}
+	else if (command == "nodeGoto" && ss.tellg() != -1) {
+		std::string argument;
+		ss >> argument;
+		unsigned id = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* node;
+		ss >> argument;
+		unsigned nouPareID = std::strtol(argument.c_str(), nullptr, 10);
+		universeNode* nouPare;
+
+		if (_universeBase.findNodeByID(id, node) && _universeBase.findNodeByID(nouPareID, nouPare)) {
+			debugConsoleExec("listNodes");
+			nouPare->adoptNode(node);
+			debugConsoleExec("listNodes");
 			fdd pos = node->getPosition();
 			if (ss.tellg() != -1) {
 				ss >> argument;
@@ -1404,6 +1465,9 @@ void State::Playing::debugConsoleExec(std::string input)
 	}
 	else if(command == "toggleFog"){
 		config::fogEnabled = !config::fogEnabled;
+	}
+	else if(command == "debug"){
+		_drawDebugInfo = !_drawDebugInfo;
 	}
 	else if(command == "fix"){
 		auto& inv = _enttRegistry.emplace<inventory>(_player,10);
