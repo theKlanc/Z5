@@ -108,7 +108,7 @@
     <ReferencePath>C:\SDL2\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
     <SourcePath>$(ProjectDir)deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;$(ProjectDir)source;$(ProjectDir)deps\icecream-cpp;$(SourcePath)</SourcePath>
-    <IncludePath>C:\SDL2\include\SDL2;$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)deps\json\single_include\nlohmann;$(ProjectDir)include;$(ProjectDir)deps\icecream-cpp;$(IncludePath)</IncludePath>
+    <IncludePath>C:\SDL2\include\SDL2;$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)deps\json\single_include\nlohmann;$(ProjectDir)include;$(ProjectDir)deps\icecream-cpp;$(ProjectDir)deps/entt/src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir)\deps\reactPhysics3D\src;$(ProjectDir)deps\HardwareInterface;C:\SDL2\include;$(ProjectDir)deps;$(ProjectDir)include;$(IncludePath)</IncludePath>
@@ -167,7 +167,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -299,8 +299,15 @@
     <ClCompile Include="source\components\body_.cpp" />
     <ClCompile Include="source\components\brain.cpp" />
     <ClCompile Include="source\components\drawable.cpp" />
+    <ClCompile Include="source\components\hand.cpp" />
+    <ClCompile Include="source\components\health.cpp" />
+    <ClCompile Include="source\components\inventory.cpp" />
+    <ClCompile Include="source\components\item.cpp" />
     <ClCompile Include="source\components\name.cpp" />
+    <ClCompile Include="source\components\placeableBlock.cpp" />
     <ClCompile Include="source\components\position.cpp" />
+    <ClCompile Include="source\components\projectile.cpp" />
+    <ClCompile Include="source\components\resourceHarvester.cpp" />
     <ClCompile Include="source\components\velocity.cpp" />
     <ClCompile Include="source\config.cpp" />
     <ClCompile Include="source\controllable.cpp" />
@@ -319,6 +326,7 @@
     <ClCompile Include="source\nodeGenerators\nullGenerator.cpp" />
     <ClCompile Include="source\nodeGenerators\prefabGenerator.cpp" />
     <ClCompile Include="source\nodeGenerators\terrainPainterGenerator.cpp" />
+    <ClCompile Include="source\observer.cpp" />
     <ClCompile Include="source\physicsEngine.cpp" />
     <ClCompile Include="source\prefab.cpp" />
     <ClCompile Include="source\services.cpp" />
@@ -327,10 +335,12 @@
     <ClCompile Include="source\states\state_main_menu.cpp" />
     <ClCompile Include="source\states\state_playing.cpp" />
     <ClCompile Include="source\states\state_prefab_editor.cpp" />
+    <ClCompile Include="source\systems.cpp" />
     <ClCompile Include="source\terrainChunk.cpp" />
     <ClCompile Include="source\thruster.cpp" />
     <ClCompile Include="source\thrustSystem.cpp" />
-    <ClCompile Include="source\UI\customGadgets\fddViewer.cpp" />
+    <ClCompile Include="source\UI\customGadgets\fddDisplay.cpp" />
+    <ClCompile Include="source\UI\customGadgets\healthDisplay.cpp" />
     <ClCompile Include="source\UI\customGadgets\starmap.cpp" />
     <ClCompile Include="source\UI\gadget.cpp" />
     <ClCompile Include="source\UI\gadgets\basicPanel.cpp" />
@@ -389,7 +399,6 @@
     <ClInclude Include="deps\entt\signal\sigh.hpp" />
     <ClInclude Include="deps\FastNoise\FastNoise.h" />
     <ClInclude Include="deps\HardwareInterface\HardwareInterface.hpp" />
-    <ClInclude Include="deps\icecream-cpp\catch.hpp" />
     <ClInclude Include="deps\icecream-cpp\icecream.hpp" />
     <ClInclude Include="deps\json\single_include\nlohmann\json.hpp" />
     <ClInclude Include="deps\reactPhysics3D\src\body\Body.h" />
@@ -484,8 +493,15 @@
     <ClInclude Include="include\components\body.hpp" />
     <ClInclude Include="include\components\brain.hpp" />
     <ClInclude Include="include\components\drawable.hpp" />
+    <ClInclude Include="include\components\hand.hpp" />
+    <ClInclude Include="include\components\health.hpp" />
+    <ClInclude Include="include\components\inventory.hpp" />
+    <ClInclude Include="include\components\item.hpp" />
     <ClInclude Include="include\components\name.hpp" />
+    <ClInclude Include="include\components\placeableBlock.hpp" />
     <ClInclude Include="include\components\position.hpp" />
+    <ClInclude Include="include\components\projectile.hpp" />
+    <ClInclude Include="include\components\resourceHarvester.hpp" />
     <ClInclude Include="include\components\velocity.hpp" />
     <ClInclude Include="include\config.hpp" />
     <ClInclude Include="include\controllable.hpp" />
@@ -503,6 +519,7 @@
     <ClInclude Include="include\nodeGenerators\nullGenerator.hpp" />
     <ClInclude Include="include\nodeGenerators\prefabGenerator.hpp" />
     <ClInclude Include="include\nodeGenerators\terrainPainterGenerator.hpp" />
+    <ClInclude Include="include\observer.hpp" />
     <ClInclude Include="include\physicsEngine.hpp" />
     <ClInclude Include="include\prefab.hpp" />
     <ClInclude Include="include\services.hpp" />
@@ -512,11 +529,13 @@
     <ClInclude Include="include\states\state_main_menu.hpp" />
     <ClInclude Include="include\states\state_playing.hpp" />
     <ClInclude Include="include\states\state_prefab_editor.hpp" />
+    <ClInclude Include="include\systems.hpp" />
     <ClInclude Include="include\terrainChunk.hpp" />
     <ClInclude Include="include\thruster.hpp" />
     <ClInclude Include="include\thrustSystem.hpp" />
     <ClInclude Include="include\ui.hpp" />
-    <ClInclude Include="include\UI\customGadgets\fddViewer.hpp" />
+    <ClInclude Include="include\UI\customGadgets\fddDisplay.hpp" />
+    <ClInclude Include="include\UI\customGadgets\healthDisplay.hpp" />
     <ClInclude Include="include\UI\customGadgets\starmap.hpp" />
     <ClInclude Include="include\UI\gadget.hpp" />
     <ClInclude Include="include\UI\gadgets\basicPanel.hpp" />

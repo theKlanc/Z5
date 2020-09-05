@@ -407,9 +407,6 @@
     <ClCompile Include="deps\reactPhysics3D\src\mathematics\Vector3.cpp">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClCompile>
-    <ClCompile Include="source\states\state_prefab_editor.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\prefab.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -455,11 +452,44 @@
     <ClCompile Include="source\interactables\blockSwitch.cpp">
       <Filter>source\interactables</Filter>
     </ClCompile>
-    <ClCompile Include="source\UI\customGadgets\fddViewer.cpp">
-      <Filter>source\UI\gadgets\customGadgets</Filter>
-    </ClCompile>
     <ClCompile Include="source\UI\customGadgets\starmap.cpp">
       <Filter>source\UI\gadgets\customGadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\observer.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\systems.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\customGadgets\fddDisplay.cpp">
+      <Filter>source\UI\gadgets\customGadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\placeableBlock.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\resourceHarvester.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI\customGadgets\healthDisplay.cpp">
+      <Filter>source\UI\gadgets\customGadgets</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\inventory.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\item.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\projectile.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\health.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\components\hand.cpp">
+      <Filter>source\components</Filter>
+    </ClCompile>
+    <ClCompile Include="source\states\state_prefab_editor.cpp">
+      <Filter>source\states</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -955,9 +985,6 @@
     <ClInclude Include="deps\reactPhysics3D\src\mathematics\Vector3.h">
       <Filter>deps\ReactPhysics3D</Filter>
     </ClInclude>
-    <ClInclude Include="include\states\state_prefab_editor.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\prefab.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -966,9 +993,6 @@
     </ClInclude>
     <ClInclude Include="include\components\brain.hpp">
       <Filter>include\components</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\icecream-cpp\catch.hpp">
-      <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="deps\icecream-cpp\icecream.hpp">
       <Filter>deps\icecream-cpp</Filter>
@@ -1000,9 +1024,6 @@
     <ClInclude Include="include\interactables\nodeController.hpp">
       <Filter>include\interactables</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\customGadgets\fddViewer.hpp">
-      <Filter>include\UI\gadgets\customGadgets</Filter>
-    </ClInclude>
     <ClInclude Include="include\UI\customGadgets\starmap.hpp">
       <Filter>include\UI\gadgets\customGadgets</Filter>
     </ClInclude>
@@ -1014,6 +1035,42 @@
     </ClInclude>
     <ClInclude Include="include\nodeGenerators\prefabGenerator.hpp">
       <Filter>include\nodeGenerators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\projectile.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\observer.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\systems.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\hand.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\health.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\customGadgets\healthDisplay.hpp">
+      <Filter>include\UI\gadgets\customGadgets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\item.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\inventory.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\placeableBlock.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\components\resourceHarvester.hpp">
+      <Filter>include\components</Filter>
+    </ClInclude>
+    <ClInclude Include="include\states\state_prefab_editor.hpp">
+      <Filter>include\states</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UI\customGadgets\fddDisplay.hpp">
+      <Filter>include\UI\gadgets\customGadgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
