@@ -50,7 +50,7 @@ SOURCES := $(SOURCES) deps/reactPhysics3D/src/memory
 SOURCES := $(SOURCES) deps/reactPhysics3D/src/utils
 
 DATA		:= datadummy
-INCLUDES	:= deps deps/icecream-cpp deps/entt deps/HardwareInterface deps/reactPhysics3D/src deps/FastNoise deps/json/single_include/nlohmann include
+INCLUDES	:= deps deps/icecream-cpp deps/entt deps/HardwareInterface deps/reactPhysics3D/src deps/FastNoise deps/json/single_include/nlohmann include deps/entt/src
 ROMFS	:=	data
 
 
@@ -69,7 +69,7 @@ CFLAGS	:=	-flto -Ofast -ffunction-sections \
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PORTLIBS)/bin/sdl2-config --cflags` `$(PORTLIBS)/bin/freetype-config --cflags` -Werror=return-type `$(PORTLIBS)/bin/aarch64-none-elf-pkg-config --cflags SDL2_mixer`
 
-CXXFLAGS	:= $(CFLAGS) -std=c++17
+CXXFLAGS	:= $(CFLAGS) -std=c++20
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
