@@ -5,7 +5,7 @@ It includes 2-body orbit simulations, with a 1 to 1 scale version of the solar s
 ![game image](https://github.com/theKlanc/Z5/blob/master/resources/cap.png?raw=true)
 Is currently able to compile to x86-64 targets on Linux and Windows. Also compiles to Nintendo Switch homebrew and Emscripten.
 To try it just clone the repo and compile the makefile for your target (use emmake for em.mk, and compile on Windows using Visual Studio / MSVC)
-For a demo just visit [z5.ledgedash.com](z5.ledgedash.com), but emscripten builds are experimental, ymmv.
+For a demo just visit [https://z5.ledgedash.com](z5.ledgedash.com), but emscripten builds are experimental, ymmv.
 
 ## Special Thanks to:
 * [Jordan Pecks (Auburns)](https://github.com/Auburns) For his [FastNoise c++ Library](https://github.com/Auburns/FastNoise)
